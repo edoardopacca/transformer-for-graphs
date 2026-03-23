@@ -20,10 +20,10 @@ class TrainConfig:
     output_dir: str = "runs/default"
     n: int = 20
     p: float = 0.08
-    train_size: int = 3000
-    val_size: int = 500
+    train_size: int = 20000
+    val_size: int = 2000
     batch_size: int = 64
-    epochs: int = 3
+    epochs: int = 20
     lr: float = 1e-3
     weight_decay: float = 1e-2
     d_model: int = 128
