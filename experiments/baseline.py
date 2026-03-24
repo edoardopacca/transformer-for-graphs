@@ -26,7 +26,6 @@ from utils import get_device, save_json, load_json
 def main() -> None:
     # Build TrainConfig here (caller selects hyperparameters so run is fully identified)
     cfg = TrainConfig(
-        output_dir=str(out_dir),
         n=20,
         p=0.08,
         train_size=20000,
