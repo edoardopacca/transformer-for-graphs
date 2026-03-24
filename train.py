@@ -10,7 +10,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from data import DatasetConfig, GraphMatrixDataset
-from eval import evaluate_model
+from eval import evaluate_model, evaluate_ood_suites
 from model import GraphConnectivityTransformer, ModelConfig
 from utils import ensure_dir, get_device, save_json, set_seed
 
@@ -118,6 +118,15 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
         "val_pairwise_acc": [],
         "lr": [],
     }
+    # Per-epoch OOD metrics (filled if training runs OOD evaluation each epoch)
+    history.update(
+        {
+            "ood_two_chains_exact": [],
+            "ood_two_chains_pairwise": [],
+            "ood_two_cliques_exact": [],
+            "ood_two_cliques_pairwise": [],
+        }
+    )
     best_exact = -1.0
     best_ckpt = Path(out_dir) / "best.pt"
 
@@ -151,6 +160,48 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
         history["val_exact_match_acc"].append(float(val_metrics["exact_match_acc"]))
         history["val_pairwise_acc"].append(float(val_metrics["pairwise_acc"]))
         history["lr"].append(float(optimizer.param_groups[0]["lr"]))
+
+        # Evaluate OOD suites at the end of each epoch and record their metrics.
+        try:
+            ood = evaluate_ood_suites(
+                model=model,
+                n=config.n,
+                k=config.n // 2,
+                size=1000,
+                batch_size=config.batch_size,
+                device=device,
+                threshold=config.threshold,
+            )
+            chains = ood.get("two_chains", {})
+            cliques = ood.get("two_cliques", {})
+            history["ood_two_chains_exact"].append(
+                float(chains.get("exact_match_acc", float("nan")))
+            )
+            history["ood_two_chains_pairwise"].append(
+                float(chains.get("pairwise_acc", float("nan")))
+            )
+            history["ood_two_cliques_exact"].append(
+                float(cliques.get("exact_match_acc", float("nan")))
+            )
+            history["ood_two_cliques_pairwise"].append(
+                float(cliques.get("pairwise_acc", float("nan")))
+            )
+        except Exception:
+            # If OOD eval fails, append None placeholders so list lengths stay aligned
+            history["ood_two_chains_exact"].append(None)
+            history["ood_two_chains_pairwise"].append(None)
+            history["ood_two_cliques_exact"].append(None)
+            history["ood_two_cliques_pairwise"].append(None)
+
+        # Save an epoch checkpoint and persist history incrementally.
+        epoch_payload = {
+            "model_state_dict": model.state_dict(),
+            "model_config": asdict(model_cfg),
+            "train_config": asdict(config),
+            "epoch": epoch,
+        }
+        torch.save(epoch_payload, Path(out_dir) / f"epoch_{epoch:03d}.pt")
+        save_json(Path(out_dir) / "history.json", history)
 
         print(
             f"Epoch {epoch:03d}/{config.epochs} "

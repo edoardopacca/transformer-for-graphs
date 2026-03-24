@@ -1,7 +1,0 @@
-{
-  "exact_match_acc": 0.773,
-  "loss": 0.03735186323523521,
-  "num_graphs": 2000,
-  "pairwise_acc": 0.98685875,
-  "split": "er_val"
-}

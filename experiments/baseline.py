@@ -20,7 +20,7 @@ from eval import (
 )
 from plots import plot_distance_accuracy, plot_training_history
 from train import TrainConfig, train_model
-from utils import get_device, save_json
+from utils import get_device, save_json, load_json
 
 
 def main() -> None:
@@ -47,7 +47,27 @@ def main() -> None:
         device="auto",
         num_workers=0,
     )
-    train_info = train_model(cfg)
+    # If a previous run exists with saved history and checkpoints, skip retraining.
+    # If you want to retrain from scratch, delete the `runs/baseline` folder or the relevant files (# see note below).
+    history_path = out_dir / "history.json"
+    best_ckpt = out_dir / "best.pt"
+    last_ckpt = out_dir / "last.pt"
+
+    if history_path.exists() and (best_ckpt.exists() or last_ckpt.exists()):
+        print("Found existing run in runs/baseline — skipping training.")
+        # Prefer the best checkpoint if present.
+        chosen_ckpt = best_ckpt if best_ckpt.exists() else last_ckpt
+        train_info = {
+            "best_checkpoint": str(chosen_ckpt),
+            "last_checkpoint": str(last_ckpt) if last_ckpt.exists() else str(chosen_ckpt),
+            "output_dir": str(out_dir),
+        }
+    else:
+        # No existing run: perform training (this will also save per-epoch checkpoints and OOD history).
+        # NOTE: If you previously changed training hyperparameters, consider deleting `runs/baseline` first.
+        train_info = train_model(cfg)
+
+    # Plot training history (uses per-epoch OOD if available, otherwise falls back to final OOD values)
     plot_training_history(out_dir / "history.json", out_dir / "training_history.png")
 
     device = get_device(cfg.device)
@@ -59,19 +79,66 @@ def main() -> None:
     )
     val_loader = DataLoader(val_ds, batch_size=cfg.batch_size, shuffle=False)
     val_metrics = evaluate_model(model, val_loader, device, "er_val")
-    ood_metrics = evaluate_ood_suites(
-        model=model,
-        n=cfg.n,
-        k=cfg.n // 2,
-        size=1000,
-        batch_size=cfg.batch_size,
-        device=device,
-    )
+
+    # If history contains per-epoch OOD we can use it; otherwise compute final OOD metrics now.
+    ood_metrics = None
+    if history_path.exists():
+        try:
+            history = load_json(history_path)
+            # If per-epoch OOD keys are present, we already have OOD evolution recorded.
+            if not (
+                "ood_two_chains_exact" in history
+                and "ood_two_cliques_exact" in history
+            ):
+                # Try to build per-epoch OOD metrics from saved epoch checkpoints if available.
+                epoch_ckpts = sorted(out_dir.glob("epoch_*.pt"))
+                if epoch_ckpts:
+                    print("Building per-epoch OOD metrics from epoch checkpoints...")
+                    chains_exact = []
+                    chains_pair = []
+                    cliques_exact = []
+                    cliques_pair = []
+                    for ckpt in epoch_ckpts:
+                        ld = load_checkpoint(ckpt, device)
+                        m = ld.model
+                        ood = evaluate_ood_suites(
+                            model=m,
+                            n=cfg.n,
+                            k=cfg.n // 2,
+                            size=1000,
+                            batch_size=cfg.batch_size,
+                            device=device,
+                        )
+                        chains = ood.get("two_chains", {})
+                        cliques = ood.get("two_cliques", {})
+                        chains_exact.append(float(chains.get("exact_match_acc", float("nan"))))
+                        chains_pair.append(float(chains.get("pairwise_acc", float("nan"))))
+                        cliques_exact.append(float(cliques.get("exact_match_acc", float("nan"))))
+                        cliques_pair.append(float(cliques.get("pairwise_acc", float("nan"))))
+                    history["ood_two_chains_exact"] = chains_exact
+                    history["ood_two_chains_pairwise"] = chains_pair
+                    history["ood_two_cliques_exact"] = cliques_exact
+                    history["ood_two_cliques_pairwise"] = cliques_pair
+                    save_json(history_path, history)
+        except Exception:
+            pass
+
+    # If no per-epoch OOD recorded, compute final OOD metrics now and save them.
+    if not (out_dir / "ood_metrics.json").exists():
+        ood_metrics = evaluate_ood_suites(
+            model=model,
+            n=cfg.n,
+            k=cfg.n // 2,
+            size=1000,
+            batch_size=cfg.batch_size,
+            device=device,
+        )
     dist_metrics = evaluate_distance_conditioned_accuracy(
         model, val_loader, device=device, reliable_threshold=0.99
     )
     save_json(out_dir / "er_val_metrics.json", val_metrics)
-    save_json(out_dir / "ood_metrics.json", ood_metrics)
+    if ood_metrics is not None:
+        save_json(out_dir / "ood_metrics.json", ood_metrics)
     save_json(out_dir / "distance_metrics.json", dist_metrics)
     plot_distance_accuracy(out_dir / "distance_metrics.json", out_dir / "distance_accuracy.png")
 
