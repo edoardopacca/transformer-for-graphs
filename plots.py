@@ -100,13 +100,10 @@ def plot_training_history(history_path: str | Path, output_png: str | Path) -> N
 def plot_distance_accuracy(distance_metrics_json: str | Path, output_png: str | Path) -> None:
     metrics = load_json(distance_metrics_json)
     per_dist = metrics["per_distance_pairwise_accuracy"]
-    cumulative = metrics["cumulative_accuracy_leq_distance"]
     xs = sorted(int(k) for k in per_dist.keys())
     y1 = [per_dist[str(k)] for k in xs]
-    y2 = [cumulative.get(str(k), 0.0) for k in xs]
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.plot(xs, y1, marker="o", label="exact distance accuracy")
-    ax.plot(xs, y2, marker="s", label="cumulative <= d accuracy")
+    ax.plot(xs, y1, marker="o", label="Exact-distance pairwise accuracy")
     ax.set_xlabel("Shortest-path distance d")
     ax.set_ylabel("Accuracy")
     ax.set_ylim(0.0, 1.02)
