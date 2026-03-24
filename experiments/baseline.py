@@ -24,7 +24,7 @@ from utils import get_device, save_json, load_json
 
 
 def main() -> None:
-    out_dir = PROJECT_ROOT / "runs" / "baseline"
+    # Build TrainConfig here (caller selects hyperparameters so run is fully identified)
     cfg = TrainConfig(
         output_dir=str(out_dir),
         n=20,
@@ -47,28 +47,50 @@ def main() -> None:
         device="auto",
         num_workers=0,
     )
-    # If a previous run exists with saved history and checkpoints, skip retraining.
-    # If you want to retrain from scratch, delete the `runs/baseline` folder or the relevant files (# see note below).
+
+    # Create a unique run id from the training configuration so outputs are identifiable.
+    def make_run_id(c: TrainConfig) -> str:
+        parts = [
+            f"n{c.n}",
+            f"d{c.d_model}",
+            f"layers{c.n_layers}",
+            f"heads{c.n_heads}",
+            f"mode{c.train_mode}",
+            f"val{c.val_mode}",
+            f"ep{c.epochs}",
+            f"seed{c.seed}",
+        ]
+        return "_".join(parts)
+
+    run_id = make_run_id(cfg)
+    out_dir = PROJECT_ROOT / "trainings" / run_id
+    cfg.output_dir = str(out_dir)
+
+    # If a previous run exists with saved history and checkpoints under trainings/<run_id>, skip retraining.
+    # If you want to retrain from scratch, delete the folder `trainings/<run_id>` (see note below).
     history_path = out_dir / "history.json"
     best_ckpt = out_dir / "best.pt"
     last_ckpt = out_dir / "last.pt"
 
     if history_path.exists() and (best_ckpt.exists() or last_ckpt.exists()):
-        print("Found existing run in runs/baseline — skipping training.")
+        print(f"Found existing run in {out_dir} — skipping training.")
         # Prefer the best checkpoint if present.
         chosen_ckpt = best_ckpt if best_ckpt.exists() else last_ckpt
         train_info = {
             "best_checkpoint": str(chosen_ckpt),
             "last_checkpoint": str(last_ckpt) if last_ckpt.exists() else str(chosen_ckpt),
             "output_dir": str(out_dir),
+            "run_id": run_id,
         }
     else:
         # No existing run: perform training (this will also save per-epoch checkpoints and OOD history).
-        # NOTE: If you previously changed training hyperparameters, consider deleting `runs/baseline` first.
+        # NOTE: If you previously changed training hyperparameters, consider deleting `trainings/<run_id>` first.
         train_info = train_model(cfg)
 
+    # Create a descriptive title for figures including model and dataset configuration
+    fig_title = f"Transformer d_model={cfg.d_model}, layers={cfg.n_layers}, heads={cfg.n_heads}, dataset={cfg.train_mode}"
     # Plot training history (uses per-epoch OOD if available, otherwise falls back to final OOD values)
-    plot_training_history(out_dir / "history.json", out_dir / "training_history.png")
+    plot_training_history(out_dir / "history.json", out_dir / "training_history.png", title=fig_title)
 
     device = get_device(cfg.device)
     loaded = load_checkpoint(train_info["best_checkpoint"], device)

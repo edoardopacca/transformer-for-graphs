@@ -9,7 +9,7 @@ import pandas as pd
 from utils import load_json
 
 
-def plot_training_history(history_path: str | Path, output_png: str | Path) -> None:
+def plot_training_history(history_path: str | Path, output_png: str | Path, *, title: str | None = None) -> None:
     history = load_json(history_path)
     df = pd.DataFrame(history)
 
@@ -90,7 +90,12 @@ def plot_training_history(history_path: str | Path, output_png: str | Path) -> N
     cliques_ax.grid(True, alpha=0.25)
     cliques_ax.legend(loc="lower right")
 
-    fig.suptitle("Validation Exact Match and Pairwise Accuracy")
+    # Add optional title carrying model / dataset info
+    base_title = "Validation Exact Match and Pairwise Accuracy"
+    if title:
+        fig.suptitle(f"{title} — {base_title}")
+    else:
+        fig.suptitle(base_title)
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     Path(output_png).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_png, dpi=150)

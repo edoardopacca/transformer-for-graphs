@@ -61,16 +61,22 @@ From the `project/` directory:
 python experiments/baseline.py
 ```
 
-Outputs under `runs/baseline/`:
+This script now builds a descriptive run folder based on the training configuration.
+
+Outputs under `trainings/<run_id>/` (where `run_id` encodes the training config, e.g. `n20_d128_layers2_heads4_modeer_valer_ep20_seed42`):
 - `best.pt`, `last.pt`
 - `config.json`, `history.json`, `summary.json`
 - `er_val_metrics.json`, `ood_metrics.json`, `distance_metrics.json`
-- training and distance plots
+- `epoch_*.pt` (per-epoch checkpoints)
+- training and distance plots (the training-history plot includes a suptitle with model/dataset info)
+
+If you want to retrain with different hyperparameters, change them in `experiments/baseline.py` and re-run; to force a fresh run delete the corresponding `trainings/<run_id>` folder.
 
 ### Capacity test
 
 ```bash
-python experiments/capacity_test.py --checkpoint runs/baseline/best.pt
+# Use a specific checkpoint (replace <run_id> with the one used for training)
+python experiments/capacity_test.py --checkpoint trainings/<run_id>/best.pt
 ```
 
 If you want it to train baseline automatically when missing:
@@ -79,7 +85,7 @@ If you want it to train baseline automatically when missing:
 python experiments/capacity_test.py --train_if_missing
 ```
 
-Outputs under `runs/capacity_test/`.
+By default, capacity-test writes its outputs under `runs/capacity_test/`. You can also use `--build_from_epochs` to build per-epoch distance metrics from `epoch_*.pt` saved in the training folder.
 
 ### Restricted diameter (`diameter <= 9`)
 
