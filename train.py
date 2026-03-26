@@ -40,6 +40,9 @@ class TrainConfig:
     use_cosine_scheduler: bool = True
     grad_clip_norm: float = 1.0
     threshold: float = 0.0
+    # New fields for periodic evaluation and checkpointing
+    eval_every_steps: int = 0
+    save_every_steps: int = 0
 
 
 def _build_loader(
@@ -67,11 +70,12 @@ def _build_loader(
     return DataLoader(ds, batch_size=batch_size, shuffle=(mode == "er"), num_workers=num_workers)
 
 
-def train_model(config: TrainConfig) -> dict[str, Any]:
+def train_model(config: TrainConfig, extra_eval_loaders: dict[str, DataLoader] | None = None) -> dict[str, Any]:
     set_seed(config.seed)
     out_dir = ensure_dir(config.output_dir)
     device = get_device(config.device)
     print(f"Using device: {device}")
+    print(f"Training output directory: {out_dir.resolve()}")
 
     train_loader = _build_loader(
         mode=config.train_mode,
@@ -117,6 +121,7 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
         "val_exact_match_acc": [],
         "val_pairwise_acc": [],
         "lr": [],
+        "global_step": [],
     }
     # Per-epoch OOD metrics (filled if training runs OOD evaluation each epoch)
     history.update(
@@ -129,6 +134,8 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
     )
     best_exact = -1.0
     best_ckpt = Path(out_dir) / "best.pt"
+
+    global_step = 0
 
     for epoch in range(1, config.epochs + 1):
         model.train()
@@ -147,6 +154,34 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
             bs = x.size(0)
             running += float(loss.item()) * bs
             seen += bs
+
+            # step-level bookkeeping
+            global_step += 1
+            # periodic step checkpoint
+            if config.save_every_steps and config.save_every_steps > 0 and global_step % config.save_every_steps == 0:
+                step_payload = {
+                    "model_state_dict": model.state_dict(),
+                    "model_config": asdict(model_cfg),
+                    "train_config": asdict(config),
+                    "global_step": global_step,
+                }
+                torch.save(step_payload, Path(out_dir) / f"step_{global_step:06d}.pt")
+                print(f"Saved step checkpoint: {out_dir / f'step_{global_step:06d}.pt'}")
+
+            # periodic extra evaluations (if provided)
+            if config.eval_every_steps and config.eval_every_steps > 0 and extra_eval_loaders:
+                if global_step % config.eval_every_steps == 0:
+                    for name, loader in extra_eval_loaders.items():
+                        key_exact = f"extra_{name}_exact"
+                        try:
+                            metrics = evaluate_model(model, loader, device, split_name=name)
+                            if key_exact not in history:
+                                history[key_exact] = []
+                            history[key_exact].append(float(metrics.get("exact_match_acc", float("nan"))))
+                            print(f"Extra eval [{name}] at step {global_step}: exact={metrics.get('exact_match_acc')}")
+                        except Exception as e:
+                            print(f"Extra eval failed for {name} at step {global_step}: {e}")
+                    history["global_step"].append(global_step)
 
         if scheduler is not None:
             scheduler.step()
@@ -199,6 +234,7 @@ def train_model(config: TrainConfig) -> dict[str, Any]:
             "model_config": asdict(model_cfg),
             "train_config": asdict(config),
             "epoch": epoch,
+            "global_step": global_step,
         }
         torch.save(epoch_payload, Path(out_dir) / f"epoch_{epoch:03d}.pt")
         save_json(Path(out_dir) / "history.json", history)
@@ -268,6 +304,8 @@ def parse_args() -> TrainConfig:
     p.add_argument("--no_cosine_scheduler", action="store_true")
     p.add_argument("--grad_clip_norm", type=float, default=1.0)
     p.add_argument("--threshold", type=float, default=0.0)
+    p.add_argument("--eval_every_steps", type=int, default=0, help="Perform extra evals every N optimizer steps (requires extra_eval_loaders)")
+    p.add_argument("--save_every_steps", type=int, default=0, help="Save step checkpoint every N optimizer steps")
     args = p.parse_args()
     return TrainConfig(
         output_dir=args.output_dir,
@@ -293,6 +331,8 @@ def parse_args() -> TrainConfig:
         use_cosine_scheduler=not args.no_cosine_scheduler,
         grad_clip_norm=args.grad_clip_norm,
         threshold=args.threshold,
+        eval_every_steps=args.eval_every_steps,
+        save_every_steps=args.save_every_steps,
     )
 
 

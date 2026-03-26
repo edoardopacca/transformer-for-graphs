@@ -143,3 +143,80 @@ def plot_compare_ood(
     Path(output_png).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_png, dpi=150)
     plt.close(fig)
+
+
+def plot_restrict_diameter_sweep(results_json: str | Path, output_png: str | Path) -> None:
+    data = load_json(results_json)
+    # data expected: dict with keys being str(p) and values per diam mapping
+    ps = sorted({float(k) for k in data.keys()})
+    diameters = set()
+    for p in ps:
+        for diam in data[str(p)].keys():
+            diameters.add(diam)
+    diameters = sorted(diameters, key=lambda x: (x is not None, x))
+
+    # Build mapping diam -> list of accuracies for k=2 and k=3
+    curves_k2 = {d: [] for d in diameters}
+    curves_k3 = {d: [] for d in diameters}
+    for p in ps:
+        entry = data[str(p)]
+        for d in diameters:
+            row = entry.get(str(d)) or entry.get(d)
+            if row is None:
+                curves_k2[d].append(float('nan'))
+                curves_k3[d].append(float('nan'))
+            else:
+                curves_k2[d].append(row.get("two_chains_k2_exact", float('nan')))
+                curves_k3[d].append(row.get("two_chains_k3_exact", float('nan')))
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    colors = plt.get_cmap('tab10')
+    for i, d in enumerate(diameters):
+        label = "unrestricted" if d in (None, 'None', 'null') else f"diam <= {d}"
+        axes[0].plot(ps, curves_k2[d], marker='o', label=label, color=colors(i))
+        axes[1].plot(ps, curves_k3[d], marker='o', label=label, color=colors(i))
+
+    axes[0].set_xlabel('ER edge probability p')
+    axes[0].set_ylabel('Exact match accuracy (TwoChains k=2)')
+    axes[1].set_xlabel('ER edge probability p')
+    axes[1].set_ylabel('Exact match accuracy (TwoChains k=3)')
+    axes[0].set_title('Diameter restriction sweep: k=2')
+    axes[1].set_title('Diameter restriction sweep: k=3')
+    axes[0].grid(True, alpha=0.3)
+    axes[1].grid(True, alpha=0.3)
+    axes[0].legend(loc='lower right')
+    axes[1].legend(loc='lower right')
+    fig.suptitle('Effect of training diameter restriction on OOD TwoChains exact-match')
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    Path(output_png).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_png, dpi=150)
+    plt.close(fig)
+
+
+def plot_restrict_diameter_dynamics(aggregated_json: str | Path, output_png: str | Path) -> None:
+    data = load_json(aggregated_json)
+    # data expected format: {diam: {"steps": [...], "k2": [...], "k3": [...]}, ...}
+    diameters = sorted(data.keys(), key=lambda x: (x is not None, x))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    colors = plt.get_cmap('tab10')
+    for i, d in enumerate(diameters):
+        row = data[d]
+        steps = row["steps"]
+        axes[0].plot(steps, row["k2"], label=("unrestricted" if d in (None, 'None') else f"diam<= {d}"), color=colors(i))
+        axes[1].plot(steps, row["k3"], label=("unrestricted" if d in (None, 'None') else f"diam<= {d}"), color=colors(i))
+
+    axes[0].set_xlabel('Training step')
+    axes[0].set_ylabel('Exact match accuracy (TwoChains k=2)')
+    axes[1].set_xlabel('Training step')
+    axes[1].set_ylabel('Exact match accuracy (TwoChains k=3)')
+    axes[0].set_title('Training dynamics (k=2)')
+    axes[1].set_title('Training dynamics (k=3)')
+    axes[0].grid(True, alpha=0.3)
+    axes[1].grid(True, alpha=0.3)
+    axes[0].legend(loc='lower right')
+    axes[1].legend(loc='lower right')
+    fig.suptitle('OOD exact-match accuracy over training under diameter restrictions')
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    Path(output_png).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_png, dpi=150)
+    plt.close(fig)
