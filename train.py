@@ -43,6 +43,8 @@ class TrainConfig:
     # New fields for periodic evaluation and checkpointing
     eval_every_steps: int = 0
     save_every_steps: int = 0
+    # Dataset generation attempts before giving up (rejection sampling)
+    max_attempts: int = 200000
 
 
 def _build_loader(
@@ -55,6 +57,7 @@ def _build_loader(
     batch_size: int,
     num_workers: int,
     max_diameter: int | None = None,
+    max_attempts: int = 200000,
 ) -> DataLoader:
     ds = GraphMatrixDataset(
         DatasetConfig(
@@ -65,6 +68,7 @@ def _build_loader(
             seed=seed,
             max_diameter=max_diameter,
             k=n // 2,
+            max_attempts=max_attempts,
         )
     )
     return DataLoader(ds, batch_size=batch_size, shuffle=(mode == "er"), num_workers=num_workers)
@@ -86,6 +90,7 @@ def train_model(config: TrainConfig, extra_eval_loaders: dict[str, DataLoader] |
         batch_size=config.batch_size,
         num_workers=config.num_workers,
         max_diameter=config.max_diameter_train,
+        max_attempts=config.max_attempts,
     )
     val_loader = _build_loader(
         mode=config.val_mode,
@@ -96,6 +101,7 @@ def train_model(config: TrainConfig, extra_eval_loaders: dict[str, DataLoader] |
         batch_size=config.batch_size,
         num_workers=config.num_workers,
         max_diameter=None,
+        max_attempts=config.max_attempts,
     )
 
     model_cfg = ModelConfig(
@@ -304,6 +310,7 @@ def parse_args() -> TrainConfig:
     p.add_argument("--no_cosine_scheduler", action="store_true")
     p.add_argument("--grad_clip_norm", type=float, default=1.0)
     p.add_argument("--threshold", type=float, default=0.0)
+    p.add_argument("--max_attempts", type=int, default=200000, help="Max attempts for rejection sampling when generating datasets")
     p.add_argument("--eval_every_steps", type=int, default=0, help="Perform extra evals every N optimizer steps (requires extra_eval_loaders)")
     p.add_argument("--save_every_steps", type=int, default=0, help="Save step checkpoint every N optimizer steps")
     args = p.parse_args()
@@ -333,6 +340,7 @@ def parse_args() -> TrainConfig:
         threshold=args.threshold,
         eval_every_steps=args.eval_every_steps,
         save_every_steps=args.save_every_steps,
+        max_attempts=args.max_attempts,
     )
 
 

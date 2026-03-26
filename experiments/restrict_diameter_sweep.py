@@ -32,7 +32,12 @@ def run_point(cfg: TrainConfig, force: bool) -> dict[str, Any]:
         print(f"Reusing existing run {out_dir}")
     else:
         print(f"Training run for {run_id} -> {out_dir}")
-        train_model(cfg)
+        try:
+            train_model(cfg)
+        except Exception as e:
+            raise RuntimeError(
+                f"Training failed for p={cfg.p}, max_diameter_train={cfg.max_diameter_train}, train_size={cfg.train_size}: {e}"
+            )
 
     if not best_ckpt.exists():
         raise RuntimeError(f"Expected checkpoint not found at {best_ckpt}")
@@ -42,12 +47,25 @@ def run_point(cfg: TrainConfig, force: bool) -> dict[str, Any]:
     model = loaded.model
 
     results = {}
-    for k in (2, 3):
-        ds = GraphMatrixDataset(DatasetConfig(mode="two_chains", n=cfg.n, k=k, size=2000, seed=cfg.seed + 100))
+    for k in (cfg.n // 2,):
+        # TwoChains OOD (exact match)
+        ds = GraphMatrixDataset(
+            DatasetConfig(mode="two_chains", n=cfg.n, k=k, size=cfg.val_size, seed=cfg.seed + 100, max_attempts=cfg.max_attempts)
+        )
         dl = DataLoader(ds, batch_size=cfg.batch_size, shuffle=False)
         m = evaluate_model(model, dl, device, split_name=f"two_chains_k{k}")
         results[f"two_chains_k{k}_exact"] = m["exact_match_acc"]
         results[f"two_chains_k{k}_pairwise"] = m["pairwise_acc"]
+
+    # TwoCliques OOD
+    k = cfg.n // 2
+    ds_c = GraphMatrixDataset(
+        DatasetConfig(mode="two_cliques", n=cfg.n, k=k, size=cfg.val_size, seed=cfg.seed + 200, max_attempts=cfg.max_attempts)
+    )
+    dl_c = DataLoader(ds_c, batch_size=cfg.batch_size, shuffle=False)
+    m2 = evaluate_model(model, dl_c, device, split_name=f"two_cliques_k{k}")
+    results[f"two_cliques_k{k}_exact"] = m2["exact_match_acc"]
+    results[f"two_cliques_k{k}_pairwise"] = m2["pairwise_acc"]
 
     return results
 
@@ -56,16 +74,24 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force_recompute", action="store_true")
     parser.add_argument("--p_min", type=float, default=0.05)
-    parser.add_argument("--p_max", type=float, default=0.55)
+    parser.add_argument("--p_max", type=float, default=0.30)
     parser.add_argument("--p_steps", type=int, default=11)
     parser.add_argument("--train_size", type=int, default=50000)
     parser.add_argument("--val_size", type=int, default=2000)
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch_size", type=int, default=128)
+    parser.add_argument("--eval_size", type=int, default=2000)
+    parser.add_argument("--d_model", type=int, default=128)
+    parser.add_argument("--d_ff", type=int, default=256)
+    parser.add_argument("--n_layers", type=int, default=2)
+    parser.add_argument("--n_heads", type=int, default=4)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--weight_decay", type=float, default=1e-2)
+    parser.add_argument("--max_attempts", type=int, default=200000)
     args = parser.parse_args()
 
     ps = [round(args.p_min + i * (args.p_max - args.p_min) / (args.p_steps - 1), 4) for i in range(args.p_steps)]
-    diameters = [None, 2, 3, 4]
+    diameters = [None, 7, 9, 11]
 
     aggregated: dict[str, Any] = {}
     out_runs = PROJECT_ROOT / "runs" / "restrict_diameter_sweep"
@@ -75,18 +101,18 @@ def main() -> None:
         aggregated[str(p)] = {}
         for diam in diameters:
             cfg = TrainConfig(
-                n=8,
+                n=20,
                 p=p,
                 train_size=args.train_size,
                 val_size=args.val_size,
                 batch_size=args.batch_size,
                 epochs=args.epochs,
-                lr=1e-3,
-                weight_decay=1e-2,
-                d_model=128,
-                n_heads=1,
-                d_ff=256,
-                n_layers=1,
+                lr=args.lr,
+                weight_decay=args.weight_decay,
+                d_model=args.d_model,
+                n_heads=args.n_heads,
+                d_ff=args.d_ff,
+                n_layers=args.n_layers,
                 dropout=0.0,
                 train_mode="er",
                 val_mode="er",
@@ -94,6 +120,7 @@ def main() -> None:
                 seed=42,
                 device="auto",
                 num_workers=0,
+                max_attempts=args.max_attempts,
             )
             try:
                 res = run_point(cfg, force=args.force_recompute)

@@ -149,11 +149,18 @@ def plot_restrict_diameter_sweep(results_json: str | Path, output_png: str | Pat
     data = load_json(results_json)
     # data expected: dict with keys being str(p) and values per diam mapping
     ps = sorted({float(k) for k in data.keys()})
-    diameters = set()
+    # collect diameters (they are stored as strings like 'None', '7', '9') and normalize
+    diam_set = set()
     for p in ps:
         for diam in data[str(p)].keys():
-            diameters.add(diam)
-    diameters = sorted(diameters, key=lambda x: (x is not None, x))
+            if diam in ("None", "NoneType", "null"):
+                diam_set.add(None)
+            else:
+                try:
+                    diam_set.add(int(diam))
+                except Exception:
+                    diam_set.add(diam)
+    diameters = sorted(diam_set, key=lambda x: (x is not None, x if x is None else int(x)))
 
     # Build mapping diam -> list of accuracies for k=2 and k=3
     curves_k2 = {d: [] for d in diameters}
@@ -161,18 +168,22 @@ def plot_restrict_diameter_sweep(results_json: str | Path, output_png: str | Pat
     for p in ps:
         entry = data[str(p)]
         for d in diameters:
-            row = entry.get(str(d)) or entry.get(d)
+            key = "None" if d is None else str(d)
+            row = entry.get(key)
             if row is None:
                 curves_k2[d].append(float('nan'))
                 curves_k3[d].append(float('nan'))
             else:
-                curves_k2[d].append(row.get("two_chains_k2_exact", float('nan')))
-                curves_k3[d].append(row.get("two_chains_k3_exact", float('nan')))
+                # prefer two_chains and two_cliques exact match keys
+                chains_key = next((k for k in row.keys() if k.startswith("two_chains") and k.endswith("_exact")), None)
+                cliques_key = next((k for k in row.keys() if k.startswith("two_cliques") and k.endswith("_exact")), None)
+                curves_k2[d].append(row.get(chains_key, float('nan')) if chains_key else float('nan'))
+                curves_k3[d].append(row.get(cliques_key, float('nan')) if cliques_key else float('nan'))
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
     colors = plt.get_cmap('tab10')
     for i, d in enumerate(diameters):
-        label = "unrestricted" if d in (None, 'None', 'null') else f"diam <= {d}"
+        label = "unrestricted" if d is None else f"diam <= {d}"
         axes[0].plot(ps, curves_k2[d], marker='o', label=label, color=colors(i))
         axes[1].plot(ps, curves_k3[d], marker='o', label=label, color=colors(i))
 
@@ -195,15 +206,28 @@ def plot_restrict_diameter_sweep(results_json: str | Path, output_png: str | Pat
 
 def plot_restrict_diameter_dynamics(aggregated_json: str | Path, output_png: str | Path) -> None:
     data = load_json(aggregated_json)
-    # data expected format: {diam: {"steps": [...], "k2": [...], "k3": [...]}, ...}
-    diameters = sorted(data.keys(), key=lambda x: (x is not None, x))
+    # data expected format: {diam: {"steps": [...], "two_chains": [...], "two_cliques": [...]}, ...}
+    # normalize diam keys
+    def parse_diam(k: str):
+        if k in ("None", "NoneType", "null"):
+            return None
+        try:
+            return int(k)
+        except Exception:
+            return k
+
+    diam_keys = sorted(list(data.keys()), key=lambda x: (parse_diam(x) is not None, parse_diam(x) if parse_diam(x) is None else int(parse_diam(x))))
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
     colors = plt.get_cmap('tab10')
-    for i, d in enumerate(diameters):
-        row = data[d]
-        steps = row["steps"]
-        axes[0].plot(steps, row["k2"], label=("unrestricted" if d in (None, 'None') else f"diam<= {d}"), color=colors(i))
-        axes[1].plot(steps, row["k3"], label=("unrestricted" if d in (None, 'None') else f"diam<= {d}"), color=colors(i))
+    for i, dkey in enumerate(diam_keys):
+        row = data[dkey]
+        steps = row.get("steps", [])
+        chains = row.get("two_chains", [])
+        cliques = row.get("two_cliques", [])
+        d = parse_diam(dkey)
+        label = "unrestricted" if d is None else f"diam<= {d}"
+        axes[0].plot(steps, chains, label=label, color=colors(i))
+        axes[1].plot(steps, cliques, label=label, color=colors(i))
 
     axes[0].set_xlabel('Training step')
     axes[0].set_ylabel('Exact match accuracy (TwoChains k=2)')
