@@ -134,3 +134,59 @@ def save_json(path: str | Path, data: dict[str, Any]) -> None:
 def load_json(path: str | Path) -> dict[str, Any]:
     with Path(path).open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def is_compatible_train_config(existing_cfg: dict[str, Any], target_cfg: Any, *, allow_missing_fields: bool = False) -> bool:
+    """Check whether an existing saved train config (dict) is compatible with a target TrainConfig or mapping.
+
+    Compatibility is strict on the following load-bearing fields:
+    - n, p, batch_size, d_model, d_ff, n_layers, n_heads,
+      lr, weight_decay, dropout, train_mode, val_mode, max_diameter_train, seed
+
+    The function accepts `target_cfg` as an object with attributes or a dict.
+    If `allow_missing_fields` is True, missing keys in existing_cfg are ignored.
+    """
+    def _get_target(k: str, default=None):
+        if isinstance(target_cfg, dict):
+            return target_cfg.get(k, default)
+        return getattr(target_cfg, k, default)
+
+    keys = [
+        "n",
+        "p",
+        "batch_size",
+        "d_model",
+        "d_ff",
+        "n_layers",
+        "n_heads",
+        "lr",
+        "weight_decay",
+        "dropout",
+        "train_mode",
+        "val_mode",
+        "max_diameter_train",
+        "seed",
+    ]
+
+    for k in keys:
+        tgt = _get_target(k, None)
+        if k not in existing_cfg:
+            if allow_missing_fields:
+                continue
+            return False
+        ex = existing_cfg.get(k)
+        # normalize numeric types for comparison
+        try:
+            if isinstance(tgt, float) or isinstance(ex, float):
+                if tgt is None and ex is None:
+                    continue
+                if float(ex) != float(tgt):
+                    return False
+            else:
+                if ex != tgt:
+                    return False
+        except Exception:
+            if ex != tgt:
+                return False
+
+    return True

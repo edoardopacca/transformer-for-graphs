@@ -244,3 +244,43 @@ def plot_restrict_diameter_dynamics(aggregated_json: str | Path, output_png: str
     Path(output_png).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_png, dpi=150)
     plt.close(fig)
+
+
+def plot_curriculum_diameter_dynamics(aggregated_json: str | Path, output_png: str | Path) -> None:
+    data = load_json(aggregated_json)
+    # data expected: {mode: {"global_step": [...], "two_chains_exact": [...], "two_cliques_exact": [...]}, ...}
+    modes = list(data.keys())
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    colors = plt.get_cmap('tab10')
+    labels_map = {
+        "standard": "Standard",
+        "restrict_only": "Restrict only (diam<=9)",
+        "curriculum_1": "Curriculum 1 (<=9 -> unrestricted)",
+        "curriculum_2": "Curriculum 2 (<=7 -> <=9)",
+    }
+    for i, m in enumerate(modes):
+        row = data[m]
+        if not row or "global_step" not in row:
+            continue
+        steps = row.get("global_step", [])
+        ch = row.get("two_chains_exact", [])
+        cl = row.get("two_cliques_exact", [])
+        label = labels_map.get(m, m)
+        axes[0].plot(steps, ch, label=label, color=colors(i))
+        axes[1].plot(steps, cl, label=label, color=colors(i))
+
+    axes[0].set_xlabel('Training step')
+    axes[0].set_ylabel('Exact match accuracy (TwoChains k=10)')
+    axes[1].set_xlabel('Training step')
+    axes[1].set_ylabel('Exact match accuracy (TwoCliques k=10)')
+    axes[0].set_title('Curriculum: TwoChains (OOD)')
+    axes[1].set_title('Curriculum: TwoCliques (OOD)')
+    axes[0].grid(True, alpha=0.3)
+    axes[1].grid(True, alpha=0.3)
+    axes[0].legend(loc='lower right')
+    axes[1].legend(loc='lower right')
+    fig.suptitle('Curriculum diameter dynamics: OOD exact-match over training')
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    Path(output_png).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_png, dpi=150)
+    plt.close(fig)

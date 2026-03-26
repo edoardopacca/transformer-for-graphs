@@ -19,6 +19,9 @@ from data import DatasetConfig, GraphMatrixDataset
 from eval import load_checkpoint, evaluate_model
 from utils import canonical_run_id, get_training_dir, get_device, save_json, ensure_dir
 from plots import plot_restrict_diameter_dynamics
+import math
+import re
+from utils import load_json, is_compatible_train_config
 
 
 def prepare_extra_loaders(n: int, batch_size: int, eval_size: int, max_attempts: int) -> dict[str, DataLoader]:
@@ -44,28 +47,89 @@ def run_dynamics(cfg: TrainConfig, eval_every_steps: int, eval_size: int, force:
 
     extra_loaders = prepare_extra_loaders(cfg.n, cfg.batch_size, eval_size, cfg.max_attempts)
 
-    if history_path.exists() and best_ckpt.exists() and not force:
-        print(f"Reusing existing run {out_dir}")
-    else:
-        print(f"Training dynamics run for {run_id} -> {out_dir}")
-        # set eval_every_steps in config and call train_model with extra loaders
-        cfg.eval_every_steps = eval_every_steps
-        cfg.save_every_steps = max(0, eval_every_steps * 5)
+    key_ch = f"extra_two_chains_k{cfg.n//2}_exact"
+    key_cl = f"extra_two_cliques_k{cfg.n//2}_exact"
+
+    # 1) If history exists and contains the required dynamics keys, reuse directly
+    if history_path.exists() and not force:
         try:
-            train_model(cfg, extra_eval_loaders=extra_loaders)
-        except Exception as e:
-            raise RuntimeError(
-                f"Training failed for p={cfg.p}, max_diameter_train={cfg.max_diameter_train}, train_size={cfg.train_size}: {e}"
-            )
+            history = load_json(history_path)
+            if (
+                "global_step" in history
+                and key_ch in history
+                and key_cl in history
+            ):
+                print(f"Reusing exact dynamics history from {history_path}")
+                steps = history.get("global_step", [])
+                return {"steps": steps, "two_chains": history[key_ch], "two_cliques": history[key_cl]}
+        except Exception:
+            print(f"Warning: could not read history.json at {history_path}, will try other reuse options")
+
+    # 2) If posthoc_dynamics.json already exists, reuse it
+    posthoc = out_dir / "posthoc_dynamics.json"
+    if posthoc.exists() and not force:
+        try:
+            pj = load_json(posthoc)
+            if pj.get("source") == "posthoc_from_epoch_checkpoints":
+                print(f"Reusing existing post-hoc dynamics from {posthoc}")
+                return {"steps": pj.get("global_step", []), "two_chains": pj.get("two_chains_exact", []), "two_cliques": pj.get("two_cliques_exact", [])}
+        except Exception:
+            print(f"Warning: could not read {posthoc}, will attempt reconstruction or training")
+
+    # 3) If epoch_*.pt are present, reconstruct post-hoc
+    epoch_files = []
+    for p in out_dir.glob("epoch_*.pt"):
+        m = re.search(r"epoch_(\d+)\.pt$", p.name)
+        if m:
+            epoch_files.append((int(m.group(1)), p))
+    epoch_files.sort()
+
+    if epoch_files and not force:
+        print(f"Reconstructing dynamics from epoch checkpoints in {out_dir}")
+        steps = []
+        two_chains_vals: list[float] = []
+        two_cliques_vals: list[float] = []
+        steps_per_epoch = math.ceil(cfg.train_size / cfg.batch_size) if cfg.batch_size > 0 else 1
+        device = get_device(cfg.device)
+        for (epoch_idx, path) in epoch_files:
+            payload = load_checkpoint(path, device)
+            model = payload.model
+            # evaluate on extra loaders
+            ch_loader = extra_loaders[f"two_chains_k{cfg.n//2}"]
+            cl_loader = extra_loaders[f"two_cliques_k{cfg.n//2}"]
+            m1 = evaluate_model(model, ch_loader, device, split_name=f"two_chains_epoch{epoch_idx}")
+            m2 = evaluate_model(model, cl_loader, device, split_name=f"two_cliques_epoch{epoch_idx}")
+            two_chains_vals.append(m1["exact_match_acc"])
+            two_cliques_vals.append(m2["exact_match_acc"])
+            steps.append(epoch_idx * steps_per_epoch)
+
+        post = {
+            "global_step": steps,
+            "two_chains_exact": two_chains_vals,
+            "two_cliques_exact": two_cliques_vals,
+            "source": "posthoc_from_epoch_checkpoints",
+            "checkpoint_dir": str(out_dir),
+        }
+        save_json(posthoc, post)
+        print(f"Saved post-hoc dynamics to {posthoc}")
+        return {"steps": steps, "two_chains": two_chains_vals, "two_cliques": two_cliques_vals}
+
+    # 4) Otherwise, train as before
+    print(f"Training fresh run because no compatible checkpoints were found for {out_dir}")
+    cfg.eval_every_steps = eval_every_steps
+    cfg.save_every_steps = max(0, eval_every_steps * 5)
+    try:
+        train_model(cfg, extra_eval_loaders=extra_loaders)
+    except Exception as e:
+        raise RuntimeError(
+            f"Training failed for p={cfg.p}, max_diameter_train={cfg.max_diameter_train}, train_size={cfg.train_size}: {e}"
+        )
 
     if not history_path.exists():
-        raise RuntimeError(f"Expected history.json in {out_dir}")
+        raise RuntimeError(f"Expected history.json in {out_dir} after training")
 
-    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history = load_json(history_path)
     steps = history.get("global_step", [])
-    k = cfg.n // 2
-    key_ch = f"extra_two_chains_k{k}_exact"
-    key_cl = f"extra_two_cliques_k{k}_exact"
     ch_vals = history.get(key_ch, [])
     cl_vals = history.get(key_cl, [])
     return {"steps": steps, "two_chains": ch_vals, "two_cliques": cl_vals}
