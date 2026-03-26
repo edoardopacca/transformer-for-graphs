@@ -20,7 +20,7 @@ from eval import (
 )
 from plots import plot_distance_accuracy, plot_training_history
 from train import TrainConfig, train_model
-from utils import get_device, save_json, load_json
+from utils import get_device, save_json, load_json, canonical_run_id, get_training_dir
 import shutil
 
 
@@ -48,22 +48,9 @@ def main() -> None:
         num_workers=0,
     )
 
-    # Create a unique run id from the training configuration so outputs are identifiable.
-    def make_run_id(c: TrainConfig) -> str:
-        parts = [
-            f"n{c.n}",
-            f"d{c.d_model}",
-            f"layers{c.n_layers}",
-            f"heads{c.n_heads}",
-            f"mode{c.train_mode}",
-            f"val{c.val_mode}",
-            f"ep{c.epochs}",
-            f"seed{c.seed}",
-        ]
-        return "_".join(parts)
-
-    run_id = make_run_id(cfg)
-    out_dir = PROJECT_ROOT / "trainings" / run_id
+    # Canonical run id + training directory
+    run_id = canonical_run_id(cfg)
+    out_dir = get_training_dir(cfg, PROJECT_ROOT)
     cfg.output_dir = str(out_dir)
 
     # If a previous run exists with saved history and checkpoints under trainings/<run_id>, skip retraining.

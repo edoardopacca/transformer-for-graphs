@@ -5,6 +5,7 @@ import re
 import shutil
 from pathlib import Path
 from typing import Any
+import argparse
 
 import matplotlib.pyplot as plt
 import torch
@@ -21,20 +22,13 @@ from eval import (
     load_checkpoint,
 )
 from train import TrainConfig, train_model
-from utils import get_device, save_json, load_json, ensure_dir
-
-
-def make_run_id(c: TrainConfig) -> str:
-    parts = [
-        f"n{c.n}",
-        f"d{c.d_model}",
-        f"layers{c.n_layers}",
-        f"heads{c.n_heads}",
-        f"mode{c.train_mode}",
-        f"ep{c.epochs}",
-        f"seed{c.seed}",
-    ]
-    return "_".join(parts)
+from utils import (
+    get_device,
+    save_json,
+    ensure_dir,
+    canonical_run_id,
+    get_training_dir,
+)
 
 
 def extract_epoch_from_filename(p: Path) -> int | None:
@@ -50,20 +44,34 @@ def compute_max_reliable_length(model: torch.nn.Module, loader: DataLoader, devi
     return int(val) if (val is not None) else 0
 
 
-def plot_capacity(xs: list[int], ys: list[int], out_png: Path) -> None:
+def plot_capacity(xs: list[int], ys: list[int], out_png: Path, *, threshold: float = 0.99, L: int = 2) -> None:
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.plot(xs, ys, marker="o", color="#ff7f0e", linewidth=2, label="Max Perfect Path Length (Acc≥0.99)")
-    ax.fill_between(xs, ys, color="#ff7f0e", alpha=0.12)
-    ax.set_xscale("log")
-    ax.set_xlabel("Training Step (epoch)")
-    ax.set_ylabel("Maximum Perfect Path Length")
+    label_curve = f"Max reliable path length (accuracy >= {threshold})"
+    ax.plot(xs, ys, marker="o", color="#ff7f0e", linewidth=2, label=label_curve)
+
+    if len(xs) > 1:
+        # multiple epochs: linear x-axis labeled as Epoch
+        ax.set_xlabel("Epoch")
+        # ensure xs are sorted
+        ax.plot(xs, ys, marker="o", color="#ff7f0e", linewidth=2)
+    else:
+        # single point: no log scale and no fill
+        ax.set_xlabel("Epoch")
+
+    if len(xs) > 1:
+        try:
+            ax.fill_between(xs, ys, color="#ff7f0e", alpha=0.12)
+        except Exception:
+            pass
+
+    ax.set_ylabel("Maximum Reliable Path Length")
     ax.set_ylim(0, max(ys + [1]) + 1)
     ax.grid(True, alpha=0.25)
-    # horizontal dashed blue line at 3^2
-    yline = 3 ** 2
-    ax.hlines(yline, xs[0], xs[-1], colors="#1f77b4", linestyles="--", label="3^2 (capacity)")
+    # theoretical capacity line using L from config
+    yline = 3 ** L
+    ax.hlines(yline, min(xs), max(xs), colors="#1f77b4", linestyles="--", label=f"Theoretical capacity: 3^{L}")
     ax.legend(loc="lower right")
-    fig.suptitle("Progression of Perfect Path Length Prediction")
+    fig.suptitle("Maximum reliable path length across training")
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_png, dpi=150)
@@ -71,6 +79,13 @@ def plot_capacity(xs: list[int], ys: list[int], out_png: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force_recompute", action="store_true", help="Force recompute even if outputs exist")
+    parser.add_argument("--eval_n", type=int, default=None, help="Override evaluation graph size (must match model n)")
+    parser.add_argument("--eval_size", type=int, default=1000)
+    parser.add_argument("--reliable_threshold", type=float, default=0.99)
+    args = parser.parse_args()
+
     cfg = TrainConfig(
         n=20,
         p=0.08,
@@ -93,8 +108,9 @@ def main() -> None:
         num_workers=0,
     )
 
-    run_id = make_run_id(cfg)
-    out_dir = PROJECT_ROOT / "trainings" / run_id
+    # Resolve canonical run id and training directory
+    run_id = canonical_run_id(cfg)
+    out_dir = get_training_dir(cfg, PROJECT_ROOT)
     cfg.output_dir = str(out_dir)
 
     history_path = out_dir / "history.json"
@@ -115,30 +131,57 @@ def main() -> None:
 
     device = get_device(cfg.device)
 
-    # Build test loader on ER with n=30
-    test_ds = GraphMatrixDataset(DatasetConfig(mode="er", n=30, p=cfg.p, size=1000, seed=cfg.seed + 999))
-    test_loader = DataLoader(test_ds, batch_size=cfg.batch_size, shuffle=False)
+    # Print resolved paths and checkpoint presence (HPC-friendly logging)
+    print(f"Canonical run id: {run_id}")
+    print(f"Resolved training directory: {out_dir.resolve()}" )
+    print(f"history.json exists: {history_path.exists()}")
+    print(f"best.pt exists: {best_ckpt.exists()}")
 
-    # Try to build per-epoch maxima from saved epoch checkpoints if available
+    # find epoch checkpoints
     epoch_ckpts = sorted(out_dir.glob("epoch_*.pt"))
+    print(f"Found {len(epoch_ckpts)} epoch_*.pt checkpoints in {out_dir}")
+
+    # Decision: if outputs exist and not forcing recompute, exit
+    out_png = out_dir / "capacity.png"
+    summary_json = out_dir / "capacity_summary.json"
+    if out_png.exists() and summary_json.exists() and not args.force_recompute:
+        print(f"Found existing outputs: {out_png} and {summary_json}; use --force_recompute to overwrite.")
+        return
+
+    # Evaluate checkpoints: prefer epoch_*.pt if present
     epoch_values: list[tuple[int, int]] = []
     if epoch_ckpts:
         print("Building per-epoch capacity metrics from epoch checkpoints...")
+        # derive eval n from first checkpoint's model config
+        first_loaded = load_checkpoint(epoch_ckpts[0], device)
+        model_n = first_loaded.model_config.n
+        if args.eval_n is not None and args.eval_n != model_n:
+            print(f"Warning: --eval_n {args.eval_n} does not match model n {model_n}; using model n={model_n} for evaluation.")
+        eval_n = model_n
+        test_ds = GraphMatrixDataset(DatasetConfig(mode="er", n=eval_n, p=cfg.p, size=args.eval_size, seed=cfg.seed + 999))
+        test_loader = DataLoader(test_ds, batch_size=cfg.batch_size, shuffle=False)
         for ckpt in epoch_ckpts:
             epoch = extract_epoch_from_filename(ckpt)
             if epoch is None:
                 continue
             loaded = load_checkpoint(ckpt, device)
-            model = loaded.model
-            max_rel = compute_max_reliable_length(model, test_loader, device)
+            max_rel = compute_max_reliable_length(loaded.model, test_loader, device)
             epoch_values.append((epoch, max_rel))
     else:
-        # Fallback: evaluate best checkpoint only
-        print("No epoch checkpoints found; evaluating best checkpoint only.")
-        loaded = load_checkpoint(train_info["best_checkpoint"], device)
-        model = loaded.model
-        max_rel = compute_max_reliable_length(model, test_loader, device)
-        epoch_values.append((cfg.epochs, max_rel))
+        # No epoch ckpts: fallback to best.pt if present
+        if best_ckpt.exists():
+            print("No epoch checkpoints found; evaluating best checkpoint only.")
+            loaded = load_checkpoint(best_ckpt, device)
+            model_n = loaded.model_config.n
+            if args.eval_n is not None and args.eval_n != model_n:
+                print(f"Warning: --eval_n {args.eval_n} does not match model n {model_n}; using model n={model_n} for evaluation.")
+            eval_n = model_n
+            test_ds = GraphMatrixDataset(DatasetConfig(mode="er", n=eval_n, p=cfg.p, size=args.eval_size, seed=cfg.seed + 999))
+            test_loader = DataLoader(test_ds, batch_size=cfg.batch_size, shuffle=False)
+            max_rel = compute_max_reliable_length(loaded.model, test_loader, device)
+            epoch_values.append((cfg.epochs, max_rel))
+        else:
+            raise RuntimeError(f"No epoch_* checkpoints found and no best.pt at expected path: {best_ckpt}")
 
     if not epoch_values:
         raise RuntimeError("No checkpoints found to evaluate.")
@@ -148,19 +191,35 @@ def main() -> None:
     ys = [v for _, v in epoch_values]
 
     out_png = out_dir / "capacity.png"
-    plot_capacity(xs, ys, out_png)
+    # When possible, obtain model config L for theoretical capacity line
+    # prefer best or first epoch loaded above
+    loaded_for_meta = None
+    if epoch_ckpts:
+        loaded_for_meta = load_checkpoint(epoch_ckpts[0], device)
+    elif best_ckpt.exists():
+        loaded_for_meta = load_checkpoint(best_ckpt, device)
+    L = getattr(loaded_for_meta.model_config, "n_layers", 2) if loaded_for_meta is not None else 2
+
+    plot_capacity(xs, ys, out_png, threshold=args.reliable_threshold, L=L)
+    print(f"Saved capacity plot to: {out_png.resolve()}")
 
     # copy into runs/capacity_test for quick inspection
+    runs_dir = PROJECT_ROOT / "runs" / "capacity_test"
     try:
-        runs_dir = PROJECT_ROOT / "runs" / "capacity_test"
-        runs_dir.mkdir(parents=True, exist_ok=True)
-        if out_png.exists():
-            shutil.copy2(out_png, runs_dir / "capacity.png")
-    except Exception:
-        pass
+        ensure_dir(runs_dir)
+        shutil.copy2(out_png, runs_dir / "capacity.png")
+        print(f"Copied capacity plot to: {runs_dir / 'capacity.png'}")
+    except Exception as e:
+        print(f"Error copying capacity plot to {runs_dir}: {e}")
 
-    summary = {"run_info": train_info, "epoch_capacity": [{"epoch": e, "max_reliable_path_length": v} for e, v in epoch_values]}
+    summary = {
+        "run_info": train_info,
+        "epoch_capacity": [{"epoch": e, "max_reliable_path_length": v} for e, v in epoch_values],
+        "threshold": args.reliable_threshold,
+        "theoretical_capacity": 3 ** L,
+    }
     save_json(out_dir / "capacity_summary.json", summary)
+    print(f"Saved capacity summary to: {(out_dir / 'capacity_summary.json').resolve()}")
     print(json.dumps(summary, indent=2))
 
 
