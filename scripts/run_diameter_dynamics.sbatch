@@ -3,6 +3,8 @@
 #SBATCH --partition=stud
 #SBATCH --qos=stud
 #SBATCH --gres=gpu:1
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=3352759@studbocconi.it
 #SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -21,6 +23,7 @@ mkdir -p runs
 
 which python
 python --version
+python -c "import torch; print('torch.__version__=', torch.__version__); print('torch.version.cuda=', getattr(torch.version, 'cuda', None)); print('cuda_available=', torch.cuda.is_available()); print('cuda_device_count=', torch.cuda.device_count())"
 nvidia-smi
 
 python experiments/restrict_diameter_sweep.py \
@@ -31,3 +34,4 @@ python experiments/restrict_diameter_sweep.py \
   --val_size 2000 \
   --epochs 50 \
   --batch_size 128
+  --device cuda

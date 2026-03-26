@@ -75,6 +75,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force_recompute", action="store_true")
     parser.add_argument("--p", type=float, default=0.08)
+    parser.add_argument("--device", type=str, default="cuda", help="Device to run on: 'cuda' or 'cpu' or 'auto'")
     parser.add_argument("--train_size", type=int, default=50000)
     parser.add_argument("--val_size", type=int, default=2000)
     parser.add_argument("--epochs", type=int, default=50)
@@ -114,7 +115,7 @@ def main() -> None:
             val_mode="er",
             max_diameter_train=diam,
             seed=42,
-            device="auto",
+            device=args.device,
             num_workers=0,
             max_attempts=args.max_attempts,
         )

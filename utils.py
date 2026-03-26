@@ -95,11 +95,33 @@ def set_seed(seed: int) -> None:
 
 
 def get_device(device_str: str | None = None) -> torch.device:
+    # Resolve device string to torch.device
     if device_str is None or device_str == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if device_str == "cuda" and not torch.cuda.is_available():
-        return torch.device("cpu")
+    if device_str == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("Requested device 'cuda' but CUDA is not available according to torch.cuda.is_available()")
+        return torch.device("cuda")
     return torch.device(device_str)
+
+
+def debug_torch_device_info() -> dict[str, Any]:
+    """Return a small dict with torch / cuda debug info and print it.
+
+    Useful to include in SLURM logs to diagnose whether CUDA is visible to the job.
+    """
+    info = {
+        "torch_version": getattr(torch, "__version__", None),
+        "torch_cuda_version": getattr(torch.version, "cuda", None),
+        "cuda_available": torch.cuda.is_available(),
+        "cuda_device_count": torch.cuda.device_count(),
+    }
+    print("[DEBUG] Torch info:")
+    print(f"[DEBUG] torch.__version__ = {info['torch_version']}")
+    print(f"[DEBUG] torch.version.cuda = {info['torch_cuda_version']}")
+    print(f"[DEBUG] torch.cuda.is_available() = {info['cuda_available']}")
+    print(f"[DEBUG] torch.cuda.device_count() = {info['cuda_device_count']}")
+    return info
 
 
 def save_json(path: str | Path, data: dict[str, Any]) -> None:

@@ -13,6 +13,7 @@ from data import DatasetConfig, GraphMatrixDataset
 from eval import evaluate_model, evaluate_ood_suites
 from model import GraphConnectivityTransformer, ModelConfig
 from utils import ensure_dir, get_device, save_json, set_seed
+from utils import debug_torch_device_info
 
 
 @dataclass
@@ -77,6 +78,8 @@ def _build_loader(
 def train_model(config: TrainConfig, extra_eval_loaders: dict[str, DataLoader] | None = None) -> dict[str, Any]:
     set_seed(config.seed)
     out_dir = ensure_dir(config.output_dir)
+    # Print debug info about torch / CUDA visibility early in the logs
+    debug_torch_device_info()
     device = get_device(config.device)
     print(f"Using device: {device}")
     print(f"Training output directory: {out_dir.resolve()}")
@@ -113,6 +116,17 @@ def train_model(config: TrainConfig, extra_eval_loaders: dict[str, DataLoader] |
         dropout=config.dropout,
     )
     model = GraphConnectivityTransformer(model_cfg).to(device)
+    # Verify model parameters moved to requested device when CUDA explicitly requested
+    try:
+        first_param = next(model.parameters())
+        param_dev = first_param.device
+        print(f"Model parameter device: {param_dev}")
+        if config.device == "cuda" and param_dev.type != "cuda":
+            raise RuntimeError(
+                f"Model not placed on CUDA despite requested device='cuda'. torch reports cuda_available={torch.cuda.is_available()}"
+            )
+    except StopIteration:
+        print("[WARN] Model has no parameters to inspect")
     criterion = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=config.lr, weight_decay=config.weight_decay

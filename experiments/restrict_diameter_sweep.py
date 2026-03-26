@@ -73,6 +73,7 @@ def run_point(cfg: TrainConfig, force: bool) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force_recompute", action="store_true")
+    parser.add_argument("--device", type=str, default="cuda", help="Device to run on: 'cuda' or 'cpu' or 'auto'")
     parser.add_argument("--p_min", type=float, default=0.05)
     parser.add_argument("--p_max", type=float, default=0.30)
     parser.add_argument("--p_steps", type=int, default=11)
@@ -118,7 +119,7 @@ def main() -> None:
                 val_mode="er",
                 max_diameter_train=diam,
                 seed=42,
-                device="auto",
+                device=args.device,
                 num_workers=0,
                 max_attempts=args.max_attempts,
             )
