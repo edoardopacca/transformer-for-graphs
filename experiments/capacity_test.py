@@ -46,37 +46,36 @@ def compute_max_reliable_length(model: torch.nn.Module, loader: DataLoader, devi
 
 def plot_capacity(xs: list[int], ys: list[int], out_png: Path, *, threshold: float = 0.99, L: int = 2) -> None:
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    label_curve = f"Max reliable path length (accuracy >= {threshold})"
+    
+    # 1. Disegniamo la curva principale (una volta sola)
+    label_curve = f"Max reliable path length (acc >= {threshold})"
     ax.plot(xs, ys, marker="o", color="#ff7f0e", linewidth=2, label=label_curve)
 
+    # 2. Estetica e riempimento solo se abbiamo più punti
+    ax.set_xlabel("Epoch")
     if len(xs) > 1:
-        # multiple epochs: linear x-axis labeled as Epoch
-        ax.set_xlabel("Epoch")
-        # ensure xs are sorted
-        ax.plot(xs, ys, marker="o", color="#ff7f0e", linewidth=2)
-    else:
-        # single point: no log scale and no fill
-        ax.set_xlabel("Epoch")
-
-    if len(xs) > 1:
-        try:
-            ax.fill_between(xs, ys, color="#ff7f0e", alpha=0.12)
-        except Exception:
-            pass
-
+        ax.fill_between(xs, ys, color="#ff7f0e", alpha=0.12)
+        
     ax.set_ylabel("Maximum Reliable Path Length")
-    ax.set_ylim(0, max(ys + [1]) + 1)
+    
+    # 3. Gestione della linea teorica (sempre visibile)
+    y_theoretical = 3 ** L
+    # Usiamo axhline così appare anche se abbiamo un solo punto in X
+    ax.axhline(y_theoretical, color="#1f77b4", linestyle="--", 
+               label=f"Theoretical capacity: $3^{{{L}}}$")
+
+    # 4. Sistema i limiti dell'asse Y per includere la linea teorica
+    current_max = max(max(ys) if ys else 0, y_theoretical)
+    ax.set_ylim(0, current_max + 2) 
+    
     ax.grid(True, alpha=0.25)
-    # theoretical capacity line using L from config
-    yline = 3 ** L
-    ax.hlines(yline, min(xs), max(xs), colors="#1f77b4", linestyles="--", label=f"Theoretical capacity: 3^{L}")
     ax.legend(loc="lower right")
     fig.suptitle("Maximum reliable path length across training")
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_png, dpi=150)
     plt.close(fig)
-
 
 def main() -> None:
     parser = argparse.ArgumentParser()
