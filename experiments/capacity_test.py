@@ -150,9 +150,9 @@ def main() -> None:
     out_png = out_dir / "capacity.png"
     plot_capacity(xs, ys, out_png)
 
-    # copy into runs/baseline for quick inspection (same behavior as baseline.py)
+    # copy into runs/capacity_test for quick inspection
     try:
-        runs_dir = PROJECT_ROOT / "runs" / "baseline"
+        runs_dir = PROJECT_ROOT / "runs" / "capacity_test"
         runs_dir.mkdir(parents=True, exist_ok=True)
         if out_png.exists():
             shutil.copy2(out_png, runs_dir / "capacity.png")
