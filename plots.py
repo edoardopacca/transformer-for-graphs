@@ -246,6 +246,59 @@ def plot_restrict_diameter_dynamics(aggregated_json: str | Path, output_png: str
     plt.close(fig)
 
 
+def plot_restrict_diameter_dynamics_pairwise(aggregated_json: str | Path, output_png: str | Path) -> None:
+    """Plot pairwise OOD accuracy dynamics for different training diameter restrictions.
+
+    Expected aggregated_json format:
+      {"None": {"epochs": [1,..,T], "two_chains_pairwise": [...], "two_cliques_pairwise": [...]},
+       "7": {...}, "9": {...}, "11": {...}}
+    """
+    data = load_json(aggregated_json)
+
+    def parse_diam(k: str):
+        if k in ("None", "NoneType", "null"):
+            return None
+        try:
+            return int(k)
+        except Exception:
+            return k
+
+    diam_keys = sorted(list(data.keys()), key=lambda x: (parse_diam(x) is not None, parse_diam(x) if parse_diam(x) is None else int(parse_diam(x))))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    colors = plt.get_cmap('tab10')
+
+    for i, dkey in enumerate(diam_keys):
+        row = data[dkey]
+        epochs = row.get("epochs")
+        chains = row.get("two_chains_pairwise")
+        cliques = row.get("two_cliques_pairwise")
+        if epochs is None or chains is None or cliques is None:
+            # skip incomplete rows
+            continue
+        d = parse_diam(dkey)
+        label = "Unrestricted" if d is None else f"Train diam <= {d}"
+        axes[0].plot(epochs, chains, marker='o', label=label, color=colors(i))
+        axes[1].plot(epochs, cliques, marker='o', label=label, color=colors(i))
+
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('Pairwise accuracy')
+    axes[1].set_xlabel('Epoch')
+    axes[1].set_ylabel('Pairwise accuracy')
+    axes[0].set_title('TwoChains OOD pairwise accuracy')
+    axes[1].set_title('TwoCliques OOD pairwise accuracy')
+    axes[0].set_ylim(0.0, 1.0)
+    axes[1].set_ylim(0.0, 1.0)
+    axes[0].grid(True, alpha=0.3)
+    axes[1].grid(True, alpha=0.3)
+    axes[0].legend(loc='lower right')
+    axes[1].legend(loc='lower right')
+    fig.suptitle('OOD pairwise accuracy over training under diameter restrictions')
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    Path(output_png).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_png, dpi=150)
+    plt.close(fig)
+
+
 def plot_curriculum_diameter_dynamics(aggregated_json: str | Path, output_png: str | Path) -> None:
     data = load_json(aggregated_json)
     # data expected: {mode: {"global_step": [...], "two_chains_exact": [...], "two_cliques_exact": [...]}, ...}
