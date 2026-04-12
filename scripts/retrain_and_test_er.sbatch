@@ -6,7 +6,7 @@
 #SBATCH --output=out/%x_%j.out
 #SBATCH --error=err/%x_%j.err
 #SBATCH --gpus=4
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=2-00:00:00
 
