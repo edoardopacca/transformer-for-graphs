@@ -1,0 +1,25 @@
+Generating fixed TRAIN dataset for p=0.2, n=20, max_diameter<=11 with 8 processes...
+  Train p=0.2: generated 25000/200000
+  Train p=0.2: generated 50000/200000
+  Train p=0.2: generated 75000/200000
+  Train p=0.2: generated 100000/200000
+  Train p=0.2: generated 125000/200000
+  Train p=0.2: generated 150000/200000
+  Train p=0.2: generated 175000/200000
+  Train p=0.2: generated 200000/200000
+Generating fixed TEST dataset for p=0.2, n=20, max_diameter<=11 with 8 processes...
+  Test p=0.2: generated 2000/2000
+Generating fixed TRAIN dataset for p=0.5, n=20, max_diameter<=11 with 8 processes...
+  Train p=0.5: generated 25000/200000
+  Train p=0.5: generated 50000/200000
+  Train p=0.5: generated 75000/200000
+  Train p=0.5: generated 100000/200000
+  Train p=0.5: generated 125000/200000
+  Train p=0.5: generated 150000/200000
+  Train p=0.5: generated 175000/200000
+  Train p=0.5: generated 200000/200000
+Generating fixed TEST dataset for p=0.5, n=20, max_diameter<=11 with 8 processes...
+  Test p=0.5: generated 2000/2000
+Starting run: p=0.2 -> runs/retrain_er_n20_diam11_3352759/n20_p0.2_rep0
+Starting run: p=0.5 -> runs/retrain_er_n20_diam11_3352759/n20_p0.5_rep0
+All runs finished. Summaries written to runs/retrain_er_n20_diam11_3352759

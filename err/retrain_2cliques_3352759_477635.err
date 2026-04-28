@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/mnt/beegfsstudents/home/3352759/transformer-for-graphs/experiments2/retrain_and_test_2cliques.py", line 14, in <module>
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
