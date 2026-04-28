@@ -209,6 +209,7 @@ __marimo__/
 __pycache__/
 *.pyc
 logs/
-runs/
 trainings/
-
+err/
+.DS_Store
+runs/.DS_Store
