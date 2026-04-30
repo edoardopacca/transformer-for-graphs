@@ -1,0 +1,45 @@
+{
+  "best_exact_match": 0.8226000070571899,
+  "config": {
+    "batch_size": 256,
+    "d_ff": 128,
+    "d_model": 64,
+    "device": "auto",
+    "dropout": 0.0,
+    "eval_every": 1000,
+    "grad_clip_norm": 1.0,
+    "lr": 0.001,
+    "max_diameter": 7,
+    "n": 40,
+    "n_heads": 1,
+    "n_layers": 2,
+    "num_workers": 16,
+    "p": 0.05,
+    "save_best": true,
+    "save_last": true,
+    "test_size": 10000,
+    "train_size": 6000000,
+    "train_steps": 500000,
+    "weight_decay": 0.01
+  },
+  "dataset_stats": {
+    "max_diameter": 7,
+    "n": 40,
+    "p": 0.05,
+    "test_dist_counts": {
+      "0": 400000,
+      "1": 811434,
+      "2": 1548684,
+      "3": 2228570,
+      "4": 2097810,
+      "5": 1237618,
+      "6": 452260,
+      "7": 86000
+    },
+    "test_gen_sec": 110.25841303699963,
+    "test_size": 10000,
+    "train_gen_sec": 4215.107572506,
+    "train_size": 6000000
+  },
+  "ram_after_gen_gb": 18.581878662109375
+}
