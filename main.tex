@@ -1,0 +1,320 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\title{Empirical Analysis of Transformer in Graph Connectivity}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Model}
+
+We use a \emph{Graph Connectivity Transformer} trained to predict the full connectivity matrix of an input graph.
+
+Given an undirected graph with \(n\) nodes (the value of \(n\) varies across experiments and is specified in each section), the input is its adjacency matrix with self-loops added:
+\[
+A \in \{0,1\}^{n \times n}.
+\]
+The target is the connectivity matrix:
+\[
+R \in \{0,1\}^{n \times n},
+\]
+where
+\[
+R_{ij} = 1
+\quad \text{iff} \quad
+i \text{ and } j \text{ belong to the same connected component.}
+\]
+
+Unless otherwise stated, the model configuration used in all experiments is:
+\begin{itemize}
+    \item Number of layers: \(2\)
+    \item Number of attention heads: \(1\)
+    \item Model dimension: \(d_{\mathrm{model}} = 64\)
+    \item Feed-forward dimension: \(d_{\mathrm{ff}} = 128\)
+    \item Dropout: \(0.0\)
+    \item Batch size: \(256\)
+    \item Optimizer: AdamW
+    \item Learning rate: \(10^{-3}\)
+    \item Weight decay: \(0.01\)
+    \item Gradient clipping norm: \(1.0\)
+    \item Training steps: \(500{,}000\)
+    \item Evaluation frequency: every \(1000\) steps
+\end{itemize}
+
+The model is trained on fixed:
+\begin{enumerate}
+    \item Erd\H{o}s--R\'enyi datasets, with \(n = 10\) and with two values of edge probability:
+\[
+p \in \{0.2,\ 0.5\}.
+\]
+    \item 2-chains datasets, with \(n = 14\).
+    \item 2-cliques datasets, with \(n = 14\).
+    \item Erd\H{o}s--R\'enyi datasets with \(n = 40\), \(p = 0.05\), under four different training-set diameter constraints (Section~\ref{sec:n40}).
+\end{enumerate}
+For each dataset (except where noted):
+\begin{itemize}
+    \item Training set size: \(6{,}000{,}000\) graphs
+    \item Test set size: \(10{,}000\) graphs
+\end{itemize}
+
+The evaluation tracks:
+\begin{itemize}
+    \item \textbf{Exact Match Accuracy}: percentage of predicted \(n \times n\) connectivity matrices that are perfectly correct.
+    \item \textbf{Pairwise Accuracy}: average correctness over all matrix entries.
+    \item \textbf{Pairwise Accuracy by Distance}: accuracy conditioned on shortest-path distance in the test set.
+    \item \textbf{Training Loss}: binary cross-entropy loss during optimization.
+\end{itemize}
+
+\section{Training and testing in distribution on ER graphs (n = 10)}
+\subsection{Results for \(p = 0.2\)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_er_p02_accuracy.png}
+    \caption{Exact match accuracy and pairwise accuracy over training steps for Erd\H{o}s--R\'enyi graphs with \(p = 0.2\).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_er_p02_train_loss.png}
+    \caption{Training loss over training steps for Erd\H{o}s--R\'enyi graphs with \(p = 0.2\).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{per_distance_accuracy_small_multiples_p02.png}
+    \caption{Pairwise accuracy by shortest-path distance for Erd\H{o}s--R\'enyi graphs with \(p = 0.2\). Each panel corresponds to a fixed node-pair distance.}
+\end{figure}
+
+\subsection{Results for \(p = 0.5\)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_er_p05_accuracy.png}
+    \caption{Exact match accuracy and pairwise accuracy over training steps for Erd\H{o}s--R\'enyi graphs with \(p = 0.5\).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_er_p05_train_loss.png}
+    \caption{Training loss over training steps for Erd\H{o}s--R\'enyi graphs with \(p = 0.5\).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{per_distance_accuracy_small_multiples_p05.png}
+    \caption{Pairwise accuracy by shortest-path distance for Erd\H{o}s--R\'enyi graphs with \(p = 0.5\). Each panel corresponds to a fixed node-pair distance.}
+\end{figure}
+
+\subsection{Comments}
+
+The experiments show that the model performs very well on in-distribution Erd\H{o}s--R\'enyi graphs. Both exact match accuracy and pairwise accuracy become extremely high very early during training, and the loss rapidly decreases toward zero.
+
+However, the model is learning an effective \emph{heuristic} for the Erd\H{o}s--R\'enyi distribution rather than a fully robust algorithmic solution for graph connectivity.
+
+This interpretation is supported by two observations:
+\begin{itemize}
+    \item The training loss, although very small, still exhibits slight oscillatory behavior instead of converging in a perfectly stable way.
+    \item Accuracy deteriorates as the shortest-path distance between node pairs increases. The degradation is limited for common distances, but it becomes more visible for larger distances, where the number of test examples is also much smaller.
+\end{itemize}
+
+Therefore, the empirical picture is the following: on ER graphs the transformer appears to solve the task very well, but this may happen because the data distribution allows the model to exploit shortcuts or regularities.
+
+
+
+
+\section{Training and testing in distribution on 2-chains graphs (n = 14)}
+
+\subsection{Results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_two_chains_k07_accuracy.png}
+    \caption{Exact match accuracy and pairwise accuracy over training steps for 2-chains graphs (n = 14).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_two_chains_k07_train_loss.png}
+    \caption{Training loss over training steps for 2-chains graphs (n = 14).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{per_distance_accuracy_small_multiples_k07.png}
+    \caption{Pairwise accuracy by shortest-path distance for 2-chains graphs (n = 14). Each panel corresponds to a fixed node-pair distance.}
+\end{figure}
+
+
+\subsection{Comments}
+The model achieves near-perfect performance on TwoChains, but this is likely due to the extreme regularity of the dataset rather than true algorithmic understanding.
+
+\subsection{Periodic spikes in the training loss}
+
+The training loss curve for the TwoChains experiment shows periodic spikes in
+the Binary Cross-Entropy loss. These spikes have magnitude approximately
+\(0.01\)--\(0.015\), and appear roughly every \(25{,}000\)--\(30{,}000\)
+training steps over the full \(500{,}000\)-step training run.
+The period of the spikes is consistent with the epoch length. Indeed, one epoch
+corresponds to
+\[
+T_{\mathrm{epoch}}
+=
+\frac{N_{\mathrm{train}}}{\text{batch size}}
+=
+\frac{6{,}000{,}000}{256}
+\approx 23{,}438
+\]
+training steps.
+
+At the end of each epoch, the code samples a new random permutation of the
+dataset indices, using \texttt{rng.permutation(train\_size)}. Therefore, the
+examples are the same across epochs, but their order changes abruptly at every
+epoch boundary.
+
+This interacts with the internal state of AdamW. AdamW is an adaptive optimizer:
+it keeps exponentially weighted estimates of the first and second moments of
+the gradients, denoted by \(m_t\) and \(v_t\). These estimates depend on the
+recent sequence of minibatches. When the order of the dataset changes at an
+epoch boundary, the local sequence of gradients also changes. However, the
+optimizer state is still calibrated to the previous sequence of minibatches.
+This temporary mismatch can produce a short transient increase in the loss.
+After a few hundred steps, the optimizer state adapts to the new local gradient
+statistics, and the loss returns to its previous level.
+
+The observed period is slightly larger than the nominal epoch length because
+the plotted training loss is smoothed over the last \(1{,}000\) steps. This
+moving average introduces a delay between the actual epoch boundary and the
+visible peak in the loss curve. For this reason, the empirical spacing of the
+spikes, around \(25{,}000\)--\(30{,}000\) steps, is compatible with an epoch
+length of approximately \(23{,}438\) steps.
+
+Importantly, these spikes do not indicate a degradation of the learned model.
+The validation metrics, both exact match accuracy and pairwise accuracy, remain
+stable and close to \(1.0\) throughout training. The phenomenon is therefore
+best understood as an artifact of the interaction between reshuffling a fixed
+dataset and the stateful dynamics of an adaptive optimizer, rather than as a
+failure of generalization or a loss of model capability.
+
+
+\section{Training and testing in distribution on 2-cliques graphs (n = 14)}
+
+\subsection{Results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{retrain_two_cliques_k07_accuracy.png}
+    \caption{Exact match accuracy and pairwise accuracy over training steps for 2-cliques graphs (n = 14, k = 7).}
+\end{figure}
+
+\subsection{Comments}
+
+The 2-cliques family with \(n = 14\) and \(k = 7\) is a structurally trivial dataset: each graph is the disjoint union of two cliques of size 7, and the only degree of freedom is the partition of the 14 nodes into the two cliques. The number of distinct graphs in this family is therefore very small (\(\binom{14}{7}/2 = 1716\)), so we use the exhaustive set of partitions split into 80\% training and 20\% test, and we cap the optimisation at 800 steps with evaluation every 10 steps.
+
+In-distribution testing on this dataset is therefore not informative: the model reaches \(100\%\) exact match within a few hundred steps and stays there. With so few distinct graphs, the model can essentially memorise the training partitions, and the high accuracy is not evidence that it has learned a connectivity algorithm. We include this experiment only as a sanity check that the architecture and training pipeline behave as expected on a fully regular dataset; the meaningful empirical evidence on the model's behaviour comes from the ER experiments and from the diameter-controlled study presented in Section~\ref{sec:n40}.
+
+
+\section{Diameter-controlled training on ER graphs (\(n = 40\))}
+\label{sec:n40}
+
+\subsection{Motivation}
+
+The previous in-distribution experiments on ER graphs with \(n = 10\) suggest that the transformer is exploiting heuristics rather than learning a genuine BFS-style algorithm. With \(n = 10\) the maximum possible distance is small and most node pairs are very close, so local rules (e.g.\ ``two nodes that share a neighbour are reachable'') are sufficient to obtain near-perfect accuracy.
+
+To probe the relationship between training-set difficulty and learning behaviour, we follow the line of reasoning of recent work on disentangled transformers, which argues that an \(L\)-layer transformer can in principle solve connectivity for graphs whose diameter \(D\) does not exceed \(3^L\). For our 2-layer model this gives \(3^2 = 9\) as the relevant capacity threshold. We therefore compare four training distributions with the same generative process, ER\((n=40,\, p=0.05)\), but different diameter filters \(D \le D^\star\) applied via rejection sampling at training time.
+
+The choice \(n = 40\), \(p = 0.05\) (corresponding to expected degree \(d = np = 2\), the sparse supercritical regime) was made so that the three diameter cutoffs of interest (\(D \le 7\), \(D \le 9\), \(D \le 11\)) are all statistically meaningful: at this scale they accept respectively about \(14\%\), \(55\%\) and \(84\%\) of randomly generated graphs, producing genuinely different training distributions. With smaller \(n\) (e.g.\ \(n = 20\)) all three constraints accept more than \(95\%\) of graphs and the comparison becomes degenerate.
+
+\subsection{Experimental setup}
+
+We run four parallel experiments with identical model and optimiser configurations (the standard configuration listed in Section~1). The only varying factor is the training-set diameter filter:
+
+\begin{itemize}
+    \item \textbf{Unfiltered}: training graphs are sampled directly from ER\((40, 0.05)\).
+    \item \textbf{D \(\le 11\)}: training graphs are sampled from ER\((40, 0.05)\) and rejected unless their maximum finite shortest-path distance is at most 11.
+    \item \textbf{D \(\le 9\)}: same procedure with cutoff 9.
+    \item \textbf{D \(\le 7\)}: same procedure with cutoff 7.
+\end{itemize}
+
+For each experiment, the training set contains \(6{,}000{,}000\) graphs and the test set contains \(10{,}000\) graphs sampled from the same distribution as the training graphs (i.e.\ subject to the same diameter filter). All models are trained for \(500{,}000\) steps. Model checkpointing, evaluation cadence and optimiser hyperparameters are identical across the four runs.
+
+\subsection{Results: convergence speed and final accuracy}
+
+Table~\ref{tab:n40-summary} summarises the four runs. The most striking effect is on \emph{convergence speed}: the four models reach \(99\%\) pairwise accuracy at very different training steps, and the most-restricted training set (\(D \le 7\)) is roughly seventeen times faster than the unfiltered run.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Experiment & Best exact match & Final pairwise & Final loss & Steps to \(99\%\) pairwise \\
+\midrule
+Unfiltered & 0.812 & 0.990 & 0.0260 & 273{,}000 \\
+\(D \le 11\) & 0.808 & 0.993 & 0.0193 & \phantom{0}78{,}000 \\
+\(D \le 9\)  & 0.802 & 0.995 & 0.0135 & \phantom{0}38{,}000 \\
+\(D \le 7\)  & \textbf{0.823} & 0.998 & 0.0060 & \phantom{0}\textbf{16{,}000} \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the four diameter-controlled experiments on ER(\(n = 40,\, p = 0.05\)). All runs use \(6{,}000{,}000\) training graphs and \(500{,}000\) optimisation steps.}
+\label{tab:n40-summary}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{01_convergence.png}
+    \caption{Convergence comparison across the four diameter-controlled experiments. \emph{Left:} pairwise accuracy as a function of the training step (log scale); the boxed labels mark the step at which each model first crosses the \(99\%\) threshold (dashed line). \emph{Right:} per-graph exact-match accuracy on the same log-scaled axis. Despite the large gap in convergence speed, all four runs plateau at very similar final values.}
+    \label{fig:n40-convergence}
+\end{figure}
+
+Two observations follow directly from Figure~\ref{fig:n40-convergence}:
+
+\paragraph{Convergence speed is monotone in the diameter filter.} Tighter constraints lead to faster learning, with a roughly seventeen-fold gap between the most restrictive (\(D \le 7\)) and the unfiltered training distribution. This is consistent with the intuition that filtering the training set towards graphs that the architecture can in principle solve produces a cleaner gradient signal at every step.
+
+\paragraph{Final accuracy is essentially unaffected.} All four runs plateau in a narrow band around \(80\%\) exact match and \(99\%\) pairwise accuracy. The differences between the four final values are small (\(\sim 2\%\) in exact match) and well within the typical step-to-step variation of the metric in the last \(50{,}000\) steps. With \(n = 40\) each test graph contains \(40 \times 39 = 1{,}560\) off-diagonal pairs to predict, so a pairwise accuracy of \(0.99\) corresponds on average to about \(15\) wrong pairs per graph, which is enough to drive the exact-match metric down. The plateau at roughly \(0.80\) exact match across all four runs therefore strongly suggests that the bottleneck is the model capacity (\(d_{\mathrm{model}} = 64\), one head, two layers) rather than the difficulty of the training data.
+
+\subsection{Results: accuracy as a function of node-pair distance}
+
+A more diagnostic view is obtained by breaking down the final pairwise accuracy by shortest-path distance \(d\) between the two nodes. Figure~\ref{fig:n40-perdistance} shows this breakdown for the four trained models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{02_per_distance.png}
+    \caption{Final pairwise accuracy broken down by shortest-path distance \(d\) for the four diameter-controlled experiments. Background shading indicates the support of each filtered training distribution. Each curve is truncated at the maximum \(d\) present in the corresponding test set.}
+    \label{fig:n40-perdistance}
+\end{figure}
+
+Three patterns emerge from Figure~\ref{fig:n40-perdistance}.
+
+\paragraph{Accuracy is near-perfect at small distances.} For \(d \le 5\) all four models predict pairs correctly with probability greater than \(0.995\), and within this range there is no meaningful difference among the four training filters.
+
+\paragraph{Restrictive training is worse at the boundary.} At the boundary \(d = 7\), the ranking of the four models is \textit{inverted} with respect to what one might expect: the unfiltered model attains \(0.985\), the \(D \le 11\) model \(0.979\), the \(D \le 9\) model \(0.957\), and the \(D \le 7\) model only \(0.941\). In other words, the model that has been trained exclusively on graphs with \(D \le 7\) is the worst at predicting pairs at exactly \(d = 7\). A natural interpretation is that the more permissive training distributions provide the model with longer-range supervision, which helps disambiguate the boundary cases.
+
+\paragraph{The unfiltered model collapses on long-range pairs.} Beyond \(d = 11\), only the unfiltered model has data to evaluate, and its accuracy decays sharply: \(0.83\) at \(d = 13\), \(0.45\) at \(d = 19\), \(0\) at \(d = 21\). These distances correspond to a small but non-negligible fraction of the test set ($\sim$15\% of graphs have diameter \(> 11\)) and account for most of the gap between the unfiltered model's exact-match accuracy and that of the diameter-restricted runs.
+
+\subsection{Comments}
+
+Putting the convergence and per-distance analyses together, we draw three main conclusions.
+
+First, restricting the training distribution to graphs of diameter \(D \le D^\star\) dramatically accelerates learning, with a roughly seventeen-fold reduction in the number of steps required to reach \(99\%\) pairwise accuracy when going from unfiltered to \(D \le 7\). This is consistent with the picture proposed by recent work on disentangled transformers, in which an \(L\)-layer model is expected to learn most efficiently on graphs whose diameter does not exceed \(3^L\).
+
+Second, despite this large gap in training efficiency, the four models plateau at essentially the same final exact-match accuracy of about \(0.80\). Combined with the observation that pairwise accuracy is consistently around \(0.99\) at the end of training, this strongly indicates that the bottleneck of the present setup is the size of the model rather than the structure of the training data. Future experiments aimed at validating or refuting the \(3^L\) prediction more rigorously should therefore include a sweep over \(d_{\mathrm{model}}\), \(n_{\mathrm{heads}}\) and \(n_{\mathrm{layers}}\).
+
+Third, the per-distance analysis reveals that the diameter filter is not strictly beneficial. Models trained on more restrictive distributions are systematically worse at the boundary distances of those distributions, and the \(D \le 9\) model in particular (the configuration that exactly matches the \(3^L = 9\) prediction for our 2-layer architecture) underperforms both \(D \le 7\) and \(D \le 11\) on its own diameter range. This suggests that the relationship between training-set diameter and learned solution is not monotone, and that the empirical optimum may lie either below or above the theoretical \(3^L\) threshold depending on the metric of interest.
+
+
+\end{document}
