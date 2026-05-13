@@ -166,6 +166,9 @@ def load_model(checkpoint_path: str,
         n=cfg["n"], d_model=cfg["d_model"], n_heads=cfg["n_heads"],
         d_ff=cfg["d_ff"], n_layers=cfg["n_layers"],
         dropout=cfg.get("dropout", 0.0),
+        # Older checkpoints may not have attn_kind; default to softmax to stay
+        # backward-compatible. New big-model checkpoints save normalized_relu.
+        attn_kind=cfg.get("attn_kind", "softmax"),
     )
     model = GraphConnectivityTransformer(mcfg).to(device)
     model.load_state_dict(ckpt["model_state_dict"])
