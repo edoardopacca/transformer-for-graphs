@@ -16,16 +16,25 @@ class ModelConfig:
     d_ff: int = 256
     n_layers: int = 2
     dropout: float = 0.0
+    # Attention kind: "softmax" (default, classical) or "normalized_relu"
+    # (= Ye et al. 2026 / "Right Data" paper: α = (1/n)·ReLU(QK^T/√d_h)).
+    # The normalized-ReLU variant is the canonical choice for the
+    # matrix-powering construction in the Disentangled-Transformer paper.
+    attn_kind: str = "softmax"
 
 
 class MultiHeadSelfAttention(nn.Module):
-    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.0) -> None:
+    def __init__(self, d_model: int, n_heads: int, dropout: float = 0.0,
+                 attn_kind: str = "softmax") -> None:
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError("d_model must be divisible by n_heads")
+        if attn_kind not in ("softmax", "normalized_relu"):
+            raise ValueError(f"unknown attn_kind: {attn_kind}")
         self.d_model = d_model
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
+        self.attn_kind = attn_kind
         self.q_proj = nn.Linear(d_model, d_model)
         self.k_proj = nn.Linear(d_model, d_model)
         self.v_proj = nn.Linear(d_model, d_model)
@@ -38,17 +47,21 @@ class MultiHeadSelfAttention(nn.Module):
         k = self.k_proj(x).view(b, n, self.n_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(x).view(b, n, self.n_heads, self.head_dim).transpose(1, 2)
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
-        attn = F.softmax(scores, dim=-1)
+        if self.attn_kind == "softmax":
+            attn = F.softmax(scores, dim=-1)
+        else:   # normalized_relu  -- (1/n) * ReLU(QK^T/√d_h)
+            attn = F.relu(scores) / n
         attn = self.dropout(attn)
         out = torch.matmul(attn, v).transpose(1, 2).contiguous().view(b, n, self.d_model)
         return self.o_proj(out)
 
 
 class TransformerBlock(nn.Module):
-    def __init__(self, d_model: int, n_heads: int, d_ff: int, dropout: float = 0.0) -> None:
+    def __init__(self, d_model: int, n_heads: int, d_ff: int, dropout: float = 0.0,
+                 attn_kind: str = "softmax") -> None:
         super().__init__()
         self.norm1 = nn.LayerNorm(d_model)
-        self.attn = MultiHeadSelfAttention(d_model, n_heads, dropout)
+        self.attn = MultiHeadSelfAttention(d_model, n_heads, dropout, attn_kind=attn_kind)
         self.drop1 = nn.Dropout(dropout)
         self.norm2 = nn.LayerNorm(d_model)
         self.ff = nn.Sequential(
@@ -77,6 +90,7 @@ class GraphConnectivityTransformer(nn.Module):
                     n_heads=config.n_heads,
                     d_ff=config.d_ff,
                     dropout=config.dropout,
+                    attn_kind=config.attn_kind,
                 )
                 for _ in range(config.n_layers)
             ]
