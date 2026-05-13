@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name="big_er_n40_diam9"
+#SBATCH --job-name="curriculum_n40_big"
 #SBATCH --account=3352759
-#SBATCH --partition=long_gpuh200
+#SBATCH --partition=gpuh200
 #SBATCH --output=out/%x_%j.out
 #SBATCH --error=err/%x_%j.err
 #SBATCH --mail-type=END,FAIL
@@ -29,9 +29,8 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cuda.is_available(), '| bf16:', torch.cuda.is_bf16_supported())"
 echo "================"
 
-python experiments2/retrain_and_test_er_n40_big.py \
-    --output_root "runs/retrain_er_n40_big_${SLURM_JOB_ID}" \
-    --max_diameter 9 \
+python experiments2/curriculum_er_n40_big.py \
+    --output_root "runs/curriculum_er_n40_big_${SLURM_JOB_ID}" \
     --num_workers 32 \
     --train_steps 1000000 \
     --batch_size 1000
