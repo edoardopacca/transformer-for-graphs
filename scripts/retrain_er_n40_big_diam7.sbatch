@@ -7,7 +7,7 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=3352759@studbocconi.it
 #SBATCH --gpus=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=24
 #SBATCH --mem=40G
 #SBATCH --time=24:00:00
 
@@ -37,6 +37,6 @@ echo "================"
 python experiments2/retrain_and_test_er_n40_big.py \
     --output_root "runs/retrain_er_n40_big_${SLURM_JOB_ID}" \
     --max_diameter 7 \
-    --num_workers 32 \
+    --num_workers 24 \
     --train_steps 1000000 \
     --batch_size 1000
