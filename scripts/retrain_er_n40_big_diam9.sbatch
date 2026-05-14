@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name="big_er_n40_diam9"
 #SBATCH --account=3352759
-#SBATCH --partition=long_gpuh200
+#SBATCH --partition=gpuh200
 #SBATCH --output=out/%x_%j.out
 #SBATCH --error=err/%x_%j.err
 #SBATCH --mail-type=END,FAIL

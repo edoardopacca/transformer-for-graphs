@@ -1,15 +1,15 @@
 #!/bin/bash
 #SBATCH --job-name="big_er_n40_diam7"
 #SBATCH --account=3352759
-#SBATCH --partition=long_gpuh200
+#SBATCH --partition=gpuh200
 #SBATCH --output=out/%x_%j.out
 #SBATCH --error=err/%x_%j.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=3352759@studbocconi.it
 #SBATCH --gpus=1
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=32
 #SBATCH --mem=40G
-#SBATCH --time=24:00:00
+#SBATCH --time=23:55:00
 
 mkdir -p out err
 
@@ -37,6 +37,6 @@ echo "================"
 python experiments2/retrain_and_test_er_n40_big.py \
     --output_root "runs/retrain_er_n40_big_${SLURM_JOB_ID}" \
     --max_diameter 7 \
-    --num_workers 24 \
+    --num_workers 32 \
     --train_steps 1000000 \
     --batch_size 1000
