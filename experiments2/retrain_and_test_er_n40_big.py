@@ -131,13 +131,14 @@ def _gen_test_chunk(args):
 
 
 def build_test_dataset(n: int, p: float, max_diameter: Optional[int],
-                       num_workers: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+                       num_workers: int, seed: int = 0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     print(f"Generating {TEST_SIZE:,} test graphs "
           f"({'D≤'+str(max_diameter) if max_diameter is not None else 'unfiltered'}) "
           f"with {num_workers} workers …")
     t0 = time.perf_counter()
     CHUNK = 1000
-    specs = [(s, min(CHUNK, TEST_SIZE - s), p, n, max_diameter, 54321 + s)
+    seed_offset = seed * 100003
+    specs = [(s, min(CHUNK, TEST_SIZE - s), p, n, max_diameter, 54321 + seed_offset + s)
              for s in range(0, TEST_SIZE, CHUNK)]
     test_x = np.empty((TEST_SIZE, n, n), dtype=np.uint8)
     test_y = np.empty((TEST_SIZE, n, n), dtype=np.uint8)
@@ -461,7 +462,8 @@ def main() -> None:
     print(f"{'='*72}\n")
 
     test_x, test_y, test_d = build_test_dataset(N_NODES, P, args.max_diameter,
-                                                  num_workers=args.num_workers)
+                                                  num_workers=args.num_workers,
+                                                  seed=args.seed)
 
     stream = OnlineERStream(N_NODES, P, args.max_diameter, seed=args.seed + 7)
     loader = DataLoader(

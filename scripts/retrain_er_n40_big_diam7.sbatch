@@ -39,4 +39,5 @@ python experiments2/retrain_and_test_er_n40_big.py \
     --max_diameter 7 \
     --num_workers 32 \
     --train_steps 1000000 \
-    --batch_size 1000
+    --batch_size 1000 \
+    --seed 2000

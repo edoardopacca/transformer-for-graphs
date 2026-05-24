@@ -124,9 +124,10 @@ def _gen_structured_chunk(args):
     return start, xs, ys, ds, n_actives
 
 
-def generate_er_test(n: int, p: float, n_test: int, num_workers: int) -> Dict[str, np.ndarray]:
+def generate_er_test(n: int, p: float, n_test: int, num_workers: int,
+                      seed: int = 0) -> Dict[str, np.ndarray]:
     chunk = max(500, n_test // (num_workers * 4))
-    seed_base = int(p * 1000) + 7777
+    seed_base = int(p * 1000) + 7777 + seed * 100003
     specs = [(s, min(chunk, n_test - s), n, p, seed_base + s)
              for s in range(0, n_test, chunk)]
     xs = np.empty((n_test, n, n), dtype=np.uint8)
@@ -140,9 +141,10 @@ def generate_er_test(n: int, p: float, n_test: int, num_workers: int) -> Dict[st
 
 
 def generate_structured_padded_test(kind: str, n_padded: int, n_values: List[int],
-                                     n_test: int, num_workers: int) -> Dict[str, np.ndarray]:
+                                     n_test: int, num_workers: int,
+                                     seed: int = 0) -> Dict[str, np.ndarray]:
     chunk = max(500, n_test // (num_workers * 4))
-    seed_base = 8888 + (1 if kind == "chains" else 2) * 1000
+    seed_base = 8888 + (1 if kind == "chains" else 2) * 1000 + seed * 100003
     specs = [(s, min(chunk, n_test - s), n_padded, n_values, kind, seed_base + s)
              for s in range(0, n_test, chunk)]
     xs = np.empty((n_test, n_padded, n_padded), dtype=np.uint8)
@@ -410,7 +412,8 @@ def mode_n14_to_er(args) -> None:
     for p in ER_P_VALUES:
         print(f"\n── Test: ER(n=14, p={p}), {N_TEST:,} graphs ──")
         t0 = time.perf_counter()
-        ds = generate_er_test(n=14, p=p, n_test=N_TEST, num_workers=args.num_workers)
+        ds = generate_er_test(n=14, p=p, n_test=N_TEST, num_workers=args.num_workers,
+                               seed=args.seed)
         gen_s = time.perf_counter() - t0
         t0 = time.perf_counter()
         m = evaluate(model, ds, device)
@@ -450,6 +453,7 @@ def mode_n40_to_structured(args) -> None:
         ds = generate_structured_padded_test(
             kind=kind, n_padded=40, n_values=N_VALUES_VARIABLE,
             n_test=N_TEST, num_workers=args.num_workers,
+            seed=args.seed,
         )
         gen_s = time.perf_counter() - t0
         t0 = time.perf_counter()
@@ -485,7 +489,8 @@ def mode_n40_to_structured(args) -> None:
     # ── (c): unfiltered ER(n=40, p=0.05) with per-diameter-bucket ──
     print(f"\n── Test: unfiltered ER(n=40, p=0.05), {N_TEST:,} graphs ──")
     t0 = time.perf_counter()
-    ds = generate_er_test(n=40, p=0.05, n_test=N_TEST, num_workers=args.num_workers)
+    ds = generate_er_test(n=40, p=0.05, n_test=N_TEST, num_workers=args.num_workers,
+                           seed=args.seed)
     gen_s = time.perf_counter() - t0
     t0 = time.perf_counter()
     m = evaluate(model, ds, device)
@@ -526,6 +531,8 @@ def main() -> None:
     p.add_argument("--checkpoint", type=str, required=True)
     p.add_argument("--output_dir", type=str, required=True)
     p.add_argument("--num_workers", type=int, default=16)
+    p.add_argument("--seed", type=int, default=0,
+                   help="shift test-set RNG seeds (0 = original data)")
     args = p.parse_args()
 
     if args.mode == "n14_to_er":

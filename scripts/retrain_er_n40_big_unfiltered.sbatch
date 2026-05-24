@@ -33,4 +33,5 @@ python experiments2/retrain_and_test_er_n40_big.py \
     --output_root "runs/retrain_er_n40_big_exp2_${SLURM_JOB_ID}" \
     --num_workers 16 \
     --train_steps 1000000 \
-    --batch_size 1000
+    --batch_size 1000 \
+    --seed 2000

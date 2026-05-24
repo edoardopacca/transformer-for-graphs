@@ -58,7 +58,8 @@ for tag in unfiltered diam11 diam9 diam7; do
         --mode n40_to_structured \
         --checkpoint "$ckpt" \
         --output_dir "$OUT_ROOT/er_n40_big_${tag}_to_structured" \
-        --num_workers 16
+        --num_workers 16 \
+        --seed 2000
 done
 
 echo ""
