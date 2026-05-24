@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="big_er_n40_unfilt"
+#SBATCH --job-name="big_er_n40_unfilt_exp2"
 #SBATCH --account=3352759
 #SBATCH --partition=gpuh200
 #SBATCH --output=out/%x_%j.out
@@ -30,7 +30,7 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cu
 echo "================"
 
 python experiments2/retrain_and_test_er_n40_big.py \
-    --output_root "runs/retrain_er_n40_big_${SLURM_JOB_ID}" \
+    --output_root "runs/retrain_er_n40_big_exp2_${SLURM_JOB_ID}" \
     --num_workers 16 \
     --train_steps 1000000 \
     --batch_size 1000

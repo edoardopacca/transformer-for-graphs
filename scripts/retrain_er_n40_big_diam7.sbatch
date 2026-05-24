@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="big_er_n40_diam7"
+#SBATCH --job-name="big_er_n40_diam7_exp2"
 #SBATCH --account=3352759
 #SBATCH --partition=gpuh200
 #SBATCH --output=out/%x_%j.out
@@ -35,7 +35,7 @@ echo "================"
 # log, the fix is to increase --cpus-per-task above (32 or 60 if the partition
 # allows it on the H200 nodes).
 python experiments2/retrain_and_test_er_n40_big.py \
-    --output_root "runs/retrain_er_n40_big_${SLURM_JOB_ID}" \
+    --output_root "runs/retrain_er_n40_big_exp2_${SLURM_JOB_ID}" \
     --max_diameter 7 \
     --num_workers 32 \
     --train_steps 1000000 \
