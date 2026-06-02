@@ -37,6 +37,45 @@ def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     return adj
 
 
+def generate_one_chain_graph(n: int) -> np.ndarray:
+    """Single path (chain) over all n nodes: 0-1-2-...-(n-1). One connected
+    component. Used as the negative ("1 chain") class in the components task."""
+    adj = np.zeros((n, n), dtype=np.float32)
+    for i in range(n - 1):
+        adj[i, i + 1] = 1.0
+        adj[i + 1, i] = 1.0
+    return adj
+
+
+def generate_one_cycle_graph(n: int) -> np.ndarray:
+    """Single cycle C_n over all n nodes (path + closing edge). One connected
+    component, every node has degree 2, diameter floor(n/2)."""
+    if n < 3:
+        raise ValueError(f"a cycle needs n >= 3, got n={n}")
+    adj = generate_one_chain_graph(n)
+    adj[0, n - 1] = 1.0
+    adj[n - 1, 0] = 1.0
+    return adj
+
+
+def generate_two_cycles_graph(n: int, k: int) -> np.ndarray:
+    """Two disjoint cycles C_k. Requires n == 2*k and k >= 3. Two connected
+    components, each of diameter floor(k/2)."""
+    if n != 2 * k:
+        raise ValueError(f"TwoCycles requires n == 2*k, got n={n}, k={k}")
+    if k < 3:
+        raise ValueError(f"each cycle needs k >= 3, got k={k}")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for start in (0, k):
+        for i in range(start, start + k - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+        # close each cycle
+        adj[start, start + k - 1] = 1.0
+        adj[start + k - 1, start] = 1.0
+    return adj
+
+
 def add_self_loops(adj: np.ndarray) -> np.ndarray:
     out = adj.copy().astype(np.float32)
     np.fill_diagonal(out, 1.0)

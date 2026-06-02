@@ -117,3 +117,43 @@ class GraphConnectivityTransformer(nn.Module):
     def predict_binary(self, x: torch.Tensor, threshold: float = 0.0) -> torch.Tensor:
         logits = self.forward(x)
         return (logits > threshold).to(torch.int64)
+
+
+class GraphBinaryClassifier(nn.Module):
+    """Graph-level binary classifier sharing the exact same trunk as
+    GraphConnectivityTransformer (read-in, normalized-ReLU/softmax attention
+    blocks, final LayerNorm). Instead of an n x n read-out, it mean-pools the
+    node embeddings and maps them to a single logit.
+
+    Used for the "1 chain vs 2 chains" task (= 1 vs 2 connected components):
+    target 1 -> two components (2chain), target 0 -> one component (1chain).
+    """
+
+    def __init__(self, config: ModelConfig) -> None:
+        super().__init__()
+        self.config = config
+        self.read_in = nn.Linear(config.n, config.d_model)
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlock(
+                    d_model=config.d_model,
+                    n_heads=config.n_heads,
+                    d_ff=config.d_ff,
+                    dropout=config.dropout,
+                    attn_kind=config.attn_kind,
+                )
+                for _ in range(config.n_layers)
+            ]
+        )
+        self.final_norm = nn.LayerNorm(config.d_model)
+        self.head = nn.Linear(config.d_model, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.ndim != 3 or x.shape[-1] != self.config.n or x.shape[-2] != self.config.n:
+            raise ValueError(f"Expected input [B, {self.config.n}, {self.config.n}], got {x.shape}")
+        h = self.read_in(x)
+        for block in self.blocks:
+            h = block(h)
+        h = self.final_norm(h)
+        pooled = h.mean(dim=1)                 # mean over nodes -> [B, d_model]
+        return self.head(pooled).squeeze(-1)   # -> [B]
