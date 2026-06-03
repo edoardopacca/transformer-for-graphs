@@ -440,14 +440,24 @@ $d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$, normalised-ReLU attention
 $\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$, GELU feed-forward, no
 positional encoding. AdamW, peak lr $10^{-4}$, weight decay $10^{-4}$, cosine
 schedule, batch size $1{,}000$, $1{,}000{,}000$ steps, each graph seen once
-($\approx 10^9$ graphs), bf16. Appendix~D.1 specifies a \emph{RoBERTa}
-implementation rather than the idealised A.1 transformer, so we run the
-configuration at two points on the implementation-detail axis: a clean
-\textbf{A.1-style} model (pre-LayerNorm, no dropout, default initialisation) and
-a \textbf{RoBERTa-faithful} model (post-LayerNorm, dropout $0.1$, weight
-initialisation $\mathcal{N}(0, 0.02)$). We treat these as two settings of the
-same experiment, not as two experiments; as the results show, the conclusion
-does not hinge on the distinction.
+($\approx 10^9$ graphs), bf16.
+
+Crucially, the paper does not pin down the \emph{exact} architecture it trains.
+Appendix~A.1 gives an idealised mathematical specification (pre-LayerNorm,
+bias-free read-in/read-out, no dropout), whereas Appendix~D.1 says the trained
+standard transformers \emph{``adopt the implementation from RoBERTa''} --- which
+in practice implies post-LayerNorm blocks, dropout $0.1$ and a
+$\mathcal{N}(0, 0.02)$ initialisation --- without stating those choices
+explicitly. The two readings differ exactly in the details that shape the
+training dynamics, which is what the paper's claim is about. Rather than guess,
+we ran \textbf{both}:
+\begin{itemize}
+    \item an \textbf{A.1-style} model (pre-LayerNorm, no dropout, default
+          initialisation), and
+    \item a \textbf{RoBERTa-faithful} model (post-LayerNorm, dropout $0.1$,
+          $\mathcal{N}(0, 0.02)$ initialisation).
+\end{itemize}
+We treat these as two settings of one experiment, not as two experiments.
 
 \paragraph{Training and test distributions.} Training on
 \textbf{$\mathrm{ER}(n = 20, p = 0.08)$}, in two conditions: \emph{unrestricted}
@@ -535,31 +545,33 @@ per-seed outcome rather than a graded effect of the diameter filter.}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.62\textwidth]{runs/repro_paper_n20_roberta/fig1_reproduction.png}
-    \caption{Figure~1, RoBERTa-faithful (unrestricted; mean over $3$ seeds, band
-    is $\pm 1$ std, faint lines are individual seeds). One seed lifts 2Clique to
-    $1.0$; the other two stay at zero, hence the wide band.}
+    \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig1_perseed.png}
+    \caption{Figure~1, RoBERTa-faithful, unrestricted --- shown \emph{per seed}
+    (one panel each) rather than as a mean, since the outcome is bimodal. Seed
+    $1000$ lifts 2Clique to $1.0$ while staying perfect in distribution; seeds
+    $2000$ and $3000$ never leave zero on either OOD family.}
     \label{fig:repro-rob-fig1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[t]{0.48\textwidth}
+    \begin{subfigure}[t]{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig7_reproduction.png}
+        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig7_perseed.png}
         \caption{2Chain (paper Figure~7).}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.48\textwidth}
+    \begin{subfigure}[t]{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig11_reproduction.png}
+        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig11_perseed.png}
         \caption{2Clique (paper Figure~11).}
     \end{subfigure}
     \caption{The data lever, RoBERTa-faithful: exact-match accuracy on 2Chain
-    (left) and 2Clique (right), unrestricted vs.\ restricted $D \le 9$ (mean over
-    $3$ seeds, $\pm 1$ std band, individual seeds faint). The single generalising
-    seed drives both the mean and the band; the two conditions are not cleanly
-    separated.}
+    (left) and 2Clique (right), one line per (condition, seed) --- colour by
+    condition (orange: unrestricted, blue: restricted $D \le 9$), line style by
+    seed. A single seed accounts for essentially all of the signal in each panel;
+    plotting a mean here would hide the bimodality. The two conditions are not
+    cleanly separated: which run --- if any --- generalises is set by the seed.}
     \label{fig:repro-rob-fig7-11}
 \end{figure}
 
