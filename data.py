@@ -47,6 +47,28 @@ def generate_one_chain_graph(n: int) -> np.ndarray:
     return adj
 
 
+def generate_path_union_graph(n: int, rng: np.random.Generator,
+                              max_paths: int = 4) -> np.ndarray:
+    """Disjoint union of 1..max_paths paths that partition all n nodes.
+
+    Designed to exercise long-range reachability: with k=1 the graph is a single
+    path of n nodes (shortest-path distances up to n-1), while k>1 introduces
+    genuine cross-component disconnections so the model cannot trivially predict
+    "all connected". Node order is NOT permuted here (do it at the call site)."""
+    k = int(rng.integers(1, max_paths + 1))
+    if k == 1:
+        bounds = [0, n]
+    else:
+        cuts = sorted(rng.choice(np.arange(1, n), size=k - 1, replace=False).tolist())
+        bounds = [0] + cuts + [n]
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in zip(bounds[:-1], bounds[1:]):
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+    return adj
+
+
 def generate_one_cycle_graph(n: int) -> np.ndarray:
     """Single cycle C_n over all n nodes (path + closing edge). One connected
     component, every node has degree 2, diameter floor(n/2)."""
