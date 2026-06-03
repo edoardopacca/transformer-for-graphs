@@ -60,7 +60,7 @@ from data import (
     generate_two_chains_graph,
     generate_two_cliques_graph,
 )
-from model import GraphConnectivityTransformer, ModelConfig
+from model import GraphConnectivityTransformer, RobertaGraphTransformer, ModelConfig
 from utils import ensure_dir, get_device, save_json, set_seed
 
 import matplotlib
@@ -246,8 +246,15 @@ def train(out_dir: Path, dataset_iter, eval_sets: Dict[str, Tuple[np.ndarray, np
         n=config["n"], d_model=config["d_model"], n_heads=config["n_heads"],
         d_ff=config["d_ff"], n_layers=config["n_layers"],
         dropout=config.get("dropout", 0.0), attn_kind=config["attn_kind"],
+        norm_style=config.get("norm_style", "pre"),
+        layer_norm_eps=config.get("layer_norm_eps", 1e-5),
+        init_std=config.get("init_std", 0.02),
     )
-    model = GraphConnectivityTransformer(model_cfg).to(device)
+    if config.get("arch", "minimal") == "roberta":
+        model = RobertaGraphTransformer(model_cfg).to(device)
+    else:
+        model = GraphConnectivityTransformer(model_cfg).to(device)
+    print(f"  arch: {config.get('arch', 'minimal')}")
     n_params = sum(p.numel() for p in model.parameters())
     print(f"  parameters: {n_params:,}")
 
@@ -355,6 +362,8 @@ def main() -> None:
     parser.add_argument("--train_steps", type=int, default=1_000_000)
     parser.add_argument("--batch_size", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=1000)
+    parser.add_argument("--arch", choices=["minimal", "roberta"], default="minimal",
+                        help="'roberta' = RoBERTa-faithful (App. D.1); 'minimal' = clean A.1-like")
     args = parser.parse_args()
 
     diam_tag = f"diam{args.max_diameter}" if args.max_diameter is not None else "unrestricted"
@@ -363,16 +372,23 @@ def main() -> None:
     out_dir = out_root / run_name
     ensure_dir(out_dir)
 
+    # RoBERTa-faithful (App. D.1) brings post-LayerNorm, dropout 0.1, init 0.02;
+    # the minimal A.1-like variant is pre-norm, dropout 0, default init.
+    is_roberta = (args.arch == "roberta")
     config = {
+        "arch":          args.arch,
         "n":             N_NODES,
         "p":             P,
         "k":             K,
         "d_model":       512,
         "n_heads":       1,          # paper: single-head self-attention (App. D.1)
-        "d_ff":          2048,
+        "d_ff":          2048,       # RoBERTa intermediate = 4 x d_model
         "n_layers":      2,
-        "dropout":       0.0,
+        "dropout":       0.1 if is_roberta else 0.0,
         "attn_kind":     "normalized_relu",
+        "norm_style":    "post" if is_roberta else "pre",
+        "layer_norm_eps": 1e-5,
+        "init_std":      0.02,
         "batch_size":    args.batch_size,
         "lr":            1e-4,
         "weight_decay":  1e-4,
@@ -390,7 +406,7 @@ def main() -> None:
     print(f"\n{'='*72}")
     print(f"  Paper reproduction (standard Transformer): ER(n={N_NODES}, p={P}), "
           f"filter={diam_tag}, seed={args.seed}")
-    print(f"  d_model=512, single-head, normalized-ReLU, 2 layers, online data, bf16")
+    print(f"  arch={args.arch}, d_model=512, single-head, normalized-ReLU, 2 layers, online, bf16")
     print(f"  Output: {out_dir}")
     print(f"{'='*72}\n")
 
