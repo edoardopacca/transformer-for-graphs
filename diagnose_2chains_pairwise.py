@@ -45,11 +45,21 @@ from data import (
 )
 from experiments2.ood_evaluation import load_model
 
-CHECKPOINTS = {
-    "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
-    "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
-    "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
-    "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+CHECKPOINTS_BY_ROUND = {
+    # First training round (seed 1000).
+    1: {
+        "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+    },
+    # Second training round, "exp2" (seed 2000).
+    2: {
+        "unfiltered": "runs/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
+    },
 }
 ORDER = ["unfiltered", "D<=11", "D<=9", "D<=7"]
 CAPACITY = 9          # 3^L, L = 2
@@ -139,10 +149,18 @@ def diagnose(pred, target, dist) -> dict:
 
 
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--round", type=int, choices=[1, 2], default=1,
+                    help="1 = first training round (seed 1000); 2 = exp2 round (seed 2000)")
+    args = ap.parse_args()
+    checkpoints = CHECKPOINTS_BY_ROUND[args.round]
+    suffix = "" if args.round == 1 else "_exp2"
+
     device = torch.device(
         "cuda" if torch.cuda.is_available()
         else ("mps" if torch.backends.mps.is_available() else "cpu"))
-    print(f"device: {device}")
+    print(f"device: {device}  | round: {args.round}")
 
     t0 = time.perf_counter()
     ds = build_2chains_full(N, K, N_TEST, seed=4242)
@@ -152,8 +170,8 @@ def main() -> None:
 
     results = {}
     for name in ORDER:
-        ckpt = str(PROJECT_ROOT / CHECKPOINTS[name])
-        print(f"\n[{name}] loading {CHECKPOINTS[name]}")
+        ckpt = str(PROJECT_ROOT / checkpoints[name])
+        print(f"\n[{name}] loading {checkpoints[name]}")
         model, _cfg = load_model(ckpt, device)
         pred = predict(model, ds["x"], device)
         r = diagnose(pred, target, dist)
@@ -195,10 +213,10 @@ def main() -> None:
         ax.set_ylim(0, 1.08); ax.grid(axis="y", alpha=0.3)
         ax.legend(loc="lower left", fontsize=8)
     axes[0][0].set_ylabel("pairwise accuracy (off-diagonal)")
-    fig.suptitle("Exp 2: 2chains (k=20) — where does the 20% pairwise error live?",
-                 fontsize=14, y=1.03)
+    fig.suptitle(f"Exp 2{' (exp2 round)' if suffix else ''}: 2chains (k=20) — "
+                 f"where does the 20% pairwise error live?", fontsize=14, y=1.03)
     fig.tight_layout()
-    out_png = OUT_DIR / "diagnose_2chains_k20.png"
+    out_png = OUT_DIR / f"diagnose_2chains_k20{suffix}.png"
     fig.savefig(out_png, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"\nsaved figure: {out_png}")
@@ -209,9 +227,9 @@ def main() -> None:
         rr = {k: v for k, v in r.items() if k != "per_dist"}
         rr["per_dist"] = {str(d): {"acc": a, "n": c} for d, (a, c) in r["per_dist"].items()}
         serial[name] = rr
-    with open(OUT_DIR / "diagnose_2chains_k20.json", "w") as f:
+    with open(OUT_DIR / f"diagnose_2chains_k20{suffix}.json", "w") as f:
         json.dump(serial, f, indent=2)
-    print(f"saved data:   {OUT_DIR / 'diagnose_2chains_k20.json'}")
+    print(f"saved data:   {OUT_DIR / f'diagnose_2chains_k20{suffix}.json'}")
 
 
 if __name__ == "__main__":

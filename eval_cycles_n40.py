@@ -37,11 +37,21 @@ from data import (
 )
 from experiments2.ood_evaluation import evaluate, load_model, _per_dist_bar_panel
 
-CHECKPOINTS = {
-    "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
-    "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
-    "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
-    "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+CHECKPOINTS_BY_ROUND = {
+    # First training round (seed 1000).
+    1: {
+        "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+    },
+    # Second training round, "exp2" (seed 2000).
+    2: {
+        "unfiltered": "runs/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
+    },
 }
 ORDER = ["unfiltered", "D<=11", "D<=9", "D<=7"]
 KINDS = ["one_cycle", "two_cycles"]
@@ -70,10 +80,18 @@ def build_cycle_test(kind: str, n: int, n_test: int, seed: int) -> dict:
 
 
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--round", type=int, choices=[1, 2], default=1,
+                    help="1 = first training round (seed 1000); 2 = exp2 round (seed 2000)")
+    args = ap.parse_args()
+    checkpoints = CHECKPOINTS_BY_ROUND[args.round]
+    suffix = "" if args.round == 1 else "_exp2"
+
     device = torch.device(
         "cuda" if torch.cuda.is_available()
         else ("mps" if torch.backends.mps.is_available() else "cpu"))
-    print(f"device: {device}")
+    print(f"device: {device}  | round: {args.round}")
 
     # Build the two test sets ONCE; reuse across the 4 models.
     test_sets = {}
@@ -84,8 +102,8 @@ def main() -> None:
 
     results: dict = {}
     for name in ORDER:
-        ckpt = str(PROJECT_ROOT / CHECKPOINTS[name])
-        print(f"\n[{name}] loading {CHECKPOINTS[name]}")
+        ckpt = str(PROJECT_ROOT / checkpoints[name])
+        print(f"\n[{name}] loading {checkpoints[name]}")
         model, _cfg = load_model(ckpt, device)
         results[name] = {}
         for kind in KINDS:
@@ -110,17 +128,17 @@ def main() -> None:
                 axes[r][c], t,
                 f"{name} | {KIND_TITLE[kind]}\nexact={t['exact_match']:.3f}, "
                 f"pairwise={t['pairwise_acc']:.3f}")
-    fig.suptitle("Exp 1: n=40 models on cycle graphs — per-distance pairwise accuracy",
-                 fontsize=15, y=1.005)
+    fig.suptitle(f"Exp 1{' (exp2 round)' if suffix else ''}: n=40 models on cycle "
+                 f"graphs — per-distance pairwise accuracy", fontsize=15, y=1.005)
     fig.tight_layout()
-    out_png = OUT_DIR / "cycles_per_distance_big.png"
+    out_png = OUT_DIR / f"cycles_per_distance_big{suffix}.png"
     fig.savefig(out_png, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"\nsaved figure: {out_png}")
 
-    with open(OUT_DIR / "cycles_results_big.json", "w") as f:
+    with open(OUT_DIR / f"cycles_results_big{suffix}.json", "w") as f:
         json.dump(results, f, indent=2)
-    print(f"saved data:   {OUT_DIR / 'cycles_results_big.json'}")
+    print(f"saved data:   {OUT_DIR / f'cycles_results_big{suffix}.json'}")
 
     # ── Summary table ──
     print("\nSummary (exact / pairwise):")
