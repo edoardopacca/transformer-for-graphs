@@ -213,3 +213,6 @@ trainings/
 err/
 .DS_Store
 runs/.DS_Store
+
+# checkpoints: troppo grossi per git
+*.pt
