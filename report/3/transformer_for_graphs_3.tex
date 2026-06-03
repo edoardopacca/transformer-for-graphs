@@ -21,11 +21,6 @@
 % so resolve \includegraphics paths relative to the repository root.
 \graphicspath{{../../}}
 
-% Placeholder box for figures that will be added once the running jobs finish.
-\newcommand{\figplaceholder}[1]{%
-  \fbox{\parbox[c][4.2cm][c]{0.9\textwidth}{\centering\itshape
-  \textcolor{gray}{[Figure to be inserted once the definitive runs finish: #1]}}}}
-
 \title{Empirical Analysis of Transformers on Graph Connectivity \\
        \large Part III: Structural OOD Probes and a Faithful Paper Reproduction}
 \author{Edoardo Paccagnella}
@@ -47,9 +42,9 @@ generalise out of distribution. The conclusion of Part~II was that, in our
 $n = 40$ setup, the data lever speeds up convergence but does not produce the
 predicted OOD benefit.
 
-This report collects a new round of experiments. The first three sections are
-targeted probes of \emph{what} the trained $n = 40$ models actually compute,
-suggested as follow-ups to Part~II:
+This report collects four experiments. The first three are targeted probes of
+\emph{what} the trained $n = 40$ models actually compute; the fourth is a
+faithful reproduction of the paper's own preliminary study at $n = 20$.
 \begin{enumerate}
     \item \textbf{Cycle graphs (Section~\ref{sec:cycles}).} We test the four
           diameter-controlled $n = 40$ models on single cycles ($C_{40}$) and
@@ -62,13 +57,20 @@ suggested as follow-ups to Part~II:
     \item \textbf{Counting components (Section~\ref{sec:count}).} We train a
           new graph-level classifier to decide whether a graph is one chain
           or two chains (one vs.\ two connected components).
+    \item \textbf{Reproducing the paper at $n = 20$ (Section~\ref{sec:repro}).}
+          We reproduce the paper's standard-transformer setup
+          ($\mathrm{ER}(n = 20, p = 0.08)$, tested on 2Chain and 2Clique)
+          under its exact configuration, running $3$ seeds per condition. We
+          find that whether the model recovers the algorithmic solution is
+          governed primarily by the random seed, not by the diameter filter:
+          the effect the paper presents as a clean phase transition is, in our
+          hands, a high-variance event.
 \end{enumerate}
-The last section (Section~\ref{sec:repro}) reproduces the paper's
-\emph{standard-transformer} preliminary experiment at $n = 20$. We report the
-first test (the failure-to-generalise of Figure~1) and then explain why we are
-re-running it with an architecture that matches the paper more faithfully
-(three small RoBERTa-specific details), leaving space for the definitive
-figures.
+For the first three experiments the architecture, the
+$\mathrm{ER}(n = 40, p = 0.05)$ training distribution, and the
+2-chain/2-clique/cycle test distributions are stated at the start of each
+section, and a second independent training round (``exp2'') is reported
+alongside the first to expose run-to-run variance.
 
 \section{Model and task}
 \label{sec:model}
@@ -428,16 +430,24 @@ the $3^L$ wall --- not detecting disconnection per se.
 \subsection{Setup}
 
 \paragraph{Goal.} Reproduce the paper's preliminary standard-transformer study
-(its Figure~1, and the data-lever Figures~7 and~11) under \emph{exactly} the
-paper's configuration, to compare directly with our $n = 40$ findings.
+--- its Figure~1 (failure to generalise) and its data-lever Figures~7 and~11 ---
+under the paper's exact configuration, and ask whether the data lever produces
+the OOD benefit it claims at $n = 20$.
 
 \paragraph{Architecture.} As specified in the paper (\S3.3 and Appendix~A.1/D.1):
 a $2$-layer standard transformer, \textbf{single-head} self-attention,
 $d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$, normalised-ReLU attention
-$\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$, pre-norm LayerNorm,
-GELU feed-forward, no positional encoding. AdamW, peak lr $10^{-4}$, weight
-decay $10^{-4}$, cosine schedule, batch size $1{,}000$, $1{,}000{,}000$ steps,
-each graph seen once ($\approx 10^9$ graphs), bf16.
+$\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$, GELU feed-forward, no
+positional encoding. AdamW, peak lr $10^{-4}$, weight decay $10^{-4}$, cosine
+schedule, batch size $1{,}000$, $1{,}000{,}000$ steps, each graph seen once
+($\approx 10^9$ graphs), bf16. Appendix~D.1 specifies a \emph{RoBERTa}
+implementation rather than the idealised A.1 transformer, so we run the
+configuration at two points on the implementation-detail axis: a clean
+\textbf{A.1-style} model (pre-LayerNorm, no dropout, default initialisation) and
+a \textbf{RoBERTa-faithful} model (post-LayerNorm, dropout $0.1$, weight
+initialisation $\mathcal{N}(0, 0.02)$). We treat these as two settings of the
+same experiment, not as two experiments; as the results show, the conclusion
+does not hinge on the distinction.
 
 \paragraph{Training and test distributions.} Training on
 \textbf{$\mathrm{ER}(n = 20, p = 0.08)$}, in two conditions: \emph{unrestricted}
@@ -449,7 +459,7 @@ two out-of-distribution families used by the paper, both at $n = 20$:
 is exact-match accuracy, exactly as in the paper (\S3.3: the product over all
 node pairs).
 
-\subsection{First test: in-distribution success, OOD failure (Figure~1)}
+\subsection{The A.1-style model: Figure~1 reproduces, the data lever does not}
 
 \begin{table}[H]
 \centering
@@ -476,89 +486,107 @@ $\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{runs/repro_paper_n20/fig1_reproduction.png}
-        \caption{Our reproduction (minimal architecture, mean over $3$ seeds):
-        exact-match accuracy vs.\ training step for the unrestricted model on
-        ER (in-distribution), 2Chain and 2Clique.}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\textwidth}
-        \centering
-        \figplaceholder{RoBERTa-faithful Figure~1}
-        \caption{RoBERTa-faithful architecture (definitive run, in progress).}
-    \end{subfigure}
-    \caption{Figure~1 reproduction. In distribution the model is perfect; the
-    two OOD families stay near zero --- matching the paper's Figure~1, which
-    shows that the standard transformer fails to generalise. The right panel
-    is reserved for the definitive RoBERTa-faithful run.}
+    \includegraphics[width=0.62\textwidth]{runs/repro_paper_n20/fig1_reproduction.png}
+    \caption{A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\
+    training step for the unrestricted model on ER (in-distribution), 2Chain and
+    2Clique. In distribution the model is perfect; the two OOD families stay near
+    zero --- the failure-to-generalise of the paper's Figure~1.}
     \label{fig:repro-fig1}
 \end{figure}
 
-\paragraph{What the table and figure show.} The \emph{first} test reproduces the
-paper cleanly: in distribution the model is perfect (ER exact $= 1.000$ for all
-$3$ seeds), and on the OOD 2Chain/2Clique families exact match is essentially
-zero. This is the failure-to-generalise of the paper's Figure~1. However, the
-\emph{data lever} (the restricted $D \le 9$ rows) does \emph{not} reproduce the
-paper's Figures~7/11 here: the restricted runs fail just like the unrestricted
-ones, contrary to the paper, where restriction recovers $\sim 0.9$ on 2Chain.
+\paragraph{What the table and figure show.} The A.1-style model reproduces the
+paper's Figure~1 cleanly: in distribution every run is perfect (ER exact
+$= 1.000$), and on the OOD 2Chain/2Clique families exact match is essentially
+zero. But the \emph{data lever} does not reproduce Figures~7/11 here: the
+restricted $D \le 9$ runs fail exactly like the unrestricted ones. Pairwise
+accuracy is uninformative in the usual way --- 2Chain pairwise $\approx 0.99$
+(the error is the handful of beyond-capacity pairs at the $d = 9$ boundary, as in
+Section~\ref{sec:pairwise}) and 2Clique pairwise $\approx 0.50$ (the degree
+heuristic, which over-connects the two high-degree cliques).
 
-\subsection{Why we re-ran it: a slightly different architecture}
+\subsection{The RoBERTa-faithful model: the algorithmic solution appears, but
+the seed decides}
 
-Inspecting the paper carefully, we found that our reproduction above used a
-clean ``Definition~A.1'' transformer, whereas the paper (Appendix~D.1) states it
-\emph{``adopts the implementation from RoBERTa with single-head per layer and
-normalised-ReLU attention''}. ``Adopting RoBERTa'' carries three engineering
-details that our minimal model did not match:
-\begin{enumerate}
-    \item \textbf{post-LayerNorm} blocks (LayerNorm after the residual add), as
-          in BERT/RoBERTa, instead of pre-LayerNorm;
-    \item \textbf{dropout $0.1$} (RoBERTa default), instead of no dropout;
-    \item \textbf{weight initialisation} $\mathcal{N}(0, 0.02)$ (RoBERTa
-          default), instead of the framework default.
-\end{enumerate}
-(We also removed two unintended biases of the minimal model --- the output
-symmetrisation and an extra final LayerNorm --- so that the read-out matches
-A.1 exactly.) These details govern the training dynamics, and the paper's claim
-is precisely about which solution gradient descent selects; they are therefore a
-plausible reason the algorithmic phase transition appears for the paper and not
-for our minimal model. We re-ran all $6$ experiments (the two conditions
-$\times$ $3$ seeds) with this RoBERTa-faithful architecture, everything else
-identical. The definitive figures are reported below once the runs finish.
+The clean A.1 model never recovers the algorithmic solution. The RoBERTa-faithful
+model does --- but intermittently. Table~\ref{tab:repro-rob} gives the final
+exact-match accuracy of all six runs.
 
-\subsection{Definitive results: RoBERTa-faithful architecture}
+\begin{table}[H]
+\centering
+\begin{tabular}{llccc}
+\toprule
+Condition & Seed & ER (in-dist) & 2Chain & 2Clique \\
+\midrule
+Unrestricted        & $1000$ & 1.000 & 0.476 & \textbf{1.000} \\
+Unrestricted        & $2000$ & 0.947 & 0.000 & 0.000 \\
+Unrestricted        & $3000$ & 0.999 & 0.000 & 0.000 \\
+\midrule
+Restricted $D \le 9$ & $1000$ & 1.000 & \textbf{0.983} & 0.491 \\
+Restricted $D \le 9$ & $2000$ & 0.952 & 0.000 & 0.000 \\
+Restricted $D \le 9$ & $3000$ & 0.999 & 0.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\caption{RoBERTa-faithful reproduction: final exact-match accuracy. In each
+condition exactly one of the three seeds recovers a generalising solution (and
+does so strongly), while the other two stay at zero --- an all-or-nothing,
+per-seed outcome rather than a graded effect of the diameter filter.}
+\label{tab:repro-rob}
+\end{table}
 
 \begin{figure}[H]
     \centering
-    \figplaceholder{RoBERTa-faithful reproduction of Figure~1 (ER / 2Chain / 2Clique vs.\ step, mean over 3 seeds)}
-    \caption{Figure~1, RoBERTa-faithful. (To be inserted:
-    \texttt{runs/repro\_paper\_n20\_roberta/fig1\_reproduction.png}.)}
+    \includegraphics[width=0.62\textwidth]{runs/repro_paper_n20_roberta/fig1_reproduction.png}
+    \caption{Figure~1, RoBERTa-faithful (unrestricted; mean over $3$ seeds, band
+    is $\pm 1$ std, faint lines are individual seeds). One seed lifts 2Clique to
+    $1.0$; the other two stay at zero, hence the wide band.}
     \label{fig:repro-rob-fig1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \figplaceholder{RoBERTa-faithful reproduction of Figure~7 (2Chain exact match: unrestricted vs.\ restricted $D\le9$)}
-    \caption{Figure~7, RoBERTa-faithful: the data lever on 2Chain. (To be
-    inserted: \texttt{runs/repro\_paper\_n20\_roberta/fig7\_reproduction.png}.)}
-    \label{fig:repro-rob-fig7}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig7_reproduction.png}
+        \caption{2Chain (paper Figure~7).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig11_reproduction.png}
+        \caption{2Clique (paper Figure~11).}
+    \end{subfigure}
+    \caption{The data lever, RoBERTa-faithful: exact-match accuracy on 2Chain
+    (left) and 2Clique (right), unrestricted vs.\ restricted $D \le 9$ (mean over
+    $3$ seeds, $\pm 1$ std band, individual seeds faint). The single generalising
+    seed drives both the mean and the band; the two conditions are not cleanly
+    separated.}
+    \label{fig:repro-rob-fig7-11}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \figplaceholder{RoBERTa-faithful reproduction of Figure~11 (2Clique exact match: unrestricted vs.\ restricted $D\le9$)}
-    \caption{Figure~11, RoBERTa-faithful: the data lever on 2Clique. (To be
-    inserted: \texttt{runs/repro\_paper\_n20\_roberta/fig11\_reproduction.png}.)}
-    \label{fig:repro-rob-fig11}
-\end{figure}
+\paragraph{The seed, not the filter, is the dominant axis of variation.} Three
+facts read directly off Table~\ref{tab:repro-rob}. (i) The RoBERTa details
+\emph{do} unlock the algorithmic solution that the A.1 model never reached:
+under RoBERTa, a model can solve an OOD family near-perfectly (2Clique $= 1.000$
+unrestricted, 2Chain $= 0.983$ restricted). (ii) But this is a one-in-three
+event: in both conditions a single seed generalises and the other two collapse
+to zero, with no intermediate values. (iii) The winning seeds even specialise
+differently --- the unrestricted winner solves 2Clique (all pairs at distance
+$1$) but only reaches $0.48$ on 2Chain, whereas the restricted winner solves
+2Chain (whose hardest pairs sit exactly at the capacity boundary $d = 9$) but
+only $0.49$ on 2Clique --- which is consistent with the $3^L$ capacity picture
+of Sections~\ref{sec:cycles}--\ref{sec:pairwise}.
 
-\paragraph{Comment.} The question these definitive runs answer is whether the
-three RoBERTa details are enough to make the data lever work: does the
-restricted ($D \le 9$) model generalise to 2Chain/2Clique (the paper's
-Figures~7/11) where the minimal model did not? Early signal from the
-unrestricted runs already suggests the RoBERTa architecture can reach the
-algorithmic solution (high seed variance), unlike the minimal model; the
-restricted runs and the full $3$-seed comparison will be added here.
+\paragraph{Reading the means with care.} Averaged over the three seeds the two
+conditions appear different (restricted is better on 2Chain, $0.33$ vs.\ $0.16$;
+unrestricted is better on 2Clique, $0.33$ vs.\ $0.16$), but each of these means
+is produced by a single non-zero run, so the apparent ``data-lever effect'' is
+an artefact of \emph{which} lucky seed won and \emph{what} it specialised in, not
+a reliable property of the training distribution. With one success in three, the
+seed variance swamps the diameter filter. We therefore do not claim a data-lever
+effect at $n = 20$: we reproduce the paper's Figure~1 (failure) robustly, and we
+confirm that the algorithmic solution is \emph{reachable} under the faithful
+architecture, but establishing the clean Figure~7/11 separation would require
+many more seeds than three --- the result as we observe it is governed by
+initialisation.
 
 \end{document}
