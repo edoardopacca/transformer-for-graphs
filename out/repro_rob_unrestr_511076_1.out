@@ -1,0 +1,226 @@
+=== Job info ===
+Node:  gnode12
+Array task: 1  -> seed=2000
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True | bf16: True
+================
+
+========================================================================
+  Paper reproduction (standard Transformer): ER(n=20, p=0.08), filter=unrestricted, seed=2000
+  arch=roberta, d_model=512, single-head, normalized-ReLU, 2 layers, online, bf16
+  Output: runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed2000
+========================================================================
+
+Generating 10,000 ER test graphs (unfiltered) with 16 workers …
+  done in 6.9s
+Generating 10,000 two_chains test graphs …
+  done in 0.4s
+Generating 10,000 two_cliques test graphs …
+  done in 0.5s
+  device: cuda
+  arch: roberta
+  parameters: 6,326,804
+  Starting training: 1,000,000 steps × batch 1000 = 1,000,000,000 samples
+  step    5000 | lr=1.00e-04 | loss=0.171900 | ER=0.5093 | 2chain=0.0000 | 2clique=0.0000 | 32.4s/5000
+  step   10000 | lr=1.00e-04 | loss=0.101812 | ER=0.5815 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step   15000 | lr=1.00e-04 | loss=0.078141 | ER=0.6577 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   20000 | lr=9.99e-05 | loss=0.064980 | ER=0.7555 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step   25000 | lr=9.99e-05 | loss=0.056222 | ER=0.8093 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   30000 | lr=9.98e-05 | loss=0.050575 | ER=0.8500 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   35000 | lr=9.97e-05 | loss=0.046586 | ER=0.8744 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   40000 | lr=9.96e-05 | loss=0.043541 | ER=0.8904 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step   45000 | lr=9.95e-05 | loss=0.041152 | ER=0.8913 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   50000 | lr=9.94e-05 | loss=0.039136 | ER=0.9058 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   55000 | lr=9.93e-05 | loss=0.037352 | ER=0.9069 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step   60000 | lr=9.91e-05 | loss=0.035928 | ER=0.9123 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   65000 | lr=9.90e-05 | loss=0.034621 | ER=0.9035 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   70000 | lr=9.88e-05 | loss=0.033540 | ER=0.9075 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   75000 | lr=9.87e-05 | loss=0.032411 | ER=0.9177 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   80000 | lr=9.85e-05 | loss=0.031424 | ER=0.9097 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   85000 | lr=9.83e-05 | loss=0.030394 | ER=0.9114 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   90000 | lr=9.81e-05 | loss=0.029452 | ER=0.9295 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step   95000 | lr=9.78e-05 | loss=0.028646 | ER=0.8871 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  100000 | lr=9.76e-05 | loss=0.027881 | ER=0.9091 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  105000 | lr=9.73e-05 | loss=0.027179 | ER=0.8802 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  110000 | lr=9.71e-05 | loss=0.026567 | ER=0.8924 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  115000 | lr=9.68e-05 | loss=0.026011 | ER=0.8989 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  120000 | lr=9.65e-05 | loss=0.025453 | ER=0.8889 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  125000 | lr=9.62e-05 | loss=0.025001 | ER=0.8871 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  130000 | lr=9.59e-05 | loss=0.024494 | ER=0.9004 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  135000 | lr=9.56e-05 | loss=0.024104 | ER=0.8851 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  140000 | lr=9.53e-05 | loss=0.023635 | ER=0.8802 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  145000 | lr=9.50e-05 | loss=0.023122 | ER=0.8786 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  150000 | lr=9.46e-05 | loss=0.022777 | ER=0.8974 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  155000 | lr=9.43e-05 | loss=0.022411 | ER=0.8930 | 2chain=0.0000 | 2clique=0.0002 | 29.9s/5000
+  step  160000 | lr=9.39e-05 | loss=0.022056 | ER=0.8762 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  165000 | lr=9.35e-05 | loss=0.021600 | ER=0.8656 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  170000 | lr=9.31e-05 | loss=0.021205 | ER=0.8623 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  175000 | lr=9.27e-05 | loss=0.020857 | ER=0.8767 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  180000 | lr=9.23e-05 | loss=0.020497 | ER=0.8595 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  185000 | lr=9.19e-05 | loss=0.020147 | ER=0.8869 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  190000 | lr=9.14e-05 | loss=0.019781 | ER=0.8753 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  195000 | lr=9.10e-05 | loss=0.019405 | ER=0.8789 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  200000 | lr=9.05e-05 | loss=0.018990 | ER=0.8932 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  205000 | lr=9.01e-05 | loss=0.018643 | ER=0.9087 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  210000 | lr=8.96e-05 | loss=0.018312 | ER=0.8637 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  215000 | lr=8.91e-05 | loss=0.017912 | ER=0.8742 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  220000 | lr=8.86e-05 | loss=0.017626 | ER=0.8781 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  225000 | lr=8.81e-05 | loss=0.017297 | ER=0.9029 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  230000 | lr=8.76e-05 | loss=0.017019 | ER=0.9227 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  235000 | lr=8.71e-05 | loss=0.016731 | ER=0.8973 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  240000 | lr=8.65e-05 | loss=0.016428 | ER=0.9026 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  245000 | lr=8.60e-05 | loss=0.016195 | ER=0.8480 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  250000 | lr=8.54e-05 | loss=0.015970 | ER=0.8859 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  255000 | lr=8.49e-05 | loss=0.015735 | ER=0.8886 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  260000 | lr=8.43e-05 | loss=0.015525 | ER=0.8877 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  265000 | lr=8.37e-05 | loss=0.015263 | ER=0.8538 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  270000 | lr=8.32e-05 | loss=0.015141 | ER=0.8705 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  275000 | lr=8.26e-05 | loss=0.014945 | ER=0.8555 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  280000 | lr=8.20e-05 | loss=0.014736 | ER=0.8906 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  285000 | lr=8.13e-05 | loss=0.014560 | ER=0.9133 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  290000 | lr=8.07e-05 | loss=0.014424 | ER=0.8795 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  295000 | lr=8.01e-05 | loss=0.014230 | ER=0.8921 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  300000 | lr=7.95e-05 | loss=0.014090 | ER=0.8602 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  305000 | lr=7.88e-05 | loss=0.013944 | ER=0.8822 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  310000 | lr=7.82e-05 | loss=0.013762 | ER=0.9244 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  315000 | lr=7.75e-05 | loss=0.013677 | ER=0.8921 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  320000 | lr=7.69e-05 | loss=0.013568 | ER=0.9096 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  325000 | lr=7.62e-05 | loss=0.013407 | ER=0.8396 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  330000 | lr=7.55e-05 | loss=0.013321 | ER=0.8918 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  335000 | lr=7.49e-05 | loss=0.013160 | ER=0.9151 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  340000 | lr=7.42e-05 | loss=0.013039 | ER=0.9242 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  345000 | lr=7.35e-05 | loss=0.012955 | ER=0.8849 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  350000 | lr=7.28e-05 | loss=0.012821 | ER=0.9032 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  355000 | lr=7.21e-05 | loss=0.012686 | ER=0.8966 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  360000 | lr=7.14e-05 | loss=0.012545 | ER=0.9130 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  365000 | lr=7.07e-05 | loss=0.012475 | ER=0.8592 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  370000 | lr=6.99e-05 | loss=0.012326 | ER=0.9018 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  375000 | lr=6.92e-05 | loss=0.012275 | ER=0.8730 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  380000 | lr=6.85e-05 | loss=0.012157 | ER=0.8946 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  385000 | lr=6.78e-05 | loss=0.012072 | ER=0.8984 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  390000 | lr=6.70e-05 | loss=0.011997 | ER=0.8897 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  395000 | lr=6.63e-05 | loss=0.011852 | ER=0.9084 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  400000 | lr=6.55e-05 | loss=0.011750 | ER=0.9028 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  405000 | lr=6.48e-05 | loss=0.011663 | ER=0.9299 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  410000 | lr=6.40e-05 | loss=0.011610 | ER=0.8979 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  415000 | lr=6.33e-05 | loss=0.011529 | ER=0.8991 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  420000 | lr=6.25e-05 | loss=0.011386 | ER=0.9161 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  425000 | lr=6.18e-05 | loss=0.011386 | ER=0.8789 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  430000 | lr=6.10e-05 | loss=0.011238 | ER=0.9026 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  435000 | lr=6.02e-05 | loss=0.011157 | ER=0.9195 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  440000 | lr=5.95e-05 | loss=0.011105 | ER=0.8892 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  445000 | lr=5.87e-05 | loss=0.011020 | ER=0.9193 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  450000 | lr=5.79e-05 | loss=0.010940 | ER=0.9429 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  455000 | lr=5.71e-05 | loss=0.010857 | ER=0.9176 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  460000 | lr=5.64e-05 | loss=0.010809 | ER=0.9013 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  465000 | lr=5.56e-05 | loss=0.010717 | ER=0.8930 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  470000 | lr=5.48e-05 | loss=0.010681 | ER=0.9212 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  475000 | lr=5.40e-05 | loss=0.010555 | ER=0.8914 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  480000 | lr=5.32e-05 | loss=0.010492 | ER=0.9242 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  485000 | lr=5.24e-05 | loss=0.010466 | ER=0.9105 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  490000 | lr=5.17e-05 | loss=0.010383 | ER=0.9146 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  495000 | lr=5.09e-05 | loss=0.010337 | ER=0.9121 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  500000 | lr=5.01e-05 | loss=0.010234 | ER=0.9223 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  505000 | lr=4.93e-05 | loss=0.010157 | ER=0.9157 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  510000 | lr=4.85e-05 | loss=0.010150 | ER=0.9200 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  515000 | lr=4.77e-05 | loss=0.010062 | ER=0.9093 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  520000 | lr=4.69e-05 | loss=0.010043 | ER=0.9041 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  525000 | lr=4.62e-05 | loss=0.009955 | ER=0.9409 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  530000 | lr=4.54e-05 | loss=0.009919 | ER=0.9226 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  535000 | lr=4.46e-05 | loss=0.009850 | ER=0.9292 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  540000 | lr=4.38e-05 | loss=0.009794 | ER=0.9315 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  545000 | lr=4.30e-05 | loss=0.009732 | ER=0.9286 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  550000 | lr=4.22e-05 | loss=0.009678 | ER=0.9191 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  555000 | lr=4.15e-05 | loss=0.009658 | ER=0.9217 | 2chain=0.0000 | 2clique=0.0000 | 30.0s/5000
+  step  560000 | lr=4.07e-05 | loss=0.009589 | ER=0.9203 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  565000 | lr=3.99e-05 | loss=0.009524 | ER=0.9043 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  570000 | lr=3.92e-05 | loss=0.009488 | ER=0.9305 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  575000 | lr=3.84e-05 | loss=0.009453 | ER=0.9280 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  580000 | lr=3.76e-05 | loss=0.009398 | ER=0.9281 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  585000 | lr=3.69e-05 | loss=0.009359 | ER=0.9254 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  590000 | lr=3.61e-05 | loss=0.009286 | ER=0.9380 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  595000 | lr=3.54e-05 | loss=0.009242 | ER=0.9207 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  600000 | lr=3.46e-05 | loss=0.009220 | ER=0.9252 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  605000 | lr=3.39e-05 | loss=0.009158 | ER=0.9415 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  610000 | lr=3.31e-05 | loss=0.009103 | ER=0.9220 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  615000 | lr=3.24e-05 | loss=0.009081 | ER=0.9250 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  620000 | lr=3.16e-05 | loss=0.009063 | ER=0.9158 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  625000 | lr=3.09e-05 | loss=0.008981 | ER=0.9246 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  630000 | lr=3.02e-05 | loss=0.008979 | ER=0.9209 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  635000 | lr=2.95e-05 | loss=0.008937 | ER=0.9069 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  640000 | lr=2.88e-05 | loss=0.008883 | ER=0.9239 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  645000 | lr=2.81e-05 | loss=0.008828 | ER=0.9295 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  650000 | lr=2.73e-05 | loss=0.008751 | ER=0.9171 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  655000 | lr=2.67e-05 | loss=0.008756 | ER=0.9207 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  660000 | lr=2.60e-05 | loss=0.008706 | ER=0.9308 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  665000 | lr=2.53e-05 | loss=0.008666 | ER=0.9351 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  670000 | lr=2.46e-05 | loss=0.008642 | ER=0.9334 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  675000 | lr=2.39e-05 | loss=0.008605 | ER=0.9341 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  680000 | lr=2.33e-05 | loss=0.008562 | ER=0.9289 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  685000 | lr=2.26e-05 | loss=0.008577 | ER=0.9337 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  690000 | lr=2.19e-05 | loss=0.008543 | ER=0.9152 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  695000 | lr=2.13e-05 | loss=0.008472 | ER=0.9317 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  700000 | lr=2.06e-05 | loss=0.008439 | ER=0.9346 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  705000 | lr=2.00e-05 | loss=0.008402 | ER=0.9367 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  710000 | lr=1.94e-05 | loss=0.008379 | ER=0.9458 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  715000 | lr=1.88e-05 | loss=0.008367 | ER=0.9245 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  720000 | lr=1.82e-05 | loss=0.008289 | ER=0.9358 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  725000 | lr=1.76e-05 | loss=0.008293 | ER=0.9425 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  730000 | lr=1.70e-05 | loss=0.008263 | ER=0.9294 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  735000 | lr=1.64e-05 | loss=0.008213 | ER=0.9359 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  740000 | lr=1.58e-05 | loss=0.008165 | ER=0.9405 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  745000 | lr=1.52e-05 | loss=0.008182 | ER=0.9357 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  750000 | lr=1.47e-05 | loss=0.008139 | ER=0.9440 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  755000 | lr=1.41e-05 | loss=0.008111 | ER=0.9461 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  760000 | lr=1.36e-05 | loss=0.008070 | ER=0.9346 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  765000 | lr=1.30e-05 | loss=0.008083 | ER=0.9374 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  770000 | lr=1.25e-05 | loss=0.008047 | ER=0.9399 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  775000 | lr=1.20e-05 | loss=0.008000 | ER=0.9335 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  780000 | lr=1.15e-05 | loss=0.008015 | ER=0.9464 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  785000 | lr=1.10e-05 | loss=0.007962 | ER=0.9298 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  790000 | lr=1.05e-05 | loss=0.007928 | ER=0.9343 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  795000 | lr=1.00e-05 | loss=0.007907 | ER=0.9436 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  800000 | lr=9.57e-06 | loss=0.007917 | ER=0.9440 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  805000 | lr=9.11e-06 | loss=0.007874 | ER=0.9391 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  810000 | lr=8.66e-06 | loss=0.007883 | ER=0.9449 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  815000 | lr=8.23e-06 | loss=0.007838 | ER=0.9347 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  820000 | lr=7.80e-06 | loss=0.007799 | ER=0.9390 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  825000 | lr=7.38e-06 | loss=0.007815 | ER=0.9410 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  830000 | lr=6.98e-06 | loss=0.007806 | ER=0.9403 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  835000 | lr=6.58e-06 | loss=0.007739 | ER=0.9372 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  840000 | lr=6.20e-06 | loss=0.007747 | ER=0.9413 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  845000 | lr=5.82e-06 | loss=0.007737 | ER=0.9353 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  850000 | lr=5.46e-06 | loss=0.007717 | ER=0.9388 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  855000 | lr=5.11e-06 | loss=0.007702 | ER=0.9424 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  860000 | lr=4.77e-06 | loss=0.007658 | ER=0.9439 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  865000 | lr=4.44e-06 | loss=0.007684 | ER=0.9469 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  870000 | lr=4.12e-06 | loss=0.007625 | ER=0.9391 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  875000 | lr=3.81e-06 | loss=0.007649 | ER=0.9401 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  880000 | lr=3.52e-06 | loss=0.007623 | ER=0.9426 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  885000 | lr=3.23e-06 | loss=0.007588 | ER=0.9418 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  890000 | lr=2.96e-06 | loss=0.007607 | ER=0.9416 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  895000 | lr=2.70e-06 | loss=0.007585 | ER=0.9417 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  900000 | lr=2.45e-06 | loss=0.007587 | ER=0.9397 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  905000 | lr=2.21e-06 | loss=0.007576 | ER=0.9428 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  910000 | lr=1.99e-06 | loss=0.007560 | ER=0.9392 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  915000 | lr=1.78e-06 | loss=0.007555 | ER=0.9414 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  920000 | lr=1.57e-06 | loss=0.007530 | ER=0.9408 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  925000 | lr=1.38e-06 | loss=0.007527 | ER=0.9419 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  930000 | lr=1.21e-06 | loss=0.007536 | ER=0.9434 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  935000 | lr=1.04e-06 | loss=0.007523 | ER=0.9428 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  940000 | lr=8.87e-07 | loss=0.007534 | ER=0.9405 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  945000 | lr=7.46e-07 | loss=0.007497 | ER=0.9419 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  950000 | lr=6.17e-07 | loss=0.007506 | ER=0.9410 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  955000 | lr=5.00e-07 | loss=0.007508 | ER=0.9419 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  960000 | lr=3.95e-07 | loss=0.007505 | ER=0.9436 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  965000 | lr=3.03e-07 | loss=0.007498 | ER=0.9404 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  970000 | lr=2.22e-07 | loss=0.007486 | ER=0.9432 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  975000 | lr=1.54e-07 | loss=0.007495 | ER=0.9425 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  980000 | lr=9.89e-08 | loss=0.007512 | ER=0.9424 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  985000 | lr=5.56e-08 | loss=0.007493 | ER=0.9419 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step  990000 | lr=2.47e-08 | loss=0.007463 | ER=0.9423 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+  step  995000 | lr=6.18e-09 | loss=0.007490 | ER=0.9424 | 2chain=0.0000 | 2clique=0.0000 | 29.8s/5000
+  step 1000000 | lr=0.00e+00 | loss=0.007463 | ER=0.9424 | 2chain=0.0000 | 2clique=0.0000 | 29.9s/5000
+
+Done. Best ER exact=0.9469 | final 2chain=0.0000 | final 2clique=0.0000
+Results in: runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed2000
