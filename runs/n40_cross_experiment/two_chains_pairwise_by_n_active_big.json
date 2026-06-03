@@ -1,0 +1,474 @@
+{
+  "D<=7": {
+    "full": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.9975
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 0.9925
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.985
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.97
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.95875
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.94375
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.91875
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.8925
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.875
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.85125
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.8275
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.79125
+      }
+    },
+    "active": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.9876543209876543
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 0.97
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.9504132231404959
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9166666666666666
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.9023668639053254
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.8852040816326531
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.8555555555555555
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.83203125
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.8269896193771626
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.816358024691358
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.8088642659279779
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.79125
+      }
+    }
+  },
+  "D<=9": {
+    "full": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.9975
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9925
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.985
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.975
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.96125
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.94625
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.92875
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.90625
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.87875
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.85375
+      }
+    },
+    "active": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.9917355371900827
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9791666666666666
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.9644970414201184
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.9489795918367347
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.9311111111111111
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.916015625
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.9013840830449827
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.8842592592592593
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.8656509695290858
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.85375
+      }
+    }
+  },
+  "D<=11": {
+    "full": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.995
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.98625
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.9775
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.9625
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.95
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.9275
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.9075
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.89
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.855
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.8075
+      }
+    },
+    "active": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.9834710743801653
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9618055555555556
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.9467455621301775
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.923469387755102
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.9111111111111111
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.88671875
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.8719723183391004
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.8641975308641975
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.8393351800554016
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.8075
+      }
+    }
+  },
+  "unfiltered": {
+    "full": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.99625
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9925
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.98625
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.97
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.96375
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.94875
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.92625
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.8875
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.85875
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.8175
+      }
+    },
+    "active": {
+      "14": {
+        "n_graphs": 769,
+        "pairwise_acc": 1.0
+      },
+      "16": {
+        "n_graphs": 710,
+        "pairwise_acc": 1.0
+      },
+      "18": {
+        "n_graphs": 707,
+        "pairwise_acc": 1.0
+      },
+      "20": {
+        "n_graphs": 749,
+        "pairwise_acc": 1.0
+      },
+      "22": {
+        "n_graphs": 669,
+        "pairwise_acc": 0.987603305785124
+      },
+      "24": {
+        "n_graphs": 692,
+        "pairwise_acc": 0.9791666666666666
+      },
+      "26": {
+        "n_graphs": 717,
+        "pairwise_acc": 0.9674556213017751
+      },
+      "28": {
+        "n_graphs": 731,
+        "pairwise_acc": 0.9387755102040817
+      },
+      "30": {
+        "n_graphs": 691,
+        "pairwise_acc": 0.9355555555555556
+      },
+      "32": {
+        "n_graphs": 707,
+        "pairwise_acc": 0.919921875
+      },
+      "34": {
+        "n_graphs": 729,
+        "pairwise_acc": 0.8979238754325259
+      },
+      "36": {
+        "n_graphs": 702,
+        "pairwise_acc": 0.8611111111111112
+      },
+      "38": {
+        "n_graphs": 701,
+        "pairwise_acc": 0.8434903047091413
+      },
+      "40": {
+        "n_graphs": 726,
+        "pairwise_acc": 0.8175
+      }
+    }
+  }
+}
