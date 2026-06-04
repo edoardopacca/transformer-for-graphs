@@ -1,0 +1,32 @@
+{
+  "best_er_exact": 0.9589,
+  "config": {
+    "arch": "roberta",
+    "attn_kind": "normalized_relu",
+    "batch_size": 1000,
+    "d_ff": 2048,
+    "d_model": 512,
+    "dropout": 0.1,
+    "eval_every": 5000,
+    "grad_clip_norm": 1.0,
+    "init_std": 0.02,
+    "k": 10,
+    "layer_norm_eps": 1e-05,
+    "lr": 0.0001,
+    "max_diameter": 9,
+    "n": 20,
+    "n_heads": 1,
+    "n_layers": 2,
+    "norm_style": "post",
+    "num_workers": 24,
+    "ood_size": 10000,
+    "p": 0.08,
+    "seed": 4000,
+    "test_size": 10000,
+    "train_steps": 1000000,
+    "warmup_steps": 1000,
+    "weight_decay": 0.0001
+  },
+  "final_2chain_exact": 0.0,
+  "final_2clique_exact": 0.0
+}
