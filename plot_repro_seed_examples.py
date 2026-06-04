@@ -1,11 +1,14 @@
-"""Illustrative per-seed training curves for the RoBERTa-faithful, restricted
-(D<=9) reproduction: exact-match accuracy on 2Chain and 2Clique vs training step,
-for a few hand-picked seeds. Shows that even WITH the data lever the outcome is a
-seed lottery: one seed looks like the paper's Figure 7/11, others do not.
+"""Restricted vs. unrestricted, side by side, for a few seeds --- to show that
+the data lever ``working'' (the paper's Figure 7/11) is a per-seed accident.
 
-Default panels (restricted D<=9): seed 6000 (both OOD families rise --- the kind
-of single run the paper shows), seed 7000 (stays flat --- fails), seed 1000
-(2Chain rises but 2Clique does not --- partial).
+For each of three seeds (1000, 6000, 7000) we overlay the unrestricted and the
+restricted (D<=9) training curves, on 2Chain (top row) and 2Clique (bottom row).
+Reading across:
+  - seed 6000: restricted lifts both OOD families while unrestricted does not
+    -> looks exactly like the paper;
+  - seed 1000: mixed (restricted wins on 2Chain, unrestricted wins on 2Clique);
+  - seed 7000: unrestricted generalises and restricted *fails* -> the lever hurts.
+So whether restricting helps is set by the seed, not by the filter.
 
     python plot_repro_seed_examples.py
 """
@@ -19,10 +22,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 RUNS = Path("runs/repro_paper_n20_roberta")
-# (condition_dir_tag, seed, short label)
-PANELS = [("diam9", 6000, "seed 6000 — both rise"),
-          ("diam9", 7000, "seed 7000 — fails"),
-          ("diam9", 1000, "seed 1000 — partial")]
+SEEDS = [1000, 6000, 7000]
+CONDS = [("unrestricted", "Unrestricted", "#ff7f0e"),
+         ("diam9", "Restricted D≤9", "#1f77b4")]
+ROWS = [("val_2chain_exact", "2Chain"), ("val_2clique_exact", "2Clique")]
 
 
 def load(cond: str, seed: int) -> dict:
@@ -31,18 +34,25 @@ def load(cond: str, seed: int) -> dict:
 
 
 def main() -> None:
-    fig, axes = plt.subplots(1, len(PANELS), figsize=(4.6 * len(PANELS), 4.0),
-                             sharey=True, squeeze=False)
-    for ax, (cond, seed, title) in zip(axes[0], PANELS):
-        h = load(cond, seed); s = h["steps"]
-        ax.plot(s, h["val_2chain_exact"], lw=2, color="#2ca02c", label="2Chain")
-        ax.plot(s, h["val_2clique_exact"], lw=2, color="#ff7f0e", label="2Clique")
-        ax.set_title(title); ax.set_xlabel("training step")
-        ax.set_ylim(-0.03, 1.05); ax.grid(alpha=0.3)
-    axes[0][0].set_ylabel("OOD exact-match accuracy")
-    axes[0][0].legend(loc="center left")
-    fig.suptitle("Restricted D≤9 (RoBERTa-faithful): same data lever, "
-                 "different seeds", y=1.02)
+    fig, axes = plt.subplots(len(ROWS), len(SEEDS),
+                             figsize=(4.3 * len(SEEDS), 3.4 * len(ROWS)),
+                             sharex=True, sharey=True, squeeze=False)
+    for r, (metric, mlabel) in enumerate(ROWS):
+        for c, seed in enumerate(SEEDS):
+            ax = axes[r][c]
+            for cond, clabel, color in CONDS:
+                h = load(cond, seed)
+                ax.plot(h["steps"], h[metric], color=color, lw=2, label=clabel)
+            ax.set_ylim(-0.03, 1.05); ax.grid(alpha=0.3)
+            if r == 0:
+                ax.set_title(f"seed {seed}")
+            if c == 0:
+                ax.set_ylabel(f"{mlabel}\nexact-match acc")
+            if r == len(ROWS) - 1:
+                ax.set_xlabel("training step")
+    axes[0][0].legend(loc="center left", fontsize=8)
+    fig.suptitle("Restricted vs. unrestricted, per seed (RoBERTa-faithful, n=20): "
+                 "the data lever helps only by luck of the seed", y=1.01)
     fig.tight_layout()
     out = RUNS / "seed_examples.png"
     fig.savefig(out, dpi=170, bbox_inches="tight"); plt.close(fig)

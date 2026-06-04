@@ -109,7 +109,7 @@ The reproduction of Part~I uses a separate $n = 20$ configuration described in
 Section~\ref{sec:repro}.
 
 % =====================================================================
-\part{The data lever: does training on more (unrestricted) data help?}
+\part{The data lever: does training on restricted data help?}
 % =====================================================================
 
 \section{Reproducing the paper's standard-transformer experiment ($n = 20$)}
@@ -251,18 +251,25 @@ as Figures~7/11. But it is $1$ of $8$. Reading down Table~\ref{tab:repro-rob}, i
 each condition only about $3$ of $8$ seeds generalise on any OOD family and the
 rest sit at zero; the diameter filter does not help on balance (restricted is
 slightly better on 2Chain --- $3/8$ vs.\ $2/8$ --- and \emph{worse} on 2Clique ---
-$1/8$ vs.\ $3/8$). Figure~\ref{fig:seed-examples} makes the lottery explicit:
-under the \emph{same} data lever, seed~$6000$ generalises on both families,
-seed~$7000$ never leaves zero, and seed~$1000$ solves 2Chain but not 2Clique.
+$1/8$ vs.\ $3/8$). Figure~\ref{fig:seed-examples} makes the accident explicit by
+putting the restricted and unrestricted curves \emph{side by side} for three
+seeds: for seed~$6000$ restriction clearly helps (the paper's story), but for
+seed~$7000$ it is the \emph{opposite} --- the unrestricted model generalises and
+the restricted one fails outright --- and for seed~$1000$ it is mixed (restricted
+wins on 2Chain, unrestricted wins on 2Clique). The diameter filter is not a
+consistent improvement; it helps, hurts, or does nothing depending on the seed.
 
 \begin{figure}[H]
     \centering
     \figorbox{runs/repro_paper_n20_roberta/seed_examples.png}{1.0}
-    \caption{Restricted $D \le 9$ (RoBERTa-faithful): OOD exact-match accuracy vs.\
-    training step for three seeds. Same training distribution, same data lever ---
-    only the seed differs. Seed~$6000$ (left) is the paper-like ``it works'' run;
-    seed~$7000$ (middle) fails; seed~$1000$ (right) is partial. Which outcome you
-    get is set by the seed.}
+    \caption{Restricted ($D \le 9$, blue) vs.\ unrestricted (orange) training
+    curves for the \emph{same} seed, RoBERTa-faithful, $n = 20$. Rows: OOD
+    exact-match on 2Chain (top) and 2Clique (bottom); columns: seeds $1000$,
+    $6000$, $7000$. \textbf{seed 6000:} restriction lifts both families while
+    unrestricted lags --- exactly the paper's Figure~7/11. \textbf{seed 7000:}
+    reversed --- the unrestricted model generalises and the restricted one stays
+    at zero, i.e.\ the lever \emph{hurts}. \textbf{seed 1000:} mixed. Whether the
+    data lever helps is decided by the seed, not by the filter.}
     \label{fig:seed-examples}
 \end{figure}
 
