@@ -9,7 +9,8 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=40G
-#SBATCH --time=06:00:00
+# deeper models are slower per step (L=4 @ 1M steps ~ 11h); give ample margin
+#SBATCH --time=14:00:00
 #SBATCH --array=1-4
 
 mkdir -p out err
