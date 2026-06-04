@@ -21,8 +21,14 @@
 % so resolve \includegraphics paths relative to the repository root.
 \graphicspath{{../../}}
 
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
 \title{Empirical Analysis of Transformers on Graph Connectivity \\
-       \large Part III: Structural OOD Probes and a Faithful Paper Reproduction}
+       \large Part III: The Data Lever and the Capacity Wall}
 \author{Edoardo Paccagnella}
 \date{\today}
 
@@ -33,50 +39,42 @@
 \section{Introduction}
 \label{sec:intro}
 
-This is the third report in the series. Parts~I and~II studied a
+This is the third report in the series. The earlier reports studied a
 \emph{standard} (non-disentangled) transformer trained to predict the
-connectivity matrix of an input graph, and asked whether the \emph{data
-lever} of Ye, Fu, Jia and Sharan (2026) --- restricting the training data to
-within-capacity graphs (diameter $\le 3^L$) --- helps a standard transformer
-generalise out of distribution. The conclusion of Part~II was that, in our
-$n = 40$ setup, the data lever speeds up convergence but does not produce the
-predicted OOD benefit.
+connectivity matrix of an input graph, and asked whether the \emph{data lever}
+of Ye, Fu, Jia and Sharan (2026) --- restricting the training data to
+within-capacity graphs (diameter $\le 3^L$) --- transfers from the disentangled
+transformer (for which it is proven) to a standard transformer (for which the
+paper only shows empirical evidence). This report is organised in two parts.
 
-This report collects four experiments. The first three are targeted probes of
-\emph{what} the trained $n = 40$ models actually compute; the fourth is a
-faithful reproduction of the paper's own preliminary study at $n = 20$.
-\begin{enumerate}
-    \item \textbf{Cycle graphs (Section~\ref{sec:cycles}).} We test the four
-          diameter-controlled $n = 40$ models on single cycles ($C_{40}$) and
-          on pairs of disjoint cycles ($2 \times C_{20}$), two distributions
-          that isolate the difference between confirming a long-range
-          \emph{connection} and detecting a \emph{disconnection}.
-    \item \textbf{Where the 2-chain error lives (Section~\ref{sec:pairwise}).}
-          On 2-chains the models reach $\sim 80\%$ pairwise accuracy but
-          $0\%$ exact match. We decompose the pairwise error to localise it.
-    \item \textbf{Counting components (Section~\ref{sec:count}).} We train a
-          new graph-level classifier to decide whether a graph is one chain
-          or two chains (one vs.\ two connected components).
-    \item \textbf{Reproducing the paper at $n = 20$ (Section~\ref{sec:repro}).}
-          We reproduce the paper's standard-transformer setup
-          ($\mathrm{ER}(n = 20, p = 0.08)$, tested on 2Chain and 2Clique)
-          under its exact configuration, running $3$ seeds per condition. We
-          find that whether the model recovers the algorithmic solution is
-          governed primarily by the random seed, not by the diameter filter:
-          the effect the paper presents as a clean phase transition is, in our
-          hands, a high-variance event.
-\end{enumerate}
-For the first three experiments the architecture, the
-$\mathrm{ER}(n = 40, p = 0.05)$ training distribution, and the
-2-chain/2-clique/cycle test distributions are stated at the start of each
-section, and a second independent training round (``exp2'') is reported
-alongside the first to expose run-to-run variance.
+\paragraph{Part~I --- the data lever.} We reproduce the paper's own
+standard-transformer study at $n = 20$ under its exact configuration and ask
+whether training on diameter-restricted data really improves out-of-distribution
+generalisation, as its Figures~7/11 suggest. Running many seeds, we find that it
+does not: whether a model recovers the generalising (algorithmic) solution is
+governed by the random seed, not by the diameter filter. The clean separation
+the paper presents as a phase transition is, in our hands, a high-variance event,
+and the diameter-restricted and unrestricted conditions generalise at
+statistically indistinguishable rates. So the claim that ``more within-capacity
+data'' helps a standard transformer is not supported by our experiments.
+
+\paragraph{Part~II --- the capacity wall.} Across every structured test we ran
+(2-chains, single and double cycles), the $n = 40$ models fail on node pairs at
+shortest-path distance beyond roughly $9$, while being near-perfect below it.
+We characterise this wall: we show it is the $3^L$ matrix-powering capacity of an
+$L$-layer model (with $L = 2$, $3^2 = 9$), localise the error, show that the same
+trunk can nonetheless \emph{count} connected components trivially, and finally
+vary the depth $L$ directly to confirm that the wall moves with depth.
+
+Throughout, when we report $n = 40$ results we also report a second independent
+training round (``exp2'') to expose run-to-run variance, and we state the
+training distribution and the test distributions at the start of each section.
 
 \section{Model and task}
 \label{sec:model}
 
-The task is unchanged from Parts~I--II. Given an undirected graph on $n$ nodes,
-the input is its self-loop-augmented adjacency matrix
+The task is unchanged from the earlier reports. Given an undirected graph on $n$
+nodes, the input is its self-loop-augmented adjacency matrix
 $A \in \{0,1\}^{n \times n}$ and the target is the connectivity matrix
 $R \in \{0,1\}^{n \times n}$ with $R_{ij} = 1$ iff $i$ and $j$ lie in the same
 connected component. We report \textbf{exact-match accuracy} (fraction of test
@@ -84,27 +82,218 @@ graphs predicted perfectly) and \textbf{pairwise accuracy} (fraction of
 correctly predicted node pairs), optionally broken down by shortest-path
 distance $d$.
 
-Two model families appear in this report.
+Three model families appear in this report.
 
-\paragraph{Large $n = 40$ connectivity models} (Sections~\ref{sec:cycles},
-\ref{sec:pairwise}, \ref{sec:count}). These are exactly the large-model runs of
-Part~II: $L = 2$ layers, $4$ attention heads, $d_{\mathrm{model}} = 512$,
-$d_{\mathrm{ff}} = 2048$, normalised-ReLU attention
-($\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$), pre-norm
+\paragraph{Large $n = 40$ connectivity models} (Part~II,
+Sections~\ref{sec:cycles}, \ref{sec:pairwise}). $L = 2$ layers, $4$ attention
+heads, $d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$, normalised-ReLU
+attention ($\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$), pre-norm
 LayerNorm, GELU feed-forward, no causal mask and no positional encoding;
-$\sim 6.3$M parameters. They are trained on \textbf{Erd\H{o}s--R\'enyi
-$\mathrm{ER}(n = 40, p = 0.05)$} graphs streamed online (each graph seen once,
-$\approx 10^9$ graphs), batch size $1{,}000$, $1{,}000{,}000$ steps, AdamW with
-peak learning rate $10^{-4}$, weight decay $10^{-4}$, cosine schedule, bf16.
-The four runs differ only in the diameter filter applied to the training
-stream: \emph{unfiltered}, $D \le 11$, $D \le 9$ ($= 3^L$), $D \le 7$.
+$\sim 6.3$M parameters. Trained on \textbf{Erd\H{o}s--R\'enyi
+$\mathrm{ER}(n = 40, p = 0.05)$} streamed online (each graph seen once,
+$\approx 10^9$ graphs), batch $1{,}000$, $1{,}000{,}000$ steps, AdamW, peak lr
+$10^{-4}$, weight decay $10^{-4}$, cosine schedule, bf16. The four runs differ
+only in the diameter filter on the training stream: \emph{unfiltered}, $D \le
+11$, $D \le 9$ ($= 3^L$), $D \le 7$.
 
-\paragraph{Component classifier} (Section~\ref{sec:count}). Same trunk as
-above, with the $n \times n$ read-out replaced by a mean-pool over node
-embeddings followed by a single-logit head; trained with binary cross-entropy.
+\paragraph{Component classifier} (Section~\ref{sec:count}). Same trunk, with the
+$n \times n$ read-out replaced by a mean-pool over node embeddings and a
+single-logit head; binary cross-entropy.
 
-The reproduction of Section~\ref{sec:repro} uses a separate $n = 20$
-configuration described in that section.
+\paragraph{Depth-sweep reach models} (Section~\ref{sec:reach}). The same big
+trunk but with the number of layers $L$ varied in $\{1,2,3,4\}$, trained at
+$n = 64$ on a purpose-built ``path-union'' distribution (defined there) to
+measure how far each depth can compute reachability.
+
+The reproduction of Part~I uses a separate $n = 20$ configuration described in
+Section~\ref{sec:repro}.
+
+% =====================================================================
+\part{The data lever: does training on more (unrestricted) data help?}
+% =====================================================================
+
+\section{Reproducing the paper's standard-transformer experiment ($n = 20$)}
+\label{sec:repro}
+
+\subsection{Setup}
+
+\paragraph{Goal.} Reproduce the paper's preliminary standard-transformer study
+--- its Figure~1 (failure to generalise) and its data-lever Figures~7 and~11 ---
+under the paper's exact configuration, and ask whether the data lever produces
+the OOD benefit it claims at $n = 20$.
+
+\paragraph{Architecture.} As specified in the paper (\S3.3 and Appendix~A.1/D.1):
+a $2$-layer standard transformer, \textbf{single-head} self-attention,
+$d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$, normalised-ReLU attention
+$\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$, GELU feed-forward, no
+positional encoding. AdamW, peak lr $10^{-4}$, weight decay $10^{-4}$, cosine
+schedule, batch size $1{,}000$, $1{,}000{,}000$ steps, each graph seen once
+($\approx 10^9$ graphs), bf16.
+
+Crucially, the paper does not pin down the \emph{exact} architecture it trains.
+Appendix~A.1 gives an idealised mathematical specification (pre-LayerNorm,
+bias-free read-in/read-out, no dropout), whereas Appendix~D.1 says the trained
+standard transformers \emph{``adopt the implementation from RoBERTa''} --- which
+in practice implies post-LayerNorm blocks, dropout $0.1$ and a
+$\mathcal{N}(0, 0.02)$ initialisation --- without stating those choices
+explicitly. The two readings differ exactly in the details that shape the
+training dynamics, which is what the paper's claim is about. Rather than guess,
+we ran \textbf{both}:
+\begin{itemize}
+    \item an \textbf{A.1-style} model (pre-LayerNorm, no dropout, default
+          initialisation), and
+    \item a \textbf{RoBERTa-faithful} model (post-LayerNorm, dropout $0.1$,
+          $\mathcal{N}(0, 0.02)$ initialisation).
+\end{itemize}
+We treat these as two settings of one experiment, not as two experiments.
+
+\paragraph{Training and test distributions.} Training on
+\textbf{$\mathrm{ER}(n = 20, p = 0.08)$}, in two conditions: \emph{unrestricted}
+and \emph{restricted} to diameter $\le 9$ ($= 3^L$, the data lever). Test on the
+two out-of-distribution families used by the paper, both at $n = 20$:
+\textbf{2Chain$(n = 20, k = 10)$} (two disjoint paths of $10$ nodes) and
+\textbf{2Clique$(n = 20, k = 10)$} (two disjoint $10$-cliques). The metric is
+exact-match accuracy, exactly as in the paper (\S3.3: the product over all node
+pairs).
+
+\paragraph{What ``seed'' controls.} In our runs a single integer seed sets, at
+once, (i) the \textbf{weight initialisation} and (ii) the \textbf{online
+training-graph stream} (which graphs are sampled, and in which order). The two
+out-of-distribution test sets (2Chain, 2Clique) are generated from \emph{fixed}
+seeds and are therefore identical across all runs. Hence any run-to-run
+difference in OOD generalisation reported below comes from initialisation and
+training stochasticity, not from a different test set; our setup couples those
+two sources and cannot separate them (a clean follow-up would fix one and vary
+the other).
+
+\subsection{The A.1-style model: Figure~1 reproduces, the data lever does not}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llccc}
+\toprule
+Condition & Seed & ER (in-dist) & 2Chain & 2Clique \\
+\midrule
+Unrestricted & $1000$ & 1.000 & 0.065 & 0.000 \\
+Unrestricted & $2000$ & 1.000 & 0.046 & 0.000 \\
+Unrestricted & $3000$ & 1.000 & 0.071 & 0.000 \\
+\midrule
+Restricted $D \le 9$ & $1000$ & 1.000 & 0.034 & 0.000 \\
+Restricted $D \le 9$ & $2000$ & 1.000 & 0.017 & 0.000 \\
+Restricted $D \le 9$ & $3000$ & 1.000 & 0.051 & 0.000 \\
+\bottomrule
+\end{tabular}
+\caption{Reproduction with the minimal (clean A.1-style) architecture:
+exact-match accuracy at the end of training (3 seeds). In distribution every run
+is perfect; both OOD families stay near zero, \emph{including} the
+diameter-restricted runs. (For reference, 2Chain pairwise accuracy is
+$\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}
+\label{tab:repro-min}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/repro_paper_n20/fig1_reproduction.png}{0.62}
+    \caption{A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\
+    training step for the unrestricted model on ER (in-distribution), 2Chain and
+    2Clique. In distribution the model is perfect; the two OOD families stay near
+    zero --- the failure-to-generalise of the paper's Figure~1.}
+    \label{fig:repro-fig1}
+\end{figure}
+
+\paragraph{What the table and figure show.} The A.1-style model reproduces the
+paper's Figure~1 cleanly: in distribution every run is perfect (ER exact
+$= 1.000$), and on the OOD 2Chain/2Clique families exact match is essentially
+zero. But the \emph{data lever} does not reproduce Figures~7/11 here: the
+restricted $D \le 9$ runs fail exactly like the unrestricted ones. Pairwise
+accuracy is uninformative in the usual way --- 2Chain pairwise $\approx 0.99$
+(the error is the handful of beyond-capacity pairs at the $d = 9$ boundary, as in
+Section~\ref{sec:pairwise}) and 2Clique pairwise $\approx 0.50$ (the degree
+heuristic, which over-connects the two high-degree cliques).
+
+\subsection{The RoBERTa-faithful model: the algorithmic solution appears, but
+the seed decides}
+\label{sec:repro-rob}
+
+The clean A.1 model never recovers the algorithmic solution. The RoBERTa-faithful
+model does --- but intermittently. We ran a seed sweep of $8$ seeds per condition
+(seeds $1000$--$8000$). Table~\ref{tab:repro-rob} lists every run.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{cccc|cccc}
+\toprule
+\multicolumn{4}{c|}{Unrestricted} & \multicolumn{4}{c}{Restricted $D \le 9$} \\
+Seed & ER & 2Chain & 2Clique & Seed & ER & 2Chain & 2Clique \\
+\midrule
+1000 & 1.000 & 0.476 & \textbf{1.000} & 1000 & 1.000 & \textbf{0.983} & 0.491 \\
+2000 & 0.942 & 0.000 & 0.000 & 2000 & 0.947 & 0.000 & 0.000 \\
+3000 & 0.998 & 0.000 & 0.000 & 3000 & 0.999 & 0.000 & 0.000 \\
+4000 & 0.948 & 0.000 & 0.000 & 4000 & 0.958 & 0.000 & 0.000 \\
+5000 & 0.947 & 0.000 & 0.000 & 5000 & 0.956 & 0.000 & 0.000 \\
+6000 & 1.000 & 0.327 & 0.091 & 6000 & 1.000 & \textbf{0.991} & \textbf{0.805} \\
+7000 & 1.000 & \textbf{0.555} & \textbf{0.966} & 7000 & 0.953 & 0.000 & 0.000 \\
+8000 & 1.000 & \textbf{0.782} & \textbf{0.998} & 8000 & 1.000 & \textbf{1.000} & 0.086 \\
+\bottomrule
+\end{tabular}
+\caption{RoBERTa-faithful reproduction: final exact-match accuracy, all $8$ seeds
+per condition. Bold marks runs that ``generalise'' (exact $> 0.5$) on a family.
+The outcome is bimodal per seed: a run either recovers a strong generalising
+solution or stays at zero, with little in between, in \emph{both} conditions.}
+\label{tab:repro-rob}
+\end{table}
+
+\paragraph{One favourable seed looks exactly like the paper.} Restricted
+seed~$6000$ lifts \emph{both} 2Chain ($0.99$) and 2Clique ($0.81$): shown on its
+own, its training curve is exactly the clean phase transition the paper presents
+as Figures~7/11. But it is $1$ of $8$. Reading down Table~\ref{tab:repro-rob}, in
+each condition only about $3$ of $8$ seeds generalise on any OOD family and the
+rest sit at zero; the diameter filter does not help on balance (restricted is
+slightly better on 2Chain --- $3/8$ vs.\ $2/8$ --- and \emph{worse} on 2Clique ---
+$1/8$ vs.\ $3/8$). Figure~\ref{fig:seed-examples} makes the lottery explicit:
+under the \emph{same} data lever, seed~$6000$ generalises on both families,
+seed~$7000$ never leaves zero, and seed~$1000$ solves 2Chain but not 2Clique.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/repro_paper_n20_roberta/seed_examples.png}{1.0}
+    \caption{Restricted $D \le 9$ (RoBERTa-faithful): OOD exact-match accuracy vs.\
+    training step for three seeds. Same training distribution, same data lever ---
+    only the seed differs. Seed~$6000$ (left) is the paper-like ``it works'' run;
+    seed~$7000$ (middle) fails; seed~$1000$ (right) is partial. Which outcome you
+    get is set by the seed.}
+    \label{fig:seed-examples}
+\end{figure}
+
+\paragraph{The seed, not the filter, is the dominant axis of variation.} The
+RoBERTa details \emph{do} unlock the algorithmic solution the A.1 model never
+reached (a run can hit 2Clique $= 1.000$ unrestricted, 2Chain $= 1.000$
+restricted), but \emph{whether} a run finds it is a coin-flip: $\sim 3/8$ of seeds
+generalise in each condition. The winning seeds even specialise differently ---
+some solve 2Clique (all pairs at distance $1$) but lag on 2Chain (hardest pairs
+sit at the capacity boundary $d = 9$) and vice-versa --- consistent with the
+$3^L$ capacity picture of Part~II.
+
+\paragraph{Conclusion of Part~I.} At $n = 20$ the restricted and unrestricted
+conditions generalise at essentially the same (low) rate
+(Table~\ref{tab:repro-rob}): the restricted model is not better overall and is
+worse on 2Clique. We therefore do not find support for the paper's claim that
+restricting the training data to within-capacity graphs improves OOD
+generalisation of a \emph{standard} transformer. We robustly reproduce its
+Figure~1 (failure), and confirm the generalising solution is \emph{reachable};
+but its appearance is governed by initialisation, and a single favourable seed
+reproduces the appearance of a clean Figure~7/11 phase transition. This is
+consistent with our earlier reports: with the architectures of Reports~1 and~2
+(the softmax and normalised-ReLU $n = 40$ models, evaluated at length there), the
+data lever likewise did not improve OOD generalisation --- the unfiltered model
+was at least as good as every diameter-restricted specialist. Establishing a
+genuine data-lever effect would require many more seeds; with the variance we
+observe, the diameter filter is not the deciding factor.
+
+% =====================================================================
+\part{The capacity wall: how far can the model reach?}
+% =====================================================================
 
 \section{Cycle graphs: connection vs.\ disconnection}
 \label{sec:cycles}
@@ -232,42 +421,34 @@ $\mathrm{ER}(n = 40, p = 0.05)$.
 
 \paragraph{Test distribution.} \textbf{2-chains} at the full size
 $n = 40$, $k = n/2 = 20$: two disjoint paths of $20$ nodes each (two connected
-components), random node permutations, $5{,}000$ graphs. This is the
-$n_{\text{active}} = 40$ case requested as a follow-up to Part~II; note that a
-$20$-node path has diameter $19$, so it contains within-component pairs at
-distances well beyond the capacity $3^L = 9$.
+components), random node permutations, $5{,}000$ graphs. A $20$-node path has
+diameter $19$, so it contains within-component pairs at distances well beyond the
+capacity $3^L = 9$.
 
 On this distribution the models reach $\sim 80\%$ pairwise accuracy but $0\%$
-exact match, and Part~II showed (Figure on 2-chains by $n_{\text{active}}$) the
-exact-match accuracy collapses from $1.0$ to $0.0$ exactly at
-$n_{\text{active}} = 22$. We decompose the pairwise error to understand the
-$80\%$ figure. For each model we split the off-diagonal pairs into:
-within-component pairs at distance $d \le 9$ (within capacity), within-component
-pairs at $d > 9$ (beyond capacity), and across-component pairs (target $0$). As
-a reference we also report the \emph{capacity oracle}, the predictor
-``connected $\iff 1 \le d \le 9$''.
+exact match, and the exact-match accuracy collapses from $1.0$ to $0.0$ exactly
+at $n_{\text{active}} = 22$. We decompose the pairwise error: for each model we
+split the off-diagonal pairs into within-component pairs at $d \le 9$ (within
+capacity), within-component pairs at $d > 9$ (beyond capacity), and
+across-component pairs (target $0$).
 
 \subsection{Results}
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccc}
 \toprule
-Model & Overall & \multicolumn{1}{c}{within $d\!\le\!9$} & within $d\!>\!9$ & across (disc.) & pred-conn.\ rate \\
+Model & Overall & within $d\!\le\!9$ & within $d\!>\!9$ & across (disc.) & pred-conn.\ rate \\
 \midrule
 Unfiltered & 0.821 & 1.000 & 0.263 & 0.855 & 0.458 \\
 $D \le 11$ & 0.825 & 0.993 & 0.221 & 0.879 & 0.437 \\
 $D \le 9$  & \textbf{0.853} & 0.983 & 0.000 & \textbf{1.000} & 0.340 \\
 $D \le 7$  & 0.788 & 0.794 & 0.000 & \textbf{1.000} & 0.275 \\
-\midrule
-Capacity oracle & 0.859 & 1.000 & 0.000 & 1.000 & --- \\
 \bottomrule
 \end{tabular}
-\caption{Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$, split
-by target class and within-component distance. ``pred-conn.\ rate'' is the
-fraction of off-diagonal pairs the model predicts as connected. The last row is
-the capacity oracle ``connected $\iff d \le 9$''. Bold marks the best model per
-column.}
+\caption{Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$, split by
+target class and within-component distance. ``pred-conn.\ rate'' is the fraction
+of off-diagonal pairs predicted connected. Bold marks the best model per column.}
 \label{tab:pairwise}
 \end{table}
 
@@ -275,9 +456,9 @@ column.}
     \centering
     \includegraphics[width=\textwidth]{runs/n40_cross_experiment/diagnose_2chains_k20.png}
     \caption{Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the four
-    models. The dashed red line marks the capacity $3^L = 9$; the dotted red
-    line is the across-component (disconnected) accuracy. Accuracy is near
-    perfect up to $d = 9$ and collapses beyond it.}
+    models. The dashed red line marks the capacity $3^L = 9$; the dotted red line
+    is the across-component (disconnected) accuracy. Accuracy is near perfect up
+    to $d = 9$ and collapses beyond it.}
     \label{fig:diagnose}
 \end{figure}
 
@@ -285,23 +466,20 @@ column.}
     \centering
     \includegraphics[width=0.9\textwidth]{runs/n40_cross_experiment/two_chains_pairwise_by_n_active_big.png}
     \caption{2-chains pairwise accuracy as a function of $n_{\text{active}}$
-    (left: measured on the active $n_{\text{active}} \times n_{\text{active}}$
-    block; right: on the full $40 \times 40$ canvas), for the four models. The
+    (left: on the active block; right: on the full $40 \times 40$ canvas). The
     accuracy stays high even where exact match is already $0$.}
     \label{fig:byn}
 \end{figure}
 
-\paragraph{What the table and figures show.} The $\sim 80\%$ pairwise accuracy
-is not a heuristic artefact: the error is concentrated almost entirely in the
-\emph{within-component pairs beyond capacity} ($d > 9$). The capacity-respecting
+\paragraph{What the table and figures show.} The $\sim 80\%$ pairwise accuracy is
+not a heuristic artefact: the error is concentrated almost entirely in the
+within-component pairs \emph{beyond} capacity ($d > 9$). The capacity-respecting
 models $D \le 9$ and $D \le 7$ get every across-component pair right
 (disconnected accuracy $1.000$, zero false positives) and every within-capacity
-pair right, but score exactly $0.000$ on $d > 9$ pairs --- they implement
-``connected $\iff d \le 9$''. Indeed the $D \le 9$ model ($0.853$) is within
-$0.6$ points of the capacity oracle ($0.859$). Because every 2-chain with
-$k = 20$ contains pairs at distances $10$--$19$, every graph has some wrong
-pairs, which is why exact match is $0$ while pairwise stays high. This also
-explains the cliff at $n_{\text{active}} = 22$ reported in Part~II:
+pair right, but score $0.000$ on $d > 9$ pairs --- they implement ``connected
+$\iff d \le 9$''. Because every 2-chain with $k = 20$ contains pairs at
+distances $10$--$19$, every graph has wrong pairs, so exact match is $0$ while
+pairwise stays high. This also explains the cliff at $n_{\text{active}} = 22$:
 $n_{\text{active}} = 20$ means chains of length $10$ (maximum distance $9 =$
 capacity), the last fully solvable size; $n_{\text{active}} = 22$ introduces
 distance $10 > 9$ and breaks exact match.
@@ -322,8 +500,6 @@ Unfiltered & 0.759 & 1.000 & 0.617 & 0.636 & 0.620 \\
 $D \le 11$ & 0.846 & 0.967 & 0.012 & 0.993 & 0.340 \\
 $D \le 9$  & \textbf{0.852} & 0.979 & 0.002 & 0.999 & 0.340 \\
 $D \le 7$  & 0.785 & 0.785 & 0.000 & \textbf{1.000} & 0.272 \\
-\midrule
-Capacity oracle & 0.859 & 1.000 & 0.000 & 1.000 & --- \\
 \bottomrule
 \end{tabular}
 \caption{Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$ for the
@@ -341,26 +517,24 @@ model per column.}
     \label{fig:diagnose-exp2}
 \end{figure}
 
-\paragraph{What the second round shows.} The structural localisation of the
-error is reproduced: the two capacity-respecting models $D \le 9$ and $D \le 7$
-again implement ``connected $\iff d \le 9$'' (within-$d{>}9$ accuracy $\approx 0$,
-disconnected accuracy $\approx 1$), and their overall numbers are essentially
-identical to the first round ($D \le 9$: $0.852$ vs.\ $0.853$; $D \le 7$: $0.785$
-vs.\ $0.788$), still within a point of the capacity oracle. The seed-dependent
-component is again the \emph{unfiltered} model: in exp2 it leans the opposite way
-from round~1, \emph{over}-predicting connectivity (predicted-connected rate
-$0.620$, so it recovers more far pairs --- within-$d{>}9$ accuracy $0.617$ ---
-but at the cost of many false positives, disconnected accuracy only $0.636$).
-The within- vs.\ beyond-capacity split is therefore the robust fact across
-rounds, while the unfiltered model's exact operating point on the
-connect/over-connect axis is not.
+\paragraph{What the second round shows.} The structural localisation of the error
+is reproduced: $D \le 9$ and $D \le 7$ again implement ``connected $\iff d \le
+9$'' (within-$d{>}9$ accuracy $\approx 0$, disconnected $\approx 1$), with overall
+numbers essentially identical to the first round ($D \le 9$: $0.852$ vs.\ $0.853$;
+$D \le 7$: $0.785$ vs.\ $0.788$). The
+seed-dependent piece is again the \emph{unfiltered} model: in exp2 it leans the
+opposite way, \emph{over}-predicting connectivity (predicted-connected rate
+$0.620$; it recovers more far pairs, within-$d{>}9$ accuracy $0.617$, at the cost
+of many false positives, disconnected accuracy only $0.636$). The within- vs.\
+beyond-capacity split is the robust fact across rounds; the unfiltered model's
+operating point on the connect/over-connect axis is not.
 
 \section{Counting components: 1-chain vs.\ 2-chain}
 \label{sec:count}
 
 \subsection{Setup}
 
-\paragraph{Task.} A new \emph{graph-level binary} task: decide whether the input
+\paragraph{Task.} A \emph{graph-level binary} task: decide whether the input
 graph is a single chain (one connected component, label $0$) or two chains (two
 connected components, label $1$). This is the ``$+1$ for 2-chains, $-1$ for
 1-chain'' classification, mapped to BCE targets $\{1, 0\}$.
@@ -424,181 +598,107 @@ components. The bottleneck of the connectivity task is therefore not sensing the
 global structure but producing correct long-range, per-pair reachability ---
 the $3^L$ wall --- not detecting disconnection per se.
 
-\section{Reproducing the paper's standard-transformer experiment ($n = 20$)}
-\label{sec:repro}
+\section{Depth controls reach: is the wall at $3^L$?}
+\label{sec:reach}
 
 \subsection{Setup}
 
-\paragraph{Goal.} Reproduce the paper's preliminary standard-transformer study
---- its Figure~1 (failure to generalise) and its data-lever Figures~7 and~11 ---
-under the paper's exact configuration, and ask whether the data lever produces
-the OOD benefit it claims at $n = 20$.
+\paragraph{Question.} Every section above shows the wall at distance $\approx 9$
+for our $L = 2$ models, and $3^2 = 9$ is the matrix-powering capacity an
+$L$-layer model is predicted to reach. We test this \emph{causally} by varying
+only the depth $L$ and measuring the maximum distance the model can resolve.
 
-\paragraph{Architecture.} As specified in the paper (\S3.3 and Appendix~A.1/D.1):
-a $2$-layer standard transformer, \textbf{single-head} self-attention,
-$d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$, normalised-ReLU attention
-$\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$, GELU feed-forward, no
-positional encoding. AdamW, peak lr $10^{-4}$, weight decay $10^{-4}$, cosine
-schedule, batch size $1{,}000$, $1{,}000{,}000$ steps, each graph seen once
-($\approx 10^9$ graphs), bf16.
+\paragraph{Training distribution (``path-union'', $n = 64$).} To measure reach we
+need training graphs that actually contain long shortest paths --- ER at $n = 40$
+tops out around distance $20$, too short to probe $3^3 = 27$. We therefore train
+at $n = 64$ on \textbf{disjoint unions of random paths}, built as follows: for
+each graph we draw the number of paths $k$ \emph{uniformly at random from}
+$\{1, 2, 3, 4\}$, partition the $64$ nodes into $k$ contiguous segments (random
+split), turn each segment into a path, and finally permute the node labels.
+Hence $\approx 25\%$ of graphs are a single $64$-node path (shortest-path
+distances up to $63$), $\approx 25\%$ split into two paths, and so on; whenever
+$k > 1$ there are genuine cross-path disconnections, so the model cannot trivially
+predict ``all connected''. The connectivity target is block-diagonal by path.
+There is \emph{no} diameter restriction --- the point here is the opposite, to
+expose long distances.
 
-Crucially, the paper does not pin down the \emph{exact} architecture it trains.
-Appendix~A.1 gives an idealised mathematical specification (pre-LayerNorm,
-bias-free read-in/read-out, no dropout), whereas Appendix~D.1 says the trained
-standard transformers \emph{``adopt the implementation from RoBERTa''} --- which
-in practice implies post-LayerNorm blocks, dropout $0.1$ and a
-$\mathcal{N}(0, 0.02)$ initialisation --- without stating those choices
-explicitly. The two readings differ exactly in the details that shape the
-training dynamics, which is what the paper's claim is about. Rather than guess,
-we ran \textbf{both}:
+\paragraph{Model (exactly which one).} We use the \emph{same architecture as the
+$n = 40$ connectivity models of Section~\ref{sec:model}}: the pre-norm
+\texttt{GraphConnectivityTransformer} with $4$ heads, $d_{\mathrm{model}} = 512$,
+$d_{\mathrm{ff}} = 2048$, normalised-ReLU attention, GELU feed-forward and a
+symmetric $n \times n$ read-out. This is the A.1-style model of Part~I, \emph{not}
+the RoBERTa variant. We change \emph{only} the number of layers $L \in
+\{1,2,3,4\}$ and train each to $1{,}000{,}000$ steps.
+
+\paragraph{Metric.} Rather than collapse everything into a single ``reach
+radius'', we report --- as for 2Chain/2Clique above --- (a) the
+\textbf{in-distribution exact-match accuracy} on a held-out path-union test set,
+and (b) the \textbf{pairwise accuracy on within-component pairs as a function of
+their shortest-path distance $d$}, with the number of test pairs at each $d$.
+This shows directly \emph{which} node pairs each depth can resolve and where it
+breaks.
+
+\subsection{Results}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{cccl}
+\toprule
+$L$ & $3^L$ & in-dist exact match & reach (distances with pairwise $\ge 0.99$) \\
+\midrule
+1 & 3  & $\approx 0.00$ & up to $d = 3$ \\
+2 & 9  & 0.39 & up to $d = 9$ \\
+3 & 27 & 1.00 & all distances present ($\le 63$) \\
+4 & 81 & 1.00 & all distances present ($\le 63$) \\
+\bottomrule
+\end{tabular}
+\caption{Depth sweep ($n = 64$, path-union). In-distribution exact match and the
+range of distances each depth resolves with pairwise accuracy $\ge 0.99$. $L = 1$
+and $L = 2$ are limited (a $2$-layer model resolves pairs only up to $d = 9$ and
+so almost no whole graph is exact); $L \ge 3$ resolves every distance present.}
+\label{tab:reach}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/reach_depth/reach_by_distance.png}{1.0}
+    \caption{Pairwise accuracy on within-component pairs vs.\ shortest-path
+    distance $d$, one panel per depth $L$ (the count of test pairs is printed
+    above each bar; the red line marks $3^L$ when it falls within range). Accuracy
+    is near-perfect up to $d \approx 3^L$ and then collapses for $L = 1, 2$;
+    for $L = 3, 4$ it stays near-perfect across the whole $n = 64$ range.}
+    \label{fig:reach-by-distance}
+\end{figure}
+
+\paragraph{Which distances each depth resolves.}
 \begin{itemize}
-    \item an \textbf{A.1-style} model (pre-LayerNorm, no dropout, default
-          initialisation), and
-    \item a \textbf{RoBERTa-faithful} model (post-LayerNorm, dropout $0.1$,
-          $\mathcal{N}(0, 0.02)$ initialisation).
+    \item \textbf{$L = 1$ resolves pairs up to $d = 3$, $L = 2$ up to $d = 9$
+          --- a $\times 3$ per layer.} The reach triples with each added layer,
+          exactly the $3^L$ matrix-powering prediction. This is the direct,
+          causal explanation of the distance-$9$ wall seen throughout Part~II:
+          all our $n = 40$ models (and the paper's main ones) are $L = 2$, and
+          $3^2 = 9$.
+    \item \textbf{The wall is a depth limit.} At $L = 1, 2$ the model is
+          near-perfect below the threshold and collapses above it, so almost no
+          whole graph is exact (in-distribution exact match $\approx 0$ and
+          $0.39$). A third layer removes the wall: $L = 3$ resolves every distance
+          present and reaches exact match $1.00$.
+    \item \textbf{$L = 2$ is capacity-saturated, not under-trained.} Its training
+          loss plateaus around $0.14$ and its per-distance curve is flat-perfect
+          to $d = 9$ then drops to zero: a $2$-layer model simply cannot fit the
+          $d > 9$ pairs, and the non-zero loss floor is the signature of the wall
+          (the $1$M-step re-run confirms the plateau).
 \end{itemize}
-We treat these as two settings of one experiment, not as two experiments.
 
-\paragraph{Training and test distributions.} Training on
-\textbf{$\mathrm{ER}(n = 20, p = 0.08)$}, in two conditions: \emph{unrestricted}
-and \emph{restricted} to diameter $\le 9$ ($= 3^L$, the data lever). Test on the
-two out-of-distribution families used by the paper, both at $n = 20$:
-\textbf{2Chain$(n = 20, k = 10)$} (two disjoint paths of $10$ nodes) and
-\textbf{2Clique$(n = 20, k = 10)$} (two disjoint $10$-cliques). We ran
-\textbf{3 iterations} (seeds $1000$, $2000$, $3000$) per condition. The metric
-is exact-match accuracy, exactly as in the paper (\S3.3: the product over all
-node pairs).
-
-\subsection{The A.1-style model: Figure~1 reproduces, the data lever does not}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{llccc}
-\toprule
-Condition & Seed & ER (in-dist) & 2Chain & 2Clique \\
-\midrule
-Unrestricted & $1000$ & 1.000 & 0.065 & 0.000 \\
-Unrestricted & $2000$ & 1.000 & 0.046 & 0.000 \\
-Unrestricted & $3000$ & 1.000 & 0.071 & 0.000 \\
-\midrule
-Restricted $D \le 9$ & $1000$ & 1.000 & 0.034 & 0.000 \\
-Restricted $D \le 9$ & $2000$ & 1.000 & 0.017 & 0.000 \\
-Restricted $D \le 9$ & $3000$ & 1.000 & 0.051 & 0.000 \\
-\bottomrule
-\end{tabular}
-\caption{Reproduction with the minimal (clean A.1-style) architecture:
-exact-match accuracy at the end of training. In distribution every run is
-perfect; both OOD families stay near zero, \emph{including} the
-diameter-restricted runs. (For reference, 2Chain pairwise accuracy is
-$\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}
-\label{tab:repro-min}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.62\textwidth]{runs/repro_paper_n20/fig1_reproduction.png}
-    \caption{A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\
-    training step for the unrestricted model on ER (in-distribution), 2Chain and
-    2Clique. In distribution the model is perfect; the two OOD families stay near
-    zero --- the failure-to-generalise of the paper's Figure~1.}
-    \label{fig:repro-fig1}
-\end{figure}
-
-\paragraph{What the table and figure show.} The A.1-style model reproduces the
-paper's Figure~1 cleanly: in distribution every run is perfect (ER exact
-$= 1.000$), and on the OOD 2Chain/2Clique families exact match is essentially
-zero. But the \emph{data lever} does not reproduce Figures~7/11 here: the
-restricted $D \le 9$ runs fail exactly like the unrestricted ones. Pairwise
-accuracy is uninformative in the usual way --- 2Chain pairwise $\approx 0.99$
-(the error is the handful of beyond-capacity pairs at the $d = 9$ boundary, as in
-Section~\ref{sec:pairwise}) and 2Clique pairwise $\approx 0.50$ (the degree
-heuristic, which over-connects the two high-degree cliques).
-
-\subsection{The RoBERTa-faithful model: the algorithmic solution appears, but
-the seed decides}
-
-The clean A.1 model never recovers the algorithmic solution. The RoBERTa-faithful
-model does --- but intermittently. Table~\ref{tab:repro-rob} gives the final
-exact-match accuracy of all six runs.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{llccc}
-\toprule
-Condition & Seed & ER (in-dist) & 2Chain & 2Clique \\
-\midrule
-Unrestricted        & $1000$ & 1.000 & 0.476 & \textbf{1.000} \\
-Unrestricted        & $2000$ & 0.947 & 0.000 & 0.000 \\
-Unrestricted        & $3000$ & 0.999 & 0.000 & 0.000 \\
-\midrule
-Restricted $D \le 9$ & $1000$ & 1.000 & \textbf{0.983} & 0.491 \\
-Restricted $D \le 9$ & $2000$ & 0.952 & 0.000 & 0.000 \\
-Restricted $D \le 9$ & $3000$ & 0.999 & 0.000 & 0.000 \\
-\bottomrule
-\end{tabular}
-\caption{RoBERTa-faithful reproduction: final exact-match accuracy. In each
-condition exactly one of the three seeds recovers a generalising solution (and
-does so strongly), while the other two stay at zero --- an all-or-nothing,
-per-seed outcome rather than a graded effect of the diameter filter.}
-\label{tab:repro-rob}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig1_perseed.png}
-    \caption{Figure~1, RoBERTa-faithful, unrestricted --- shown \emph{per seed}
-    (one panel each) rather than as a mean, since the outcome is bimodal. Seed
-    $1000$ lifts 2Clique to $1.0$ while staying perfect in distribution; seeds
-    $2000$ and $3000$ never leave zero on either OOD family.}
-    \label{fig:repro-rob-fig1}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig7_perseed.png}
-        \caption{2Chain (paper Figure~7).}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{runs/repro_paper_n20_roberta/fig11_perseed.png}
-        \caption{2Clique (paper Figure~11).}
-    \end{subfigure}
-    \caption{The data lever, RoBERTa-faithful: exact-match accuracy on 2Chain
-    (left) and 2Clique (right), one line per (condition, seed) --- colour by
-    condition (orange: unrestricted, blue: restricted $D \le 9$), line style by
-    seed. A single seed accounts for essentially all of the signal in each panel;
-    plotting a mean here would hide the bimodality. The two conditions are not
-    cleanly separated: which run --- if any --- generalises is set by the seed.}
-    \label{fig:repro-rob-fig7-11}
-\end{figure}
-
-\paragraph{The seed, not the filter, is the dominant axis of variation.} Three
-facts read directly off Table~\ref{tab:repro-rob}. (i) The RoBERTa details
-\emph{do} unlock the algorithmic solution that the A.1 model never reached:
-under RoBERTa, a model can solve an OOD family near-perfectly (2Clique $= 1.000$
-unrestricted, 2Chain $= 0.983$ restricted). (ii) But this is a one-in-three
-event: in both conditions a single seed generalises and the other two collapse
-to zero, with no intermediate values. (iii) The winning seeds even specialise
-differently --- the unrestricted winner solves 2Clique (all pairs at distance
-$1$) but only reaches $0.48$ on 2Chain, whereas the restricted winner solves
-2Chain (whose hardest pairs sit exactly at the capacity boundary $d = 9$) but
-only $0.49$ on 2Clique --- which is consistent with the $3^L$ capacity picture
-of Sections~\ref{sec:cycles}--\ref{sec:pairwise}.
-
-\paragraph{Reading the means with care.} Averaged over the three seeds the two
-conditions appear different (restricted is better on 2Chain, $0.33$ vs.\ $0.16$;
-unrestricted is better on 2Clique, $0.33$ vs.\ $0.16$), but each of these means
-is produced by a single non-zero run, so the apparent ``data-lever effect'' is
-an artefact of \emph{which} lucky seed won and \emph{what} it specialised in, not
-a reliable property of the training distribution. With one success in three, the
-seed variance swamps the diameter filter. We therefore do not claim a data-lever
-effect at $n = 20$: we reproduce the paper's Figure~1 (failure) robustly, and we
-confirm that the algorithmic solution is \emph{reachable} under the faithful
-architecture, but establishing the clean Figure~7/11 separation would require
-many more seeds than three --- the result as we observe it is governed by
-initialisation.
+\paragraph{Caveat (the high-$L$ behaviour).} The clean $\times 3$ reading is exact
+at $L = 1, 2$; at $L = 3$ the model already resolves the full $n = 64$ range,
+which is \emph{beyond} $3^3 = 27$. Two points. First, $n = 64$ caps the largest
+measurable distance at $63$, so we cannot probe past it without a larger $n$.
+Second, the paper's $3^L$ bound (Theorem~4.5) is \emph{worst-case existential} ---
+it guarantees that \emph{some} diameter-$(3^L{+}1)$ graph defeats the model, not
+that \emph{every} one does --- and path graphs are very low-degree, evidently not
+that adversarial case. So this experiment cleanly fixes the $L = 2$ wall at
+$3^2 = 9$ and shows it lifts with depth; locating the exact capacity of $L \ge 3$
+would require adversarial graphs at $n > 64$ (a clean follow-up).
 
 \end{document}
