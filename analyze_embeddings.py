@@ -125,21 +125,27 @@ def main():
 
     out_dir = Path(args.checkpoint).parent
     tag = args.kind
-    # figure: within-distance vs shortest-path distance, per layer, with between line
+    # figure: within(d) / between RATIO per layer (scale-invariant & readable).
+    # <1 = connected pairs closer than disconnected; crossing 1 = model can no
+    # longer tell far-connected pairs from disconnected ones.
     fig, ax = plt.subplots(figsize=(8, 5))
     ds_axis = list(range(1, r["dmax"] + 1))
     cmap = plt.cm.viridis(np.linspace(0, 1, r["n_layers_states"]))
     for ell in range(r["n_layers_states"]):
-        ys_ = [r["per_dist"][ell, d] if r["dist_counts"][ell, d] > 0 else np.nan for d in ds_axis]
+        bet = max(r["between"][ell], 1e-9)
+        ys_ = [r["per_dist"][ell, d] / bet if r["dist_counts"][ell, d] > 0 else np.nan
+               for d in ds_axis]
         ax.plot(ds_axis, ys_, marker="o", ms=3, color=cmap[ell], label=labels[ell])
-        ax.axhline(r["between"][ell], color=cmap[ell], ls=":", lw=1, alpha=0.7)
+    ax.axhline(1.0, color="k", lw=1)
     cap = 3 ** mcfg.n_layers
     if cap <= r["dmax"]:
         ax.axvline(cap, color="red", ls="--", lw=1.2, label=f"$3^L={cap}$")
     ax.set_xlabel("shortest-path distance $d$ (within component)")
-    ax.set_ylabel("mean $\\|h_i-h_j\\|^2$")
-    ax.set_title(f"Embedding within-distance vs $d$ ({tag}, n={n}, L={mcfg.n_layers})\n"
-                 "dotted = between-component distance (per layer)")
+    ax.set_ylabel("within$(d)$ / between")
+    ax.set_ylim(0, 2.2)
+    ax.set_title(f"Embedding geometry ({tag}, n={n}, L={mcfg.n_layers}): "
+                 "connected-pair distance / disconnected-pair distance\n"
+                 "($<1$ good; crossing $1$ = model cannot tell them apart)")
     ax.grid(alpha=0.3); ax.legend(fontsize=8)
     fig.tight_layout()
     out_png = out_dir / f"embed_geometry_{tag}.png"
