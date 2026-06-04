@@ -27,6 +27,11 @@ class ModelConfig:
     norm_style: str = "pre"
     layer_norm_eps: float = 1e-5      # RoBERTa default
     init_std: float = 0.02            # RoBERTa weight-init std
+    # Read-out for connectivity logits:
+    #   "linear"     -> R_ij from h_i · W_out (the paper's read-out), or
+    #   "similarity" -> R_ij = scale * <h_i_norm, h_j_norm> + bias  (spectral /
+    #                   Laplacian-style: connectivity == embedding similarity).
+    readout: str = "linear"
 
 
 class MultiHeadSelfAttention(nn.Module):
@@ -102,27 +107,65 @@ class GraphConnectivityTransformer(nn.Module):
             ]
         )
         self.final_norm = nn.LayerNorm(config.d_model)
-        self.read_out = nn.Linear(config.d_model, config.n)
+        self.readout_kind = getattr(config, "readout", "linear")
+        if self.readout_kind == "similarity":
+            # connectivity == cosine similarity of node embeddings
+            self.sim_scale = nn.Parameter(torch.tensor(10.0))
+            self.sim_bias = nn.Parameter(torch.tensor(0.0))
+        else:
+            self.read_out = nn.Linear(config.d_model, config.n)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.ndim != 3:
-            raise ValueError(f"Expected input of shape [B, n, n], got {x.shape}")
-        if x.shape[-1] != self.config.n or x.shape[-2] != self.config.n:
-            raise ValueError(
-                f"Expected last two dims to be ({self.config.n}, {self.config.n}), got {x.shape[-2:]}"
-            )
+    def _trunk(self, x: torch.Tensor) -> torch.Tensor:
+        """Node embeddings H = h^(L) (after the final LayerNorm)."""
+        if x.ndim != 3 or x.shape[-1] != self.config.n or x.shape[-2] != self.config.n:
+            raise ValueError(f"Expected input [B, {self.config.n}, {self.config.n}], got {x.shape}")
         h = self.read_in(x)
         for block in self.blocks:
             h = block(h)
-        h = self.final_norm(h)
-        logits = self.read_out(h)
-        logits = 0.5 * (logits + logits.transpose(-1, -2))
-        return logits
+        return self.final_norm(h)
+
+    def hidden_states(self, x: torch.Tensor) -> list[torch.Tensor]:
+        """Return [h^0 (read-in), h^1, ..., h^L, final_norm(h^L)] for analysis."""
+        states = []
+        h = self.read_in(x); states.append(h)
+        for block in self.blocks:
+            h = block(h); states.append(h)
+        states.append(self.final_norm(h))
+        return states
+
+    def embeddings(self, x: torch.Tensor) -> torch.Tensor:
+        """The node embeddings the read-out sees (H = h^(L))."""
+        return self._trunk(x)
+
+    def forward_and_embeddings(self, x: torch.Tensor):
+        h = self._trunk(x)
+        if self.readout_kind == "similarity":
+            hn = F.normalize(h, dim=-1)
+            logits = self.sim_scale * torch.matmul(hn, hn.transpose(-1, -2)) + self.sim_bias
+        else:
+            logits = self.read_out(h)
+            logits = 0.5 * (logits + logits.transpose(-1, -2))
+        return logits, h
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.forward_and_embeddings(x)[0]
 
     @torch.no_grad()
     def predict_binary(self, x: torch.Tensor, threshold: float = 0.0) -> torch.Tensor:
         logits = self.forward(x)
         return (logits > threshold).to(torch.int64)
+
+
+def laplacian_smoothness(H: torch.Tensor, adj_no_loops: torch.Tensor) -> torch.Tensor:
+    """Mean per-graph Laplacian Dirichlet energy of node embeddings:
+        Tr(H^T L H) = sum_{(i,j) in E} ||h_i - h_j||^2 ,   L = D - A,
+    normalised by the number of (undirected) edges. `adj_no_loops` is the 0/1
+    adjacency WITHOUT self-loops, shape [B, n, n]."""
+    deg = adj_no_loops.sum(-1)                                   # [B, n]
+    LH = deg.unsqueeze(-1) * H - torch.matmul(adj_no_loops, H)   # (D - A) H
+    energy = (H * LH).sum(dim=(-2, -1))                          # Tr(H^T L H) per graph
+    n_edges = adj_no_loops.sum(dim=(-2, -1)) / 2.0 + 1e-6
+    return (energy / n_edges).mean()
 
 
 class GraphBinaryClassifier(nn.Module):
