@@ -2,6 +2,7 @@
 #SBATCH --job-name="eval_reachd"
 #SBATCH --account=3352759
 #SBATCH --partition=debug_gpuh200
+#SBATCH --qos=debug
 #SBATCH --output=out/%x_%j.out
 #SBATCH --error=err/%x_%j.err
 #SBATCH --gpus=1
