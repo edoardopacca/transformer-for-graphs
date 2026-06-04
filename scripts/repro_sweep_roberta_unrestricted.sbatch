@@ -9,7 +9,7 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=40G
-#SBATCH --time=03:30:00
+#SBATCH --time=06:00:00
 #SBATCH --array=0-4
 
 mkdir -p out err
