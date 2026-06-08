@@ -302,7 +302,13 @@ class RobertaGraphTransformer(nn.Module):
         self.emb_ln = nn.LayerNorm(config.d_model, eps=config.layer_norm_eps)
         self.emb_drop = nn.Dropout(config.dropout)
         self.blocks = nn.ModuleList([_RobertaBlock(config) for _ in range(config.n_layers)])
-        self.read_out = nn.Linear(config.d_model, config.n)
+        self.readout_kind = getattr(config, "readout", "linear")
+        if self.readout_kind == "similarity":
+            # connectivity == cosine similarity of node embeddings (spectral view)
+            self.sim_scale = nn.Parameter(torch.tensor(10.0))
+            self.sim_bias = nn.Parameter(torch.tensor(0.0))
+        else:
+            self.read_out = nn.Linear(config.d_model, config.n)
         self.apply(self._init_weights)
 
     def _init_weights(self, module: nn.Module) -> None:
@@ -314,13 +320,29 @@ class RobertaGraphTransformer(nn.Module):
             nn.init.ones_(module.weight)
             nn.init.zeros_(module.bias)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def _trunk(self, x: torch.Tensor) -> torch.Tensor:
         if x.ndim != 3 or x.shape[-1] != self.config.n or x.shape[-2] != self.config.n:
             raise ValueError(f"Expected input [B, {self.config.n}, {self.config.n}], got {x.shape}")
         h = self.emb_drop(self.emb_ln(self.read_in(x)))
         for block in self.blocks:
             h = block(h)
-        return self.read_out(h)        # [B, n, n], no final norm, no symmetrisation
+        return h
+
+    def embeddings(self, x: torch.Tensor) -> torch.Tensor:
+        """The node embeddings the read-out sees (H = h^(L))."""
+        return self._trunk(x)
+
+    def forward_and_embeddings(self, x: torch.Tensor):
+        h = self._trunk(x)
+        if self.readout_kind == "similarity":
+            hn = F.normalize(h, dim=-1)
+            logits = self.sim_scale * torch.matmul(hn, hn.transpose(-1, -2)) + self.sim_bias
+        else:
+            logits = self.read_out(h)   # [B, n, n], no final norm, no symmetrisation
+        return logits, h
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.forward_and_embeddings(x)[0]
 
     @torch.no_grad()
     def predict_binary(self, x: torch.Tensor, threshold: float = 0.0) -> torch.Tensor:

@@ -1,0 +1,242 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+
+% Figures live in the repo's runs/ directory; this file sits in report/4/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part IV: Spectral Bias and the Right Notion of Difficulty}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+This is the fourth report in the series. The earlier reports studied a
+\emph{standard} (non-disentangled) transformer trained to predict the
+connectivity matrix of an input graph, in the setting of Ye, Fu, Jia and Sharan
+(2026). Two findings frame what follows. First (Report~III, Part~I), the
+\emph{data lever} --- restricting training to within-capacity graphs
+(diameter $\le 3^L$) --- does not improve out-of-distribution generalisation of
+a standard transformer: whether a run recovers the algorithmic solution is
+governed by the random seed, not by the diameter filter. Second (Report~III,
+Part~II), the same $L = 2$ models hit a sharp \emph{capacity wall}: they are
+near-perfect on node pairs at shortest-path distance up to $\approx 9 = 3^L$ and
+degrade beyond it, and varying the depth $L$ moves the wall as $3^L$.
+
+The capacity wall is a property of the model, not of the training distribution,
+so the data lever cannot remove it. This report asks whether a different
+ingredient --- \emph{spectral structure} --- can, and, more basically, whether
+the diameter is even the right way to think about what makes a graph hard. We
+pursue three lines of work.
+
+\begin{enumerate}
+    \item \textbf{Does a spectral bias help? (Section~\ref{sec:spectral}.)}
+    Connectivity is a spectral property: the kernel of the graph Laplacian
+    $L = D - A$ is spanned by the indicators of the connected components, a
+    \emph{global} object that is not bounded by the diameter the way
+    matrix-powering is. We test two spectral ingredients at the read-out --- a
+    similarity-based read-out ($\hat R_{ij} \propto \cos(h_i, h_j)$) and an
+    auxiliary Laplacian-smoothness loss --- to see whether either pushes the
+    model past its matrix-powering capacity. The results below are a first,
+    single-seed pass; given how strongly the seed dominated in Part~I, the main
+    purpose of this section is to decide which ingredient is worth a robust,
+    multi-seed study, which we then run.
+
+    \item \textbf{What is the right notion of difficulty?
+    (Section~\ref{sec:difficulty}.)}
+    Throughout the series we have used the graph diameter as the axis of
+    difficulty, because that is what the $3^L$ theory is stated in. But the
+    diameter is a single worst-case number, and it is not obvious it is what the
+    model actually struggles with. We design experiments to isolate which graph
+    property predicts per-graph and per-pair error --- diameter, the specific
+    long shortest paths, density/degree, or something else. \emph{(Experiments
+    to be specified and run.)}
+
+    \item \textbf{Is the spectral gap the bottleneck?
+    (Section~\ref{sec:gap}.)}
+    A natural spectral candidate for difficulty is the \emph{spectral gap} (the
+    smallest non-zero eigenvalue of the normalised Laplacian): small gaps mean
+    slow mixing and long effective distances, which is exactly the regime where
+    a matrix-powering model of fixed depth should fail. We test whether the
+    spectral gap predicts where the model breaks better than the diameter does.
+    \emph{(Experiments to be specified and run.)}
+\end{enumerate}
+
+As in the earlier reports, we state the training and test distributions at the
+start of each section, we report \textbf{exact-match accuracy} (fraction of
+graphs predicted perfectly) and \textbf{pairwise accuracy} (fraction of
+correctly predicted node pairs, optionally split by shortest-path distance
+$d$), and we flag single-seed results as preliminary.
+
+\section{Model and task}
+\label{sec:model}
+
+The task is unchanged. Given an undirected graph on $n$ nodes, the input is its
+self-loop-augmented adjacency matrix $A \in \{0,1\}^{n \times n}$ and the target
+is the connectivity matrix $R$ with $R_{ij} = 1$ iff $i$ and $j$ lie in the same
+connected component.
+
+\paragraph{Backbone.} All runs in this report use the big pre-norm
+\texttt{GraphConnectivityTransformer} of the previous reports: $L = 2$ layers,
+$4$ attention heads, $d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$,
+normalised-ReLU attention ($\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$),
+GELU feed-forward, no causal mask, no positional encoding. AdamW, peak lr
+$10^{-4}$, weight decay $10^{-4}$, cosine schedule, bf16.
+
+\paragraph{Spectral ingredients.} We compare two read-outs and an optional
+auxiliary loss.
+\begin{itemize}
+    \item \textbf{Linear read-out:} the default symmetric $n \times n$ read-out
+          of the earlier reports, $\hat R_{ij} = \sigma(\langle W h_i, h_j\rangle + b)$.
+    \item \textbf{Similarity read-out:} a spectral view in which a connection is
+          a high embedding similarity,
+          $\hat R_{ij} = \sigma\big(\text{scale}\cdot\cos(h_i, h_j) + \text{bias}\big)$.
+    \item \textbf{Laplacian-smoothness loss:} an auxiliary term
+          $\lambda \cdot \mathrm{Tr}(H^\top L H)/|E| = \lambda \sum_{(i,j)\in E}\|h_i - h_j\|^2$
+          added to the binary cross-entropy, which rewards embeddings that vary
+          smoothly along edges (the discrete Dirichlet energy of $H$ on the
+          graph). We sweep $\lambda \in \{0, 1\}$.
+\end{itemize}
+
+% =====================================================================
+\section{Does a spectral bias help the read-out?}
+\label{sec:spectral}
+% =====================================================================
+
+\subsection{Setup}
+
+\paragraph{Training distribution (``path-union'', $n = 64$).} As in the
+depth-sweep of Report~III, we train on \textbf{disjoint unions of random
+paths}: for each graph we draw the number of paths $k$ uniformly from
+$\{1,2,3,4\}$, partition the $64$ nodes into $k$ contiguous segments, turn each
+into a path, and permute the labels. Hence $\approx 25\%$ of graphs are a single
+$64$-node path (shortest-path distances up to $63$) and the rest contain genuine
+cross-path disconnections, so a constant ``all connected'' predictor is wrong on
+$\approx 75\%$ of graphs. This distribution deliberately contains long shortest
+paths, which is what we need to see how far the model can reach. There is no
+diameter restriction.
+
+\paragraph{Runs.} A clean $2 \times 2$ ablation at fixed backbone and seed
+($1000$): read-out $\in \{\text{linear}, \text{similarity}\}$ $\times$
+$\lambda \in \{0, 1\}$, each trained for $500{,}000$ steps. The
+\textbf{linear, $\lambda = 0$} cell is the plain depth-$2$ model and reproduces
+the $L = 2$ reach baseline of Report~III, so it calibrates the comparison.
+
+\paragraph{Metrics.} On a held-out path-union test set we report exact match,
+pairwise accuracy, the binary cross-entropy, and two diagnostics: the pairwise
+accuracy on \emph{connected} pairs as a function of their shortest-path distance
+$d$ (how far the model reaches), and the across-component (``disconnected'')
+accuracy \texttt{disc.\ acc} (whether it still cuts the graph into components).
+
+\subsection{Results}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llcccc}
+\toprule
+Read-out & $\lambda_{\mathrm{lap}}$ & Exact & Pairwise & Disc.\ acc & BCE \\
+\midrule
+Linear     & $0$ & 0.392 & 0.912 & 0.902 & 0.156 \\
+Linear     & $1$ & 0.246 & 0.733 & 0.559 & 0.456 \\
+Similarity & $0$ & \textbf{0.440} & \textbf{0.962} & \textbf{0.977} & \textbf{0.076} \\
+Similarity & $1$ & 0.246 & 0.633 & 0.000 & 0.656 \\
+\bottomrule
+\end{tabular}
+\caption{Spectral read-out ablation ($n = 64$, $L = 2$, path-union, single seed
+$1000$, $500{,}000$ steps). \texttt{Disc.\ acc} is the accuracy on
+across-component (target $0$) pairs. The linear, $\lambda = 0$ row reproduces
+the depth-$2$ reach baseline of Report~III.}
+\label{tab:spectral}
+\end{table}
+
+Two things stand out, in opposite directions.
+
+\paragraph{The Laplacian-smoothness loss only hurts --- on both read-outs.}
+Adding $\lambda = 1$ degrades every metric in both rows. With the linear
+read-out it does not merely cap the reach: it damages the \emph{local} solution,
+dropping connected-pair accuracy even at distance $d = 1$ (from $1.00$ to
+$0.72$) and freezing exact match at its initial floor for the whole run. With
+the similarity read-out it is worse: the model \textbf{collapses to the constant
+``all connected'' predictor} within the first few thousand steps and never
+recovers (across-component accuracy $0.000$, exact match stuck at $0.246$). That
+$0.246$ is the tell: it is essentially the $\approx 25\%$ of path-union graphs
+that are a single path (target all-ones), the only graphs a constant
+``connected'' predictor gets right. The mechanism is direct: minimising
+$\sum_{(i,j)\in E}\|h_i - h_j\|^2$ rewards collapsing the embeddings of adjacent
+nodes onto each other, and the global optimum of that term alone is a constant
+embedding --- on which every pair looks connected. The smoothness penalty and
+the task pull in opposite directions, and with the similarity read-out the
+trivial attractor wins.
+
+\paragraph{The similarity read-out alone (no Laplacian loss) helps.} At fixed
+backbone, depth and seed, swapping the linear read-out for the similarity
+read-out improves every metric: exact $0.392 \to 0.440$, pairwise
+$0.912 \to 0.962$, across-component accuracy $0.902 \to 0.977$, and the BCE is
+halved. The reach diagnostic is the clearest: connected-pair accuracy stays
+$\approx 1.00$ out to shortest-path distance $\approx 17$ before it drops,
+against $\approx 9$ for the linear read-out --- roughly \emph{double} the range
+of distances the model resolves, at the \emph{same} depth $L = 2$. And it does
+so without sacrificing the ability to separate components (disc.\ acc actually
+improves). So the matrix-powering wall is not purely a property of the
+backbone's depth: the parametrisation of the read-out moves it. This is
+consistent with the spectral picture --- reading a connection off embedding
+similarity is a more global operation than reading it off a learned bilinear
+form --- but it shifts the wall, it does not remove it ($\approx 17$, not
+unbounded): the depth-$2$ backbone still limits how far information propagates,
+and at $n = 64$ (distances up to $63$) exact match stays at $0.44$.
+
+\paragraph{Caveat.} These are single-seed runs. Part~I showed the seed can
+dominate this model, so we treat the table as a screening pass, not as a
+measured effect. The clean conclusion it licenses is a \emph{design decision}:
+the Laplacian-smoothness loss is counter-productive and we drop it; the
+similarity read-out is the promising ingredient and is worth a robust,
+multi-seed evaluation with a per-distance reach breakdown. That evaluation is
+the next step, and this section will be rewritten around its results.
+
+% =====================================================================
+\section{What is the right notion of difficulty?}
+\label{sec:difficulty}
+% =====================================================================
+
+\emph{To be written: experiments isolating which graph property predicts the
+model's error (diameter vs.\ specific long shortest paths vs.\ density/degree),
+to test whether the diameter is the right difficulty axis at all.}
+
+% =====================================================================
+\section{Is the spectral gap the bottleneck?}
+\label{sec:gap}
+% =====================================================================
+
+\emph{To be written: experiments testing whether the spectral gap (smallest
+non-zero eigenvalue of the normalised Laplacian) predicts where the model breaks
+better than the diameter does.}
+
+\end{document}

@@ -98,6 +98,88 @@ def generate_two_cycles_graph(n: int, k: int) -> np.ndarray:
     return adj
 
 
+def generate_blocks_graph(n: int, rng: np.random.Generator, kind: str = "er",
+                          max_blocks: int = 4, p: float = 0.3) -> np.ndarray:
+    """Disjoint union of 1..max_blocks internally-connected blocks partitioning all
+    n nodes (the dense analogue of ``generate_path_union_graph``).
+
+    ``kind="clique"``: each block is a complete graph (intra-block diameter 1,
+    large spectral gap). ``kind="er"``: each block is a *connected* ER graph,
+    built as a random spanning path over the block (guarantees connectivity) plus
+    extra ER edges at probability ``p`` (variable density, variable diameter/gap).
+    Blocks of size 1 stay isolated nodes (own component). Node order is NOT
+    permuted here; no self-loops."""
+    k = int(rng.integers(1, max_blocks + 1))
+    if k == 1:
+        bounds = [0, n]
+    else:
+        cuts = sorted(rng.choice(np.arange(1, n), size=k - 1, replace=False).tolist())
+        bounds = [0] + cuts + [n]
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in zip(bounds[:-1], bounds[1:]):
+        idx = np.arange(a, b)
+        m = idx.size
+        if m <= 1:
+            continue
+        if kind == "clique":
+            adj[np.ix_(idx, idx)] = 1.0
+            np.fill_diagonal(adj[a:b, a:b], 0.0)
+        elif kind == "er":
+            order = rng.permutation(idx)
+            for i in range(m - 1):
+                u, v = int(order[i]), int(order[i + 1])
+                adj[u, v] = adj[v, u] = 1.0
+            if p > 0.0:
+                for ii in range(m):
+                    for jj in range(ii + 1, m):
+                        u, v = int(idx[ii]), int(idx[jj])
+                        if adj[u, v] == 0.0 and rng.random() < p:
+                            adj[u, v] = adj[v, u] = 1.0
+        else:
+            raise ValueError(f"unknown block kind {kind!r}")
+    return adj
+
+
+def generate_barbell_graph(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Two cliques joined by a path -- the textbook small-spectral-gap graph
+    (one connected component, moderate diameter but a hard bottleneck). Cliques of
+    size ~n/3 at the two ends, the remaining nodes form the connecting path. No
+    self-loops; node order NOT permuted."""
+    c = max(2, n // 3)
+    if 2 * c > n:
+        c = n // 2
+    adj = np.zeros((n, n), dtype=np.float32)
+    for s in (0, n - c):
+        idx = np.arange(s, s + c)
+        adj[np.ix_(idx, idx)] = 1.0
+        np.fill_diagonal(adj[s : s + c, s : s + c], 0.0)
+    path_nodes = list(range(c - 1, n - c + 1))   # last of clique A ... first of clique B
+    for i in range(len(path_nodes) - 1):
+        u, v = path_nodes[i], path_nodes[i + 1]
+        adj[u, v] = adj[v, u] = 1.0
+    return adj
+
+
+def generate_random_regular_graph(n: int, rng: np.random.Generator,
+                                  degree: int = 3) -> np.ndarray:
+    """Approximate random d-regular graph -- an expander: small diameter, *large*
+    spectral gap (the opposite of a path/cycle at the same n). Built as a random
+    Hamiltonian cycle (guarantees connectivity, degree 2) plus extra random
+    matchings up to the target degree. No self-loops; node order NOT permuted."""
+    adj = np.zeros((n, n), dtype=np.float32)
+    order = rng.permutation(n)
+    for i in range(n):
+        u, v = int(order[i]), int(order[(i + 1) % n])
+        adj[u, v] = adj[v, u] = 1.0
+    for _ in range(max(0, degree - 2)):
+        perm = rng.permutation(n)
+        for i in range(0, n - 1, 2):
+            u, v = int(perm[i]), int(perm[i + 1])
+            if u != v and adj[u, v] == 0.0:
+                adj[u, v] = adj[v, u] = 1.0
+    return adj
+
+
 def add_self_loops(adj: np.ndarray) -> np.ndarray:
     out = adj.copy().astype(np.float32)
     np.fill_diagonal(out, 1.0)
@@ -176,6 +258,31 @@ def compute_graph_diameter(adj_no_loops: np.ndarray) -> int:
     if finite.size == 0:
         return 0
     return int(finite.max())
+
+
+def compute_spectral_gap(adj_no_loops: np.ndarray, tol: float = 1e-6) -> float:
+    """Smallest *positive* eigenvalue of the normalised Laplacian
+    ``L = I - D^{-1/2} A D^{-1/2}``, restricted to non-isolated nodes.
+
+    The multiplicity of the zero eigenvalue equals the number of connected
+    components, so the first eigenvalue above ``tol`` measures how hard it is to
+    mix *within* components -- small for paths/cycles/barbell (long, bottlenecked)
+    and large for cliques/expanders. This is the spectral analogue of the diameter
+    and lets us ask whether the model's error tracks the gap rather than the
+    diameter. Returns ``0.0`` for an edgeless graph."""
+    deg = adj_no_loops.sum(axis=1)
+    nz = np.where(deg > 0)[0]
+    if nz.size == 0:
+        return 0.0
+    a = adj_no_loops[np.ix_(nz, nz)].astype(np.float64)
+    dinv = 1.0 / np.sqrt(deg[nz].astype(np.float64))
+    lap = np.eye(nz.size) - (dinv[:, None] * a * dinv[None, :])
+    lap = 0.5 * (lap + lap.T)
+    w = np.linalg.eigvalsh(lap)
+    pos = w[w > tol]
+    if pos.size == 0:
+        return 0.0
+    return float(pos.min())
 
 
 @dataclass
