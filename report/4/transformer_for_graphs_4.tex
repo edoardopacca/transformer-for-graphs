@@ -36,207 +36,197 @@
 
 \maketitle
 
+\begin{abstract}
+\noindent\textbf{Preliminary.} The results below rest on a \emph{single} training
+seed (plus the eight reproduction seeds of Report~III for the baseline). They are
+meant to fix the experimental design and the first qualitative reading; every
+number will change once the multi-seed and $n=40$ runs land.
+\end{abstract}
+
 \section{Introduction}
 \label{sec:intro}
 
-This is the fourth report in the series. The earlier reports studied a
-\emph{standard} (non-disentangled) transformer trained to predict the
-connectivity matrix of an input graph, in the setting of Ye, Fu, Jia and Sharan
-(2026). Two findings frame what follows. First (Report~III, Part~I), the
-\emph{data lever} --- restricting training to within-capacity graphs
-(diameter $\le 3^L$) --- does not improve out-of-distribution generalisation of
-a standard transformer: whether a run recovers the algorithmic solution is
-governed by the random seed, not by the diameter filter. Second (Report~III,
-Part~II), the same $L = 2$ models hit a sharp \emph{capacity wall}: they are
-near-perfect on node pairs at shortest-path distance up to $\approx 9 = 3^L$ and
-degrade beyond it, and varying the depth $L$ moves the wall as $3^L$.
-
-The capacity wall is a property of the model, not of the training distribution,
-so the data lever cannot remove it. This report asks whether a different
-ingredient --- \emph{spectral structure} --- can, and, more basically, whether
-the diameter is even the right way to think about what makes a graph hard. We
-pursue three lines of work.
+This fourth report follows two findings from the earlier ones. The \emph{data
+lever} does not help a standard transformer generalise (Report~III, Part~I:
+the outcome is seed-dominated), and an $L=2$ model hits a sharp capacity wall at
+shortest-path distance $\approx 3^L = 9$ (Part~II). The wall is a property of the
+model, not of the training data, so steering the data cannot move it. Here we ask
+whether a \emph{spectral} ingredient can, and, more basically, whether the
+diameter is even the right way to measure how hard a graph is. Three threads:
 
 \begin{enumerate}
-    \item \textbf{Does a spectral bias help? (Section~\ref{sec:spectral}.)}
-    Connectivity is a spectral property: the kernel of the graph Laplacian
-    $L = D - A$ is spanned by the indicators of the connected components, a
-    \emph{global} object that is not bounded by the diameter the way
-    matrix-powering is. We test two spectral ingredients at the read-out --- a
-    similarity-based read-out ($\hat R_{ij} \propto \cos(h_i, h_j)$) and an
-    auxiliary Laplacian-smoothness loss --- to see whether either pushes the
-    model past its matrix-powering capacity. The results below are a first,
-    single-seed pass; given how strongly the seed dominated in Part~I, the main
-    purpose of this section is to decide which ingredient is worth a robust,
-    multi-seed study, which we then run.
-
-    \item \textbf{What is the right notion of difficulty?
-    (Section~\ref{sec:difficulty}.)}
-    Throughout the series we have used the graph diameter as the axis of
-    difficulty, because that is what the $3^L$ theory is stated in. But the
-    diameter is a single worst-case number, and it is not obvious it is what the
-    model actually struggles with. We design experiments to isolate which graph
-    property predicts per-graph and per-pair error --- diameter, the specific
-    long shortest paths, density/degree, or something else. \emph{(Experiments
-    to be specified and run.)}
-
-    \item \textbf{Is the spectral gap the bottleneck?
-    (Section~\ref{sec:gap}.)}
-    A natural spectral candidate for difficulty is the \emph{spectral gap} (the
-    smallest non-zero eigenvalue of the normalised Laplacian): small gaps mean
-    slow mixing and long effective distances, which is exactly the regime where
-    a matrix-powering model of fixed depth should fail. We test whether the
-    spectral gap predicts where the model breaks better than the diameter does.
-    \emph{(Experiments to be specified and run.)}
+    \item \textbf{Does a Laplacian / similarity read-out help?}
+    (Section~\ref{sec:lap}.) Connectivity is a spectral property, so we try a
+    similarity read-out ($\hat R_{ij}\propto\cos(h_i,h_j)$) and an auxiliary
+    Laplacian-smoothness loss.
+    \item \textbf{Is the diameter the right notion of difficulty?}
+    (Section~\ref{sec:diff}.) We evaluate on a panel of graph families spanning
+    the diameter$\times$spectral-gap plane and ask which axis tracks the error.
+    \item \textbf{Is the spectral gap the bottleneck?} (Section~\ref{sec:gap}.)
+    We sweep the gap at fixed structure to isolate it from family confounds.
 \end{enumerate}
 
-As in the earlier reports, we state the training and test distributions at the
-start of each section, we report \textbf{exact-match accuracy} (fraction of
-graphs predicted perfectly) and \textbf{pairwise accuracy} (fraction of
-correctly predicted node pairs, optionally split by shortest-path distance
-$d$), and we flag single-seed results as preliminary.
+\section{Setup}
+\label{sec:setup}
 
-\section{Model and task}
-\label{sec:model}
+\paragraph{Model and training.} The RoBERTa-faithful standard transformer of
+Report~III ($L=2$, single head, $d_{\mathrm{model}}=512$, normalised-ReLU
+attention), trained online at $n=20$ for $10^6$ steps. Two training regimes:
+\textbf{ER} (Set~A, $\mathrm{ER}(20,0.08)$ only, as in the paper) and
+\textbf{mixed} (Set~B, a uniform mixture of nine families). Two read-outs
+(\emph{linear}, \emph{similarity}) and an optional Laplacian loss
+$\lambda\sum_{(i,j)\in E}\|h_i-h_j\|^2$.
 
-The task is unchanged. Given an undirected graph on $n$ nodes, the input is its
-self-loop-augmented adjacency matrix $A \in \{0,1\}^{n \times n}$ and the target
-is the connectivity matrix $R$ with $R_{ij} = 1$ iff $i$ and $j$ lie in the same
-connected component.
+\paragraph{Evaluation.} Every checkpoint is tested on a panel of $11$ families and
+the accuracy is broken down three ways: pairwise accuracy vs shortest-path
+distance (the capacity view), and exact-match / pairwise vs graph
+\textbf{diameter} and vs \textbf{spectral gap} (the smallest non-zero eigenvalue
+of the normalised Laplacian). The families are chosen to spread out in the
+diameter$\times$gap plane; \emph{expander} (random regular) and \emph{barbell}
+(two cliques joined by a path) are deliberate opposites, and are held out of the
+mixed training set so they probe unseen structure.
 
-\paragraph{Backbone.} All runs in this report use the big pre-norm
-\texttt{GraphConnectivityTransformer} of the previous reports: $L = 2$ layers,
-$4$ attention heads, $d_{\mathrm{model}} = 512$, $d_{\mathrm{ff}} = 2048$,
-normalised-ReLU attention ($\alpha = \tfrac{1}{n}\mathrm{ReLU}(QK^\top/\sqrt{d_h})$),
-GELU feed-forward, no causal mask, no positional encoding. AdamW, peak lr
-$10^{-4}$, weight decay $10^{-4}$, cosine schedule, bf16.
+\section{The Laplacian loss is inert; the similarity read-out is the only knob}
+\label{sec:lap}
 
-\paragraph{Spectral ingredients.} We compare two read-outs and an optional
-auxiliary loss.
-\begin{itemize}
-    \item \textbf{Linear read-out:} the default symmetric $n \times n$ read-out
-          of the earlier reports, $\hat R_{ij} = \sigma(\langle W h_i, h_j\rangle + b)$.
-    \item \textbf{Similarity read-out:} a spectral view in which a connection is
-          a high embedding similarity,
-          $\hat R_{ij} = \sigma\big(\text{scale}\cdot\cos(h_i, h_j) + \text{bias}\big)$.
-    \item \textbf{Laplacian-smoothness loss:} an auxiliary term
-          $\lambda \cdot \mathrm{Tr}(H^\top L H)/|E| = \lambda \sum_{(i,j)\in E}\|h_i - h_j\|^2$
-          added to the binary cross-entropy, which rewards embeddings that vary
-          smoothly along edges (the discrete Dirichlet energy of $H$ on the
-          graph). We sweep $\lambda \in \{0, 1\}$.
-\end{itemize}
+In an earlier single-seed study at $n=64$, a large weight $\lambda=1$
+\emph{collapsed} the model to the trivial ``all-connected'' predictor (the
+smoothness term, $O(d_{\mathrm{model}})$ at init, swamps the $O(1)$
+cross-entropy), while the similarity read-out on its own extended the model's
+reach. Guided by that, here we use a small $\lambda$ with a warm-up
+(off for the first $50$k steps, then ramped). The sweep
+$\lambda\in\{0,10^{-4},10^{-3},10^{-2}\}$ at one seed gives a clean, slightly
+deflating answer: \textbf{at convergence $\lambda$ is inert}. The Laplacian
+energy falls to $\approx 0$ on its own under the similarity read-out --- aligning
+the embeddings of connected nodes is exactly what $\cos(h_i,h_j)\!\approx\!1$
+already does --- so the auxiliary term has nothing left to push, and all
+$\lambda$ values reach the same in-distribution accuracy with no collapse. The
+read-out, not the loss, is the lever; we drop $\lambda$ in the larger runs.
 
-% =====================================================================
-\section{Does a spectral bias help the read-out?}
-\label{sec:spectral}
-% =====================================================================
+\section{The diameter is not the right notion of difficulty}
+\label{sec:diff}
 
-\subsection{Setup}
-
-\paragraph{Training distribution (``path-union'', $n = 64$).} As in the
-depth-sweep of Report~III, we train on \textbf{disjoint unions of random
-paths}: for each graph we draw the number of paths $k$ uniformly from
-$\{1,2,3,4\}$, partition the $64$ nodes into $k$ contiguous segments, turn each
-into a path, and permute the labels. Hence $\approx 25\%$ of graphs are a single
-$64$-node path (shortest-path distances up to $63$) and the rest contain genuine
-cross-path disconnections, so a constant ``all connected'' predictor is wrong on
-$\approx 75\%$ of graphs. This distribution deliberately contains long shortest
-paths, which is what we need to see how far the model can reach. There is no
-diameter restriction.
-
-\paragraph{Runs.} A clean $2 \times 2$ ablation at fixed backbone and seed
-($1000$): read-out $\in \{\text{linear}, \text{similarity}\}$ $\times$
-$\lambda \in \{0, 1\}$, each trained for $500{,}000$ steps. The
-\textbf{linear, $\lambda = 0$} cell is the plain depth-$2$ model and reproduces
-the $L = 2$ reach baseline of Report~III, so it calibrates the comparison.
-
-\paragraph{Metrics.} On a held-out path-union test set we report exact match,
-pairwise accuracy, the binary cross-entropy, and two diagnostics: the pairwise
-accuracy on \emph{connected} pairs as a function of their shortest-path distance
-$d$ (how far the model reaches), and the across-component (``disconnected'')
-accuracy \texttt{disc.\ acc} (whether it still cuts the graph into components).
-
-\subsection{Results}
+Table~\ref{tab:fam} reports the baseline (ER, linear) on the family panel,
+averaged over the eight reproduction seeds, with the typical diameter and gap of
+each family. Sorted by gap, a pattern appears that the diameter does not explain.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{llcccc}
+\begin{tabular}{lccc}
 \toprule
-Read-out & $\lambda_{\mathrm{lap}}$ & Exact & Pairwise & Disc.\ acc & BCE \\
+Family & typ.\ diameter & typ.\ gap & exact match \\
 \midrule
-Linear     & $0$ & 0.392 & 0.912 & 0.902 & 0.156 \\
-Linear     & $1$ & 0.246 & 0.733 & 0.559 & 0.456 \\
-Similarity & $0$ & \textbf{0.440} & \textbf{0.962} & \textbf{0.977} & \textbf{0.076} \\
-Similarity & $1$ & 0.246 & 0.633 & 0.000 & 0.656 \\
+barbell           & 11 & 0.007 & 0.22 \\
+1chain            & 19 & 0.014 & 0.45 \\
+1cycle            & 10 & 0.049 & 0.58 \\
+2chains           & \phantom{0}9 & 0.060 & 0.10 \\
+ER$(0.08)$        & \phantom{0}6 & 0.108 & 0.98 \\
+expander          & \phantom{0}5 & 0.153 & \textbf{0.99} \\
+2cliques          & \phantom{0}1 & 1.11 & 0.38 \\
 \bottomrule
 \end{tabular}
-\caption{Spectral read-out ablation ($n = 64$, $L = 2$, path-union, single seed
-$1000$, $500{,}000$ steps). \texttt{Disc.\ acc} is the accuracy on
-across-component (target $0$) pairs. The linear, $\lambda = 0$ row reproduces
-the depth-$2$ reach baseline of Report~III.}
-\label{tab:spectral}
+\caption{Baseline (ER-trained, linear read-out, $n=20$): exact-match accuracy by
+family, mean over $8$ seeds, with typical diameter and spectral gap. Rows sorted
+by gap.}
+\label{tab:fam}
 \end{table}
 
-Two things stand out, in opposite directions.
+The cleanest comparison is \emph{barbell vs.\ 1chain}: the barbell has the
+\emph{smaller} diameter ($11$ vs.\ $19$) yet is \emph{harder} ($0.22$ vs.\
+$0.45$), while its gap is the smaller of the two ($0.007$ vs.\ $0.014$). So along
+the single-component families the diameter orders difficulty \emph{backwards} and
+the gap orders it correctly. The expander seals it: smallest diameter, largest
+gap, essentially solved ($0.99$) --- and it was never seen in training.
+Figure~\ref{fig:diamgap} shows the same thing aggregated over all families:
+exact-match vs diameter is non-monotone (high to $d=8$, a crash at $d=9$ and
+especially $d=11$, then a recovery to $\approx 1$ at $d=16$--$19$), whereas vs
+gap the only sharp drop is the smallest-gap bin.
 
-\paragraph{The Laplacian-smoothness loss only hurts --- on both read-outs.}
-Adding $\lambda = 1$ degrades every metric in both rows. With the linear
-read-out it does not merely cap the reach: it damages the \emph{local} solution,
-dropping connected-pair accuracy even at distance $d = 1$ (from $1.00$ to
-$0.72$) and freezing exact match at its initial floor for the whole run. With
-the similarity read-out it is worse: the model \textbf{collapses to the constant
-``all connected'' predictor} within the first few thousand steps and never
-recovers (across-component accuracy $0.000$, exact match stuck at $0.246$). That
-$0.246$ is the tell: it is essentially the $\approx 25\%$ of path-union graphs
-that are a single path (target all-ones), the only graphs a constant
-``connected'' predictor gets right. The mechanism is direct: minimising
-$\sum_{(i,j)\in E}\|h_i - h_j\|^2$ rewards collapsing the embeddings of adjacent
-nodes onto each other, and the global optimum of that term alone is a constant
-embedding --- on which every pair looks connected. The smoothness penalty and
-the task pull in opposite directions, and with the similarity read-out the
-trivial attractor wins.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \figorbox{runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed8000/families/by_diameter.png}{1.0}
+        \caption{vs graph diameter --- non-monotone.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \figorbox{runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed8000/families/by_spectral_gap.png}{1.0}
+        \caption{vs spectral gap --- a single drop at the bottleneck.}
+    \end{subfigure}
+    \caption{Baseline, one representative seed, all families pooled. The diameter
+    is a poor predictor of difficulty; the gap is better.}
+    \label{fig:diamgap}
+\end{figure}
 
-\paragraph{The similarity read-out alone (no Laplacian loss) helps.} At fixed
-backbone, depth and seed, swapping the linear read-out for the similarity
-read-out improves every metric: exact $0.392 \to 0.440$, pairwise
-$0.912 \to 0.962$, across-component accuracy $0.902 \to 0.977$, and the BCE is
-halved. The reach diagnostic is the clearest: connected-pair accuracy stays
-$\approx 1.00$ out to shortest-path distance $\approx 17$ before it drops,
-against $\approx 9$ for the linear read-out --- roughly \emph{double} the range
-of distances the model resolves, at the \emph{same} depth $L = 2$. And it does
-so without sacrificing the ability to separate components (disc.\ acc actually
-improves). So the matrix-powering wall is not purely a property of the
-backbone's depth: the parametrisation of the read-out moves it. This is
-consistent with the spectral picture --- reading a connection off embedding
-similarity is a more global operation than reading it off a learned bilinear
-form --- but it shifts the wall, it does not remove it ($\approx 17$, not
-unbounded): the depth-$2$ backbone still limits how far information propagates,
-and at $n = 64$ (distances up to $63$) exact match stays at $0.44$.
+Two families break the gap ordering --- \textbf{2chains} (gap $0.06$, exact
+$0.10$) and \textbf{2cliques} (gap $1.11$, exact $0.38$). Both are multi-component
+graphs the model fails to \emph{cut}, not to reach: separating components is a
+different sub-task from confirming long-range connection, and the gap speaks to
+the latter. This is the distinction the next round measures explicitly (we now
+log reach- and cut-accuracy separately).
 
-\paragraph{Caveat.} These are single-seed runs. Part~I showed the seed can
-dominate this model, so we treat the table as a screening pass, not as a
-measured effect. The clean conclusion it licenses is a \emph{design decision}:
-the Laplacian-smoothness loss is counter-productive and we drop it; the
-similarity read-out is the promising ingredient and is worth a robust,
-multi-seed evaluation with a per-distance reach breakdown. That evaluation is
-the next step, and this section will be rewritten around its results.
-
-% =====================================================================
-\section{What is the right notion of difficulty?}
-\label{sec:difficulty}
-% =====================================================================
-
-\emph{To be written: experiments isolating which graph property predicts the
-model's error (diameter vs.\ specific long shortest paths vs.\ density/degree),
-to test whether the diameter is the right difficulty axis at all.}
-
-% =====================================================================
-\section{Is the spectral gap the bottleneck?}
+\section{Spectral gap: promising, but to be isolated}
 \label{sec:gap}
-% =====================================================================
 
-\emph{To be written: experiments testing whether the spectral gap (smallest
-non-zero eigenvalue of the normalised Laplacian) predicts where the model breaks
-better than the diameter does.}
+Table~\ref{tab:fam} mixes families, so ``small gap is hard'' is still confounded
+with ``which family''. Worse, the barbell does not even cleanly separate gap from
+\emph{distance}: its hard pairs are also its far pairs, so its difficulty might
+still be the diameter. We need an experiment that holds distance fixed.
+
+\paragraph{The controlled probe: distance fixed, paths varied.} We build graphs
+where two terminal nodes $s,t$ are joined by $k$ internally-disjoint paths, each
+of length $\ell$ edges. The shortest-path distance $s\!-\!t$ is $\ell$ for
+\emph{every} $k$, but the effective resistance is $\ell/k$, falling with $k$. We
+vary $k$ at fixed $\ell$ and read the model's error on the $(s,t)$ pair. The two
+hypotheses give opposite predictions: if difficulty is \emph{distance} (the
+paper) the error is flat in $k$; if it is \emph{resistance / bottleneck} (our
+reading) the error falls with $k$. We measure, on $(s,t)$, the prediction, the
+embedding closeness $1-\cos(h_s,h_t)$, and the model's true end-to-end influence
+$\|\partial h_t/\partial x_s\|$ (real weights), against the structural
+$R_{\mathrm{eff}}$, $P^{3^L}$ and distance. The contrast is sharpest \emph{past}
+the $3^L=9$ capacity, which needs room, so this runs on the $n=64$ reach
+checkpoints (and $n=40$), not at $n=20$.
+
+\paragraph{Observational sweep.} In parallel, to vary the gap continuously
+\emph{at fixed family} we add an \emph{expander} of varying degree (gap
+$\approx 0.05$--$0.6$) and a \emph{barbell} of varying bridge length (gap
+$\approx 0.006$--$0.02$), both single-component (pure reach); the eval already
+buckets accuracy by gap. Across families we rank by $P^L$ (a probability in
+$[0,1]$, comparable across graphs) rather than raw resistance (whose scale
+depends on the edge count).
+
+A caveat on scale. At $n=20$ the $3^L=9$ wall of Part~II is barely visible:
+the disconnected families have components too small to contain within-distances
+beyond $9$ (a $2$-chain of $k=10$ tops out at $d=9$), and the long-distance
+families are single-component, where ``reach'' is trivially high. Seeing the wall
+needs large components, i.e.\ larger $n$; $n=40$ runs (where $2$-chains and
+path-unions reach $d\approx 19$) are training now, alongside a \emph{chain-plus}
+test family (a long chain plus a small separate component) that exposes
+within-distances past $9$ together with a genuine disconnection.
+
+\section{What is running}
+\label{sec:status}
+
+To turn the single-seed picture into something defensible, the following are in
+flight on the cluster: (i) the $n=20$ family runs at the remaining seeds
+($2$--$13$k), $\{$ER, mixed$\}\times\{$linear, similarity$\}$, for Sections
+\ref{sec:lap}--\ref{sec:gap}; (ii) the $n=40$ runs, where the $3^L$ wall is
+visible over a wide distance range (Section~\ref{sec:diff}/\ref{sec:gap});
+(iii) a re-evaluation of every checkpoint on the full family panel with the
+reach/cut split and the gap sweep. The controlled distance-vs-paths probe of
+Section~\ref{sec:gap} will be run on the existing $n=64$ reach checkpoints.
+
+\section{Takeaway}
+
+On one seed: the Laplacian loss is redundant with the similarity read-out and is
+dropped; the diameter is the \emph{wrong} difficulty axis (the barbell, short in
+diameter but bottlenecked, is harder than a long chain), and the spectral gap ---
+or more precisely the resistance / bottleneck the model must push information
+through --- is the better candidate, modulo a separate ``cut'' sub-task for
+multi-component graphs. The controlled distance-vs-paths probe, the gap sweep and
+the $n=40$ wall measurement will turn these single-seed observations into
+something we can stand behind.
 
 \end{document}

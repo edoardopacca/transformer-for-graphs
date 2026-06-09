@@ -62,6 +62,7 @@ class MultiHeadSelfAttention(nn.Module):
             attn = F.softmax(scores, dim=-1)
         else:   # normalized_relu  -- (1/n) * ReLU(QK^T/√d_h)
             attn = F.relu(scores) / n
+        self.last_attn = attn.detach()        # [B, heads, n, n] real learned weights
         attn = self.dropout(attn)
         out = torch.matmul(attn, v).transpose(1, 2).contiguous().view(b, n, self.d_model)
         return self.o_proj(out)
@@ -149,6 +150,12 @@ class GraphConnectivityTransformer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.forward_and_embeddings(x)[0]
+
+    @torch.no_grad()
+    def attention_maps(self, x: torch.Tensor) -> list[torch.Tensor]:
+        """The real learned attention weights, one tensor [B, heads, n, n] per layer."""
+        self.forward(x)
+        return [blk.attn.last_attn for blk in self.blocks]
 
     @torch.no_grad()
     def predict_binary(self, x: torch.Tensor, threshold: float = 0.0) -> torch.Tensor:
@@ -258,6 +265,7 @@ class _ReluSelfAttention(nn.Module):
             attn = F.softmax(scores, dim=-1)
         else:
             attn = F.relu(scores) / n        # (1/n) ReLU(QK^T / sqrt(d_h))
+        self.last_attn = attn.detach()        # [B, heads, n, n] real learned weights
         attn = self.drop(attn)
         out = torch.matmul(attn, v).transpose(1, 2).contiguous().view(b, n, d)
         return out
@@ -343,6 +351,12 @@ class RobertaGraphTransformer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.forward_and_embeddings(x)[0]
+
+    @torch.no_grad()
+    def attention_maps(self, x: torch.Tensor) -> list[torch.Tensor]:
+        """The real learned attention weights, one tensor [B, heads, n, n] per layer."""
+        self.forward(x)
+        return [blk.attn.last_attn for blk in self.blocks]
 
     @torch.no_grad()
     def predict_binary(self, x: torch.Tensor, threshold: float = 0.0) -> torch.Tensor:

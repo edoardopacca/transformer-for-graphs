@@ -69,6 +69,31 @@ def generate_path_union_graph(n: int, rng: np.random.Generator,
     return adj
 
 
+def generate_parallel_paths_graph(n: int, n_paths: int, path_len: int) -> np.ndarray:
+    """Two terminal nodes (0 and 1) joined by ``n_paths`` internally-disjoint paths,
+    each of ``path_len`` edges. The shortest-path distance between the terminals is
+    ``path_len`` for ANY n_paths, but the effective resistance between them is
+    ``path_len / n_paths`` -- so this isolates distance (fixed) from the number of
+    paths (varied). Remaining nodes are isolated padding. The terminals + internal
+    nodes form one connected component. No self-loops; node order NOT permuted.
+    Requires 2 + n_paths*(path_len-1) <= n."""
+    need = 2 + n_paths * (path_len - 1)
+    if need > n:
+        raise ValueError(f"need {need} nodes for n_paths={n_paths}, path_len={path_len}, "
+                         f"but n={n}")
+    adj = np.zeros((n, n), dtype=np.float32)
+    s, t = 0, 1
+    cur = 2
+    for _ in range(n_paths):
+        prev = s
+        for _ in range(path_len - 1):
+            adj[prev, cur] = adj[cur, prev] = 1.0
+            prev = cur
+            cur += 1
+        adj[prev, t] = adj[t, prev] = 1.0
+    return adj
+
+
 def generate_chain_plus_graph(n: int, rng: np.random.Generator) -> np.ndarray:
     """A long chain plus a small separate component. Designed to expose the 3^L wall
     even at small n: the long path gives within-component distances well past 9, while
@@ -309,6 +334,42 @@ def compute_spectral_gap(adj_no_loops: np.ndarray, tol: float = 1e-6) -> float:
     if pos.size == 0:
         return 0.0
     return float(pos.min())
+
+
+def effective_resistance(adj_no_loops: np.ndarray) -> np.ndarray:
+    """Effective resistance R(i,j) between every pair, each edge = a unit resistor:
+    R(i,j) = (e_i-e_j)^T L^+ (e_i-e_j), with L = D - A the combinatorial Laplacian and
+    L^+ its Moore-Penrose pseudo-inverse. Low R = many short parallel paths (easy to
+    mix), high R = a single long path / a bottleneck. Computed per connected component;
+    pairs in different components get np.inf. Returns an (n, n) float array.
+
+    Note on scale: R has units that depend on the graph's edge count, so absolute
+    values are NOT comparable across graphs of different density -- compare ranks
+    within a graph, or use diffusion_reach (a probability in [0,1]) across graphs."""
+    n = adj_no_loops.shape[0]
+    R = np.full((n, n), np.inf, dtype=np.float64)
+    for comp in connected_components(adj_no_loops):
+        idx = np.array(sorted(comp))
+        if idx.size == 1:
+            R[idx[0], idx[0]] = 0.0
+            continue
+        a = adj_no_loops[np.ix_(idx, idx)].astype(np.float64)
+        lap = np.diag(a.sum(1)) - a
+        lp = np.linalg.pinv(lap)
+        d = np.diag(lp)
+        R[np.ix_(idx, idx)] = d[:, None] + d[None, :] - 2.0 * lp
+    return R
+
+
+def diffusion_reach(adj_no_loops: np.ndarray, n_steps: int) -> np.ndarray:
+    """(P^L)_{ij}: probability that an L-step random walk with self-loops started at i
+    sits at j, with P = D^{-1}(A+I) row-stochastic and L = n_steps. High value = i can
+    influence j within L message-passing steps, i.e. an L-layer model can mix them.
+    A probability in [0,1], hence comparable across graphs. Returns an (n, n) array."""
+    n = adj_no_loops.shape[0]
+    m = adj_no_loops.astype(np.float64) + np.eye(n)
+    p = m / m.sum(1, keepdims=True)
+    return np.linalg.matrix_power(p, n_steps)
 
 
 @dataclass
