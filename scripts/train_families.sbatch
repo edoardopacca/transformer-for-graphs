@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=fam20
 #SBATCH --account=3352759
-#SBATCH --partition=long_gpunew
+#SBATCH --partition=gpunew
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=40G
-#SBATCH --time=08:00:00
+#SBATCH --time=06:00:00
 #SBATCH --output=out/%x_%A_%a.out
 #SBATCH --error=out/%x_%A_%a.out
 #

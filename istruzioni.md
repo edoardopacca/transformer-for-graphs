@@ -138,6 +138,13 @@ attesa dei seed rimanenti + n40 + parallel_paths.
     grafi (dipende dagli archi) → usa il ranking, o `P^L` (probabilità in [0,1]).
 17. **matplotlib xticks**: su bar plot con poche barre matplotlib mette tick a
     0.5 — settare `ax.set_xticks(...)` espliciti con le distanze intere.
+18. **`long_gpunew` ha solo 2 nodi** (condivisi con gpunew); un job lungo (es.
+    `--time=36h`) **non parte MAI** lì (`StartTime=Unknown`): lo scheduler non
+    trova una finestra di 36h libera. → usa **`gpunew`** e **non gonfiare il
+    `--time`**: chiedere 12h invece di 36h rende il backfill molto più facile (i
+    job corti come reeval/parpaste partono subito). n20 ~1h40, n40 ~6-8h: usa
+    `--time` 6h / 12h. Spostare un job PD: `scontrol update JobId=<id>
+    TimeLimit=12:00:00 Partition=gpunew` (ridurre il time è permesso, aumentarlo no).
 
 ---
 
