@@ -31,6 +31,23 @@ Tesi del paper:
   cicli, diagnostica pairwise su 2chain, conteggio componenti, e lo sweep
   profondità→reach (`d* ≈ 3^L`). Più esperimenti spettrali/Laplaciani in corso.
 
+**Report 4** (`report/4/transformer_for_graphs_4.tex`, compilare da `report/4/`):
+nuovo filone su **architettura migliore** + **nozione di difficoltà**. Tre thread:
+(1) il **read-out di similarità** su Roberta aiuta il *reach a lunga distanza*
+(path_union, chain_plus OOD: 0.78→1.00) **ma NON il bottleneck** (barbell 0→0) →
+il limite è il *trunk*, non la testa; la **loss Laplaciana è inerte** a
+convergenza (il similarity readout porta già la Dirichlet energy a ~0), λ
+droppato. (2) **diametro vs spectral gap**: questione APERTA — il muro 3^L è reale
+(chain_plus lo mostra anche a n=20: reach 1.0 fino a 9, crollo, recupero), ma
+barbell-vs-1chain/expander suggeriscono che il *gap/bottleneck* aggiunga. Ipotesi
+di lavoro: "diametro **E** gap", non uno solo. **NON** scrivere "il diametro è la
+nozione sbagliata" (prematuro). (3) **spectral gap**: `expander_var` è confuso
+dal confound *densità* (grado alto = OOD su ER sparso), non isola; il test pulito
+è **parallel_paths** (distanza fissa, k cammini variati, resistenza = ℓ/k).
+C'è anche un **terzo modo di fallire** oltre reach/cut: l'**euristica del grado**
+(2cliques sbaglia coppie a d=1). Tutto su **1 seed** finora → preliminare, in
+attesa dei seed rimanenti + n40 + parallel_paths.
+
 ---
 
 ## 2. Workflow e REGOLE OPERATIVE (non negoziabili)
@@ -97,6 +114,30 @@ Tesi del paper:
    path con `_` fuori da `\verb`.
 10. **Partizioni `debug_*` richiedono `--qos=debug`** (altrimenti "QOS not
     permitted"). Tipo: `sbatch -p debug_gpunew --qos=debug ...`.
+11. **`QOSMaxSubmitJobPerUserLimit`**: c'è un tetto sui *task sottomessi* insieme
+    (in coda+run), ~25–30 sulla QOS `normal`. Array enormi (`--array=11-81`, 71
+    task) vengono RIFIUTATI. → sottometti a **blocchi** (per-seed). Il `%N`
+    (ArrayTaskThrottle) limita i *running* concorrenti, **non** i sottomessi.
+12. **Multi-partizione NON permesso** per questo account: `--partition=a,b,c` dà
+    "Multiple partition job request not supported when a partition is set in the
+    association". → scegli **una** partizione; trova la migliore con
+    `squeue --start -u <id>` (ETA) + `sprio` (priorità) + `sinfo`. Spostare un job
+    PD: `scontrol update JobId=<id> Partition=gpunew`.
+13. **debug = 15 min**: insufficiente per il reeval (~17 ckpt, ~25 min) → TIMEOUT.
+    Usa `gpunew` per i job > 15 min.
+14. **png committati bloccano `git pull`** se rigenerati in locale (plot_families
+    riscrive i png tracked → conflitto). NON lanciare `plot_families.py` *prima*
+    del pull; se bloccato: `git restore runs/` poi `git pull` poi plot. (L'utente
+    **NON** vuole gitignorare i png.)
+15. **`P^L` proxy: usa `3^L`, non `L`**. Il modello a L layer raggiunge distanza
+    `3^L` (matrix-powering), non `L`. `diffusion_reach(adj, n_steps)` va chiamato
+    con `n_steps = 3**L` (=9 per L=2), altrimenti `P^2` è ~0 oltre 2 hop.
+16. **`expander_var` non isola il gap**: variare il grado cambia gap *e* densità
+    → grafi densi sono OOD per modello su ER sparso. Per isolare il gap usa
+    **parallel_paths**. La resistenza effettiva grezza non è confrontabile tra
+    grafi (dipende dagli archi) → usa il ranking, o `P^L` (probabilità in [0,1]).
+17. **matplotlib xticks**: su bar plot con poche barre matplotlib mette tick a
+    0.5 — settare `ax.set_xticks(...)` espliciti con le distanze intere.
 
 ---
 
@@ -104,10 +145,11 @@ Tesi del paper:
 
 - Repo locale: `~/transformer-for-graphs` (Mac). Su HPC: `~/transformer-for-graphs`.
 - HPC alias ssh: `hpc`. Utente: `3352759`. Env conda: **`graph_tf`**.
-- Report: `report/1/` (solo PDF, niente sorgente), `report/2/transformer_for_graphs_2.tex`,
-  `report/3/transformer_for_graphs_3.tex`. **Compilare da `report/3/`** (i path
-  figure usano `\graphicspath{{../../}}`; `\includegraphics{runs/...}`). Due
-  passate di `pdflatex` per i `\ref`/`\part`.
+- Report: `report/1/` (solo PDF, niente sorgente), `report/2/`, `report/3/`,
+  `report/4/transformer_for_graphs_4.tex`. **Compilare dalla cartella del report**
+  (i path figure usano `\graphicspath{{../../}}`; `\includegraphics{runs/...}`).
+  Due passate di `pdflatex` per i `\ref`/`\part`. Tutti i .tex hanno l'helper
+  `\figorbox{path}{width}` (fallback se la figura non è ancora pullata).
 - I checkpoint `.pt` stanno **solo su HPC** (gitignored). I risultati piccoli
   (json/png) sono in `runs/...` e versionati.
 - Memoria persistente: **niente git da Claude**.
@@ -126,6 +168,25 @@ Tesi del paper:
   `plot_repro_paper_figures.py`, `plot_repro_rate.py`,
   `plot_repro_roberta_perseed.py`, `plot_repro_seed_examples.py`, `plot_reach_law.py`.
 - `scripts/*.sbatch`: i lanci SLURM corrispondenti.
+
+**File chiave Report 4 (filone difficoltà/architettura):**
+- `experiments2/train_families_n20.py`: training roberta `--families er|mixed`,
+  `--readout linear|similarity`, `--lambda_lap` con warmup, **`--n_nodes`/`--p`
+  parametrici** (default 20/0.08; per n40 passare `--n_nodes 40 --p 0.05`). Nome
+  cartella: `n{n}_{fam}_roberta_{readout}_lam{λ:g}_seed{S}`.
+- `eval_families.py`: valuta UN checkpoint su ~14 famiglie; auto-detect
+  arch/readout dallo state_dict. Output `families_eval.json` + 3 png
+  (`capacity_per_distance`, `by_diameter`, `by_spectral_gap`). Metriche per
+  famiglia: `exact, pairwise, reach_acc, disc_acc, per_dist, by_diam, by_gap`.
+- `plot_families.py`: rigenera i png dai json (no GPU). Usare in locale dopo pull.
+- `analyze_parallel_paths.py`: l'esperimento controllato distanza-vs-cammini
+  (predizione, 1−cos, influenza-Jacobiana coi pesi veri, R_eff, P^{3^L}).
+- `scripts/`: `train_families.sbatch` (n20, array ordinato per seed, eval auto),
+  `train_families_n40.sbatch`, `reeval_families.sbatch` (ripassa tutti i ckpt),
+  `parallel_paths.sbatch` (sui reach n64).
+- `notes/note_difficolta.tex`: spiegazione divulgativa (it) di tutto il filone.
+- Checkpoint riusati: roberta n20 unrestricted (8 seed, `runs/repro_paper_n20_roberta/`)
+  = baseline `ER/linear`.
 
 ---
 
@@ -189,6 +250,19 @@ distanze via `compute_all_pairs_shortest_paths` (APSP, scipy; serve `scipy`).
 - `generate_path_union_graph(n, rng, max_paths=4)` — unione di `k`∈{1,2,3,4}
   (uniforme) path disgiunti che partizionano gli n nodi; ~25% sono un singolo
   path (distanze fino a n−1). Usato per il reach experiment.
+- `generate_blocks_graph(n, rng, kind="er"|"clique")` — k∈{1..4} blocchi internamente
+  connessi (ER o clique). `generate_barbell_graph(n, rng, clique_size=None)` — due
+  clique + ponte (bottleneck, gap minuscolo). `generate_random_regular_graph(n, rng,
+  degree=3)` — expander (gap grande, diam piccolo). `generate_chain_plus_graph(n, rng)`
+  — catena lunga + componente staccata (espone il muro 3^L anche a n piccolo).
+  `generate_parallel_paths_graph(n, n_paths, path_len)` — 2 terminali + k cammini
+  disgiunti (distanza fissa = path_len, resistenza = path_len/k).
+- **Misure strutturali** (`data.py`): `compute_spectral_gap(adj)` (Fiedler norm.,
+  primo autovalore >0), `effective_resistance(adj)` (R(i,j) via L⁺; scala dipende
+  dagli archi → non confrontabile tra grafi), `diffusion_reach(adj, n_steps)` (`P^L`
+  row-stoch., probabilità ∈[0,1]; usare `n_steps=3^L`).
+- **`model.py`**: `RobertaGraphTransformer` ora supporta `readout="similarity"`;
+  `attention_maps(x)` estrae i pesi di attention reali (per il mixing/Jacobiana).
 
 ---
 
@@ -252,9 +326,22 @@ distanze via `compute_all_pairs_shortest_paths` (APSP, scipy; serve `scipy`).
 - **Esperimento A (embedding geometry)**: fatto; segnale qualitativo (il modello
   codifica un "righello di distanza", non un'etichetta di componente); la metrica
   per-distanza grezza è rumorosa (read-out lineare ≠ distanza embedding).
-- **Esperimento B (Laplaciano/similarità)**: in corso su HPC (job array
-  linear/similarity × λ=0/1, L=2, n=64). Domanda: la bias spettrale sposta il
-  muro oltre 9?
+- **Esperimento B (Laplaciano/similarità, n=64)**: fatto. Il read-out di
+  similarità (λ=0) aiuta il reach; la loss Laplaciana a λ=1 collassa il modello
+  ("tutto connesso"). → motivò il filone Report 4 con λ piccolo + warmup.
+
+**Stato Report 4 (aggiornare!):** preliminare, **1 seed** (seed 1000) + 8 baseline.
+- **Fatto/in locale**: re-eval famiglie su tutti i ckpt (json a 14 famiglie con
+  reach/cut + gap sweep + chain_plus); galleria `runs/family_gallery/gallery.png`.
+- **In coda/running su HPC** (al cambio chat): `fam20` (seed 2000–13000, array a
+  blocchi per via del submit-limit), `fam40` (n=40, muro 3^L su range ampio),
+  `parpaths` (parallel_paths sui reach n64 L1/2/3). Lanci a blocchi per-seed.
+- **Risultati attesi**: confermare multi-seed che (a) similarity aiuta reach non
+  bottleneck, (b) il parallel_paths separa distanza da resistenza (curva acc-vs-k
+  a ℓ fisso: piatta=diametro, in salita=resistenza), (c) il muro a n40.
+- **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
+  push`; in locale `git pull` poi `python plot_families.py` (rigenera png). NON
+  lanciare plot_families prima del pull (vedi errore 14).
 
 ---
 
