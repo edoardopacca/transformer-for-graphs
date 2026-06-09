@@ -44,9 +44,11 @@ from model import GraphConnectivityTransformer, RobertaGraphTransformer, ModelCo
 # All families we test on. The 'er' density mirrors the n=40 study; at n=20 a
 # single ER(20,0.08) graph is the in-distribution family for Set A.
 ALL_FAMILIES = ["er", "er_blocks", "clique_blocks", "path_union", "2chains",
-                "2cliques", "1cycle", "2cycle", "1chain", "barbell", "expander"]
-# Log-spaced spectral-gap bin edges (covers ~0.006 .. ~1.1 seen across families).
-GAP_EDGES = np.array([0.0, 0.01, 0.02, 0.04, 0.08, 0.15, 0.3, 0.6, 1.01, 2.01])
+                "2cliques", "1cycle", "2cycle", "1chain", "barbell", "barbell_var",
+                "expander", "expander_var"]
+# Log-spaced spectral-gap bin edges; finer below 0.01 to resolve the bottleneck
+# regime swept by barbell_var (gaps ~0.001 .. ~0.3).
+GAP_EDGES = np.array([0.0, 0.002, 0.005, 0.01, 0.02, 0.04, 0.08, 0.15, 0.3, 0.6, 1.01, 2.01])
 
 
 def _gen(kind, n, rng):
@@ -60,7 +62,11 @@ def _gen(kind, n, rng):
     if kind == "2cycle":        return generate_two_cycles_graph(n, n // 2)
     if kind == "1chain":        return generate_one_chain_graph(n)
     if kind == "barbell":       return generate_barbell_graph(n, rng)
+    if kind == "barbell_var":   return generate_barbell_graph(n, rng,
+                                       clique_size=int(rng.integers(2, n // 2 + 1)))
     if kind == "expander":      return generate_random_regular_graph(n, rng, 3)
+    if kind == "expander_var":  return generate_random_regular_graph(n, rng,
+                                       degree=int(rng.integers(2, n // 2 + 1)))
     raise ValueError(kind)
 
 
@@ -138,9 +144,15 @@ def family_metrics(pred, ys, dist):
         c = int(m.sum())
         if c >= 50:
             per_dist[d] = (float(eq[m].mean()), c)
+    # cut quality: accuracy on across-component (target-0) pairs, separated from reach
+    disc = offdiag & (dist == -1)
+    disc_acc = float(eq[disc].mean()) if disc.any() else None
+    conn_acc = float(eq[conn].mean()) if conn.any() else None
     return {
         "exact": float(exact_pg.mean()),
         "pairwise": float(pw_pg.mean()),
+        "reach_acc": conn_acc,         # within-component (target-1) pairs
+        "disc_acc": disc_acc,          # between-component (target-0) pairs
         "per_dist": per_dist,
         "_exact_pg": exact_pg,
         "_pw_pg": pw_pg,
@@ -195,6 +207,7 @@ def main():
         fm = family_metrics(pred, ys, dist)
         results["families"][fam] = {
             "exact": fm["exact"], "pairwise": fm["pairwise"],
+            "reach_acc": fm["reach_acc"], "disc_acc": fm["disc_acc"],
             "per_dist": {str(k): list(v) for k, v in fm["per_dist"].items()},
             "by_diam": bucket_by(diam, fm["_exact_pg"], fm["_pw_pg"], integer=True),
             "by_gap": bucket_by(gap, fm["_exact_pg"], fm["_pw_pg"], edges=GAP_EDGES),
@@ -203,7 +216,10 @@ def main():
         agg_diam.append(diam); agg_gap.append(gap)
         for d, (acc, c) in fm["per_dist"].items():
             cur = agg_eq_by_d.setdefault(d, [0.0, 0]); cur[0] += acc * c; cur[1] += c
-        print(f"  {fam:14s} exact={fm['exact']:.3f} pairwise={fm['pairwise']:.3f}")
+        da = "  n/a" if fm["disc_acc"] is None else f"{fm['disc_acc']:.3f}"
+        ra = "  n/a" if fm["reach_acc"] is None else f"{fm['reach_acc']:.3f}"
+        print(f"  {fam:14s} exact={fm['exact']:.3f} pairwise={fm['pairwise']:.3f} "
+              f"reach={ra} disc={da}")
 
     agg_exact = np.concatenate(agg_exact); agg_pw = np.concatenate(agg_pw)
     agg_diam = np.concatenate(agg_diam); agg_gap = np.concatenate(agg_gap)

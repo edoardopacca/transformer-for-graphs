@@ -140,12 +140,21 @@ def generate_blocks_graph(n: int, rng: np.random.Generator, kind: str = "er",
     return adj
 
 
-def generate_barbell_graph(n: int, rng: np.random.Generator) -> np.ndarray:
+def generate_barbell_graph(n: int, rng: np.random.Generator,
+                           clique_size: int | None = None) -> np.ndarray:
     """Two cliques joined by a path -- the textbook small-spectral-gap graph
-    (one connected component, moderate diameter but a hard bottleneck). Cliques of
-    size ~n/3 at the two ends, the remaining nodes form the connecting path. No
-    self-loops; node order NOT permuted."""
-    c = max(2, n // 3)
+    (one connected component, moderate diameter but a hard bottleneck). No
+    self-loops; node order NOT permuted.
+
+    ``clique_size=None`` -> ~n/3 (the fixed barbell family). Passing an int sets the
+    end-clique size, hence the bridge length and the spectral gap: this is the clean
+    knob for the spectral-gap experiment (small cliques -> long bridge -> tiny gap;
+    large cliques -> short bridge -> larger gap), varied *at fixed structure*. The
+    'barbell_var' eval family samples clique_size to sweep the gap continuously."""
+    if clique_size is None:
+        c = max(2, n // 3)
+    else:
+        c = max(2, min(int(clique_size), n // 2))
     if 2 * c > n:
         c = n // 2
     adj = np.zeros((n, n), dtype=np.float32)
