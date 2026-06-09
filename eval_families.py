@@ -239,10 +239,17 @@ def _plots(results, out, n):
     ncol = 4; nrow = int(np.ceil(len(fams) / ncol))
     fig, axes = plt.subplots(nrow, ncol, figsize=(4 * ncol, 3 * nrow), squeeze=False)
     for ax, fam in zip(axes.ravel(), fams):
-        pd = results["families"][fam]["per_dist"]
+        fd = results["families"][fam]
+        pd = fd["per_dist"]
         ds = sorted(int(k) for k in pd)
         if ds:
             ax.bar(ds, [pd[str(d)][0] for d in ds], color="#3b6ea5")
+        # red "disconnected" bar (accuracy on across-component / target-0 pairs)
+        disc = fd.get("disc_acc")
+        if disc is not None:
+            xd = (max(ds) + 2) if ds else 1
+            ax.bar([xd], [disc], color="#c0392b")
+            ax.text(xd, -0.02, "disc", ha="center", va="top", fontsize=7, color="#c0392b")
         ax.set_title(fam, fontsize=10); ax.set_ylim(0, 1.05)
         ax.set_xlabel("shortest-path d"); ax.set_ylabel("reach (pairwise)")
         ax.grid(axis="y", alpha=0.3)
