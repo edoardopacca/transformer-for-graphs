@@ -69,6 +69,23 @@ def generate_path_union_graph(n: int, rng: np.random.Generator,
     return adj
 
 
+def generate_chain_plus_graph(n: int, rng: np.random.Generator) -> np.ndarray:
+    """A long chain plus a small separate component. Designed to expose the 3^L wall
+    even at small n: the long path gives within-component distances well past 9, while
+    the second component forces a real disconnection (so a trivial "predict connected"
+    is wrong on the cross-component pairs). Long path of n-s nodes + short path of s
+    nodes, s ~ U[3, n//3]; two components, max within-distance n-s-1. No self-loops;
+    node order NOT permuted."""
+    s = int(rng.integers(3, max(4, n // 3 + 1)))
+    long_len = n - s
+    adj = np.zeros((n, n), dtype=np.float32)
+    for i in range(long_len - 1):
+        adj[i, i + 1] = adj[i + 1, i] = 1.0
+    for i in range(long_len, n - 1):
+        adj[i, i + 1] = adj[i + 1, i] = 1.0
+    return adj
+
+
 def generate_one_cycle_graph(n: int) -> np.ndarray:
     """Single cycle C_n over all n nodes (path + closing edge). One connected
     component, every node has degree 2, diameter floor(n/2)."""

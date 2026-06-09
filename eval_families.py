@@ -38,14 +38,15 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_two_cliques_graph, generate_one_cycle_graph,
                   generate_two_cycles_graph, generate_one_chain_graph,
                   generate_path_union_graph, generate_blocks_graph,
-                  generate_barbell_graph, generate_random_regular_graph)
+                  generate_barbell_graph, generate_random_regular_graph,
+                  generate_chain_plus_graph)
 from model import GraphConnectivityTransformer, RobertaGraphTransformer, ModelConfig
 
 # All families we test on. The 'er' density mirrors the n=40 study; at n=20 a
 # single ER(20,0.08) graph is the in-distribution family for Set A.
 ALL_FAMILIES = ["er", "er_blocks", "clique_blocks", "path_union", "2chains",
-                "2cliques", "1cycle", "2cycle", "1chain", "barbell", "barbell_var",
-                "expander", "expander_var"]
+                "2cliques", "1cycle", "2cycle", "1chain", "chain_plus", "barbell",
+                "barbell_var", "expander", "expander_var"]
 # Log-spaced spectral-gap bin edges; finer below 0.01 to resolve the bottleneck
 # regime swept by barbell_var (gaps ~0.001 .. ~0.3).
 GAP_EDGES = np.array([0.0, 0.002, 0.005, 0.01, 0.02, 0.04, 0.08, 0.15, 0.3, 0.6, 1.01, 2.01])
@@ -61,6 +62,7 @@ def _gen(kind, n, rng):
     if kind == "1cycle":        return generate_one_cycle_graph(n)
     if kind == "2cycle":        return generate_two_cycles_graph(n, n // 2)
     if kind == "1chain":        return generate_one_chain_graph(n)
+    if kind == "chain_plus":    return generate_chain_plus_graph(n, rng)
     if kind == "barbell":       return generate_barbell_graph(n, rng)
     if kind == "barbell_var":   return generate_barbell_graph(n, rng,
                                        clique_size=int(rng.integers(2, n // 2 + 1)))

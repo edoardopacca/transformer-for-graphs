@@ -47,17 +47,14 @@ from utils import ensure_dir, get_device, save_json, set_seed
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-N_NODES = 20
-P = 0.08
-K = 10
-# Families used to build the MIXED training stream (barbell/expander are held out
-# as OOD, so the spectral-gap test in eval_families is on unseen structure).
+# Families used to build the MIXED training stream (barbell/expander/chain_plus are
+# held out as OOD, so the spectral-gap and wall tests are on unseen structure).
 MIXED_FAMILIES = ["er", "er_blocks", "clique_blocks", "path_union",
                   "2chains", "2cliques", "1cycle", "2cycle", "1chain"]
 
 
-def sample_family(kind: str, n: int, rng: np.random.Generator) -> np.ndarray:
-    if kind == "er":            a = generate_er_graph(n, P, rng)
+def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.ndarray:
+    if kind == "er":            a = generate_er_graph(n, p, rng)
     elif kind == "er_blocks":   a = generate_blocks_graph(n, rng, "er")
     elif kind == "clique_blocks": a = generate_blocks_graph(n, rng, "clique")
     elif kind == "path_union":  a = generate_path_union_graph(n, rng, 4)
@@ -75,8 +72,8 @@ class OnlineFamilyStream(IterableDataset):
     """Infinite stream. If ``families`` is ["er"] it is plain ER(n,p); otherwise a
     family is drawn uniformly per sample. Each worker gets a disjoint seed."""
 
-    def __init__(self, families: List[str], n: int, seed: int):
-        self.families = families; self.n = n; self.seed = seed
+    def __init__(self, families: List[str], n: int, seed: int, p: float):
+        self.families = families; self.n = n; self.seed = seed; self.p = p
 
     def __iter__(self):
         info = get_worker_info()
@@ -85,7 +82,7 @@ class OnlineFamilyStream(IterableDataset):
         n = self.n
         while True:
             kind = self.families[int(rng.integers(len(self.families)))]
-            a = sample_family(kind, n, rng)
+            a = sample_family(kind, n, rng, self.p)
             x = add_self_loops(a).astype(np.float32)
             y = compute_connectivity_matrix(a).astype(np.float32)
             yield x, y
@@ -96,12 +93,12 @@ def _collate(batch):
     return torch.from_numpy(xs), torch.from_numpy(ys)
 
 
-def build_fixed_test(families: List[str], n: int, size: int, seed: int):
+def build_fixed_test(families: List[str], n: int, size: int, seed: int, p: float):
     rng = np.random.default_rng(seed)
     xs = np.empty((size, n, n), np.float32); ys = np.empty((size, n, n), np.int8)
     for i in range(size):
         kind = families[int(rng.integers(len(families)))]
-        a = sample_family(kind, n, rng)
+        a = sample_family(kind, n, rng, p)
         xs[i] = add_self_loops(a); ys[i] = compute_connectivity_matrix(a).astype(np.int8)
     return xs, ys
 
@@ -140,6 +137,8 @@ def lam_at(step, lam, start, ramp):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--output_root", required=True)
+    ap.add_argument("--n_nodes", type=int, default=20)
+    ap.add_argument("--p", type=float, default=0.08, help="ER edge prob (0.08 at n=20, 0.05 at n=40)")
     ap.add_argument("--families", default="mixed", help="'er' (Set A) or 'mixed' (Set B)")
     ap.add_argument("--arch", choices=["roberta", "minimal"], default="roberta")
     ap.add_argument("--readout", choices=["linear", "similarity"], default="linear")
@@ -152,18 +151,19 @@ def main():
     ap.add_argument("--eval_every", type=int, default=5000)
     ap.add_argument("--seed", type=int, default=1000)
     args = ap.parse_args()
+    n = args.n_nodes; p = args.p
 
     fam_tag = "mixed" if args.families == "mixed" else "er"
     families = MIXED_FAMILIES if args.families == "mixed" else ["er"]
     lam_tag = f"lam{args.lambda_lap:g}" if args.lambda_lap > 0 else "lam0"
-    run_name = f"n{N_NODES}_{fam_tag}_{args.arch}_{args.readout}_{lam_tag}_seed{args.seed}"
+    run_name = f"n{n}_{fam_tag}_{args.arch}_{args.readout}_{lam_tag}_seed{args.seed}"
     out_dir = Path(args.output_root) / run_name
     ensure_dir(out_dir)
 
     set_seed(args.seed)
     device = get_device("auto")
     is_roberta = args.arch == "roberta"
-    mcfg = ModelConfig(n=N_NODES, d_model=512, n_heads=1, d_ff=2048, n_layers=2,
+    mcfg = ModelConfig(n=n, d_model=512, n_heads=1, d_ff=2048, n_layers=2,
                        dropout=0.1 if is_roberta else 0.0, attn_kind="normalized_relu",
                        norm_style="post" if is_roberta else "pre",
                        layer_norm_eps=1e-5, init_std=0.02, readout=args.readout)
@@ -177,16 +177,16 @@ def main():
     criterion = nn.BCEWithLogitsLoss()
 
     # In-distribution test (matches training stream) + fixed OOD references.
-    val_x, val_y = build_fixed_test(families, N_NODES, 5000, seed=777)
-    ch_x, ch_y = build_fixed_test(["2chains"], N_NODES, 5000, seed=12345)
-    cq_x, cq_y = build_fixed_test(["2cliques"], N_NODES, 5000, seed=23456)
+    val_x, val_y = build_fixed_test(families, n, 5000, 777, p)
+    ch_x, ch_y = build_fixed_test(["2chains"], n, 5000, 12345, p)
+    cq_x, cq_y = build_fixed_test(["2cliques"], n, 5000, 23456, p)
 
-    stream = OnlineFamilyStream(families, N_NODES, seed=args.seed + 7)
+    stream = OnlineFamilyStream(families, n, args.seed + 7, p)
     loader = DataLoader(stream, batch_size=args.batch_size, num_workers=args.num_workers,
                         collate_fn=_collate, pin_memory=True, prefetch_factor=4,
                         persistent_workers=True)
 
-    eye = torch.eye(N_NODES, device=device)
+    eye = torch.eye(n, device=device)
     hist: Dict[str, Any] = {"steps": [], "train_loss": [], "bce": [], "lap": [],
                             "lam_eff": [], "val_exact": [], "val_pairwise": [],
                             "val_2chain_exact": [], "val_2clique_exact": [],
