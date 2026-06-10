@@ -184,7 +184,8 @@ def _plot(h, out, title, L):
 def train(out_dir, loader, tx, ty, td, cfg, seed, L):
     set_seed(seed); device = get_device("auto")
     mcfg = ModelConfig(n=cfg["n"], d_model=cfg["d_model"], n_heads=cfg["n_heads"],
-                       d_ff=cfg["d_ff"], n_layers=L, attn_kind=cfg["attn_kind"])
+                       d_ff=cfg["d_ff"], n_layers=L, attn_kind=cfg["attn_kind"],
+                       readout=cfg.get("readout", "linear"))
     model = GraphConnectivityTransformer(mcfg).to(device)
     nparam = sum(p.numel() for p in model.parameters())
     print(f"  device={device} L={L} params={nparam:,}")
@@ -229,16 +230,22 @@ def main():
     ap.add_argument("--n_layers", type=int, required=True)
     ap.add_argument("--attn_kind", default="normalized_relu",
                     choices=["normalized_relu", "softmax"])
+    ap.add_argument("--readout", default="linear",
+                    choices=["linear", "similarity"])
     ap.add_argument("--num_workers", type=int, default=16)
     ap.add_argument("--train_steps", type=int, default=1_000_000)
     ap.add_argument("--batch_size", type=int, default=1000)
     ap.add_argument("--seed", type=int, default=1000)
     args = ap.parse_args()
 
-    run = f"reach_n{args.n_nodes}_L{args.n_layers}_{args.attn_kind}_seed{args.seed}"
+    # the readout tag keeps similarity runs from overwriting the linear ones;
+    # linear keeps the original (untagged) name for backward compatibility.
+    rtag = "" if args.readout == "linear" else f"_{args.readout}"
+    run = f"reach_n{args.n_nodes}_L{args.n_layers}_{args.attn_kind}{rtag}_seed{args.seed}"
     out_dir = Path(args.output_root) / run; ensure_dir(out_dir)
     cfg = {"n": args.n_nodes, "d_model": 512, "n_heads": 4, "d_ff": 2048,
-           "attn_kind": args.attn_kind, "lr": 1e-4, "weight_decay": 1e-4,
+           "attn_kind": args.attn_kind, "readout": args.readout,
+           "lr": 1e-4, "weight_decay": 1e-4,
            "train_steps": args.train_steps, "warmup_steps": 1000, "eval_every": 5000,
            "batch_size": args.batch_size}
     print(f"\n{'='*64}\n  Depth->reach: n={args.n_nodes} L={args.n_layers} "
