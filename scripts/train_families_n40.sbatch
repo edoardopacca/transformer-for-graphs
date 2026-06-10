@@ -14,8 +14,10 @@
 # within-component distances well past 9, so the capacity wall is visible over a
 # wide range (as in Report III) -- unlike n=20 where it is truncated at d=9.
 #
-# 4 arms x 2 seeds, ordered by seed; each trains then auto-evals on all families.
-#   sbatch --array=0-7%2 scripts/train_families_n40.sbatch
+# 4 arms x N seeds, ordered by seed; each trains then auto-evals on all families.
+# Index blocks: seed 1000 = 0-3, seed 2000 = 4-7, seed 3000 = 8-11.
+#   sbatch --array=0-7%2  scripts/train_families_n40.sbatch   # seeds 1000+2000
+#   sbatch --array=8-11%2 scripts/train_families_n40.sbatch   # seed 3000 (third round)
 # Use gpunew with a REALISTIC time limit, not long_gpunew/36h: long_gpunew has only
 # 2 nodes (shared with gpunew) and a 36h job never backfills there. n=40 runs ~6-8h,
 # so 12h is plenty and schedules far more easily.
@@ -34,7 +36,7 @@ OUT_ROOT="runs/families_n40"
 STEPS=1000000
 
 RUNS=()
-for S in 1000 2000; do
+for S in 1000 2000 3000; do
   RUNS+=("er linear $S")
   RUNS+=("er similarity $S")
   RUNS+=("mixed linear $S")
