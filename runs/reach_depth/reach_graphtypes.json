@@ -1,0 +1,90 @@
+{
+  "1": {
+    "pathunion": {
+      "exact": 0.2736,
+      "pairwise": 0.78200458984375
+    },
+    "2chains": {
+      "exact": 0.0,
+      "pairwise": 0.5224796875
+    },
+    "2cliques": {
+      "exact": 0.0,
+      "pairwise": 0.5
+    },
+    "1cycle": {
+      "exact": 1.0,
+      "pairwise": 1.0
+    },
+    "2cycle": {
+      "exact": 0.0,
+      "pairwise": 0.5
+    }
+  },
+  "2": {
+    "pathunion": {
+      "exact": 0.4076,
+      "pairwise": 0.929791064453125
+    },
+    "2chains": {
+      "exact": 0.0,
+      "pairwise": 0.74080166015625
+    },
+    "2cliques": {
+      "exact": 0.0,
+      "pairwise": 0.499755859375
+    },
+    "1cycle": {
+      "exact": 1.0,
+      "pairwise": 1.0
+    },
+    "2cycle": {
+      "exact": 0.0,
+      "pairwise": 0.5
+    }
+  },
+  "3": {
+    "pathunion": {
+      "exact": 0.9998,
+      "pairwise": 0.99999990234375
+    },
+    "2chains": {
+      "exact": 0.9998,
+      "pairwise": 0.99999970703125
+    },
+    "2cliques": {
+      "exact": 0.0,
+      "pairwise": 0.510826318359375
+    },
+    "1cycle": {
+      "exact": 1.0,
+      "pairwise": 1.0
+    },
+    "2cycle": {
+      "exact": 0.0,
+      "pairwise": 0.5
+    }
+  },
+  "4": {
+    "pathunion": {
+      "exact": 1.0,
+      "pairwise": 1.0
+    },
+    "2chains": {
+      "exact": 0.9994,
+      "pairwise": 0.9999994140625
+    },
+    "2cliques": {
+      "exact": 0.0,
+      "pairwise": 0.506590869140625
+    },
+    "1cycle": {
+      "exact": 1.0,
+      "pairwise": 1.0
+    },
+    "2cycle": {
+      "exact": 0.0,
+      "pairwise": 0.5
+    }
+  }
+}

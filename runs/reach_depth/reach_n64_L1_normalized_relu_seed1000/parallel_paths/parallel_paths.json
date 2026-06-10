@@ -1,0 +1,250 @@
+{
+  "checkpoint": "runs/reach_depth/reach_n64_L1_normalized_relu_seed1000/last.pt",
+  "arch": "minimal",
+  "readout": "linear",
+  "n": 64,
+  "n_layers": 1,
+  "diffusion_steps": 3,
+  "cells": [
+    {
+      "path_len": 5,
+      "n_paths": 1,
+      "distance": 5,
+      "R_eff": 5.000000000000003,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0013659140467643738,
+      "influence": 5.346768021583557
+    },
+    {
+      "path_len": 5,
+      "n_paths": 2,
+      "distance": 5,
+      "R_eff": 2.499999999999999,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0012883029878139496,
+      "influence": 0.0
+    },
+    {
+      "path_len": 5,
+      "n_paths": 3,
+      "distance": 5,
+      "R_eff": 1.6666666666666667,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0013633815944194794,
+      "influence": 4.509713525573413
+    },
+    {
+      "path_len": 5,
+      "n_paths": 4,
+      "distance": 5,
+      "R_eff": 1.2499999999999982,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0011527405679225922,
+      "influence": 17.908350229263306
+    },
+    {
+      "path_len": 7,
+      "n_paths": 1,
+      "distance": 7,
+      "R_eff": 6.999999999999995,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0016822625696659088,
+      "influence": 5.450914581616719
+    },
+    {
+      "path_len": 7,
+      "n_paths": 2,
+      "distance": 7,
+      "R_eff": 3.4999999999999964,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0015182381868362428,
+      "influence": 0.0
+    },
+    {
+      "path_len": 7,
+      "n_paths": 3,
+      "distance": 7,
+      "R_eff": 2.333333333333334,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.001651977300643921,
+      "influence": 4.381135294834773
+    },
+    {
+      "path_len": 7,
+      "n_paths": 4,
+      "distance": 7,
+      "R_eff": 1.75,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0013127201795578003,
+      "influence": 23.58183487256368
+    },
+    {
+      "path_len": 9,
+      "n_paths": 1,
+      "distance": 9,
+      "R_eff": 9.000000000000027,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0016613033413887023,
+      "influence": 5.567122161388397
+    },
+    {
+      "path_len": 9,
+      "n_paths": 2,
+      "distance": 9,
+      "R_eff": 4.5000000000000036,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0015632982552051544,
+      "influence": 0.0
+    },
+    {
+      "path_len": 9,
+      "n_paths": 3,
+      "distance": 9,
+      "R_eff": 3.000000000000001,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0015594126284122468,
+      "influence": 4.73146195213
+    },
+    {
+      "path_len": 9,
+      "n_paths": 4,
+      "distance": 9,
+      "R_eff": 2.2499999999999956,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.001288360208272934,
+      "influence": 31.36534285545349
+    },
+    {
+      "path_len": 11,
+      "n_paths": 1,
+      "distance": 11,
+      "R_eff": 11.000000000000025,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.001712074726819992,
+      "influence": 5.648648877938588
+    },
+    {
+      "path_len": 11,
+      "n_paths": 2,
+      "distance": 11,
+      "R_eff": 5.499999999999991,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0015913832187652588,
+      "influence": 0.0
+    },
+    {
+      "path_len": 11,
+      "n_paths": 3,
+      "distance": 11,
+      "R_eff": 3.6666666666666705,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0016275285184383392,
+      "influence": 6.028249238928159
+    },
+    {
+      "path_len": 11,
+      "n_paths": 4,
+      "distance": 11,
+      "R_eff": 2.7500000000000075,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0011458803713321685,
+      "influence": 35.3095506032308
+    },
+    {
+      "path_len": 13,
+      "n_paths": 1,
+      "distance": 13,
+      "R_eff": 13.000000000000144,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0017374949157238006,
+      "influence": 5.763861497243245
+    },
+    {
+      "path_len": 13,
+      "n_paths": 2,
+      "distance": 13,
+      "R_eff": 6.499999999999998,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0015328647196292877,
+      "influence": 0.0
+    },
+    {
+      "path_len": 13,
+      "n_paths": 3,
+      "distance": 13,
+      "R_eff": 4.333333333333293,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0017091362178325653,
+      "influence": 6.833508248130481
+    },
+    {
+      "path_len": 13,
+      "n_paths": 4,
+      "distance": 13,
+      "R_eff": 3.249999999999993,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0009355618059635162,
+      "influence": 23.243125200271606
+    },
+    {
+      "path_len": 15,
+      "n_paths": 1,
+      "distance": 15,
+      "R_eff": 15.000000000000075,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.001792784631252289,
+      "influence": 5.909506618976593
+    },
+    {
+      "path_len": 15,
+      "n_paths": 2,
+      "distance": 15,
+      "R_eff": 7.499999999999978,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.001542021483182907,
+      "influence": 0.0
+    },
+    {
+      "path_len": 15,
+      "n_paths": 3,
+      "distance": 15,
+      "R_eff": 5.000000000000001,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0017584818601608277,
+      "influence": 8.402762964367867
+    },
+    {
+      "path_len": 15,
+      "n_paths": 4,
+      "distance": 15,
+      "R_eff": 3.7500000000000036,
+      "P_3L": 0.0,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.0006096895039081573,
+      "influence": 9.98896033068498
+    }
+  ]
+}

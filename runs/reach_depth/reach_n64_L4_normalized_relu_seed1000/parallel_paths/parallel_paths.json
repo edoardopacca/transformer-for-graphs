@@ -1,0 +1,250 @@
+{
+  "checkpoint": "runs/reach_depth/reach_n64_L4_normalized_relu_seed1000/last.pt",
+  "arch": "minimal",
+  "readout": "linear",
+  "n": 64,
+  "n_layers": 4,
+  "diffusion_steps": 81,
+  "cells": [
+    {
+      "path_len": 5,
+      "n_paths": 1,
+      "distance": 5,
+      "R_eff": 5.000000000000003,
+      "P_3L": 0.12498366911649153,
+      "accuracy": 0.1725,
+      "one_minus_cos": 0.03177983865141869,
+      "influence": 15.616221964359283
+    },
+    {
+      "path_len": 5,
+      "n_paths": 2,
+      "distance": 5,
+      "R_eff": 2.499999999999999,
+      "P_3L": 0.09999676252753134,
+      "accuracy": 0.7875,
+      "one_minus_cos": 0.5331485004723072,
+      "influence": 222.56253898143768
+    },
+    {
+      "path_len": 5,
+      "n_paths": 3,
+      "distance": 5,
+      "R_eff": 1.6666666666666667,
+      "P_3L": 0.09090738334748882,
+      "accuracy": 0.055,
+      "one_minus_cos": 0.03420959085226059,
+      "influence": 16.065885365009308
+    },
+    {
+      "path_len": 5,
+      "n_paths": 4,
+      "distance": 5,
+      "R_eff": 1.2499999999999982,
+      "P_3L": 0.08620568371278713,
+      "accuracy": 0.04,
+      "one_minus_cos": 0.007152823805809021,
+      "influence": 5.499237338701884
+    },
+    {
+      "path_len": 7,
+      "n_paths": 1,
+      "distance": 7,
+      "R_eff": 6.999999999999995,
+      "P_3L": 0.08972470617135105,
+      "accuracy": 0.2125,
+      "one_minus_cos": 0.037890789061784745,
+      "influence": 24.944415132204693
+    },
+    {
+      "path_len": 7,
+      "n_paths": 2,
+      "distance": 7,
+      "R_eff": 3.4999999999999964,
+      "P_3L": 0.070863351820689,
+      "accuracy": 0.7675,
+      "one_minus_cos": 0.5621188339591027,
+      "influence": 163.73371108373007
+    },
+    {
+      "path_len": 7,
+      "n_paths": 3,
+      "distance": 7,
+      "R_eff": 2.333333333333334,
+      "P_3L": 0.06409236270425367,
+      "accuracy": 0.0625,
+      "one_minus_cos": 0.057870082557201385,
+      "influence": 34.16526234149933
+    },
+    {
+      "path_len": 7,
+      "n_paths": 4,
+      "distance": 7,
+      "R_eff": 1.75,
+      "P_3L": 0.06061220267778572,
+      "accuracy": 0.0425,
+      "one_minus_cos": 0.01084404245018959,
+      "influence": 9.590011527140936
+    },
+    {
+      "path_len": 9,
+      "n_paths": 1,
+      "distance": 9,
+      "R_eff": 9.000000000000027,
+      "P_3L": 0.06493305022117773,
+      "accuracy": 0.255,
+      "one_minus_cos": 0.03912490874528885,
+      "influence": 25.162919481595356
+    },
+    {
+      "path_len": 9,
+      "n_paths": 2,
+      "distance": 9,
+      "R_eff": 4.5000000000000036,
+      "P_3L": 0.05155422428913412,
+      "accuracy": 0.8125,
+      "one_minus_cos": 0.5937001533806324,
+      "influence": 120.87757637103398
+    },
+    {
+      "path_len": 9,
+      "n_paths": 3,
+      "distance": 9,
+      "R_eff": 3.000000000000001,
+      "P_3L": 0.04669357327051069,
+      "accuracy": 0.095,
+      "one_minus_cos": 0.07519365012645722,
+      "influence": 27.150827407836914
+    },
+    {
+      "path_len": 9,
+      "n_paths": 4,
+      "distance": 9,
+      "R_eff": 2.2499999999999956,
+      "P_3L": 0.04418554322268905,
+      "accuracy": 0.0425,
+      "one_minus_cos": 0.019021337032318116,
+      "influence": 8.063505669434866
+    },
+    {
+      "path_len": 11,
+      "n_paths": 1,
+      "distance": 11,
+      "R_eff": 11.000000000000025,
+      "P_3L": 0.044296412505012914,
+      "accuracy": 0.41,
+      "one_minus_cos": 0.04308325186371803,
+      "influence": 28.2394211490949
+    },
+    {
+      "path_len": 11,
+      "n_paths": 2,
+      "distance": 11,
+      "R_eff": 5.499999999999991,
+      "P_3L": 0.03556640696743239,
+      "accuracy": 0.8775,
+      "one_minus_cos": 0.4766124996542931,
+      "influence": 46.42441016435623
+    },
+    {
+      "path_len": 11,
+      "n_paths": 3,
+      "distance": 11,
+      "R_eff": 3.6666666666666705,
+      "P_3L": 0.03233658908360633,
+      "accuracy": 0.1875,
+      "one_minus_cos": 0.13525334373116493,
+      "influence": 42.502192278703056
+    },
+    {
+      "path_len": 11,
+      "n_paths": 4,
+      "distance": 11,
+      "R_eff": 2.7500000000000075,
+      "P_3L": 0.030658638681912393,
+      "accuracy": 0.0125,
+      "one_minus_cos": 0.06926766753196717,
+      "influence": 10.042375048001608
+    },
+    {
+      "path_len": 13,
+      "n_paths": 1,
+      "distance": 13,
+      "R_eff": 13.000000000000144,
+      "P_3L": 0.02807483087373932,
+      "accuracy": 0.545,
+      "one_minus_cos": 0.05094342365860939,
+      "influence": 31.947032511234283
+    },
+    {
+      "path_len": 13,
+      "n_paths": 2,
+      "distance": 13,
+      "R_eff": 6.499999999999998,
+      "P_3L": 0.022812543478209543,
+      "accuracy": 0.945,
+      "one_minus_cos": 0.3831731478869915,
+      "influence": 77.85065944989522
+    },
+    {
+      "path_len": 13,
+      "n_paths": 3,
+      "distance": 13,
+      "R_eff": 4.333333333333293,
+      "P_3L": 0.020827762320124038,
+      "accuracy": 0.2975,
+      "one_minus_cos": 0.289844011515379,
+      "influence": 41.233928084373474
+    },
+    {
+      "path_len": 13,
+      "n_paths": 4,
+      "distance": 13,
+      "R_eff": 3.249999999999993,
+      "P_3L": 0.019789030904848466,
+      "accuracy": 0.185,
+      "one_minus_cos": 0.4884339410066605,
+      "influence": 91.02360328038533
+    },
+    {
+      "path_len": 15,
+      "n_paths": 1,
+      "distance": 15,
+      "R_eff": 15.000000000000075,
+      "P_3L": 0.016500034635674336,
+      "accuracy": 0.665,
+      "one_minus_cos": 0.05330195993185043,
+      "influence": 34.34593574206034
+    },
+    {
+      "path_len": 15,
+      "n_paths": 2,
+      "distance": 15,
+      "R_eff": 7.499999999999978,
+      "P_3L": 0.013568658246609227,
+      "accuracy": 0.985,
+      "one_minus_cos": 0.2122230823338032,
+      "influence": 28.995086977879208
+    },
+    {
+      "path_len": 15,
+      "n_paths": 3,
+      "distance": 15,
+      "R_eff": 5.000000000000001,
+      "P_3L": 0.012440595763999304,
+      "accuracy": 0.405,
+      "one_minus_cos": 0.4096480450034142,
+      "influence": 43.78872040907542
+    },
+    {
+      "path_len": 15,
+      "n_paths": 4,
+      "distance": 15,
+      "R_eff": 3.7500000000000036,
+      "P_3L": 0.011845691353324738,
+      "accuracy": 1.0,
+      "one_minus_cos": 0.007178421765565872,
+      "influence": 6.86424720287323
+    }
+  ]
+}
