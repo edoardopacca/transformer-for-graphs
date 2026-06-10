@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=fam40
 #SBATCH --account=3352759
-#SBATCH --partition=long_gpunew
+#SBATCH --partition=gpunew
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=48G
-#SBATCH --time=36:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=out/%x_%A_%a.out
 #SBATCH --error=out/%x_%A_%a.out
 #
@@ -15,9 +15,10 @@
 # wide range (as in Report III) -- unlike n=20 where it is truncated at d=9.
 #
 # 4 arms x 2 seeds, ordered by seed; each trains then auto-evals on all families.
-#   sbatch --array=0-7%4 scripts/train_families_n40.sbatch
-# Override partition if long_gpunew is congested:
-#   sbatch --partition=gpunew --time=23:00:00 --array=0-7%4 scripts/train_families_n40.sbatch
+#   sbatch --array=0-7%2 scripts/train_families_n40.sbatch
+# Use gpunew with a REALISTIC time limit, not long_gpunew/36h: long_gpunew has only
+# 2 nodes (shared with gpunew) and a 36h job never backfills there. n=40 runs ~6-8h,
+# so 12h is plenty and schedules far more easily.
 #
 # lambda is dropped here: the seed-1000 sweep showed it is inert at convergence
 # (the similarity read-out drives the Laplacian energy to ~0 on its own).
