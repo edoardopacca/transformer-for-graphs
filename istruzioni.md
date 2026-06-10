@@ -145,6 +145,14 @@ attesa dei seed rimanenti + n40 + parallel_paths.
     job corti come reeval/parpaste partono subito). n20 ~1h40, n40 ~6-8h: usa
     `--time` 6h / 12h. Spostare un job PD: `scontrol update JobId=<id>
     TimeLimit=12:00:00 Partition=gpunew` (ridurre il time è permesso, aumentarlo no).
+19. **MAI la metrica `d*` (reach radius = max distanza con acc ≥ soglia).**
+    L'utente la detesta e l'ho bandita: un singolo numero di "massima distanza
+    raggiunta" è fuorviante perché **nasconde ciò che succede in mezzo** — un
+    modello può azzeccare d=36 ma sbagliare d=14, e l'accuracy per-distanza è
+    **non-monotona** (crolla nel mezzo, recupera ai bordi). → Mostrare SEMPRE
+    l'**evoluzione completa** dell'accuracy lungo la distanza (curva/tabella
+    per-distanza), non collassarla in un solo numero. Quel che conta è *come*
+    evolve, non il massimo raggiunto.
 
 ---
 

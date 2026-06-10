@@ -39,10 +39,12 @@
 \begin{abstract}
 \noindent\textbf{Preliminary.} The quantitative results below come from a single
 training seed for the new read-out runs (plus the eight reproduction seeds of
-Report~III for the baseline). They fix the experimental design and the first
-qualitative reading; the numbers will move once the multi-seed and $n=40$ runs,
-now training, land. The larger ``parallel-paths'' probe is running on the
-existing $n=64$ checkpoints.
+Report~III for the baseline). The first $n=40$ seed has landed and is included ---
+it is what makes the read-out's effect on the distance wall visible over a wide
+range --- but it is still one seed. They fix the experimental design and the first
+qualitative reading; the numbers will move once the remaining seeds (the $n=20$
+sweep and the second $n=40$ seed) and the ``parallel-paths'' probe, now training,
+land.
 \end{abstract}
 
 \section{Introduction}
@@ -106,8 +108,14 @@ spectral gap (Figure~\ref{fig:gallery}):
   \item \textbf{path\_union}: a disjoint union of $1$--$4$ random paths.
   \item \textbf{barbell}: two cliques joined by a single path --- one component
         but with a hard \emph{bottleneck} (smallest gap of all).
-  \item \textbf{expander}: a random regular graph --- very well connected
-        (small diameter, large gap), the opposite of a path.
+  \item \textbf{expander}: a \emph{random regular} graph --- every node has the
+        same small number of neighbours (here $3$), and those neighbours are
+        chosen at random rather than laid out in a line. Because the wiring is
+        random, from any node you reach the whole graph in very few hops: there
+        is no thin bridge and no long corridor to traverse, so the diameter is
+        tiny and the spectral gap is large. It is the structural opposite of a
+        path (one long corridor), and we hold it out of training to test whether
+        the model copes with a well-connected graph it has never seen.
   \item \textbf{chain\_plus}: a long chain plus a small separate component ---
         built to contain within-component distances past $9$ \emph{together with}
         a disconnection, so it exposes the $3^L$ wall even at $n=20$.
@@ -132,6 +140,14 @@ exact-match accuracy bucketed by diameter and by spectral gap.
 \section{Thread 1: the read-out}
 \label{sec:readout}
 
+This thread belongs to the second of our two questions --- not ``what makes a
+graph hard'' (Sections~\ref{sec:diff}--\ref{sec:gap}) but ``can we change the
+architecture to handle what we found hard''. The similarity read-out is a
+deliberate \emph{intervention}: it is non-standard, so its behaviour is only
+interesting as an answer to ``does this move the wall we identified''. We
+therefore read its numbers as a before/after on the difficulties of the next
+sections, not as difficulty results in their own right.
+
 \paragraph{The Laplacian loss is inert.} In an earlier $n=64$ study a large
 weight $\lambda=1$ collapsed the model to ``predict everything connected'' (the
 smoothness term, $O(d_{\mathrm{model}})$ at init, swamps the cross-entropy). With
@@ -148,9 +164,7 @@ training, one seed). On the families that are about \emph{propagating} a label
 over a long distance --- path\_union and, tellingly, the held-out chain\_plus
 (genuine out-of-distribution) --- the similarity read-out closes the gap to a
 perfect score. On the barbell, whose difficulty is a \emph{bottleneck}, it
-changes nothing. This is consistent with the mechanism: the read-out cannot
-create mixing capacity the $L=2$ trunk does not have, so a bottleneck must be
-attacked on the trunk (more depth), not on the read-out.
+changes nothing.
 
 \begin{table}[H]
 \centering
@@ -168,6 +182,47 @@ all other families       & 1.00 & 1.00          & already solved \\
 read-out helps exactly where the task is long-range propagation, and not where it
 is a bottleneck. Single seed --- to be confirmed.}
 \label{tab:simlin}
+\end{table}
+
+\paragraph{At $n=40$ we can see \emph{how} the read-out helps, and it is more
+than we first thought.} At $n=20$ the structured families are too small to hold
+within-component distances past $9$, so the exact-match numbers above hide the
+mechanism. The first $n=40$ runs (seed $1000$, just landed) open the distance
+range up. Table~\ref{tab:chainplus_n40} traces reach by distance on the held-out
+chain\_plus (a genuine out-of-distribution graph), for the two read-outs.
+The standard \emph{linear} read-out breaks exactly at the matrix-powering
+capacity $3^L=9$, then sits at a $\approx0.57$ floor through the whole
+mid-range. The \emph{similarity} read-out, on the very same $L=2$ trunk, stays
+perfect far past the wall (to $d\approx18$) before a shallow dip, and on the
+farthest pairs recovers to $1.00$. So the read-out does not merely fail to hurt:
+it pushes the distance wall a long way out, out-of-distribution included. This
+revises our first reading. The linear read-out's clean break at $3^L$ is partly
+an \emph{artefact of forcing a local, matrix-power reading} onto the embedding;
+a global (cosine-similarity) reading of the same embedding reaches much farther.
+What the read-out cannot do is cross a bottleneck --- the barbell stays at $0.00$
+(Section~\ref{sec:diff}) --- and that is the genuine limit of the $L=2$ trunk, to
+be attacked with depth, not with the read-out.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lccccccccccc}
+\toprule
+distance $d$ & $\le 9$ & $10$ & $12$ & $14$ & $16$ & $18$ & $20$ & $24$ & $28$ & $32$ & $36$ \\
+\midrule
+linear     & 1.00 & 0.56 & 0.59 & 0.59 & 0.57 & 0.56 & 0.58 & 0.75 & 0.84 & 0.99 & 0.99 \\
+similarity & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 0.86 & 0.88 & 1.00 & 1.00 & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{Reach (accuracy on connected pairs) by within-component distance on the
+held-out \textbf{chain\_plus} family, $n=40$, mixed training, seed $1000$. The
+linear read-out breaks at the capacity $3^L=9$; the similarity read-out stays
+perfect well past it. Both curves are \emph{non-monotone} --- worst in the
+middle, recovering on the farthest pairs --- which is why we report the whole
+distance profile rather than any single ``reach radius'' (a single number would
+call a model that nails $d=36$ but misses $d=14$ a success, which it is not).
+Single seed; the second $n=40$ seed is training.}
+\label{tab:chainplus_n40}
 \end{table}
 
 \section{Thread 2: the diameter, or also the bottleneck?}
@@ -256,6 +311,44 @@ distance, seed $8000$. The wall sits at $9=3^2$.}
 \label{tab:chainplus}
 \end{table}
 
+\paragraph{A bottleneck bites \emph{inside} the capacity --- so distance is not
+the whole story.} chain\_plus shows the distance wall is real; the barbell shows
+distance is not enough to explain difficulty. Table~\ref{tab:barbell_d} traces
+the standard (linear) model's reach on the barbell by distance, at $n=40$. Every
+path/chain/cycle family is at $1.00$ for every $d\le9$ (within capacity, reach is
+trivial). The barbell is one connected component, yet its accuracy has already
+collapsed by $d=3$ ($0.38$) --- a distance \emph{four times within} the $3^L=9$
+budget. The pairs that fail are the ones whose only route runs through the thin
+bridge between the two cliques: same model, same read-out, same short distance as
+a trivial path pair, but a bottleneck in the way. So within the capacity budget,
+where distance predicts ``easy'', a structural bottleneck still makes the pair
+hard. We are careful here: the barbell and a long path \emph{both} have a small
+spectral gap, yet the path is solved to $d=9$ and the barbell is not, so the
+scalar gap is not by itself a clean predictor --- what the barbell adds is a true
+\emph{cut} (a single bridge carrying all the flow). Whether the spectral gap is
+the right way to \emph{quantify} that is exactly what the controlled
+parallel-paths probe (Section~\ref{sec:gap}) is built to settle. The reading
+stays ``diameter \emph{and} a bottleneck term'', with the bottleneck term not yet
+pinned to a single number.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lccccccccc}
+\toprule
+distance $d$ & $1$ & $2$ & $3$ & $4$ & $5$ & $7$ & $9$ & $11$ & $13$ \\
+\midrule
+barbell reach & 0.99 & 0.75 & 0.38 & 0.52 & 0.59 & 0.56 & 0.51 & 0.42 & 0.15 \\
+\bottomrule
+\end{tabular}
+\caption{Reach by distance on the \textbf{barbell} (one component: two cliques
+joined by a thin bridge), standard linear read-out, $n=40$, mixed training, seed
+$1000$. Accuracy collapses at $d=3$, far inside the $3^L=9$ capacity, where every
+non-bottleneck family is still at $1.00$. The failure tracks the bottleneck, not
+the distance. Single seed.}
+\label{tab:barbell_d}
+\end{table}
+
 \section{Thread 3: the spectral gap, and a confound}
 \label{sec:gap}
 
@@ -303,30 +396,70 @@ model is misled), not a reach or a cut limitation. There are thus three ways the
 model fails: it cannot reach across a bottleneck, it sometimes cannot cut, and on
 dense graphs it falls back on degree.
 
+Unlike the bottleneck, this third mode is \emph{recoverable}. At $n=40$ the
+ER-trained linear model gets only $0.30$ on the $d=1$ clique pairs of 2cliques
+(exact match $0$), but either ingredient removes the failure: training on the
+mixture (which contains dense blocks) \emph{or} swapping in the similarity
+read-out lifts 2cliques to exact match $1.00$. The degree heuristic is therefore
+a property of the narrow ER-only, linear-read-out baseline, not an intrinsic
+limit of the architecture --- in contrast to the barbell bottleneck, which
+survives both interventions.
+
 \section{What is running}
 \label{sec:status}
 
-To turn the single-seed picture into something defensible, the following are in
-flight: (i) the $n=20$ family runs at the remaining seeds ($2$--$13$k),
-$\{$ER, mixed$\}\times\{$linear, similarity$\}$, for
-Sections~\ref{sec:readout}--\ref{sec:gap}; (ii) the $n=40$ runs, where the $3^L$
-wall is visible over a wide distance range; (iii) the parallel-paths probe of
-Section~\ref{sec:gap} on the existing $n=64$ reach checkpoints ($L=1,2,3$). A full
-re-evaluation of every checkpoint on the family panel (with the reach/cut split
-and the gap sweep) is already done and feeds the tables above.
+The $n=40$ seed-$1000$ runs (all four arms: $\{$ER, mixed$\}\times\{$linear,
+similarity$\}$) have just landed and feed the new per-distance tables
+(\ref{tab:chainplus_n40}, \ref{tab:barbell_d}); this is where the $3^L$ wall and
+the read-out's effect on it become visible over a wide distance range. Still in
+flight, to turn the single-seed picture into something defensible: (i) the
+$n=40$ second seed ($2000$), the direct confirmation of the
+linear-vs-similarity distance profiles; (ii) the $n=20$ family runs at the
+remaining seeds ($2$--$13$k) --- of which seeds $2000$--$3000$ are partly in and
+already reproduce the direction (similarity $\ge$ linear on the long-range
+families, barbell $=0$ for both); (iii) the parallel-paths probe of
+Section~\ref{sec:gap} on the existing $n=64$ reach checkpoints ($L=1,2,3$),
+queued. A full re-evaluation of every checkpoint on the family panel (with the
+reach/cut split and the gap sweep) is already done and feeds the tables above.
+
+\paragraph{The experiment this points to.} The read-out moves the distance wall
+from $3^L$ outward (Table~\ref{tab:chainplus_n40}) with the depth fixed at
+$L=2$. The natural next probe is a depth sweep $L\in\{1,2,3\}$ \emph{with the
+similarity read-out}, run exactly like the linear depth sweep of Report~III. The
+linear sweep gave reach $=3^L$; if the similarity sweep gives a wall that also
+scales with depth, the read-out buys a multiplicative factor on an otherwise
+depth-bound quantity; if the similarity wall is roughly fixed regardless of
+depth, the read-out changes the \emph{regime}, not just the constant. Either way
+it would turn the read-out observation into a mechanism.
 
 \section{Takeaway}
 
-On one seed, and with everything still in flight: the Laplacian loss is redundant
-with the similarity read-out and is dropped; the similarity read-out helps
-\emph{long-range reach} (even out-of-distribution) but not bottlenecks, which
-points the architectural search at the trunk rather than the read-out. On
-difficulty the picture is genuinely open: the $3^L$ wall is real and tied to
-distance (chain\_plus), yet a few comparisons (barbell vs.\ chain, the expander)
-hint that the spectral gap / bottleneck adds something the diameter misses --- so
-the working hypothesis is \emph{diameter and gap}, not one or the other, and the
-naive gap sweep is confounded by density. Finally, beyond reach and cut there is a
-third, degree-based failure mode on dense graphs. The multi-seed, $n=40$ and
-parallel-paths runs now training will tell us which of these survive.
+With the $n=40$ seed-$1000$ runs in and everything else still in flight, the two
+questions sharpen as follows.
+
+\emph{On the architecture (Thread~1).} The Laplacian loss is redundant with the
+similarity read-out and is dropped. The similarity read-out does more than we
+first credited it with: on the wide $n=40$ distance range it pushes the reach
+wall from $3^L=9$ a long way out (to $d\approx18$ on chain\_plus, out-of-distribution
+included), on the very same $L=2$ trunk --- so the linear read-out's clean break
+at $3^L$ is partly a read-out artefact, not a hard trunk limit. The one thing the
+read-out cannot fix is the bottleneck (the barbell stays at $0$), which is where
+depth, not the read-out, will have to do the work.
+
+\emph{On difficulty (Threads~2--3).} The $3^L$ distance wall is real
+(chain\_plus, now visible over a wide range with the linear read-out). But it is
+not the whole story: at $n=40$ the barbell fails at $d=3$, four times \emph{inside}
+the capacity, where every non-bottleneck family is trivial --- so a structural
+bottleneck adds difficulty the distance cannot see. We stop short of crowning the
+spectral gap: a long path and a barbell both have small gaps yet only the barbell
+is hard, so the scalar gap is not yet a clean predictor; the parallel-paths probe
+is designed to isolate it. The third, degree-based failure mode turns out to be
+recoverable (mixed training or the similarity read-out removes it), unlike the
+bottleneck. The working picture stays \emph{diameter and a bottleneck term}, with
+the bottleneck term still to be pinned down.
+
+All $n=40$ numbers here are a single seed; the second seed, the remaining $n=20$
+seeds, and the parallel-paths probe now training will tell us which of these
+survive.
 
 \end{document}
