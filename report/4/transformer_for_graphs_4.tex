@@ -41,12 +41,14 @@
 moves the distance wall from $3^L$ outward --- is now reproduced across
 \textbf{two independent $n=40$ seeds}, near-identical digit for digit, so it is no
 longer single-seed; the remaining $n=20$ seeds and a third $n=40$ seed are still
-training. The controlled ``parallel-paths'' gap probe has run and come back
-\textbf{inconclusive} (a distribution-shift confound, reported in
-Section~\ref{sec:gap}); the graded gap evidence rests instead on barbell\_var. The
-depth sweep \emph{with} the similarity read-out --- the experiment that would turn
-the read-out observation into a mechanism --- is running. Numbers will still move,
-but the design and the qualitative reading are fixed.
+training. The depth sweep \emph{with} the similarity read-out has finished and pins the
+mechanism: the read-out \textbf{doubles} the reach radius from $3^L$ to
+$2\cdot 3^L$ (a constant factor, the wall still scaling with depth), measured at
+$L=1$ and $L=2$. The controlled ``parallel-paths'' gap probe, by contrast, came
+back \textbf{inconclusive} (a distribution-shift confound, Section~\ref{sec:gap});
+the graded gap evidence rests instead on barbell\_var. Numbers will still move at
+the margins (a third $n=40$ seed and the remaining $n=20$ seeds are training), but
+the design and the qualitative reading are fixed.
 \end{abstract}
 
 \section{Introduction}
@@ -229,6 +231,57 @@ which is why we report the whole distance profile rather than any single ``reach
 radius'' (a single number would call a model that nails $d=36$ but misses $d=14$
 a success, which it is not).}
 \label{tab:chainplus_n40}
+\end{table}
+
+\paragraph{The mechanism: the read-out \emph{doubles} the reach radius, it does
+not change the regime.} The wall-moving above raises a sharp question: does the
+similarity read-out lift the distance limit by a constant factor, or remove its
+dependence on depth altogether? We answer it by repeating the depth sweep of
+Report~III (train at $n=64$ on the path-union distribution, vary only the number
+of layers $L$) \emph{with the similarity read-out}, and comparing the reach
+profile to the linear sweep. Table~\ref{tab:depthsim} is unambiguous. The linear
+read-out resolves pairs up to exactly $3^L$ ($d=3$ for $L=1$, $d=9$ for $L=2$),
+the matrix-powering capacity. The similarity read-out, on the identical trunk,
+resolves up to exactly \emph{twice} that --- $d=6$ for $L=1$, $d=18$ for $L=2$ ---
+and then degrades, with the same boundary recovery on the farthest pairs. So the
+read-out buys a clean factor of $2$, and the wall \emph{still scales with depth}
+($\times 3$ per layer): it multiplies the capacity, it does not abolish the
+distance dependence. (At $L=3$ both read-outs are perfect across the whole $n=64$
+range, $\ge 2\cdot 3^3 = 54$, so this $n$ cannot separate them --- a larger $n$
+would be needed.)
+
+This has a simple reading. The linear read-out infers $R_{ij}$ from a single
+node embedding $h_i$, which carries a $\sim 3^L$-hop ``light cone'' of
+propagation --- hence reach $3^L$. The similarity read-out compares \emph{two}
+embeddings $\cos(h_i,h_j)$, each carrying its own $3^L$-hop cone, so the pair is
+resolved as soon as the two cones overlap: a meet-in-the-middle at distance
+$\sim 2\cdot 3^L$. Strikingly, the $d=18$ wall measured here at $n=64$ is the same
+wall seen independently on the $n=40$ chain\_plus family
+(Table~\ref{tab:chainplus_n40}) --- two unrelated experiments agreeing on the
+constant. The doubling also shows in-distribution: at $L=2$ the similarity
+read-out lifts exact match on the held-out path-union test from $0.40$ to $0.62$.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llcccccccccccc}
+\toprule
+$L$ ($3^L$) & read-out & $3$ & $6$ & $9$ & $12$ & $15$ & $18$ & $21$ & $25$ & $30$ & $40$ & $50$ & $63$ \\
+\midrule
+$1$ ($3$) & linear     & 1.00 & 0.79 & 0.79 & 0.80 & 0.81 & 0.82 & 0.83 & 0.84 & 0.86 & 0.91 & 0.93 & 1.00 \\
+$1$ ($3$) & similarity & 1.00 & \textbf{1.00} & 0.69 & 0.70 & 0.71 & 0.72 & 0.73 & 0.75 & 0.77 & 0.82 & 0.89 & 1.00 \\
+$2$ ($9$) & linear     & 1.00 & 1.00 & 1.00 & 0.92 & 0.91 & 0.88 & 0.85 & 0.83 & 0.84 & 0.92 & 1.00 & 1.00 \\
+$2$ ($9$) & similarity & 1.00 & 1.00 & 1.00 & \textbf{1.00} & \textbf{1.00} & \textbf{1.00} & 0.90 & 0.90 & 0.92 & 0.98 & 1.00 & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{Depth sweep, reach by distance on $n=64$ path-union (seed $1000$), linear
+vs.\ similarity read-out. The exact break points are $d=3,4$ and $d=6,7$ for
+$L=1$, and $d=9,10$ and $d=18,19$ for $L=2$: the similarity read-out resolves to
+exactly $2\cdot 3^L$, double the linear $3^L$, at both depths. The wall still
+triples per layer, so the read-out is a constant-factor ($\times2$) gain, not a
+change of regime. Bold marks the distances the similarity read-out resolves and
+the linear one does not.}
+\label{tab:depthsim}
 \end{table}
 
 \section{Thread 2: the diameter, or also the bottleneck?}
@@ -494,43 +547,35 @@ survives both interventions.
 \section{What is running}
 \label{sec:status}
 
-Two $n=40$ seeds ($1000$, $2000$, all four arms $\{$ER, mixed$\}\times\{$linear,
-similarity$\}$) are in and feed the per-distance tables
-(\ref{tab:chainplus_n40}, \ref{tab:barbell_d}); they agree almost digit for digit,
-so the read-out's effect on the distance wall is reproduced, not a single-seed
-accident. The parallel-paths probe has also run, with the inconclusive result of
-Section~\ref{sec:gap}. Still in flight: (i) a \emph{third} $n=40$ seed ($3000$),
-for a clean three-seed statement; (ii) the $n=20$ family runs at the remaining
-seeds, of which $2000$--$4000$ are in and reproduce the direction (similarity
-$\ge$ linear on the long-range families, barbell $=0$ for both); (iii) the depth
-sweep with the similarity read-out (below). A full re-evaluation of every
-checkpoint on the family panel feeds the tables above.
-
-\paragraph{The experiment this points to (running).} The read-out moves the
-distance wall from $3^L$ outward (Table~\ref{tab:chainplus_n40}) with the depth
-fixed at $L=2$. The decisive next probe is a depth sweep $L\in\{1,2,3\}$
-\emph{with the similarity read-out}, run exactly like the linear depth sweep of
-Report~III, which is now training. The linear sweep gave reach $=3^L$; if the
-similarity sweep gives a wall that also scales with depth, the read-out buys a
-multiplicative factor on an otherwise depth-bound quantity; if the similarity wall
-is roughly fixed regardless of depth, the read-out changes the \emph{regime}, not
-just the constant. Either way it would turn the read-out observation into a
-mechanism. A cleaner re-run of the parallel-paths probe (filling the canvas and
-fixing the terminal degree, to remove the distribution-shift confound) is the
-other open item.
+The substantive runs are in. Two $n=40$ seeds ($1000$, $2000$, all four arms
+$\{$ER, mixed$\}\times\{$linear, similarity$\}$) feed the per-distance tables
+(\ref{tab:chainplus_n40}, \ref{tab:barbell_d}) and agree almost digit for digit;
+the depth sweep with the similarity read-out (Table~\ref{tab:depthsim}) has
+finished and pins the mechanism to a factor of $2$; the parallel-paths probe ran
+and was inconclusive (Section~\ref{sec:gap}). Still in flight, and only to firm up
+margins: (i) a \emph{third} $n=40$ seed ($3000$), for a clean three-seed
+statement; (ii) the remaining $n=20$ seeds, of which $2000$--$6000$ are in and
+reproduce the direction (similarity $\ge$ linear on the long-range families,
+barbell $=0$ for both). Two clean follow-ups remain open: a depth sweep at
+$n>64$ to separate the read-outs at $L=3$ (where $n=64$ saturates), and a
+confound-free re-run of the parallel-paths probe (fill the canvas, fix the
+terminal degree) to isolate the gap.
 
 \section{Takeaway}
 
-With two $n=40$ seeds in and the depth-sweep still training, the two questions
-sharpen as follows.
+With two $n=40$ seeds and the depth sweep in, the two questions sharpen as
+follows.
 
 \emph{On the architecture (Thread~1).} The Laplacian loss is redundant with the
 similarity read-out and is dropped. The similarity read-out does more than we
-first credited it with: on the wide $n=40$ distance range it pushes the reach
-wall from $3^L=9$ a long way out (to $d\approx18$ on the held-out chain\_plus),
-on the very same $L=2$ trunk, and the two seeds agree almost digit for digit ---
-so the linear read-out's clean break at $3^L$ is partly a read-out artefact, not a
-hard trunk limit. The one thing the read-out cannot fix is the bottleneck (the
+first credited it with, and we now know exactly how much: it \emph{doubles} the
+reach radius, from the matrix-powering $3^L$ to $2\cdot 3^L$ (measured at $L=1$
+and $L=2$, on the identical trunk; Table~\ref{tab:depthsim}), reproducibly across
+two $n=40$ seeds. The wall still scales with depth, so this is a clean
+constant-factor gain --- the read-out reads connectivity by comparing two
+$3^L$-radius embeddings that meet in the middle, rather than one --- not a removal
+of the distance dependence. The one thing the read-out cannot fix is the
+bottleneck (the
 barbell stays at $0$ for both read-outs and both seeds), which is where depth, not
 the read-out, will have to do the work. The depth sweep with the similarity
 read-out, now running, will say whether its wall scales with $L$ (a constant
