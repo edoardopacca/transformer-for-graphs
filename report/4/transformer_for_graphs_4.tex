@@ -287,6 +287,67 @@ the linear one does not.}
 \section{Thread 2: the diameter, or also the bottleneck?}
 \label{sec:diff}
 
+\subsection{The difficulty map (evaluation running)}
+\label{sec:diffmap}
+
+\paragraph{Purpose.} This is the question the project was originally set to answer:
+\emph{how does the standard model's accuracy vary with the graph's diameter, and
+with its spectral gap, and which of the two is the operative variable?} The
+family-by-family numbers below (Table~\ref{tab:fam}) hint at an answer but are
+unsatisfying, because each family is a single, isolated point in the (diameter,
+gap) plane --- a chain is one corner, an expander another --- so one cannot read
+off a clean dependence, let alone separate the two axes. To do that properly we
+need (i) graphs that \emph{spread continuously} across the plane and (ii) the
+\emph{joint} per-graph record of diameter, gap and accuracy together, which the
+per-family evaluation discards.
+
+\paragraph{Method.} We therefore evaluate the standard (linear read-out) model on
+a purpose-built pool of single-component graphs that spans the plane: an
+Erd\H os--R\'enyi density sweep (the main arc, dense/small-diameter/large-gap down
+to sparse/large-diameter/small-gap), a random-regular degree sweep (which moves
+the gap at a roughly fixed diameter band --- degree $2$ is a cycle, high degree is
+near-complete), a barbell clique-size sweep (the small-gap bottleneck corner), and
+single chains and cycles (the large-diameter corner). For \emph{every} graph we
+log its diameter, its spectral gap, its mean degree (a density control), and the
+model's exact-match and pairwise accuracy. From this we will build the two things
+the question actually needs: a \textbf{two-dimensional accuracy map} over
+(diameter, gap), and the \textbf{partial-dependence} curves --- accuracy versus
+diameter at a fixed gap, and accuracy versus gap at a fixed diameter --- which are
+what disentangle the two variables (and, by conditioning on mean degree, separate
+both from a mere density effect). The evaluation is run on the standard linear
+checkpoints at $n=20$ (eight reproduction seeds) and $n=40$ (the ER-trained
+family seeds), so the map is reported with a seed band, not a single draw.
+
+\paragraph{Status.} The evaluation is running; the per-graph data and the
+aggregate figures are not yet in. We state the design here so the reading is fixed
+before the numbers land. Our prior, from the piecemeal evidence in the rest of
+this thread, is that the map will show accuracy falling along \emph{both} axes ---
+a wall in diameter near $3^L$ and a separate degradation at small gap --- with the
+partial-dependence at fixed diameter still showing a gap effect; that is the
+concrete, falsifiable version of the ``diameter \emph{and} a bottleneck term''
+reading.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/difficulty_map/map_combined.png}{1.0}
+    \caption{[Evaluation running.] Two-dimensional exact-match accuracy over the
+    (diameter, spectral gap) plane for the standard linear model, $n=20$ and
+    $n=40$, pooled over seeds. To be generated from the per-graph dumps.}
+    \label{fig:diffmap}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/difficulty_map/partial_dependence.png}{1.0}
+    \caption{[Evaluation running.] Partial dependence: accuracy vs diameter at
+    fixed gap bands (left) and vs spectral gap at fixed diameter bands (right),
+    density-controlled. This is the figure that says whether the gap adds to the
+    diameter or merely tracks it.}
+    \label{fig:diffmap-pd}
+\end{figure}
+
+\subsection{The family panel}
+
 \emph{This thread is open: the signals below point in two directions, and the
 verdict waits on the seeds now training.} Table~\ref{tab:fam} reports the baseline
 (ER, linear) on the family panel, averaged over the eight reproduction seeds, with

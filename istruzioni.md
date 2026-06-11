@@ -345,18 +345,58 @@ distanze via `compute_all_pairs_shortest_paths` (APSP, scipy; serve `scipy`).
   similarità (λ=0) aiuta il reach; la loss Laplaciana a λ=1 collassa il modello
   ("tutto connesso"). → motivò il filone Report 4 con λ piccolo + warmup.
 
-**Stato Report 4 (aggiornare!):** preliminare, **1 seed** (seed 1000) + 8 baseline.
-- **Fatto/in locale**: re-eval famiglie su tutti i ckpt (json a 14 famiglie con
-  reach/cut + gap sweep + chain_plus); galleria `runs/family_gallery/gallery.png`.
-- **In coda/running su HPC** (al cambio chat): `fam20` (seed 2000–13000, array a
-  blocchi per via del submit-limit), `fam40` (n=40, muro 3^L su range ampio),
-  `parpaths` (parallel_paths sui reach n64 L1/2/3). Lanci a blocchi per-seed.
-- **Risultati attesi**: confermare multi-seed che (a) similarity aiuta reach non
-  bottleneck, (b) il parallel_paths separa distanza da resistenza (curva acc-vs-k
-  a ℓ fisso: piatta=diametro, in salita=resistenza), (c) il muro a n40.
+**Stato Report 4 (al 2026-06-11):** non più 1 seed. Risultati consolidati:
+- **Risultato-architettura (Thread 1), SOLIDO:** il read-out di similarità
+  **raddoppia il raggio di reach**: parete da `3^L` a `2·3^L`, misurata a L=1 (3→6)
+  e L=2 (9→18) col depth-sweep `train_reach_depth_sim.sbatch` (reach n64), e
+  riprodotta a n40 su **2 seed** (chain_plus: linear rompe a 9, similarity tiene a
+  18, quasi identici). Meccanismo: cos(h_i,h_j) confronta DUE coni di raggio 3^L →
+  "meet in the middle". Il read-out NON tocca il bottleneck (barbell=0). La parete
+  scala ×3/layer → guadagno a fattore costante, non cambio di regime.
+- **parallel_paths: INCONCLUDENTE** (confound di distribuzione: il grafo costruito
+  = pochi nodi attivi + canvas di isolati + terminali di grado k = OOD vs
+  path-union; smoking gun: k=1 ℓ=5, distanza 5≪9, fa 0.15). NON ri-presentarlo
+  come "test pulito". Da rifare confound-free (riempire il canvas, grado terminali
+  fisso) se si vuole l'isolamento causale del gap.
+- **Asse-gap (Thread 2/3):** direzione robusta (gap piccolo = difficile) su 3
+  costruzioni (barbell entro-capacità fallisce a d=3<9; barbell_var monotòno;
+  expander_var), ma nessuna isola il gap. Tesi: "**diametro E un termine di
+  bottleneck**", il termine reale e monotono ma non ancora isolato.
+
+**IN CODA/RUNNING su HPC (al cambio chat, 2026-06-11):**
+- `fam20 --array=40-51%4` (seed **7000+8000**): completano gli **8 seed n20**
+  (1000–6000 già fatti). Indici: 7000=40-45, 8000=46-51.
+- `fam40 --array=12-15%2` (seed **4000**, quarto seed n40; 1000/2000/3000 fatti
+  o in chiusura). 4 arm: er-lin, er-sim, mixed-lin, mixed-sim.
+- `diffmap` (`eval_difficulty_map.sbatch`): **LA MAPPA DI DIFFICOLTÀ — deliverable
+  principale per la prof** (prima parte: accuracy vs diametro vs gap). Eval-only
+  sui ckpt **linear** (n20 8 seed repro `best.pt` + n40 er-linear `last.pt`).
+  Dumpa, per OGNI grafo, `(diameter, gap, mean_degree, ncomp, exact, pairwise)` in
+  `<ckpt_dir>/difficulty_map/difficulty_map.json` su un pool che copre il piano
+  (ER p-sweep + random-regular grado-variabile + barbell + 1chain/1cycle).
+
+**COSA DEVE FARE LA PROSSIMA CHAT quando i job finiscono:**
+1. Far pushare all'utente da HPC `runs/repro_paper_n20_roberta runs/families_n40`
+   (json piccoli), poi `git pull` in locale.
+2. **Costruire le figure aggregate della mappa di difficoltà** dai
+   `difficulty_map.json` (filtrare ncomp==1 = grafi connessi): (a) **heatmap 2D**
+   exact-match su (diametro × gap), poolata sui seed, una per n20 e una per n40 →
+   salvare in `runs/difficulty_map/map_combined.png`; (b) **partial-dependence**:
+   accuracy vs diametro a gap-band fissata, e accuracy vs gap a diametro-band
+   fissato, controllando per `mean_degree` (densità) → `runs/difficulty_map/
+   partial_dependence.png`. Queste due figure hanno già i placeholder `\figorbox`
+   nel `.tex` (sez. "The difficulty map"); appena generate compaiono.
+3. **Lettura attesa:** accuracy cala su ENTRAMBI gli assi (muro in diametro ~3^L +
+   degrado a gap piccolo); il test chiave è la partial-dependence **a diametro
+   fissato**: se l'accuracy varia ancora col gap → il gap aggiunge; se è piatta →
+   era solo diametro. Riportare onestamente, **mai `d*`** (vedi errore 19): mostrare
+   l'evoluzione completa, non un numero singolo.
+4. Aggiornare le tabelle n20/n40 multi-seed (7000/8000, seed4000) e togliere i
+   "[evaluation running]" dalle didascalie quando i dati ci sono.
+
 - **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
-  push`; in locale `git pull` poi `python plot_families.py` (rigenera png). NON
-  lanciare plot_families prima del pull (vedi errore 14).
+  push`; in locale `git pull` poi generare le figure. NON lanciare `plot_families.py`
+  prima del pull (vedi errore 14).
 
 ---
 
