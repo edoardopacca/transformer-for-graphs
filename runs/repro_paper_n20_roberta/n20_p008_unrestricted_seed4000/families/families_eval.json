@@ -1,5 +1,5 @@
 {
-  "checkpoint": "runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed4000//best.pt",
+  "checkpoint": "runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed4000/best.pt",
   "arch": "roberta",
   "readout": "linear",
   "n": 20,
