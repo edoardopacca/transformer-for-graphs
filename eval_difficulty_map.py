@@ -133,7 +133,7 @@ def main():
     eq = (pred == ys)
     offdiag = ~np.eye(n, dtype=bool)[None]
     exact = eq.reshape(ng, -1).all(1).astype(np.float64)
-    pw = (eq & offdiag).reshape(ng, -1).sum(1) / offdiag.reshape(ng, -1).sum(1)
+    pw = (eq & offdiag).reshape(ng, -1).sum(1) / offdiag.sum()
 
     res = {
         "checkpoint": str(args.checkpoint), "arch": arch, "readout": readout,
