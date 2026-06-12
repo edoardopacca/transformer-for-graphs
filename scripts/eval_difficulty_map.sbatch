@@ -35,7 +35,7 @@ for S in 1000 2000 3000 4000 5000 6000 7000 8000; do
 done
 
 # ---- n=40 standard linear (ER-trained family runs) ----
-for S in 1000 2000 3000; do
+for S in 1000 2000 3000 4000; do
   CKPT="runs/families_n40/n40_er_roberta_linear_lam0_seed${S}/last.pt"
   if [ -f "$CKPT" ]; then
     echo "=== n40 seed $S ==="
