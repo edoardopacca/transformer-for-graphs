@@ -221,11 +221,32 @@ attesa dei seed rimanenti + n40 + parallel_paths.
 - HPC alias ssh: `hpc`. Utente: `3352759`. Env conda: **`graph_tf`**.
 - Report: `report/1/` (solo PDF, niente sorgente), `report/2/`, `report/3/`,
   `report/4/transformer_for_graphs_4.tex`. **Compilare dalla cartella del report**
-  (i path figure usano `\graphicspath{{../../}}`; `\includegraphics{runs/...}`).
+  (i path figure usano `\graphicspath{{../../}}`; `\includegraphics{runs/reportN/...}`).
   Due passate di `pdflatex` per i `\ref`/`\part`. Tutti i .tex hanno l'helper
   `\figorbox{path}{width}` (fallback se la figura non è ancora pullata).
 - I checkpoint `.pt` stanno **solo su HPC** (gitignored). I risultati piccoli
   (json/png) sono in `runs/...` e versionati.
+- **Struttura `runs/` (riorganizzata 2026-06-13): tutto è dentro un bucket per
+  report**, per poter controllare i risultati per report:
+  - `runs/report1/` — i primi esperimenti del PDF italiano (baseline, capacity_test,
+    restrict_diameter_dynamics/_pairwise/_sweep, curriculum_diameter_dynamics).
+  - `runs/report2/` — Ch1 n10/n14 (`retrain_er_3352759`, `retrain_2chains/2cliques_…`),
+    Ch2 n40 small (`retrain_er_n40_4853xx`), Ch3 n40 big (`retrain_er_n40_big_{494467,
+    495198,495199,495903}`, `curriculum_er_n40_big_494470`), e gli OOD-eval relativi
+    (`ood_cross_experiment`, `ood_eval_n40_big_495904`, `ood_eval_curriculum_big_…`,
+    `ood_eval_n14_…`, `ood_eval_n40_…`).
+  - `runs/report3/` — repro n20 (`repro_paper_n20`, `repro_paper_n20_roberta`),
+    capacity wall (`exp3_chaincount`, `reach_depth`), round exp2
+    (`retrain_er_n40_big_exp2_4993xx`, `ood_eval_n40_big_exp2_…`).
+  - `runs/report4/` — difficoltà/architettura (`families_n20`, `families_n40`,
+    `difficulty_map`, `laplacian`, `family_gallery`, `report4_figs`).
+  - `runs/extra/` — superato/orfano (`ood_eval_n40_big_495201`, `retrain_er_n20_diam11_…`).
+  - **`n40_cross_experiment` è splittata**: `report2/` ne ha solo `01_convergence.png`
+    e `02_per_distance.png`; il resto (cycles/diagnose/2chains/embed) è in `report3/`.
+  - **Cross-report**: gli script del report 3 leggono i 4 modelli big da
+    `runs/report2/…`; gli script del report 4 leggono `reach_depth` e
+    `repro_paper_n20_roberta` da `runs/report3/…`. I path negli script/`.tex` sono già
+    aggiornati di conseguenza.
 - Memoria persistente: **niente git da Claude**.
 
 **File/script chiave:**
