@@ -3,7 +3,7 @@ files, WITHOUT re-running the GPU eval. Use this to iterate on the plots (e.g. t
 red 'disconnected' bar in the capacity figure) in seconds, locally.
 
     python plot_families.py                       # every families_eval.json under runs/
-    python plot_families.py runs/families_n20      # only under a given root
+    python plot_families.py runs/report4/families_n20      # only under a given root
 """
 from __future__ import annotations
 

@@ -29,15 +29,15 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 python -c "import torch; print('PyTorch', torch.__version__, '| CUDA available:', torch.cuda.is_available())"
 echo "================"
 
-OUT_ROOT="runs/ood_eval_n40_${SLURM_JOB_ID}"
+OUT_ROOT="runs/report2/ood_eval_n40_${SLURM_JOB_ID}"
 mkdir -p "$OUT_ROOT"
 
 # The four ER n=40 checkpoints to evaluate. Update the paths if needed.
 declare -A CHECKPOINTS=(
-    [unfiltered]="runs/retrain_er_n40_485350/n40_p005_unfiltered/best.pt"
-    [diam11]="runs/retrain_er_n40_485352/n40_p005_diam11/best.pt"
-    [diam9]="runs/retrain_er_n40_485351/n40_p005_diam9/best.pt"
-    [diam7]="runs/retrain_er_n40_485353/n40_p005_diam7/best.pt"
+    [unfiltered]="runs/report2/retrain_er_n40_485350/n40_p005_unfiltered/best.pt"
+    [diam11]="runs/report2/retrain_er_n40_485352/n40_p005_diam11/best.pt"
+    [diam9]="runs/report2/retrain_er_n40_485351/n40_p005_diam9/best.pt"
+    [diam7]="runs/report2/retrain_er_n40_485353/n40_p005_diam7/best.pt"
 )
 
 for tag in unfiltered diam11 diam9 diam7; do

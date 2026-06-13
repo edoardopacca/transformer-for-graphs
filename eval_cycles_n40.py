@@ -9,7 +9,7 @@ exact-match accuracy, pairwise accuracy, and per-distance pairwise accuracy on a
 10k-graph test set (random node permutations). Reuses the OOD evaluation
 machinery; checkpoints are the same ones used by eval_2chains_pairwise_per_n_active.py.
 
-Runs locally (CPU / MPS / CUDA). Output: runs/n40_cross_experiment/cycles_*.
+Runs locally (CPU / MPS / CUDA). Output: runs/report3/n40_cross_experiment/cycles_*.
 """
 from __future__ import annotations
 
@@ -40,17 +40,17 @@ from experiments2.ood_evaluation import evaluate, load_model, _per_dist_bar_pane
 CHECKPOINTS_BY_ROUND = {
     # First training round (seed 1000).
     1: {
-        "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
-        "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
-        "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
-        "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+        "unfiltered": "runs/report2/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/report2/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/report2/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/report2/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
     },
     # Second training round, "exp2" (seed 2000).
     2: {
-        "unfiltered": "runs/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
-        "D<=11":      "runs/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
-        "D<=9":       "runs/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
-        "D<=7":       "runs/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
+        "unfiltered": "runs/report3/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/report3/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/report3/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/report3/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
     },
 }
 ORDER = ["unfiltered", "D<=11", "D<=9", "D<=7"]
@@ -59,7 +59,7 @@ KIND_TITLE = {"one_cycle": "1cycle (C_40)", "two_cycles": "2cycle (2 x C_20)"}
 
 N = 40
 N_TEST = 10_000
-OUT_DIR = PROJECT_ROOT / "runs" / "n40_cross_experiment"
+OUT_DIR = PROJECT_ROOT / "runs" / "report3" / "n40_cross_experiment"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

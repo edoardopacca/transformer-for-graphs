@@ -1,0 +1,131 @@
+=== Job info ===
+Node:  gnode12
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True | bf16: True
+================
+
+========================================================================
+  Big ER training: ER(n=40, p=0.05), filter=diam7
+  d_model=512, normalized-ReLU, online data, bf16
+  Output: runs/retrain_er_n40_big_495033/n40_p005_diam7_big
+========================================================================
+
+Generating 10,000 test graphs (D≤7) with 24 workers …
+  done in 3.9s
+  device: cuda
+  parameters: 6,347,304
+  Starting training: 1,000,000 steps × batch 1000 = 1,000,000,000 samples
+  step    5000 | lr=1.00e-04 | loss=0.058136 | exact=0.9774 | pair=0.9999 | 483.1s for 5000 steps
+  step   10000 | lr=1.00e-04 | loss=0.001498 | exact=0.9328 | pair=0.9996 | 482.7s for 5000 steps
+  step   15000 | lr=1.00e-04 | loss=0.000706 | exact=0.8556 | pair=0.9987 | 479.9s for 5000 steps
+  step   20000 | lr=9.99e-05 | loss=0.000440 | exact=0.9977 | pair=1.0000 | 479.8s for 5000 steps
+  step   25000 | lr=9.99e-05 | loss=0.000391 | exact=0.9447 | pair=0.9997 | 482.0s for 5000 steps
+  step   30000 | lr=9.98e-05 | loss=0.000305 | exact=0.9784 | pair=0.9999 | 479.3s for 5000 steps
+  step   35000 | lr=9.97e-05 | loss=0.000252 | exact=0.9990 | pair=1.0000 | 480.8s for 5000 steps
+  step   40000 | lr=9.96e-05 | loss=0.000218 | exact=0.9987 | pair=1.0000 | 481.5s for 5000 steps
+  step   45000 | lr=9.95e-05 | loss=0.000165 | exact=0.9986 | pair=1.0000 | 479.0s for 5000 steps
+  step   50000 | lr=9.94e-05 | loss=0.000219 | exact=0.9974 | pair=1.0000 | 477.7s for 5000 steps
+  step   55000 | lr=9.93e-05 | loss=0.000111 | exact=0.9994 | pair=1.0000 | 483.6s for 5000 steps
+  step   60000 | lr=9.91e-05 | loss=0.000158 | exact=0.9969 | pair=1.0000 | 479.2s for 5000 steps
+  step   65000 | lr=9.90e-05 | loss=0.000140 | exact=0.9847 | pair=1.0000 | 476.0s for 5000 steps
+  step   70000 | lr=9.88e-05 | loss=0.000130 | exact=0.9976 | pair=1.0000 | 477.5s for 5000 steps
+  step   75000 | lr=9.87e-05 | loss=0.000100 | exact=0.9993 | pair=1.0000 | 477.9s for 5000 steps
+  step   80000 | lr=9.85e-05 | loss=0.000112 | exact=0.9986 | pair=1.0000 | 479.1s for 5000 steps
+  step   85000 | lr=9.83e-05 | loss=0.000083 | exact=0.9697 | pair=0.9999 | 478.2s for 5000 steps
+  step   90000 | lr=9.81e-05 | loss=0.000092 | exact=0.9990 | pair=1.0000 | 481.7s for 5000 steps
+  step   95000 | lr=9.78e-05 | loss=0.000076 | exact=0.9896 | pair=1.0000 | 478.5s for 5000 steps
+  step  100000 | lr=9.76e-05 | loss=0.000086 | exact=0.9940 | pair=1.0000 | 478.5s for 5000 steps
+  step  105000 | lr=9.73e-05 | loss=0.000065 | exact=0.9987 | pair=1.0000 | 480.6s for 5000 steps
+  step  110000 | lr=9.71e-05 | loss=0.000067 | exact=0.9869 | pair=1.0000 | 470.1s for 5000 steps
+  step  115000 | lr=9.68e-05 | loss=0.000054 | exact=0.9970 | pair=1.0000 | 468.8s for 5000 steps
+  step  120000 | lr=9.65e-05 | loss=0.000057 | exact=0.9992 | pair=1.0000 | 471.0s for 5000 steps
+  step  125000 | lr=9.62e-05 | loss=0.000057 | exact=0.9872 | pair=1.0000 | 469.9s for 5000 steps
+  step  130000 | lr=9.59e-05 | loss=0.000041 | exact=0.9992 | pair=1.0000 | 469.8s for 5000 steps
+  step  135000 | lr=9.56e-05 | loss=0.000043 | exact=0.9997 | pair=1.0000 | 472.4s for 5000 steps
+  step  140000 | lr=9.53e-05 | loss=0.000049 | exact=0.9996 | pair=1.0000 | 469.5s for 5000 steps
+  step  145000 | lr=9.50e-05 | loss=0.000043 | exact=0.9996 | pair=1.0000 | 469.7s for 5000 steps
+  step  150000 | lr=9.46e-05 | loss=0.000039 | exact=0.9812 | pair=0.9999 | 471.3s for 5000 steps
+  step  155000 | lr=9.43e-05 | loss=0.000039 | exact=0.9992 | pair=1.0000 | 470.3s for 5000 steps
+  step  160000 | lr=9.39e-05 | loss=0.000040 | exact=0.9991 | pair=1.0000 | 472.8s for 5000 steps
+  step  165000 | lr=9.35e-05 | loss=0.000033 | exact=0.9985 | pair=1.0000 | 473.2s for 5000 steps
+  step  170000 | lr=9.31e-05 | loss=0.000033 | exact=0.9997 | pair=1.0000 | 471.7s for 5000 steps
+  step  175000 | lr=9.27e-05 | loss=0.000030 | exact=0.9992 | pair=1.0000 | 471.1s for 5000 steps
+  step  180000 | lr=9.23e-05 | loss=0.000029 | exact=0.9993 | pair=1.0000 | 472.4s for 5000 steps
+  step  185000 | lr=9.19e-05 | loss=0.000020 | exact=0.9988 | pair=1.0000 | 471.2s for 5000 steps
+  step  190000 | lr=9.14e-05 | loss=0.000029 | exact=0.9997 | pair=1.0000 | 472.1s for 5000 steps
+  step  195000 | lr=9.10e-05 | loss=0.000024 | exact=0.9982 | pair=1.0000 | 472.5s for 5000 steps
+  step  200000 | lr=9.05e-05 | loss=0.000023 | exact=0.9998 | pair=1.0000 | 470.2s for 5000 steps
+  step  205000 | lr=9.01e-05 | loss=0.000024 | exact=0.9948 | pair=1.0000 | 470.7s for 5000 steps
+  step  210000 | lr=8.96e-05 | loss=0.000025 | exact=0.9997 | pair=1.0000 | 472.6s for 5000 steps
+  step  215000 | lr=8.91e-05 | loss=0.000020 | exact=0.9998 | pair=1.0000 | 471.0s for 5000 steps
+  step  220000 | lr=8.86e-05 | loss=0.000024 | exact=0.9996 | pair=1.0000 | 469.9s for 5000 steps
+  step  225000 | lr=8.81e-05 | loss=0.000021 | exact=0.9990 | pair=1.0000 | 473.0s for 5000 steps
+  step  230000 | lr=8.76e-05 | loss=0.000019 | exact=0.9996 | pair=1.0000 | 471.1s for 5000 steps
+  step  235000 | lr=8.71e-05 | loss=0.000023 | exact=0.9981 | pair=1.0000 | 471.0s for 5000 steps
+  step  240000 | lr=8.65e-05 | loss=0.000015 | exact=0.9922 | pair=1.0000 | 473.4s for 5000 steps
+  step  245000 | lr=8.60e-05 | loss=0.000020 | exact=0.9996 | pair=1.0000 | 471.0s for 5000 steps
+  step  250000 | lr=8.54e-05 | loss=0.000017 | exact=0.9994 | pair=1.0000 | 471.3s for 5000 steps
+  step  255000 | lr=8.49e-05 | loss=0.000015 | exact=0.9954 | pair=1.0000 | 472.8s for 5000 steps
+  step  260000 | lr=8.43e-05 | loss=0.000019 | exact=0.9991 | pair=1.0000 | 472.4s for 5000 steps
+  step  265000 | lr=8.37e-05 | loss=0.000012 | exact=0.9996 | pair=1.0000 | 471.8s for 5000 steps
+  step  270000 | lr=8.32e-05 | loss=0.000017 | exact=0.9999 | pair=1.0000 | 473.5s for 5000 steps
+  step  275000 | lr=8.26e-05 | loss=0.000012 | exact=0.9999 | pair=1.0000 | 471.8s for 5000 steps
+  step  280000 | lr=8.20e-05 | loss=0.000016 | exact=0.9995 | pair=1.0000 | 471.6s for 5000 steps
+  step  285000 | lr=8.13e-05 | loss=0.000017 | exact=0.9975 | pair=1.0000 | 475.0s for 5000 steps
+  step  290000 | lr=8.07e-05 | loss=0.000015 | exact=0.9994 | pair=1.0000 | 471.3s for 5000 steps
+  step  295000 | lr=8.01e-05 | loss=0.000014 | exact=0.9996 | pair=1.0000 | 471.7s for 5000 steps
+  step  300000 | lr=7.95e-05 | loss=0.000010 | exact=0.9998 | pair=1.0000 | 473.1s for 5000 steps
+  step  305000 | lr=7.88e-05 | loss=0.000012 | exact=0.9964 | pair=1.0000 | 472.1s for 5000 steps
+  step  310000 | lr=7.82e-05 | loss=0.000011 | exact=0.9996 | pair=1.0000 | 471.1s for 5000 steps
+  step  315000 | lr=7.75e-05 | loss=0.000010 | exact=0.9988 | pair=1.0000 | 472.3s for 5000 steps
+  step  320000 | lr=7.69e-05 | loss=0.000013 | exact=0.9999 | pair=1.0000 | 471.7s for 5000 steps
+  step  325000 | lr=7.62e-05 | loss=0.000011 | exact=0.9996 | pair=1.0000 | 471.4s for 5000 steps
+  step  330000 | lr=7.55e-05 | loss=0.000011 | exact=0.9997 | pair=1.0000 | 472.8s for 5000 steps
+  step  335000 | lr=7.49e-05 | loss=0.000011 | exact=1.0000 | pair=1.0000 | 470.6s for 5000 steps
+  step  340000 | lr=7.42e-05 | loss=0.000007 | exact=0.9992 | pair=1.0000 | 469.0s for 5000 steps
+  step  345000 | lr=7.35e-05 | loss=0.000010 | exact=0.9997 | pair=1.0000 | 472.0s for 5000 steps
+  step  350000 | lr=7.28e-05 | loss=0.000007 | exact=0.9997 | pair=1.0000 | 468.7s for 5000 steps
+  step  355000 | lr=7.21e-05 | loss=0.000007 | exact=0.9997 | pair=1.0000 | 468.2s for 5000 steps
+  step  360000 | lr=7.14e-05 | loss=0.000008 | exact=1.0000 | pair=1.0000 | 471.8s for 5000 steps
+  step  365000 | lr=7.07e-05 | loss=0.000008 | exact=1.0000 | pair=1.0000 | 468.9s for 5000 steps
+  step  370000 | lr=6.99e-05 | loss=0.000006 | exact=0.9959 | pair=1.0000 | 468.4s for 5000 steps
+  step  375000 | lr=6.92e-05 | loss=0.000009 | exact=0.9996 | pair=1.0000 | 471.2s for 5000 steps
+  step  380000 | lr=6.85e-05 | loss=0.000004 | exact=0.9999 | pair=1.0000 | 468.7s for 5000 steps
+  step  385000 | lr=6.78e-05 | loss=0.000011 | exact=0.9996 | pair=1.0000 | 469.8s for 5000 steps
+  step  390000 | lr=6.70e-05 | loss=0.000005 | exact=0.9996 | pair=1.0000 | 469.8s for 5000 steps
+  step  395000 | lr=6.63e-05 | loss=0.000007 | exact=1.0000 | pair=1.0000 | 469.9s for 5000 steps
+  step  400000 | lr=6.55e-05 | loss=0.000009 | exact=0.9998 | pair=1.0000 | 470.5s for 5000 steps
+  step  405000 | lr=6.48e-05 | loss=0.000003 | exact=0.9995 | pair=1.0000 | 471.6s for 5000 steps
+  step  410000 | lr=6.40e-05 | loss=0.000005 | exact=0.9998 | pair=1.0000 | 469.3s for 5000 steps
+  step  415000 | lr=6.33e-05 | loss=0.000004 | exact=0.9996 | pair=1.0000 | 471.1s for 5000 steps
+  step  420000 | lr=6.25e-05 | loss=0.000003 | exact=0.9979 | pair=1.0000 | 471.9s for 5000 steps
+  step  425000 | lr=6.18e-05 | loss=0.000008 | exact=0.9999 | pair=1.0000 | 469.2s for 5000 steps
+  step  430000 | lr=6.10e-05 | loss=0.000004 | exact=0.9999 | pair=1.0000 | 470.7s for 5000 steps
+  step  435000 | lr=6.02e-05 | loss=0.000006 | exact=1.0000 | pair=1.0000 | 469.5s for 5000 steps
+  step  440000 | lr=5.95e-05 | loss=0.000002 | exact=1.0000 | pair=1.0000 | 470.5s for 5000 steps
+  step  445000 | lr=5.87e-05 | loss=0.000005 | exact=0.9991 | pair=1.0000 | 468.6s for 5000 steps
+  step  450000 | lr=5.79e-05 | loss=0.000003 | exact=0.9998 | pair=1.0000 | 472.1s for 5000 steps
+  step  455000 | lr=5.71e-05 | loss=0.000005 | exact=0.9988 | pair=1.0000 | 470.2s for 5000 steps
+  step  460000 | lr=5.64e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 469.1s for 5000 steps
+  step  465000 | lr=5.56e-05 | loss=0.000005 | exact=0.9987 | pair=1.0000 | 471.3s for 5000 steps
+  step  470000 | lr=5.48e-05 | loss=0.000004 | exact=0.9999 | pair=1.0000 | 469.5s for 5000 steps
+  step  475000 | lr=5.40e-05 | loss=0.000002 | exact=1.0000 | pair=1.0000 | 470.5s for 5000 steps
+  step  480000 | lr=5.32e-05 | loss=0.000004 | exact=0.9999 | pair=1.0000 | 472.8s for 5000 steps
+  step  485000 | lr=5.24e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 469.7s for 5000 steps
+  step  490000 | lr=5.17e-05 | loss=0.000003 | exact=1.0000 | pair=1.0000 | 469.5s for 5000 steps
+  step  495000 | lr=5.09e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 471.7s for 5000 steps
+  step  500000 | lr=5.01e-05 | loss=0.000003 | exact=1.0000 | pair=1.0000 | 469.3s for 5000 steps
+  step  505000 | lr=4.93e-05 | loss=0.000002 | exact=0.9996 | pair=1.0000 | 469.8s for 5000 steps
+  step  510000 | lr=4.85e-05 | loss=0.000001 | exact=0.9999 | pair=1.0000 | 470.8s for 5000 steps
+  step  515000 | lr=4.77e-05 | loss=0.000002 | exact=1.0000 | pair=1.0000 | 470.8s for 5000 steps
+  step  520000 | lr=4.69e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 469.9s for 5000 steps
+  step  525000 | lr=4.62e-05 | loss=0.000002 | exact=1.0000 | pair=1.0000 | 469.7s for 5000 steps
+  step  530000 | lr=4.54e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 469.9s for 5000 steps
+  step  535000 | lr=4.46e-05 | loss=0.000001 | exact=1.0000 | pair=1.0000 | 469.8s for 5000 steps
+  step  540000 | lr=4.38e-05 | loss=0.000003 | exact=1.0000 | pair=1.0000 | 470.8s for 5000 steps
+  step  545000 | lr=4.30e-05 | loss=0.000001 | exact=1.0000 | pair=1.0000 | 469.5s for 5000 steps
+  step  550000 | lr=4.22e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 469.6s for 5000 steps
+  step  555000 | lr=4.15e-05 | loss=0.000002 | exact=0.9999 | pair=1.0000 | 472.0s for 5000 steps
+  step  560000 | lr=4.07e-05 | loss=0.000001 | exact=1.0000 | pair=1.0000 | 470.1s for 5000 steps
+  step  565000 | lr=3.99e-05 | loss=0.000001 | exact=1.0000 | pair=1.0000 | 468.6s for 5000 steps
+  step  570000 | lr=3.92e-05 | loss=0.000001 | exact=0.9999 | pair=1.0000 | 471.2s for 5000 steps

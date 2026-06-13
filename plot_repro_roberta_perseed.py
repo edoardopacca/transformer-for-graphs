@@ -5,7 +5,7 @@ Draws every seed as its own line (no mean, no band): for a bimodal outcome
 Seeds are discovered automatically from the run directories, so this picks up
 the full sweep (8 seeds/condition) once all runs have a history.json.
 
-Outputs into runs/repro_paper_n20_roberta/:
+Outputs into runs/report3/repro_paper_n20_roberta/:
   fig1_perseed.png   - unrestricted: small multiples, one panel per seed
                        (ER / 2Chain / 2Clique exact match vs step).
   fig7_perseed.png   - 2Chain exact match, one line per seed, colour by condition.
@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-RUNS = Path("runs/repro_paper_n20_roberta")
+RUNS = Path("runs/report3/repro_paper_n20_roberta")
 CONDS = [("unrestricted", "Unrestricted", "#ff7f0e"),
          ("diam9", "Restrict D≤9", "#1f77b4")]
 DIR_RE = re.compile(r"n\d+_p\d+_(?P<cond>unrestricted|diam9)_seed(?P<seed>\d+)$")

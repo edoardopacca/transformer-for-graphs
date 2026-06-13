@@ -29,11 +29,11 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cuda.is_available())"
 echo "================"
 
-OUT_ROOT="runs/ood_eval_n40_big_${SLURM_JOB_ID}"
+OUT_ROOT="runs/report2/ood_eval_n40_big_${SLURM_JOB_ID}"
 mkdir -p "$OUT_ROOT"
 
 # Auto-detect the most recent big checkpoint for each variant.
-# The training script writes:  runs/retrain_er_n40_big_<JOBID>/n40_p005_<tag>_big/best.pt
+# The training script writes:  runs/report2/retrain_er_n40_big_<JOBID>/n40_p005_<tag>_big/best.pt
 for tag in unfiltered diam11 diam9 diam7; do
     case "$tag" in
         unfiltered) subdir="n40_p005_unfiltered_big" ;;
@@ -43,10 +43,10 @@ for tag in unfiltered diam11 diam9 diam7; do
     esac
 
     # Most recent JOBID directory containing this variant
-    ckpt=$(ls -1dt runs/retrain_er_n40_big_*/${subdir}/best.pt 2>/dev/null | head -n 1)
+    ckpt=$(ls -1dt runs/report2/retrain_er_n40_big_*/${subdir}/best.pt 2>/dev/null | head -n 1)
     if [ -z "$ckpt" ] || [ ! -f "$ckpt" ]; then
         echo ""
-        echo "!!! SKIP $tag: no checkpoint found at runs/retrain_er_n40_big_*/${subdir}/best.pt"
+        echo "!!! SKIP $tag: no checkpoint found at runs/report2/retrain_er_n40_big_*/${subdir}/best.pt"
         continue
     fi
     echo ""

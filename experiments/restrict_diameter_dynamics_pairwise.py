@@ -34,7 +34,7 @@ def main() -> None:
 
     diameters: list[int | None] = [None, 7, 9, 11]
 
-    out_runs = PROJECT_ROOT / "runs" / "restrict_diameter_dynamics_pairwise"
+    out_runs = PROJECT_ROOT / "runs" / "report1" / "restrict_diameter_dynamics_pairwise"
     ensure_dir(out_runs)
 
     aggregated: dict[str, Any] = {}

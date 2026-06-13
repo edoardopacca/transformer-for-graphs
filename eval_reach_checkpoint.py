@@ -5,11 +5,11 @@ The depth->reach jobs that hit the SLURM time limit never wrote history.json
 L=3 and L=4 had already converged to exact=1.0, so we just need to *evaluate*
 their checkpoints; L=1 already completed and L=2 plateaued at its capacity.
 
-For each runs/reach_depth/*/last.pt this loads the model, rebuilds the
+For each runs/report3/reach_depth/*/last.pt this loads the model, rebuilds the
 path-union test set, recomputes d* and per-distance reach, and writes a
 history.json compatible with plot_reach_law.py. Run on HPC (GPU + checkpoints).
 
-    python eval_reach_checkpoint.py [--runs_dir runs/reach_depth] [--num_workers 8]
+    python eval_reach_checkpoint.py [--runs_dir runs/report3/reach_depth] [--num_workers 8]
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def load_model(ckpt_path: str, device):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", type=str, default="runs/reach_depth")
+    ap.add_argument("--runs_dir", type=str, default="runs/report3/reach_depth")
     ap.add_argument("--num_workers", type=int, default=8)
     args = ap.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available()

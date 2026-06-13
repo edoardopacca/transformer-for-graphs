@@ -1,0 +1,11 @@
+=== Partial OOD eval ===
+Checkpoint: runs/retrain_er_n40_big_494127/n40_p005_unfiltered_big/last.pt
+Step:       1000000
+Node:       gnode12
+NVIDIA H200 NVL
+========================
+Loaded n=40 model from runs/retrain_er_n40_big_494127/n40_p005_unfiltered_big/last.pt
+
+── Test: 2chains, n_active ∈ [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40], padded to 40, 10,000 graphs ──
+
+Done. Output in runs/ood_partial_unfilt_step1000000_494365

@@ -1,6 +1,6 @@
 """Generalisation-rate analysis for the RoBERTa-faithful n=20 reproduction.
 
-Aggregates every seed in runs/repro_paper_n20_roberta/ and, for each condition
+Aggregates every seed in runs/report3/repro_paper_n20_roberta/ and, for each condition
 (unrestricted vs restricted D<=9), reports the fraction of seeds that recover a
 generalising solution, with 95% Wilson confidence intervals. A "success" is
 defined a priori as final exact-match accuracy > THRESHOLD on the OOD family.
@@ -11,7 +11,7 @@ unrestricted one, the data lever helps; if the intervals overlap heavily, the
 clean separation is not distinguishable from seed luck at this sample size.
 
 Usage:
-    python plot_repro_rate.py [--runs_dir runs/repro_paper_n20_roberta]
+    python plot_repro_rate.py [--runs_dir runs/report3/repro_paper_n20_roberta]
                               [--threshold 0.5]
 """
 from __future__ import annotations
@@ -43,7 +43,7 @@ def wilson(k: int, n: int, z: float = 1.96):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", type=str, default="runs/repro_paper_n20_roberta")
+    ap.add_argument("--runs_dir", type=str, default="runs/report3/repro_paper_n20_roberta")
     ap.add_argument("--threshold", type=float, default=0.5,
                     help="a-priori success threshold on final OOD exact match")
     args = ap.parse_args()
@@ -115,6 +115,23 @@ def main() -> None:
     json.dump({c: {f: summary[c][f] for f in families} for c in conds},
               (runs_dir / "generalisation_rate.json").open("w"), indent=2)
     print(f"saved data:   {runs_dir / 'generalisation_rate.json'}")
+
+    # ── LaTeX table (booktabs) for the report ──
+    lab = {"2chain": "2Chain", "2clique": "2Clique", "any": "either OOD"}
+    lines = [r"\begin{tabular}{lccc}", r"\toprule",
+             r"Condition & " + " & ".join(lab[f] for f in families) + r" \\",
+             r"\midrule"]
+    for cond in conds:
+        cells = []
+        for f in families:
+            k, n, p, lo, hi = summary[cond][f]
+            cells.append(f"{k}/{n} ({p:.2f}) [{lo:.2f}, {hi:.2f}]")
+        lines.append(f"{COND_LABEL[cond]} & " + " & ".join(cells) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    tex = "\n".join(lines)
+    (runs_dir / "generalisation_rate.tex").write_text(tex + "\n")
+    print(f"saved table:  {runs_dir / 'generalisation_rate.tex'}\n")
+    print(tex)
 
 
 if __name__ == "__main__":

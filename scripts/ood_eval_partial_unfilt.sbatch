@@ -22,7 +22,7 @@ conda activate graph_tf
 
 # Auto-trova il checkpoint last.pt più recente dell'unfiltered big training
 # (mentre il training continua a riscriverlo ogni 5k step).
-CKPT=$(ls -1dt runs/retrain_er_n40_big_*/n40_p005_unfiltered_big/last.pt 2>/dev/null | head -n 1)
+CKPT=$(ls -1dt runs/report2/retrain_er_n40_big_*/n40_p005_unfiltered_big/last.pt 2>/dev/null | head -n 1)
 if [ -z "$CKPT" ] || [ ! -f "$CKPT" ]; then
     echo "ERROR: no unfiltered big checkpoint found"
     exit 1
@@ -38,7 +38,7 @@ echo "Node:       $(hostname)"
 nvidia-smi --query-gpu=name --format=csv,noheader
 echo "========================"
 
-OUT_DIR="runs/ood_partial_unfilt_step${STEP}_${SLURM_JOB_ID}"
+OUT_DIR="runs/report2/ood_partial_unfilt_step${STEP}_${SLURM_JOB_ID}"
 
 python experiments2/ood_evaluation.py \
     --mode n40_to_structured \

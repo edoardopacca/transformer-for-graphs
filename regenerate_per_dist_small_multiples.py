@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path("/Users/edoardopaccagnella/transformer-for-graphs/runs")
+ROOT = Path("/Users/edoardopaccagnella/transformer-for-graphs/runs/report2")
 
 # (history_path, output_png_name, title)
 TARGETS: List[Tuple[Path, str, str]] = [

@@ -1,6 +1,6 @@
 """Per-distance reachability of the depth-sweep models (run on HPC: GPU + last.pt).
 
-For each runs/reach_depth/*/last.pt this rebuilds the path-union test set and
+For each runs/report3/reach_depth/*/last.pt this rebuilds the path-union test set and
 computes, per shortest-path distance d, the fraction of within-component pairs
 predicted connected ("reach at d") together with the number of such pairs, plus
 the in-distribution (path-union) exact-match accuracy. It writes a per-run
@@ -8,7 +8,7 @@ reach_by_distance.json and a single combined figure with one panel per depth L
 (reach vs d, pair counts above the bars) --- the analogue of the 2Chain/2Clique
 per-distance figures, which is far more informative than a single d* number.
 
-    python eval_reach_by_distance.py [--runs_dir runs/reach_depth] [--num_workers 8]
+    python eval_reach_by_distance.py [--runs_dir runs/report3/reach_depth] [--num_workers 8]
 """
 from __future__ import annotations
 
@@ -66,7 +66,7 @@ def per_distance(model, tx, ty, td, device, batch=256):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", type=str, default="runs/reach_depth")
+    ap.add_argument("--runs_dir", type=str, default="runs/report3/reach_depth")
     ap.add_argument("--num_workers", type=int, default=8)
     args = ap.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available()

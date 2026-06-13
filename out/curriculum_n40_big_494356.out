@@ -1,0 +1,13 @@
+=== Job info ===
+Node:  gnode12
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True | bf16: True
+================
+
+========================================================================
+  Big ER curriculum: ER(n=40, p=0.05), 4 phases (D≤7→9→10→11)
+  d_model=512, normalized-ReLU, online data, bf16
+  Output: runs/curriculum_er_n40_big_494356/n40_p005_curriculum_big
+========================================================================
+
+Generating 10,000 test graphs (D≤11) with 32 workers …

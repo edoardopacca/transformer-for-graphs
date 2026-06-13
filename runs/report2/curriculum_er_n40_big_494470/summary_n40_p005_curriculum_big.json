@@ -1,0 +1,65 @@
+{
+  "best_exact_match": 0.9998,
+  "config": {
+    "attn_kind": "normalized_relu",
+    "batch_size": 1000,
+    "d_ff": 2048,
+    "d_model": 512,
+    "device": "auto",
+    "dropout": 0.0,
+    "eval_every": 5000,
+    "grad_clip_norm": 1.0,
+    "lr": 0.0001,
+    "n": 40,
+    "n_heads": 4,
+    "n_layers": 2,
+    "num_workers": 32,
+    "p": 0.05,
+    "save_best": true,
+    "save_last": true,
+    "train_steps": 1000000,
+    "warmup_steps": 1000,
+    "weight_decay": 0.0001
+  },
+  "phase_transitions": [
+    {
+      "from_phase": "phase1_d7",
+      "reason": "loss",
+      "recent_losses": [
+        0.0011383417047691182,
+        0.0007059544325958996,
+        0.00040918207418471866
+      ],
+      "step": 20000,
+      "steps_in_old": 20000,
+      "to_max_diam": 9,
+      "to_phase": "phase2_d9"
+    },
+    {
+      "from_phase": "phase2_d9",
+      "reason": "loss",
+      "recent_losses": [
+        0.0007059544325958996,
+        0.00040918207418471866,
+        0.0021844831343740224
+      ],
+      "step": 25000,
+      "steps_in_old": 5000,
+      "to_max_diam": 10,
+      "to_phase": "phase3_d10"
+    },
+    {
+      "from_phase": "phase3_d10",
+      "reason": "loss",
+      "recent_losses": [
+        0.00040918207418471866,
+        0.0021844831343740224,
+        0.0017615092259075026
+      ],
+      "step": 30000,
+      "steps_in_old": 5000,
+      "to_max_diam": 11,
+      "to_phase": "phase4_d11"
+    }
+  ]
+}

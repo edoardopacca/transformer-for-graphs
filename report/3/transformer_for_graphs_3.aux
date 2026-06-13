@@ -1,0 +1,107 @@
+\relax 
+\providecommand \babel@aux [2]{\global \let \babel@toc \@gobbletwo }
+\@nameuse{bbl@beforestart}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\babel@aux{english}{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Part~I --- the data lever.}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Part~II --- the capacity wall.}{1}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Model and task}{1}{section.2}\protected@file@percent }
+\newlabel{sec:model}{{2}{1}{Model and task}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Large $n = 40$ connectivity models}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Component classifier}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Depth-sweep reach models}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {part}{I\hspace  {1em}The data lever: does training on restricted data help?}{2}{part.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Reproducing the paper's standard-transformer experiment ($n = 20$)}{2}{section.3}\protected@file@percent }
+\newlabel{sec:repro}{{3}{2}{Reproducing the paper's standard-transformer experiment ($n = 20$)}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Setup}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Goal.}{2}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Architecture.}{2}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training and test distributions.}{3}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What ``seed'' controls.}{3}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}The A.1-style model: Figure~1 reproduces, the data lever does not}{3}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Reproduction with the minimal (clean A.1-style) architecture: exact-match accuracy at the end of training (3 seeds). In distribution every run is perfect; both OOD families stay near zero, \emph  {including} the diameter-restricted runs. (For reference, 2Chain pairwise accuracy is $\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}}{3}{table.caption.10}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:repro-min}{{1}{3}{Reproduction with the minimal (clean A.1-style) architecture: exact-match accuracy at the end of training (3 seeds). In distribution every run is perfect; both OOD families stay near zero, \emph {including} the diameter-restricted runs. (For reference, 2Chain pairwise accuracy is $\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}{table.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\ training step for the unrestricted model on ER (in-distribution), 2Chain and 2Clique. In distribution the model is perfect; the two OOD families stay near zero --- the failure-to-generalise of the paper's Figure~1.}}{3}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:repro-fig1}{{1}{3}{A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\^^Mtraining step for the unrestricted model on ER (in-distribution), 2Chain and 2Clique. In distribution the model is perfect; the two OOD families stay near zero --- the failure-to-generalise of the paper's Figure~1}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the table and figure show.}{3}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}The RoBERTa-faithful model: the algorithmic solution appears, but the seed decides}{4}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:repro-rob}{{3.3}{4}{The RoBERTa-faithful model: the algorithmic solution appears, but the seed decides}{subsection.3.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces RoBERTa-faithful reproduction: final exact-match accuracy, all $8$ seeds per condition. Bold marks runs that ``generalise'' (exact $> 0.5$) on a family. The outcome is bimodal per seed: a run either recovers a strong generalising solution or stays at zero, with little in between, in \emph  {both} conditions.}}{4}{table.caption.13}\protected@file@percent }
+\newlabel{tab:repro-rob}{{2}{4}{RoBERTa-faithful reproduction: final exact-match accuracy, all $8$ seeds per condition. Bold marks runs that ``generalise'' (exact $> 0.5$) on a family. The outcome is bimodal per seed: a run either recovers a strong generalising solution or stays at zero, with little in between, in \emph {both} conditions}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {paragraph}{One favourable seed looks exactly like the paper.}{4}{section*.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Restricted ($D \le 9$, blue) vs.\ unrestricted (orange) training curves for the \emph  {same} seed, RoBERTa-faithful, $n = 20$. Rows: OOD exact-match on 2Chain (top) and 2Clique (bottom); columns: seeds $1000$, $6000$, $7000$. \textbf  {seed 6000:} restriction lifts both families while unrestricted lags --- exactly the paper's Figure~7/11. \textbf  {seed 7000:} reversed --- the unrestricted model generalises and the restricted one stays at zero, i.e.\ the lever \emph  {hurts}. \textbf  {seed 1000:} mixed. Whether the data lever helps is decided by the seed, not by the filter.}}{5}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:seed-examples}{{2}{5}{Restricted ($D \le 9$, blue) vs.\ unrestricted (orange) training curves for the \emph {same} seed, RoBERTa-faithful, $n = 20$. Rows: OOD exact-match on 2Chain (top) and 2Clique (bottom); columns: seeds $1000$, $6000$, $7000$. \textbf {seed 6000:} restriction lifts both families while unrestricted lags --- exactly the paper's Figure~7/11. \textbf {seed 7000:} reversed --- the unrestricted model generalises and the restricted one stays at zero, i.e.\ the lever \emph {hurts}. \textbf {seed 1000:} mixed. Whether the data lever helps is decided by the seed, not by the filter}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {paragraph}{The seed, not the filter, is the dominant axis of variation.}{5}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conclusion of Part~I.}{5}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {part}{II\hspace  {1em}The capacity wall: how far can the model reach?}{5}{part.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Cycle graphs: connection vs.\ disconnection}{6}{section.4}\protected@file@percent }
+\newlabel{sec:cycles}{{4}{6}{Cycle graphs: connection vs.\ disconnection}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Setup}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Models.}{6}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Test distributions.}{6}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Results}{6}{subsection.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Exact-match and pairwise accuracy of the four $n = 40$ models on the two cycle test sets ($10{,}000$ graphs each, $n_{\text  {active}} = 40$). Bold marks the best model in each column.}}{6}{table.caption.20}\protected@file@percent }
+\newlabel{tab:cycles}{{3}{6}{Exact-match and pairwise accuracy of the four $n = 40$ models on the two cycle test sets ($10{,}000$ graphs each, $n_{\text {active}} = 40$). Bold marks the best model in each column}{table.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Per-distance pairwise accuracy on the cycle test sets. Rows: 1cycle (top) and 2cycle (bottom); columns: the four diameter-controlled models. The number above each bar is the count of test pairs at that distance; the red bar is the ``disconnected'' (across-component) bin.}}{7}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:cycles}{{3}{7}{Per-distance pairwise accuracy on the cycle test sets. Rows: 1cycle (top) and 2cycle (bottom); columns: the four diameter-controlled models. The number above each bar is the count of test pairs at that distance; the red bar is the ``disconnected'' (across-component) bin}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the table and figure show.}{7}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Second training round (exp2)}{7}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:cycles-exp2}{{4.3}{7}{Second training round (exp2)}{subsection.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Cycle test for the \emph  {second} (exp2) training round. Same protocol as Table~\ref {tab:cycles}. Bold marks the best model in each column.}}{7}{table.caption.23}\protected@file@percent }
+\newlabel{tab:cycles-exp2}{{4}{7}{Cycle test for the \emph {second} (exp2) training round. Same protocol as Table~\ref {tab:cycles}. Bold marks the best model in each column}{table.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Per-distance pairwise accuracy on the cycle test sets for the exp2 round (rows: 1cycle, 2cycle; columns: the four models).}}{8}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:cycles-exp2}{{4}{8}{Per-distance pairwise accuracy on the cycle test sets for the exp2 round (rows: 1cycle, 2cycle; columns: the four models)}{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the second round shows.}{8}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Where the 2-chain error lives}{8}{section.5}\protected@file@percent }
+\newlabel{sec:pairwise}{{5}{8}{Where the 2-chain error lives}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Setup}{8}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Models.}{8}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Test distribution.}{8}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Results}{9}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$, split by target class and within-component distance. ``pred-conn.\ rate'' is the fraction of off-diagonal pairs predicted connected. Bold marks the best model per column.}}{9}{table.caption.28}\protected@file@percent }
+\newlabel{tab:pairwise}{{5}{9}{Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$, split by target class and within-component distance. ``pred-conn.\ rate'' is the fraction of off-diagonal pairs predicted connected. Bold marks the best model per column}{table.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the four models. The dashed red line marks the capacity $3^L = 9$; the dotted red line is the across-component (disconnected) accuracy. Accuracy is near perfect up to $d = 9$ and collapses beyond it.}}{9}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:diagnose}{{5}{9}{Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the four models. The dashed red line marks the capacity $3^L = 9$; the dotted red line is the across-component (disconnected) accuracy. Accuracy is near perfect up to $d = 9$ and collapses beyond it}{figure.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 2-chains pairwise accuracy as a function of $n_{\text  {active}}$ (left: on the active block; right: on the full $40 \times 40$ canvas). The accuracy stays high even where exact match is already $0$.}}{9}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:byn}{{6}{9}{2-chains pairwise accuracy as a function of $n_{\text {active}}$ (left: on the active block; right: on the full $40 \times 40$ canvas). The accuracy stays high even where exact match is already $0$}{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the table and figures show.}{9}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Second training round (exp2)}{10}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:pairwise-exp2}{{5.3}{10}{Second training round (exp2)}{subsection.5.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$ for the exp2 training round, split as in Table~\ref {tab:pairwise}. Bold marks the best model per column.}}{10}{table.caption.32}\protected@file@percent }
+\newlabel{tab:pairwise-exp2}{{6}{10}{Off-diagonal pairwise accuracy on 2-chains $(n = 40, k = 20)$ for the exp2 training round, split as in Table~\ref {tab:pairwise}. Bold marks the best model per column}{table.caption.32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the exp2 round. Dashed red line: capacity $3^L = 9$; dotted red line: across-component accuracy.}}{10}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:diagnose-exp2}{{7}{10}{Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the exp2 round. Dashed red line: capacity $3^L = 9$; dotted red line: across-component accuracy}{figure.caption.33}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the second round shows.}{10}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Counting components: 1-chain vs.\ 2-chain}{10}{section.6}\protected@file@percent }
+\newlabel{sec:count}{{6}{10}{Counting components: 1-chain vs.\ 2-chain}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Setup}{10}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Task.}{10}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Architecture.}{10}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training and test distributions.}{10}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Results}{11}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces 1-chain vs.\ 2-chain classification at $n = 40$. Both seeds reach $100\%$ balanced accuracy at the first evaluation ($2{,}000$ steps).}}{11}{table.caption.38}\protected@file@percent }
+\newlabel{tab:count}{{7}{11}{1-chain vs.\ 2-chain classification at $n = 40$. Both seeds reach $100\%$ balanced accuracy at the first evaluation ($2{,}000$ steps)}{table.caption.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Balanced classification accuracy vs.\ training step for the two iterations (overall, and per class). The dashed line is chance ($0.5$).}}{11}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:count}{{8}{11}{Balanced classification accuracy vs.\ training step for the two iterations (overall, and per class). The dashed line is chance ($0.5$)}{figure.caption.39}{}}
+\@writefile{toc}{\contentsline {paragraph}{What the table and figures show.}{11}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Depth controls reach: is the wall at $3^L$?}{11}{section.7}\protected@file@percent }
+\newlabel{sec:reach}{{7}{11}{Depth controls reach: is the wall at $3^L$?}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Setup}{11}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Question.}{11}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training distribution (``path-union'', $n = 64$).}{11}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Model.}{12}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Metric.}{12}{section*.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Results}{12}{subsection.7.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Depth sweep ($n = 64$, path-union). The exact-reach threshold (pairwise $\ge 0.99$) sits at \emph  {exactly} $3^L$ for $L = 1, 2$; just past it reach degrades to a partial floor ($\sim 0.8$--$0.9$), not zero. $L \ge 3$ resolves every distance present and is exact.}}{12}{table.caption.45}\protected@file@percent }
+\newlabel{tab:reach}{{8}{12}{Depth sweep ($n = 64$, path-union). The exact-reach threshold (pairwise $\ge 0.99$) sits at \emph {exactly} $3^L$ for $L = 1, 2$; just past it reach degrades to a partial floor ($\sim 0.8$--$0.9$), not zero. $L \ge 3$ resolves every distance present and is exact}{table.caption.45}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Pairwise accuracy on within-component pairs vs.\ shortest-path distance $d$, one panel per depth $L$ (test-pair counts above the bars; the red line marks $3^L$). Reach is flat at $1.0$ up to $3^L$, drops sharply at $3^L{+}1$ for $L = 1, 2$, and stays near-perfect across the whole range for $L = 3, 4$.}}{12}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:reach-by-distance}{{9}{12}{Pairwise accuracy on within-component pairs vs.\ shortest-path distance $d$, one panel per depth $L$ (test-pair counts above the bars; the red line marks $3^L$). Reach is flat at $1.0$ up to $3^L$, drops sharply at $3^L{+}1$ for $L = 1, 2$, and stays near-perfect across the whole range for $L = 3, 4$}{figure.caption.46}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this shows.}{12}{section*.47}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Caveat (the high-$L$ behaviour).}{13}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Takeaway and outlook}{13}{section.8}\protected@file@percent }
+\gdef \@abspage@last{13}

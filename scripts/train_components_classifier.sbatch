@@ -35,7 +35,7 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cu
 echo "================"
 
 python experiments2/train_components_classifier.py \
-    --output_root "runs/exp3_chaincount" \
+    --output_root "runs/report3/exp3_chaincount" \
     --num_workers 16 \
     --train_steps 200000 \
     --batch_size 1000 \

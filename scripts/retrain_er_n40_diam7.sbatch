@@ -32,6 +32,6 @@ echo "================"
 # D<=7: acceptance ~14% → rejection sampling generates ~43M candidates
 # With 60 workers this takes ~15 min
 python experiments2/retrain_and_test_er_n40.py \
-    --output_root "runs/retrain_er_n40_${SLURM_JOB_ID}" \
+    --output_root "runs/report2/retrain_er_n40_${SLURM_JOB_ID}" \
     --max_diameter 7 \
     --num_workers 16

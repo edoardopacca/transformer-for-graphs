@@ -32,5 +32,5 @@ python -c "import torch; print('PyTorch', torch.__version__); print('CUDA availa
 echo "================"
 
 python experiments2/retrain_and_test_er_n40.py \
-    --output_root "runs/retrain_er_n40_${SLURM_JOB_ID}" \
+    --output_root "runs/report2/retrain_er_n40_${SLURM_JOB_ID}" \
     --num_workers 16

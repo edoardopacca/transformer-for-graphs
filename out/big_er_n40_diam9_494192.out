@@ -1,0 +1,33 @@
+=== Job info ===
+Node:  gnode13
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True | bf16: True
+================
+
+========================================================================
+  Big ER training: ER(n=40, p=0.05), filter=diam9
+  d_model=512, normalized-ReLU, online data, bf16
+  Output: runs/retrain_er_n40_big_494192/n40_p005_diam9_big
+========================================================================
+
+Generating 10,000 test graphs (D≤9) with 16 workers …
+  done in 3.0s
+  device: cuda
+  parameters: 6,347,304
+  Starting training: 1,000,000 steps × batch 1000 = 1,000,000,000 samples
+  step    5000 | lr=1.00e-04 | loss=0.065606 | exact=0.9018 | pair=0.9985 | 872.6s for 5000 steps
+  step   10000 | lr=1.00e-04 | loss=0.004147 | exact=0.9414 | pair=0.9994 | 862.5s for 5000 steps
+  step   15000 | lr=1.00e-04 | loss=0.002717 | exact=0.9567 | pair=0.9996 | 865.2s for 5000 steps
+  step   20000 | lr=9.99e-05 | loss=0.001563 | exact=0.9470 | pair=0.9994 | 861.5s for 5000 steps
+  step   25000 | lr=9.99e-05 | loss=0.001336 | exact=0.9472 | pair=0.9991 | 858.5s for 5000 steps
+  step   30000 | lr=9.98e-05 | loss=0.001007 | exact=0.9732 | pair=0.9998 | 862.0s for 5000 steps
+  step   35000 | lr=9.97e-05 | loss=0.000871 | exact=0.9617 | pair=0.9997 | 863.1s for 5000 steps
+  step   40000 | lr=9.96e-05 | loss=0.000701 | exact=0.9587 | pair=0.9996 | 865.7s for 5000 steps
+  step   45000 | lr=9.95e-05 | loss=0.000604 | exact=0.9762 | pair=0.9998 | 864.8s for 5000 steps
+  step   50000 | lr=9.94e-05 | loss=0.000541 | exact=0.9735 | pair=0.9998 | 862.5s for 5000 steps
+  step   55000 | lr=9.93e-05 | loss=0.000470 | exact=0.9734 | pair=0.9998 | 867.0s for 5000 steps
+  step   60000 | lr=9.91e-05 | loss=0.000440 | exact=0.9812 | pair=0.9999 | 862.1s for 5000 steps
+  step   65000 | lr=9.90e-05 | loss=0.000402 | exact=0.9839 | pair=0.9999 | 861.7s for 5000 steps
+  step   70000 | lr=9.88e-05 | loss=0.000355 | exact=0.9750 | pair=0.9998 | 865.4s for 5000 steps
+  step   75000 | lr=9.87e-05 | loss=0.000333 | exact=0.9821 | pair=0.9999 | 863.9s for 5000 steps
+  step   80000 | lr=9.85e-05 | loss=0.000331 | exact=0.9836 | pair=0.9999 | 866.1s for 5000 steps

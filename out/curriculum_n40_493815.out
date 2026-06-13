@@ -1,0 +1,784 @@
+=== Job info ===
+Node: gnode06
+NVIDIA H100 NVL, 95830 MiB
+PyTorch 2.11.0+cu130 | CUDA available: True
+================
+
+================================================================
+  Curriculum training on ER(n=40, p=0.05, D ≤ 11)
+  Output: runs/curriculum_er_n40_493815/n40_p005_curriculum
+================================================================
+
+Generating 6,000,000 training graphs ER(n=40, p=0.05) with D ≤ 11, recording per-graph diameter (using 16 workers)…
+  train    25,000/6,000,000
+  train    50,000/6,000,000
+  train    75,000/6,000,000
+  train   100,000/6,000,000
+  train   125,000/6,000,000
+  train   150,000/6,000,000
+  train   175,000/6,000,000
+  train   200,000/6,000,000
+  train   225,000/6,000,000
+  train   250,000/6,000,000
+  train   275,000/6,000,000
+  train   300,000/6,000,000
+  train   325,000/6,000,000
+  train   350,000/6,000,000
+  train   375,000/6,000,000
+  train   400,000/6,000,000
+  train   425,000/6,000,000
+  train   450,000/6,000,000
+  train   475,000/6,000,000
+  train   500,000/6,000,000
+  train   525,000/6,000,000
+  train   550,000/6,000,000
+  train   575,000/6,000,000
+  train   600,000/6,000,000
+  train   625,000/6,000,000
+  train   650,000/6,000,000
+  train   675,000/6,000,000
+  train   700,000/6,000,000
+  train   725,000/6,000,000
+  train   750,000/6,000,000
+  train   775,000/6,000,000
+  train   800,000/6,000,000
+  train   825,000/6,000,000
+  train   850,000/6,000,000
+  train   875,000/6,000,000
+  train   900,000/6,000,000
+  train   925,000/6,000,000
+  train   950,000/6,000,000
+  train   975,000/6,000,000
+  train 1,000,000/6,000,000
+  train 1,025,000/6,000,000
+  train 1,050,000/6,000,000
+  train 1,075,000/6,000,000
+  train 1,100,000/6,000,000
+  train 1,125,000/6,000,000
+  train 1,150,000/6,000,000
+  train 1,175,000/6,000,000
+  train 1,200,000/6,000,000
+  train 1,225,000/6,000,000
+  train 1,250,000/6,000,000
+  train 1,275,000/6,000,000
+  train 1,300,000/6,000,000
+  train 1,325,000/6,000,000
+  train 1,350,000/6,000,000
+  train 1,375,000/6,000,000
+  train 1,400,000/6,000,000
+  train 1,425,000/6,000,000
+  train 1,450,000/6,000,000
+  train 1,475,000/6,000,000
+  train 1,500,000/6,000,000
+  train 1,525,000/6,000,000
+  train 1,550,000/6,000,000
+  train 1,575,000/6,000,000
+  train 1,600,000/6,000,000
+  train 1,625,000/6,000,000
+  train 1,650,000/6,000,000
+  train 1,675,000/6,000,000
+  train 1,700,000/6,000,000
+  train 1,725,000/6,000,000
+  train 1,750,000/6,000,000
+  train 1,775,000/6,000,000
+  train 1,800,000/6,000,000
+  train 1,825,000/6,000,000
+  train 1,850,000/6,000,000
+  train 1,875,000/6,000,000
+  train 1,900,000/6,000,000
+  train 1,925,000/6,000,000
+  train 1,950,000/6,000,000
+  train 1,975,000/6,000,000
+  train 2,000,000/6,000,000
+  train 2,025,000/6,000,000
+  train 2,050,000/6,000,000
+  train 2,075,000/6,000,000
+  train 2,100,000/6,000,000
+  train 2,125,000/6,000,000
+  train 2,150,000/6,000,000
+  train 2,175,000/6,000,000
+  train 2,200,000/6,000,000
+  train 2,225,000/6,000,000
+  train 2,250,000/6,000,000
+  train 2,275,000/6,000,000
+  train 2,300,000/6,000,000
+  train 2,325,000/6,000,000
+  train 2,350,000/6,000,000
+  train 2,375,000/6,000,000
+  train 2,400,000/6,000,000
+  train 2,425,000/6,000,000
+  train 2,450,000/6,000,000
+  train 2,475,000/6,000,000
+  train 2,500,000/6,000,000
+  train 2,525,000/6,000,000
+  train 2,550,000/6,000,000
+  train 2,575,000/6,000,000
+  train 2,600,000/6,000,000
+  train 2,625,000/6,000,000
+  train 2,650,000/6,000,000
+  train 2,675,000/6,000,000
+  train 2,700,000/6,000,000
+  train 2,725,000/6,000,000
+  train 2,750,000/6,000,000
+  train 2,775,000/6,000,000
+  train 2,800,000/6,000,000
+  train 2,825,000/6,000,000
+  train 2,850,000/6,000,000
+  train 2,875,000/6,000,000
+  train 2,900,000/6,000,000
+  train 2,925,000/6,000,000
+  train 2,950,000/6,000,000
+  train 2,975,000/6,000,000
+  train 3,000,000/6,000,000
+  train 3,025,000/6,000,000
+  train 3,050,000/6,000,000
+  train 3,075,000/6,000,000
+  train 3,100,000/6,000,000
+  train 3,125,000/6,000,000
+  train 3,150,000/6,000,000
+  train 3,175,000/6,000,000
+  train 3,200,000/6,000,000
+  train 3,225,000/6,000,000
+  train 3,250,000/6,000,000
+  train 3,275,000/6,000,000
+  train 3,300,000/6,000,000
+  train 3,325,000/6,000,000
+  train 3,350,000/6,000,000
+  train 3,375,000/6,000,000
+  train 3,400,000/6,000,000
+  train 3,425,000/6,000,000
+  train 3,450,000/6,000,000
+  train 3,475,000/6,000,000
+  train 3,500,000/6,000,000
+  train 3,525,000/6,000,000
+  train 3,550,000/6,000,000
+  train 3,575,000/6,000,000
+  train 3,600,000/6,000,000
+  train 3,625,000/6,000,000
+  train 3,650,000/6,000,000
+  train 3,675,000/6,000,000
+  train 3,700,000/6,000,000
+  train 3,725,000/6,000,000
+  train 3,750,000/6,000,000
+  train 3,775,000/6,000,000
+  train 3,800,000/6,000,000
+  train 3,825,000/6,000,000
+  train 3,850,000/6,000,000
+  train 3,875,000/6,000,000
+  train 3,900,000/6,000,000
+  train 3,925,000/6,000,000
+  train 3,950,000/6,000,000
+  train 3,975,000/6,000,000
+  train 4,000,000/6,000,000
+  train 4,025,000/6,000,000
+  train 4,050,000/6,000,000
+  train 4,075,000/6,000,000
+  train 4,100,000/6,000,000
+  train 4,125,000/6,000,000
+  train 4,150,000/6,000,000
+  train 4,175,000/6,000,000
+  train 4,200,000/6,000,000
+  train 4,225,000/6,000,000
+  train 4,250,000/6,000,000
+  train 4,275,000/6,000,000
+  train 4,300,000/6,000,000
+  train 4,325,000/6,000,000
+  train 4,350,000/6,000,000
+  train 4,375,000/6,000,000
+  train 4,400,000/6,000,000
+  train 4,425,000/6,000,000
+  train 4,450,000/6,000,000
+  train 4,475,000/6,000,000
+  train 4,500,000/6,000,000
+  train 4,525,000/6,000,000
+  train 4,550,000/6,000,000
+  train 4,575,000/6,000,000
+  train 4,600,000/6,000,000
+  train 4,625,000/6,000,000
+  train 4,650,000/6,000,000
+  train 4,675,000/6,000,000
+  train 4,700,000/6,000,000
+  train 4,725,000/6,000,000
+  train 4,750,000/6,000,000
+  train 4,775,000/6,000,000
+  train 4,800,000/6,000,000
+  train 4,825,000/6,000,000
+  train 4,850,000/6,000,000
+  train 4,875,000/6,000,000
+  train 4,900,000/6,000,000
+  train 4,925,000/6,000,000
+  train 4,950,000/6,000,000
+  train 4,975,000/6,000,000
+  train 5,000,000/6,000,000
+  train 5,025,000/6,000,000
+  train 5,050,000/6,000,000
+  train 5,075,000/6,000,000
+  train 5,100,000/6,000,000
+  train 5,125,000/6,000,000
+  train 5,150,000/6,000,000
+  train 5,175,000/6,000,000
+  train 5,200,000/6,000,000
+  train 5,225,000/6,000,000
+  train 5,250,000/6,000,000
+  train 5,275,000/6,000,000
+  train 5,300,000/6,000,000
+  train 5,325,000/6,000,000
+  train 5,350,000/6,000,000
+  train 5,375,000/6,000,000
+  train 5,400,000/6,000,000
+  train 5,425,000/6,000,000
+  train 5,450,000/6,000,000
+  train 5,475,000/6,000,000
+  train 5,500,000/6,000,000
+  train 5,525,000/6,000,000
+  train 5,550,000/6,000,000
+  train 5,575,000/6,000,000
+  train 5,600,000/6,000,000
+  train 5,625,000/6,000,000
+  train 5,650,000/6,000,000
+  train 5,675,000/6,000,000
+  train 5,700,000/6,000,000
+  train 5,725,000/6,000,000
+  train 5,750,000/6,000,000
+  train 5,775,000/6,000,000
+  train 5,800,000/6,000,000
+  train 5,825,000/6,000,000
+  train 5,850,000/6,000,000
+  train 5,875,000/6,000,000
+  train 5,900,000/6,000,000
+  train 5,925,000/6,000,000
+  train 5,950,000/6,000,000
+  train 5,975,000/6,000,000
+  train 6,000,000/6,000,000
+  done in 689.7s (11.5 min)
+  Per-phase index counts:
+    phase1_d7    (D ≤ 7):    928,285  (15.5%)
+    phase2_d9    (D ≤ 9):  3,911,387  (65.2%)
+    phase3_d10   (D ≤ 10):  5,161,107  (86.0%)
+    phase4_d11   (D ≤ 11):  6,000,000  (100.0%)
+Generating 10,000 test graphs with D ≤ 11…
+  done in 18.4s
+RAM after generation: 18.6 GB
+
+  device: cuda
+  parameters: 72,296
+  Building phase index arrays from per-graph diameters:
+    phase1_d7: 928,285 graphs
+    phase2_d9: 3,911,387 graphs
+    phase3_d10: 5,161,107 graphs
+    phase4_d11: 6,000,000 graphs
+  Starting curriculum training: total budget 500,000 steps
+  Initial phase: phase1_d7 (D ≤ 7)
+  step   1000 | phase 1 (phase1_d7) | loss=0.20451 | exact=0.0698 | pairwise=0.9145
+  step   2000 | phase 1 (phase1_d7) | loss=0.09832 | exact=0.1882 | pairwise=0.9256
+  step   3000 | phase 1 (phase1_d7) | loss=0.07502 | exact=0.2897 | pairwise=0.9501
+  step   4000 | phase 1 (phase1_d7) | loss=0.06128 | exact=0.2221 | pairwise=0.9350
+  step   5000 | phase 1 (phase1_d7) | loss=0.05409 | exact=0.2072 | pairwise=0.9207
+  step   6000 | phase 1 (phase1_d7) | loss=0.05039 | exact=0.3371 | pairwise=0.9518
+  step   7000 | phase 1 (phase1_d7) | loss=0.04576 | exact=0.2170 | pairwise=0.9445
+  step   8000 | phase 1 (phase1_d7) | loss=0.04304 | exact=0.3033 | pairwise=0.9553
+  step   9000 | phase 1 (phase1_d7) | loss=0.04020 | exact=0.2514 | pairwise=0.9439
+  step  10000 | phase 1 (phase1_d7) | loss=0.03787 | exact=0.2544 | pairwise=0.9523
+  step  11000 | phase 1 (phase1_d7) | loss=0.03558 | exact=0.2658 | pairwise=0.9531
+  step  12000 | phase 1 (phase1_d7) | loss=0.03405 | exact=0.2507 | pairwise=0.9495
+  step  13000 | phase 1 (phase1_d7) | loss=0.03221 | exact=0.2915 | pairwise=0.9547
+  step  14000 | phase 1 (phase1_d7) | loss=0.03042 | exact=0.2920 | pairwise=0.9548
+  step  15000 | phase 1 (phase1_d7) | loss=0.02880 | exact=0.2736 | pairwise=0.9589
+  step  16000 | phase 1 (phase1_d7) | loss=0.02780 | exact=0.2792 | pairwise=0.9532
+  step  17000 | phase 1 (phase1_d7) | loss=0.02664 | exact=0.2996 | pairwise=0.9513
+  step  18000 | phase 1 (phase1_d7) | loss=0.02490 | exact=0.2016 | pairwise=0.9372
+  step  19000 | phase 1 (phase1_d7) | loss=0.02425 | exact=0.2973 | pairwise=0.9539
+  step  20000 | phase 1 (phase1_d7) | loss=0.02340 | exact=0.2611 | pairwise=0.9469
+  step  21000 | phase 1 (phase1_d7) | loss=0.02256 | exact=0.2793 | pairwise=0.9472
+  step  22000 | phase 1 (phase1_d7) | loss=0.02173 | exact=0.2753 | pairwise=0.9473
+  step  23000 | phase 1 (phase1_d7) | loss=0.02090 | exact=0.3209 | pairwise=0.9587
+  step  24000 | phase 1 (phase1_d7) | loss=0.02029 | exact=0.3361 | pairwise=0.9611
+  step  25000 | phase 1 (phase1_d7) | loss=0.01952 | exact=0.2387 | pairwise=0.9478
+  step  26000 | phase 1 (phase1_d7) | loss=0.01925 | exact=0.3181 | pairwise=0.9604
+  step  27000 | phase 1 (phase1_d7) | loss=0.01855 | exact=0.3206 | pairwise=0.9611
+  step  28000 | phase 1 (phase1_d7) | loss=0.01790 | exact=0.3141 | pairwise=0.9580
+  step  29000 | phase 1 (phase1_d7) | loss=0.01717 | exact=0.3034 | pairwise=0.9562
+  step  30000 | phase 1 (phase1_d7) | loss=0.01706 | exact=0.3189 | pairwise=0.9593
+  step  31000 | phase 1 (phase1_d7) | loss=0.01651 | exact=0.2811 | pairwise=0.9532
+  step  32000 | phase 1 (phase1_d7) | loss=0.01614 | exact=0.3166 | pairwise=0.9601
+  step  33000 | phase 1 (phase1_d7) | loss=0.01550 | exact=0.3426 | pairwise=0.9631
+  step  34000 | phase 1 (phase1_d7) | loss=0.01497 | exact=0.3417 | pairwise=0.9663
+  step  35000 | phase 1 (phase1_d7) | loss=0.01505 | exact=0.3386 | pairwise=0.9617
+  step  36000 | phase 1 (phase1_d7) | loss=0.01449 | exact=0.3442 | pairwise=0.9649
+  step  37000 | phase 1 (phase1_d7) | loss=0.01401 | exact=0.2686 | pairwise=0.9485
+  step  38000 | phase 1 (phase1_d7) | loss=0.01400 | exact=0.2198 | pairwise=0.9375
+  step  39000 | phase 1 (phase1_d7) | loss=0.01359 | exact=0.3279 | pairwise=0.9601
+  step  40000 | phase 1 (phase1_d7) | loss=0.01347 | exact=0.2998 | pairwise=0.9572
+  step  41000 | phase 1 (phase1_d7) | loss=0.01314 | exact=0.2457 | pairwise=0.9453
+  step  42000 | phase 1 (phase1_d7) | loss=0.01304 | exact=0.3226 | pairwise=0.9612
+  step  43000 | phase 1 (phase1_d7) | loss=0.01253 | exact=0.3376 | pairwise=0.9602
+  step  44000 | phase 1 (phase1_d7) | loss=0.01257 | exact=0.3416 | pairwise=0.9677
+  step  45000 | phase 1 (phase1_d7) | loss=0.01223 | exact=0.2994 | pairwise=0.9586
+  step  46000 | phase 1 (phase1_d7) | loss=0.01225 | exact=0.3714 | pairwise=0.9677
+  step  47000 | phase 1 (phase1_d7) | loss=0.01172 | exact=0.3559 | pairwise=0.9639
+  step  48000 | phase 1 (phase1_d7) | loss=0.01194 | exact=0.2059 | pairwise=0.9441
+  step  49000 | phase 1 (phase1_d7) | loss=0.01133 | exact=0.3202 | pairwise=0.9586
+  step  50000 | phase 1 (phase1_d7) | loss=0.01176 | exact=0.3156 | pairwise=0.9575
+  step  51000 | phase 1 (phase1_d7) | loss=0.01152 | exact=0.3162 | pairwise=0.9573
+  step  52000 | phase 1 (phase1_d7) | loss=0.01120 | exact=0.2508 | pairwise=0.9431
+  step  53000 | phase 1 (phase1_d7) | loss=0.01122 | exact=0.3148 | pairwise=0.9607
+  step  54000 | phase 1 (phase1_d7) | loss=0.01092 | exact=0.3908 | pairwise=0.9681
+  step  55000 | phase 1 (phase1_d7) | loss=0.01078 | exact=0.3280 | pairwise=0.9609
+  step  56000 | phase 1 (phase1_d7) | loss=0.01090 | exact=0.2684 | pairwise=0.9481
+  step  57000 | phase 1 (phase1_d7) | loss=0.01081 | exact=0.3948 | pairwise=0.9701
+  step  58000 | phase 1 (phase1_d7) | loss=0.01049 | exact=0.3330 | pairwise=0.9620
+  step  59000 | phase 1 (phase1_d7) | loss=0.01027 | exact=0.2774 | pairwise=0.9496
+  step  60000 | phase 1 (phase1_d7) | loss=0.01046 | exact=0.2823 | pairwise=0.9482
+  step  61000 | phase 1 (phase1_d7) | loss=0.01040 | exact=0.3629 | pairwise=0.9659
+  step  62000 | phase 1 (phase1_d7) | loss=0.01014 | exact=0.3472 | pairwise=0.9629
+  step  63000 | phase 1 (phase1_d7) | loss=0.01041 | exact=0.3114 | pairwise=0.9576
+  step  64000 | phase 1 (phase1_d7) | loss=0.01012 | exact=0.3370 | pairwise=0.9628
+  step  65000 | phase 1 (phase1_d7) | loss=0.01001 | exact=0.3852 | pairwise=0.9675
+  step  66000 | phase 1 (phase1_d7) | loss=0.00982 | exact=0.3092 | pairwise=0.9573
+  step  67000 | phase 1 (phase1_d7) | loss=0.00999 | exact=0.2936 | pairwise=0.9536
+  step  68000 | phase 1 (phase1_d7) | loss=0.00978 | exact=0.3612 | pairwise=0.9630
+  >>> PHASE ADVANCE at step 68000: phase1_d7 -> phase2_d9 (D ≤ 9) — reason: loss (steps_in_old=68,000)
+  step  69000 | phase 2 (phase2_d9) | loss=0.02065 | exact=0.6153 | pairwise=0.9882
+  step  70000 | phase 2 (phase2_d9) | loss=0.01882 | exact=0.5916 | pairwise=0.9886
+  step  71000 | phase 2 (phase2_d9) | loss=0.01818 | exact=0.6077 | pairwise=0.9890
+  step  72000 | phase 2 (phase2_d9) | loss=0.01786 | exact=0.5293 | pairwise=0.9822
+  step  73000 | phase 2 (phase2_d9) | loss=0.01816 | exact=0.6415 | pairwise=0.9895
+  step  74000 | phase 2 (phase2_d9) | loss=0.01758 | exact=0.6070 | pairwise=0.9888
+  step  75000 | phase 2 (phase2_d9) | loss=0.01801 | exact=0.5914 | pairwise=0.9877
+  step  76000 | phase 2 (phase2_d9) | loss=0.01760 | exact=0.6215 | pairwise=0.9896
+  step  77000 | phase 2 (phase2_d9) | loss=0.01777 | exact=0.5741 | pairwise=0.9869
+  step  78000 | phase 2 (phase2_d9) | loss=0.01769 | exact=0.4999 | pairwise=0.9813
+  step  79000 | phase 2 (phase2_d9) | loss=0.01767 | exact=0.5811 | pairwise=0.9868
+  step  80000 | phase 2 (phase2_d9) | loss=0.01721 | exact=0.6246 | pairwise=0.9888
+  step  81000 | phase 2 (phase2_d9) | loss=0.01772 | exact=0.6703 | pairwise=0.9900
+  step  82000 | phase 2 (phase2_d9) | loss=0.01735 | exact=0.6352 | pairwise=0.9900
+  step  83000 | phase 2 (phase2_d9) | loss=0.01753 | exact=0.5652 | pairwise=0.9861
+  step  84000 | phase 2 (phase2_d9) | loss=0.01719 | exact=0.6158 | pairwise=0.9886
+  step  85000 | phase 2 (phase2_d9) | loss=0.01727 | exact=0.5455 | pairwise=0.9849
+  step  86000 | phase 2 (phase2_d9) | loss=0.01734 | exact=0.6021 | pairwise=0.9873
+  step  87000 | phase 2 (phase2_d9) | loss=0.01727 | exact=0.5490 | pairwise=0.9846
+  step  88000 | phase 2 (phase2_d9) | loss=0.01711 | exact=0.5371 | pairwise=0.9828
+  step  89000 | phase 2 (phase2_d9) | loss=0.01694 | exact=0.6683 | pairwise=0.9903
+  step  90000 | phase 2 (phase2_d9) | loss=0.01743 | exact=0.6405 | pairwise=0.9894
+  step  91000 | phase 2 (phase2_d9) | loss=0.01689 | exact=0.6463 | pairwise=0.9897
+  step  92000 | phase 2 (phase2_d9) | loss=0.01681 | exact=0.6567 | pairwise=0.9899
+  step  93000 | phase 2 (phase2_d9) | loss=0.01723 | exact=0.5863 | pairwise=0.9870
+  step  94000 | phase 2 (phase2_d9) | loss=0.01706 | exact=0.6164 | pairwise=0.9879
+  step  95000 | phase 2 (phase2_d9) | loss=0.01702 | exact=0.6340 | pairwise=0.9898
+  step  96000 | phase 2 (phase2_d9) | loss=0.01677 | exact=0.6136 | pairwise=0.9881
+  step  97000 | phase 2 (phase2_d9) | loss=0.01670 | exact=0.6483 | pairwise=0.9901
+  step  98000 | phase 2 (phase2_d9) | loss=0.01676 | exact=0.6404 | pairwise=0.9896
+  step  99000 | phase 2 (phase2_d9) | loss=0.01667 | exact=0.5915 | pairwise=0.9871
+  step 100000 | phase 2 (phase2_d9) | loss=0.01666 | exact=0.6377 | pairwise=0.9898
+  step 101000 | phase 2 (phase2_d9) | loss=0.01667 | exact=0.5639 | pairwise=0.9839
+  step 102000 | phase 2 (phase2_d9) | loss=0.01653 | exact=0.6528 | pairwise=0.9895
+  step 103000 | phase 2 (phase2_d9) | loss=0.01676 | exact=0.6018 | pairwise=0.9866
+  step 104000 | phase 2 (phase2_d9) | loss=0.01653 | exact=0.6462 | pairwise=0.9892
+  step 105000 | phase 2 (phase2_d9) | loss=0.01634 | exact=0.6027 | pairwise=0.9864
+  step 106000 | phase 2 (phase2_d9) | loss=0.01652 | exact=0.5498 | pairwise=0.9849
+  step 107000 | phase 2 (phase2_d9) | loss=0.01649 | exact=0.5898 | pairwise=0.9867
+  step 108000 | phase 2 (phase2_d9) | loss=0.01636 | exact=0.6272 | pairwise=0.9884
+  step 109000 | phase 2 (phase2_d9) | loss=0.01651 | exact=0.6465 | pairwise=0.9892
+  step 110000 | phase 2 (phase2_d9) | loss=0.01611 | exact=0.6463 | pairwise=0.9902
+  step 111000 | phase 2 (phase2_d9) | loss=0.01625 | exact=0.5845 | pairwise=0.9868
+  step 112000 | phase 2 (phase2_d9) | loss=0.01620 | exact=0.6453 | pairwise=0.9894
+  step 113000 | phase 2 (phase2_d9) | loss=0.01646 | exact=0.6366 | pairwise=0.9897
+  step 114000 | phase 2 (phase2_d9) | loss=0.01595 | exact=0.6161 | pairwise=0.9880
+  step 115000 | phase 2 (phase2_d9) | loss=0.01615 | exact=0.6114 | pairwise=0.9874
+  step 116000 | phase 2 (phase2_d9) | loss=0.01635 | exact=0.6159 | pairwise=0.9880
+  step 117000 | phase 2 (phase2_d9) | loss=0.01634 | exact=0.6488 | pairwise=0.9898
+  step 118000 | phase 2 (phase2_d9) | loss=0.01574 | exact=0.6494 | pairwise=0.9903
+  step 119000 | phase 2 (phase2_d9) | loss=0.01583 | exact=0.6472 | pairwise=0.9894
+  step 120000 | phase 2 (phase2_d9) | loss=0.01601 | exact=0.6069 | pairwise=0.9881
+  step 121000 | phase 2 (phase2_d9) | loss=0.01581 | exact=0.5930 | pairwise=0.9861
+  step 122000 | phase 2 (phase2_d9) | loss=0.01567 | exact=0.6426 | pairwise=0.9895
+  step 123000 | phase 2 (phase2_d9) | loss=0.01578 | exact=0.6628 | pairwise=0.9902
+  step 124000 | phase 2 (phase2_d9) | loss=0.01556 | exact=0.5842 | pairwise=0.9872
+  step 125000 | phase 2 (phase2_d9) | loss=0.01582 | exact=0.6699 | pairwise=0.9900
+  step 126000 | phase 2 (phase2_d9) | loss=0.01563 | exact=0.6606 | pairwise=0.9903
+  step 127000 | phase 2 (phase2_d9) | loss=0.01579 | exact=0.6758 | pairwise=0.9908
+  step 128000 | phase 2 (phase2_d9) | loss=0.01551 | exact=0.6335 | pairwise=0.9890
+  step 129000 | phase 2 (phase2_d9) | loss=0.01564 | exact=0.5887 | pairwise=0.9870
+  step 130000 | phase 2 (phase2_d9) | loss=0.01562 | exact=0.5845 | pairwise=0.9866
+  step 131000 | phase 2 (phase2_d9) | loss=0.01546 | exact=0.6380 | pairwise=0.9890
+  step 132000 | phase 2 (phase2_d9) | loss=0.01529 | exact=0.6330 | pairwise=0.9896
+  step 133000 | phase 2 (phase2_d9) | loss=0.01542 | exact=0.6219 | pairwise=0.9883
+  step 134000 | phase 2 (phase2_d9) | loss=0.01551 | exact=0.6496 | pairwise=0.9890
+  step 135000 | phase 2 (phase2_d9) | loss=0.01527 | exact=0.6533 | pairwise=0.9896
+  step 136000 | phase 2 (phase2_d9) | loss=0.01523 | exact=0.6456 | pairwise=0.9901
+  step 137000 | phase 2 (phase2_d9) | loss=0.01552 | exact=0.5736 | pairwise=0.9854
+  step 138000 | phase 2 (phase2_d9) | loss=0.01543 | exact=0.5783 | pairwise=0.9860
+  step 139000 | phase 2 (phase2_d9) | loss=0.01530 | exact=0.6114 | pairwise=0.9883
+  step 140000 | phase 2 (phase2_d9) | loss=0.01520 | exact=0.6647 | pairwise=0.9904
+  step 141000 | phase 2 (phase2_d9) | loss=0.01542 | exact=0.6619 | pairwise=0.9900
+  step 142000 | phase 2 (phase2_d9) | loss=0.01519 | exact=0.6457 | pairwise=0.9897
+  step 143000 | phase 2 (phase2_d9) | loss=0.01527 | exact=0.6201 | pairwise=0.9894
+  step 144000 | phase 2 (phase2_d9) | loss=0.01500 | exact=0.6273 | pairwise=0.9877
+  step 145000 | phase 2 (phase2_d9) | loss=0.01501 | exact=0.6421 | pairwise=0.9892
+  step 146000 | phase 2 (phase2_d9) | loss=0.01508 | exact=0.6274 | pairwise=0.9895
+  step 147000 | phase 2 (phase2_d9) | loss=0.01513 | exact=0.7291 | pairwise=0.9919
+  step 148000 | phase 2 (phase2_d9) | loss=0.01515 | exact=0.5844 | pairwise=0.9876
+  step 149000 | phase 2 (phase2_d9) | loss=0.01522 | exact=0.6321 | pairwise=0.9887
+  step 150000 | phase 2 (phase2_d9) | loss=0.01511 | exact=0.6166 | pairwise=0.9880
+  step 151000 | phase 2 (phase2_d9) | loss=0.01463 | exact=0.6344 | pairwise=0.9889
+  step 152000 | phase 2 (phase2_d9) | loss=0.01491 | exact=0.6169 | pairwise=0.9878
+  step 153000 | phase 2 (phase2_d9) | loss=0.01480 | exact=0.5570 | pairwise=0.9840
+  step 154000 | phase 2 (phase2_d9) | loss=0.01487 | exact=0.6769 | pairwise=0.9906
+  step 155000 | phase 2 (phase2_d9) | loss=0.01477 | exact=0.6574 | pairwise=0.9897
+  step 156000 | phase 2 (phase2_d9) | loss=0.01489 | exact=0.6243 | pairwise=0.9890
+  step 157000 | phase 2 (phase2_d9) | loss=0.01493 | exact=0.6525 | pairwise=0.9894
+  step 158000 | phase 2 (phase2_d9) | loss=0.01460 | exact=0.6708 | pairwise=0.9904
+  step 159000 | phase 2 (phase2_d9) | loss=0.01492 | exact=0.5926 | pairwise=0.9865
+  step 160000 | phase 2 (phase2_d9) | loss=0.01455 | exact=0.6361 | pairwise=0.9889
+  step 161000 | phase 2 (phase2_d9) | loss=0.01460 | exact=0.6537 | pairwise=0.9896
+  step 162000 | phase 2 (phase2_d9) | loss=0.01465 | exact=0.6121 | pairwise=0.9864
+  step 163000 | phase 2 (phase2_d9) | loss=0.01497 | exact=0.6142 | pairwise=0.9882
+  step 164000 | phase 2 (phase2_d9) | loss=0.01468 | exact=0.6547 | pairwise=0.9897
+  step 165000 | phase 2 (phase2_d9) | loss=0.01440 | exact=0.6067 | pairwise=0.9880
+  step 166000 | phase 2 (phase2_d9) | loss=0.01474 | exact=0.6427 | pairwise=0.9903
+  step 167000 | phase 2 (phase2_d9) | loss=0.01445 | exact=0.6888 | pairwise=0.9915
+  step 168000 | phase 2 (phase2_d9) | loss=0.01445 | exact=0.6765 | pairwise=0.9906
+  >>> PHASE ADVANCE at step 168000: phase2_d9 -> phase3_d10 (D ≤ 10) — reason: cap (steps_in_old=100,000)
+  step 169000 | phase 3 (phase3_d10) | loss=0.01834 | exact=0.6746 | pairwise=0.9911
+  step 170000 | phase 3 (phase3_d10) | loss=0.01782 | exact=0.6802 | pairwise=0.9913
+  step 171000 | phase 3 (phase3_d10) | loss=0.01759 | exact=0.6745 | pairwise=0.9916
+  step 172000 | phase 3 (phase3_d10) | loss=0.01770 | exact=0.6425 | pairwise=0.9903
+  step 173000 | phase 3 (phase3_d10) | loss=0.01777 | exact=0.7137 | pairwise=0.9924
+  step 174000 | phase 3 (phase3_d10) | loss=0.01785 | exact=0.7009 | pairwise=0.9920
+  step 175000 | phase 3 (phase3_d10) | loss=0.01758 | exact=0.7199 | pairwise=0.9924
+  step 176000 | phase 3 (phase3_d10) | loss=0.01761 | exact=0.6816 | pairwise=0.9916
+  step 177000 | phase 3 (phase3_d10) | loss=0.01782 | exact=0.7211 | pairwise=0.9925
+  step 178000 | phase 3 (phase3_d10) | loss=0.01788 | exact=0.7170 | pairwise=0.9925
+  step 179000 | phase 3 (phase3_d10) | loss=0.01751 | exact=0.7260 | pairwise=0.9920
+  step 180000 | phase 3 (phase3_d10) | loss=0.01790 | exact=0.7000 | pairwise=0.9924
+  step 181000 | phase 3 (phase3_d10) | loss=0.01779 | exact=0.7300 | pairwise=0.9923
+  step 182000 | phase 3 (phase3_d10) | loss=0.01766 | exact=0.7057 | pairwise=0.9922
+  step 183000 | phase 3 (phase3_d10) | loss=0.01773 | exact=0.7053 | pairwise=0.9921
+  step 184000 | phase 3 (phase3_d10) | loss=0.01753 | exact=0.6562 | pairwise=0.9908
+  step 185000 | phase 3 (phase3_d10) | loss=0.01741 | exact=0.7010 | pairwise=0.9918
+  step 186000 | phase 3 (phase3_d10) | loss=0.01783 | exact=0.6512 | pairwise=0.9902
+  step 187000 | phase 3 (phase3_d10) | loss=0.01745 | exact=0.7082 | pairwise=0.9926
+  step 188000 | phase 3 (phase3_d10) | loss=0.01770 | exact=0.7174 | pairwise=0.9922
+  step 189000 | phase 3 (phase3_d10) | loss=0.01760 | exact=0.7049 | pairwise=0.9922
+  step 190000 | phase 3 (phase3_d10) | loss=0.01748 | exact=0.6932 | pairwise=0.9910
+  step 191000 | phase 3 (phase3_d10) | loss=0.01783 | exact=0.7440 | pairwise=0.9920
+  step 192000 | phase 3 (phase3_d10) | loss=0.01770 | exact=0.6413 | pairwise=0.9892
+  step 193000 | phase 3 (phase3_d10) | loss=0.01763 | exact=0.6850 | pairwise=0.9908
+  step 194000 | phase 3 (phase3_d10) | loss=0.01725 | exact=0.7033 | pairwise=0.9920
+  step 195000 | phase 3 (phase3_d10) | loss=0.01757 | exact=0.6852 | pairwise=0.9919
+  step 196000 | phase 3 (phase3_d10) | loss=0.01756 | exact=0.7234 | pairwise=0.9926
+  step 197000 | phase 3 (phase3_d10) | loss=0.01720 | exact=0.6973 | pairwise=0.9917
+  step 198000 | phase 3 (phase3_d10) | loss=0.01746 | exact=0.7359 | pairwise=0.9925
+  step 199000 | phase 3 (phase3_d10) | loss=0.01729 | exact=0.7181 | pairwise=0.9922
+  step 200000 | phase 3 (phase3_d10) | loss=0.01717 | exact=0.7095 | pairwise=0.9924
+  step 201000 | phase 3 (phase3_d10) | loss=0.01723 | exact=0.7340 | pairwise=0.9924
+  step 202000 | phase 3 (phase3_d10) | loss=0.01750 | exact=0.7301 | pairwise=0.9927
+  step 203000 | phase 3 (phase3_d10) | loss=0.01732 | exact=0.6736 | pairwise=0.9912
+  step 204000 | phase 3 (phase3_d10) | loss=0.01754 | exact=0.6387 | pairwise=0.9890
+  step 205000 | phase 3 (phase3_d10) | loss=0.01728 | exact=0.7265 | pairwise=0.9925
+  step 206000 | phase 3 (phase3_d10) | loss=0.01751 | exact=0.7250 | pairwise=0.9925
+  step 207000 | phase 3 (phase3_d10) | loss=0.01730 | exact=0.7427 | pairwise=0.9925
+  step 208000 | phase 3 (phase3_d10) | loss=0.01729 | exact=0.7209 | pairwise=0.9921
+  step 209000 | phase 3 (phase3_d10) | loss=0.01700 | exact=0.7332 | pairwise=0.9926
+  step 210000 | phase 3 (phase3_d10) | loss=0.01703 | exact=0.7078 | pairwise=0.9921
+  step 211000 | phase 3 (phase3_d10) | loss=0.01731 | exact=0.6825 | pairwise=0.9910
+  step 212000 | phase 3 (phase3_d10) | loss=0.01765 | exact=0.7023 | pairwise=0.9919
+  step 213000 | phase 3 (phase3_d10) | loss=0.01727 | exact=0.7000 | pairwise=0.9920
+  step 214000 | phase 3 (phase3_d10) | loss=0.01718 | exact=0.7218 | pairwise=0.9925
+  step 215000 | phase 3 (phase3_d10) | loss=0.01736 | exact=0.7205 | pairwise=0.9925
+  step 216000 | phase 3 (phase3_d10) | loss=0.01712 | exact=0.7135 | pairwise=0.9924
+  step 217000 | phase 3 (phase3_d10) | loss=0.01692 | exact=0.7008 | pairwise=0.9924
+  step 218000 | phase 3 (phase3_d10) | loss=0.01705 | exact=0.7123 | pairwise=0.9923
+  step 219000 | phase 3 (phase3_d10) | loss=0.01730 | exact=0.7137 | pairwise=0.9923
+  step 220000 | phase 3 (phase3_d10) | loss=0.01737 | exact=0.7315 | pairwise=0.9920
+  step 221000 | phase 3 (phase3_d10) | loss=0.01704 | exact=0.7076 | pairwise=0.9923
+  step 222000 | phase 3 (phase3_d10) | loss=0.01730 | exact=0.7293 | pairwise=0.9924
+  step 223000 | phase 3 (phase3_d10) | loss=0.01716 | exact=0.7119 | pairwise=0.9926
+  step 224000 | phase 3 (phase3_d10) | loss=0.01717 | exact=0.7051 | pairwise=0.9920
+  step 225000 | phase 3 (phase3_d10) | loss=0.01724 | exact=0.7527 | pairwise=0.9928
+  step 226000 | phase 3 (phase3_d10) | loss=0.01696 | exact=0.6944 | pairwise=0.9916
+  step 227000 | phase 3 (phase3_d10) | loss=0.01728 | exact=0.6855 | pairwise=0.9916
+  step 228000 | phase 3 (phase3_d10) | loss=0.01723 | exact=0.7037 | pairwise=0.9919
+  step 229000 | phase 3 (phase3_d10) | loss=0.01724 | exact=0.6689 | pairwise=0.9911
+  step 230000 | phase 3 (phase3_d10) | loss=0.01685 | exact=0.7236 | pairwise=0.9924
+  step 231000 | phase 3 (phase3_d10) | loss=0.01712 | exact=0.7093 | pairwise=0.9922
+  step 232000 | phase 3 (phase3_d10) | loss=0.01688 | exact=0.7079 | pairwise=0.9925
+  step 233000 | phase 3 (phase3_d10) | loss=0.01703 | exact=0.6811 | pairwise=0.9914
+  step 234000 | phase 3 (phase3_d10) | loss=0.01714 | exact=0.6719 | pairwise=0.9909
+  step 235000 | phase 3 (phase3_d10) | loss=0.01712 | exact=0.7113 | pairwise=0.9922
+  step 236000 | phase 3 (phase3_d10) | loss=0.01709 | exact=0.6982 | pairwise=0.9922
+  step 237000 | phase 3 (phase3_d10) | loss=0.01691 | exact=0.7349 | pairwise=0.9924
+  step 238000 | phase 3 (phase3_d10) | loss=0.01691 | exact=0.7041 | pairwise=0.9921
+  step 239000 | phase 3 (phase3_d10) | loss=0.01699 | exact=0.6649 | pairwise=0.9916
+  step 240000 | phase 3 (phase3_d10) | loss=0.01729 | exact=0.7144 | pairwise=0.9927
+  step 241000 | phase 3 (phase3_d10) | loss=0.01694 | exact=0.7597 | pairwise=0.9925
+  step 242000 | phase 3 (phase3_d10) | loss=0.01699 | exact=0.7033 | pairwise=0.9916
+  step 243000 | phase 3 (phase3_d10) | loss=0.01714 | exact=0.7429 | pairwise=0.9925
+  step 244000 | phase 3 (phase3_d10) | loss=0.01693 | exact=0.7437 | pairwise=0.9928
+  step 245000 | phase 3 (phase3_d10) | loss=0.01698 | exact=0.7085 | pairwise=0.9920
+  step 246000 | phase 3 (phase3_d10) | loss=0.01694 | exact=0.7195 | pairwise=0.9925
+  step 247000 | phase 3 (phase3_d10) | loss=0.01679 | exact=0.7365 | pairwise=0.9928
+  step 248000 | phase 3 (phase3_d10) | loss=0.01712 | exact=0.7188 | pairwise=0.9921
+  step 249000 | phase 3 (phase3_d10) | loss=0.01696 | exact=0.6875 | pairwise=0.9923
+  step 250000 | phase 3 (phase3_d10) | loss=0.01673 | exact=0.7078 | pairwise=0.9922
+  step 251000 | phase 3 (phase3_d10) | loss=0.01687 | exact=0.6914 | pairwise=0.9918
+  step 252000 | phase 3 (phase3_d10) | loss=0.01704 | exact=0.6510 | pairwise=0.9912
+  step 253000 | phase 3 (phase3_d10) | loss=0.01711 | exact=0.7191 | pairwise=0.9922
+  step 254000 | phase 3 (phase3_d10) | loss=0.01686 | exact=0.7517 | pairwise=0.9930
+  step 255000 | phase 3 (phase3_d10) | loss=0.01664 | exact=0.7263 | pairwise=0.9926
+  step 256000 | phase 3 (phase3_d10) | loss=0.01692 | exact=0.6995 | pairwise=0.9924
+  step 257000 | phase 3 (phase3_d10) | loss=0.01700 | exact=0.7283 | pairwise=0.9930
+  step 258000 | phase 3 (phase3_d10) | loss=0.01693 | exact=0.6626 | pairwise=0.9910
+  step 259000 | phase 3 (phase3_d10) | loss=0.01682 | exact=0.7057 | pairwise=0.9924
+  step 260000 | phase 3 (phase3_d10) | loss=0.01674 | exact=0.7046 | pairwise=0.9924
+  step 261000 | phase 3 (phase3_d10) | loss=0.01718 | exact=0.7283 | pairwise=0.9926
+  step 262000 | phase 3 (phase3_d10) | loss=0.01688 | exact=0.6526 | pairwise=0.9905
+  step 263000 | phase 3 (phase3_d10) | loss=0.01702 | exact=0.7281 | pairwise=0.9922
+  step 264000 | phase 3 (phase3_d10) | loss=0.01667 | exact=0.6811 | pairwise=0.9912
+  step 265000 | phase 3 (phase3_d10) | loss=0.01705 | exact=0.7519 | pairwise=0.9928
+  step 266000 | phase 3 (phase3_d10) | loss=0.01703 | exact=0.6838 | pairwise=0.9919
+  step 267000 | phase 3 (phase3_d10) | loss=0.01652 | exact=0.7242 | pairwise=0.9922
+  step 268000 | phase 3 (phase3_d10) | loss=0.01673 | exact=0.7397 | pairwise=0.9927
+  >>> PHASE ADVANCE at step 268000: phase3_d10 -> phase4_d11 (D ≤ 11) — reason: cap (steps_in_old=100,000)
+  step 269000 | phase 4 (phase4_d11) | loss=0.02047 | exact=0.7636 | pairwise=0.9926
+  step 270000 | phase 4 (phase4_d11) | loss=0.01983 | exact=0.7450 | pairwise=0.9928
+  step 271000 | phase 4 (phase4_d11) | loss=0.01966 | exact=0.7265 | pairwise=0.9930
+  step 272000 | phase 4 (phase4_d11) | loss=0.01976 | exact=0.7775 | pairwise=0.9923
+  step 273000 | phase 4 (phase4_d11) | loss=0.01969 | exact=0.7201 | pairwise=0.9928
+  step 274000 | phase 4 (phase4_d11) | loss=0.01998 | exact=0.7629 | pairwise=0.9927
+  step 275000 | phase 4 (phase4_d11) | loss=0.01966 | exact=0.7588 | pairwise=0.9926
+  step 276000 | phase 4 (phase4_d11) | loss=0.01961 | exact=0.7441 | pairwise=0.9928
+  step 277000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7529 | pairwise=0.9931
+  step 278000 | phase 4 (phase4_d11) | loss=0.01975 | exact=0.7547 | pairwise=0.9927
+  step 279000 | phase 4 (phase4_d11) | loss=0.01967 | exact=0.7398 | pairwise=0.9930
+  step 280000 | phase 4 (phase4_d11) | loss=0.01970 | exact=0.7553 | pairwise=0.9928
+  step 281000 | phase 4 (phase4_d11) | loss=0.01988 | exact=0.7330 | pairwise=0.9926
+  step 282000 | phase 4 (phase4_d11) | loss=0.01971 | exact=0.7437 | pairwise=0.9928
+  step 283000 | phase 4 (phase4_d11) | loss=0.01955 | exact=0.7343 | pairwise=0.9929
+  step 284000 | phase 4 (phase4_d11) | loss=0.01969 | exact=0.7113 | pairwise=0.9927
+  step 285000 | phase 4 (phase4_d11) | loss=0.01991 | exact=0.7262 | pairwise=0.9929
+  step 286000 | phase 4 (phase4_d11) | loss=0.01959 | exact=0.7449 | pairwise=0.9926
+  step 287000 | phase 4 (phase4_d11) | loss=0.01945 | exact=0.7194 | pairwise=0.9924
+  step 288000 | phase 4 (phase4_d11) | loss=0.02000 | exact=0.7514 | pairwise=0.9929
+  step 289000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7436 | pairwise=0.9929
+  step 290000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7802 | pairwise=0.9927
+  step 291000 | phase 4 (phase4_d11) | loss=0.01971 | exact=0.7040 | pairwise=0.9924
+  step 292000 | phase 4 (phase4_d11) | loss=0.01985 | exact=0.7716 | pairwise=0.9919
+  step 293000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7305 | pairwise=0.9931
+  step 294000 | phase 4 (phase4_d11) | loss=0.01956 | exact=0.7737 | pairwise=0.9925
+  step 295000 | phase 4 (phase4_d11) | loss=0.01991 | exact=0.7184 | pairwise=0.9926
+  step 296000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7309 | pairwise=0.9930
+  step 297000 | phase 4 (phase4_d11) | loss=0.01974 | exact=0.7491 | pairwise=0.9929
+  step 298000 | phase 4 (phase4_d11) | loss=0.01983 | exact=0.7054 | pairwise=0.9927
+  step 299000 | phase 4 (phase4_d11) | loss=0.01957 | exact=0.7166 | pairwise=0.9928
+  step 300000 | phase 4 (phase4_d11) | loss=0.01959 | exact=0.7280 | pairwise=0.9924
+  step 301000 | phase 4 (phase4_d11) | loss=0.01953 | exact=0.7295 | pairwise=0.9924
+  step 302000 | phase 4 (phase4_d11) | loss=0.01975 | exact=0.7477 | pairwise=0.9923
+  step 303000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7344 | pairwise=0.9926
+  step 304000 | phase 4 (phase4_d11) | loss=0.01983 | exact=0.7494 | pairwise=0.9928
+  step 305000 | phase 4 (phase4_d11) | loss=0.01976 | exact=0.7213 | pairwise=0.9925
+  step 306000 | phase 4 (phase4_d11) | loss=0.01966 | exact=0.7141 | pairwise=0.9929
+  step 307000 | phase 4 (phase4_d11) | loss=0.01957 | exact=0.7645 | pairwise=0.9928
+  step 308000 | phase 4 (phase4_d11) | loss=0.01972 | exact=0.7541 | pairwise=0.9930
+  step 309000 | phase 4 (phase4_d11) | loss=0.01982 | exact=0.7064 | pairwise=0.9927
+  step 310000 | phase 4 (phase4_d11) | loss=0.01949 | exact=0.7218 | pairwise=0.9927
+  step 311000 | phase 4 (phase4_d11) | loss=0.01962 | exact=0.6604 | pairwise=0.9918
+  step 312000 | phase 4 (phase4_d11) | loss=0.01945 | exact=0.7399 | pairwise=0.9931
+  step 313000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7387 | pairwise=0.9928
+  step 314000 | phase 4 (phase4_d11) | loss=0.01974 | exact=0.7297 | pairwise=0.9931
+  step 315000 | phase 4 (phase4_d11) | loss=0.01980 | exact=0.7470 | pairwise=0.9928
+  step 316000 | phase 4 (phase4_d11) | loss=0.01947 | exact=0.7625 | pairwise=0.9927
+  step 317000 | phase 4 (phase4_d11) | loss=0.01966 | exact=0.7525 | pairwise=0.9928
+  step 318000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7569 | pairwise=0.9926
+  step 319000 | phase 4 (phase4_d11) | loss=0.01968 | exact=0.7532 | pairwise=0.9929
+  step 320000 | phase 4 (phase4_d11) | loss=0.01967 | exact=0.7137 | pairwise=0.9929
+  step 321000 | phase 4 (phase4_d11) | loss=0.01958 | exact=0.7428 | pairwise=0.9923
+  step 322000 | phase 4 (phase4_d11) | loss=0.01961 | exact=0.7291 | pairwise=0.9928
+  step 323000 | phase 4 (phase4_d11) | loss=0.01969 | exact=0.7674 | pairwise=0.9929
+  step 324000 | phase 4 (phase4_d11) | loss=0.01963 | exact=0.7633 | pairwise=0.9927
+  step 325000 | phase 4 (phase4_d11) | loss=0.01964 | exact=0.7833 | pairwise=0.9915
+  step 326000 | phase 4 (phase4_d11) | loss=0.01955 | exact=0.7490 | pairwise=0.9930
+  step 327000 | phase 4 (phase4_d11) | loss=0.02011 | exact=0.7282 | pairwise=0.9929
+  step 328000 | phase 4 (phase4_d11) | loss=0.01948 | exact=0.7446 | pairwise=0.9924
+  step 329000 | phase 4 (phase4_d11) | loss=0.01961 | exact=0.7318 | pairwise=0.9931
+  step 330000 | phase 4 (phase4_d11) | loss=0.01946 | exact=0.7026 | pairwise=0.9928
+  step 331000 | phase 4 (phase4_d11) | loss=0.01950 | exact=0.7476 | pairwise=0.9926
+  step 332000 | phase 4 (phase4_d11) | loss=0.01940 | exact=0.7405 | pairwise=0.9927
+  step 333000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7438 | pairwise=0.9929
+  step 334000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7310 | pairwise=0.9930
+  step 335000 | phase 4 (phase4_d11) | loss=0.01921 | exact=0.7309 | pairwise=0.9930
+  step 336000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7333 | pairwise=0.9928
+  step 337000 | phase 4 (phase4_d11) | loss=0.01937 | exact=0.7155 | pairwise=0.9927
+  step 338000 | phase 4 (phase4_d11) | loss=0.01916 | exact=0.7421 | pairwise=0.9927
+  step 339000 | phase 4 (phase4_d11) | loss=0.01969 | exact=0.7441 | pairwise=0.9929
+  step 340000 | phase 4 (phase4_d11) | loss=0.01966 | exact=0.7152 | pairwise=0.9928
+  step 341000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7641 | pairwise=0.9929
+  step 342000 | phase 4 (phase4_d11) | loss=0.01926 | exact=0.7363 | pairwise=0.9926
+  step 343000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7645 | pairwise=0.9929
+  step 344000 | phase 4 (phase4_d11) | loss=0.01943 | exact=0.7084 | pairwise=0.9926
+  step 345000 | phase 4 (phase4_d11) | loss=0.01961 | exact=0.7571 | pairwise=0.9929
+  step 346000 | phase 4 (phase4_d11) | loss=0.01959 | exact=0.7340 | pairwise=0.9925
+  step 347000 | phase 4 (phase4_d11) | loss=0.01945 | exact=0.7346 | pairwise=0.9928
+  step 348000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7467 | pairwise=0.9929
+  step 349000 | phase 4 (phase4_d11) | loss=0.01962 | exact=0.7310 | pairwise=0.9927
+  step 350000 | phase 4 (phase4_d11) | loss=0.01938 | exact=0.7629 | pairwise=0.9932
+  step 351000 | phase 4 (phase4_d11) | loss=0.01954 | exact=0.7207 | pairwise=0.9925
+  step 352000 | phase 4 (phase4_d11) | loss=0.01954 | exact=0.7764 | pairwise=0.9930
+  step 353000 | phase 4 (phase4_d11) | loss=0.01936 | exact=0.7583 | pairwise=0.9931
+  step 354000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7504 | pairwise=0.9932
+  step 355000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7740 | pairwise=0.9926
+  step 356000 | phase 4 (phase4_d11) | loss=0.01936 | exact=0.7700 | pairwise=0.9928
+  step 357000 | phase 4 (phase4_d11) | loss=0.01941 | exact=0.7330 | pairwise=0.9928
+  step 358000 | phase 4 (phase4_d11) | loss=0.01959 | exact=0.7414 | pairwise=0.9932
+  step 359000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7796 | pairwise=0.9923
+  step 360000 | phase 4 (phase4_d11) | loss=0.01941 | exact=0.7140 | pairwise=0.9923
+  step 361000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7600 | pairwise=0.9928
+  step 362000 | phase 4 (phase4_d11) | loss=0.01919 | exact=0.7278 | pairwise=0.9925
+  step 363000 | phase 4 (phase4_d11) | loss=0.01963 | exact=0.7583 | pairwise=0.9927
+  step 364000 | phase 4 (phase4_d11) | loss=0.01935 | exact=0.7705 | pairwise=0.9930
+  step 365000 | phase 4 (phase4_d11) | loss=0.01952 | exact=0.7520 | pairwise=0.9931
+  step 366000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7380 | pairwise=0.9927
+  step 367000 | phase 4 (phase4_d11) | loss=0.01957 | exact=0.7568 | pairwise=0.9928
+  step 368000 | phase 4 (phase4_d11) | loss=0.01941 | exact=0.7698 | pairwise=0.9927
+  step 369000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7694 | pairwise=0.9929
+  step 370000 | phase 4 (phase4_d11) | loss=0.01955 | exact=0.7180 | pairwise=0.9926
+  step 371000 | phase 4 (phase4_d11) | loss=0.01929 | exact=0.7418 | pairwise=0.9932
+  step 372000 | phase 4 (phase4_d11) | loss=0.01943 | exact=0.7434 | pairwise=0.9924
+  step 373000 | phase 4 (phase4_d11) | loss=0.01948 | exact=0.7505 | pairwise=0.9930
+  step 374000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7435 | pairwise=0.9929
+  step 375000 | phase 4 (phase4_d11) | loss=0.01926 | exact=0.7502 | pairwise=0.9929
+  step 376000 | phase 4 (phase4_d11) | loss=0.01935 | exact=0.7220 | pairwise=0.9932
+  step 377000 | phase 4 (phase4_d11) | loss=0.01967 | exact=0.7509 | pairwise=0.9929
+  step 378000 | phase 4 (phase4_d11) | loss=0.01924 | exact=0.7456 | pairwise=0.9928
+  step 379000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7619 | pairwise=0.9927
+  step 380000 | phase 4 (phase4_d11) | loss=0.01929 | exact=0.7637 | pairwise=0.9931
+  step 381000 | phase 4 (phase4_d11) | loss=0.01967 | exact=0.7372 | pairwise=0.9929
+  step 382000 | phase 4 (phase4_d11) | loss=0.01939 | exact=0.7462 | pairwise=0.9925
+  step 383000 | phase 4 (phase4_d11) | loss=0.01943 | exact=0.7268 | pairwise=0.9930
+  step 384000 | phase 4 (phase4_d11) | loss=0.01907 | exact=0.7349 | pairwise=0.9929
+  step 385000 | phase 4 (phase4_d11) | loss=0.01958 | exact=0.7548 | pairwise=0.9930
+  step 386000 | phase 4 (phase4_d11) | loss=0.01908 | exact=0.7321 | pairwise=0.9930
+  step 387000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7279 | pairwise=0.9927
+  step 388000 | phase 4 (phase4_d11) | loss=0.01901 | exact=0.7561 | pairwise=0.9929
+  step 389000 | phase 4 (phase4_d11) | loss=0.01949 | exact=0.7361 | pairwise=0.9929
+  step 390000 | phase 4 (phase4_d11) | loss=0.01939 | exact=0.7322 | pairwise=0.9930
+  step 391000 | phase 4 (phase4_d11) | loss=0.01952 | exact=0.7300 | pairwise=0.9930
+  step 392000 | phase 4 (phase4_d11) | loss=0.01935 | exact=0.7282 | pairwise=0.9932
+  step 393000 | phase 4 (phase4_d11) | loss=0.01924 | exact=0.7454 | pairwise=0.9929
+  step 394000 | phase 4 (phase4_d11) | loss=0.01918 | exact=0.7633 | pairwise=0.9927
+  step 395000 | phase 4 (phase4_d11) | loss=0.01949 | exact=0.7259 | pairwise=0.9927
+  step 396000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7656 | pairwise=0.9927
+  step 397000 | phase 4 (phase4_d11) | loss=0.01960 | exact=0.7148 | pairwise=0.9926
+  step 398000 | phase 4 (phase4_d11) | loss=0.01935 | exact=0.7712 | pairwise=0.9922
+  step 399000 | phase 4 (phase4_d11) | loss=0.01928 | exact=0.7568 | pairwise=0.9932
+  step 400000 | phase 4 (phase4_d11) | loss=0.01907 | exact=0.7517 | pairwise=0.9928
+  step 401000 | phase 4 (phase4_d11) | loss=0.01938 | exact=0.7514 | pairwise=0.9930
+  step 402000 | phase 4 (phase4_d11) | loss=0.01938 | exact=0.7661 | pairwise=0.9927
+  step 403000 | phase 4 (phase4_d11) | loss=0.01944 | exact=0.7563 | pairwise=0.9927
+  step 404000 | phase 4 (phase4_d11) | loss=0.01911 | exact=0.7625 | pairwise=0.9924
+  step 405000 | phase 4 (phase4_d11) | loss=0.01932 | exact=0.7541 | pairwise=0.9930
+  step 406000 | phase 4 (phase4_d11) | loss=0.01973 | exact=0.7513 | pairwise=0.9927
+  step 407000 | phase 4 (phase4_d11) | loss=0.01932 | exact=0.7224 | pairwise=0.9926
+  step 408000 | phase 4 (phase4_d11) | loss=0.01934 | exact=0.7536 | pairwise=0.9932
+  step 409000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7922 | pairwise=0.9926
+  step 410000 | phase 4 (phase4_d11) | loss=0.01923 | exact=0.7599 | pairwise=0.9932
+  step 411000 | phase 4 (phase4_d11) | loss=0.01904 | exact=0.7534 | pairwise=0.9928
+  step 412000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7110 | pairwise=0.9927
+  step 413000 | phase 4 (phase4_d11) | loss=0.01979 | exact=0.7581 | pairwise=0.9925
+  step 414000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7496 | pairwise=0.9928
+  step 415000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7013 | pairwise=0.9927
+  step 416000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7581 | pairwise=0.9929
+  step 417000 | phase 4 (phase4_d11) | loss=0.01896 | exact=0.7551 | pairwise=0.9919
+  step 418000 | phase 4 (phase4_d11) | loss=0.01943 | exact=0.7487 | pairwise=0.9930
+  step 419000 | phase 4 (phase4_d11) | loss=0.01924 | exact=0.7450 | pairwise=0.9928
+  step 420000 | phase 4 (phase4_d11) | loss=0.01947 | exact=0.7148 | pairwise=0.9931
+  step 421000 | phase 4 (phase4_d11) | loss=0.01918 | exact=0.7221 | pairwise=0.9924
+  step 422000 | phase 4 (phase4_d11) | loss=0.01880 | exact=0.7322 | pairwise=0.9922
+  step 423000 | phase 4 (phase4_d11) | loss=0.01937 | exact=0.7697 | pairwise=0.9927
+  step 424000 | phase 4 (phase4_d11) | loss=0.01916 | exact=0.7478 | pairwise=0.9931
+  step 425000 | phase 4 (phase4_d11) | loss=0.01927 | exact=0.7607 | pairwise=0.9930
+  step 426000 | phase 4 (phase4_d11) | loss=0.01956 | exact=0.7346 | pairwise=0.9927
+  step 427000 | phase 4 (phase4_d11) | loss=0.01923 | exact=0.7110 | pairwise=0.9923
+  step 428000 | phase 4 (phase4_d11) | loss=0.01964 | exact=0.7187 | pairwise=0.9926
+  step 429000 | phase 4 (phase4_d11) | loss=0.01924 | exact=0.7536 | pairwise=0.9933
+  step 430000 | phase 4 (phase4_d11) | loss=0.01960 | exact=0.7606 | pairwise=0.9932
+  step 431000 | phase 4 (phase4_d11) | loss=0.01898 | exact=0.7293 | pairwise=0.9932
+  step 432000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7379 | pairwise=0.9928
+  step 433000 | phase 4 (phase4_d11) | loss=0.01941 | exact=0.7240 | pairwise=0.9926
+  step 434000 | phase 4 (phase4_d11) | loss=0.01879 | exact=0.7478 | pairwise=0.9929
+  step 435000 | phase 4 (phase4_d11) | loss=0.01927 | exact=0.7409 | pairwise=0.9932
+  step 436000 | phase 4 (phase4_d11) | loss=0.01922 | exact=0.7617 | pairwise=0.9930
+  step 437000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7440 | pairwise=0.9927
+  step 438000 | phase 4 (phase4_d11) | loss=0.01965 | exact=0.7522 | pairwise=0.9934
+  step 439000 | phase 4 (phase4_d11) | loss=0.01908 | exact=0.7422 | pairwise=0.9931
+  step 440000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7271 | pairwise=0.9927
+  step 441000 | phase 4 (phase4_d11) | loss=0.01903 | exact=0.7776 | pairwise=0.9927
+  step 442000 | phase 4 (phase4_d11) | loss=0.01899 | exact=0.7840 | pairwise=0.9920
+  step 443000 | phase 4 (phase4_d11) | loss=0.01949 | exact=0.7501 | pairwise=0.9930
+  step 444000 | phase 4 (phase4_d11) | loss=0.01891 | exact=0.7882 | pairwise=0.9928
+  step 445000 | phase 4 (phase4_d11) | loss=0.01921 | exact=0.7487 | pairwise=0.9928
+  step 446000 | phase 4 (phase4_d11) | loss=0.01936 | exact=0.7216 | pairwise=0.9928
+  step 447000 | phase 4 (phase4_d11) | loss=0.01921 | exact=0.7402 | pairwise=0.9928
+  step 448000 | phase 4 (phase4_d11) | loss=0.01929 | exact=0.7526 | pairwise=0.9930
+  step 449000 | phase 4 (phase4_d11) | loss=0.01902 | exact=0.7586 | pairwise=0.9931
+  step 450000 | phase 4 (phase4_d11) | loss=0.01927 | exact=0.7725 | pairwise=0.9928
+  step 451000 | phase 4 (phase4_d11) | loss=0.01934 | exact=0.7427 | pairwise=0.9926
+  step 452000 | phase 4 (phase4_d11) | loss=0.01951 | exact=0.7343 | pairwise=0.9928
+  step 453000 | phase 4 (phase4_d11) | loss=0.01923 | exact=0.7517 | pairwise=0.9930
+  step 454000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7474 | pairwise=0.9931
+  step 455000 | phase 4 (phase4_d11) | loss=0.01940 | exact=0.7341 | pairwise=0.9931
+  step 456000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7645 | pairwise=0.9930
+  step 457000 | phase 4 (phase4_d11) | loss=0.01911 | exact=0.7599 | pairwise=0.9928
+  step 458000 | phase 4 (phase4_d11) | loss=0.01952 | exact=0.7643 | pairwise=0.9930
+  step 459000 | phase 4 (phase4_d11) | loss=0.01939 | exact=0.7551 | pairwise=0.9931
+  step 460000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7170 | pairwise=0.9927
+  step 461000 | phase 4 (phase4_d11) | loss=0.01928 | exact=0.7739 | pairwise=0.9933
+  step 462000 | phase 4 (phase4_d11) | loss=0.01929 | exact=0.7574 | pairwise=0.9932
+  step 463000 | phase 4 (phase4_d11) | loss=0.01882 | exact=0.7558 | pairwise=0.9930
+  step 464000 | phase 4 (phase4_d11) | loss=0.01910 | exact=0.7348 | pairwise=0.9930
+  step 465000 | phase 4 (phase4_d11) | loss=0.01915 | exact=0.7473 | pairwise=0.9931
+  step 466000 | phase 4 (phase4_d11) | loss=0.01941 | exact=0.7231 | pairwise=0.9926
+  step 467000 | phase 4 (phase4_d11) | loss=0.01930 | exact=0.7459 | pairwise=0.9929
+  step 468000 | phase 4 (phase4_d11) | loss=0.01917 | exact=0.7151 | pairwise=0.9923
+  step 469000 | phase 4 (phase4_d11) | loss=0.01903 | exact=0.7446 | pairwise=0.9932
+  step 470000 | phase 4 (phase4_d11) | loss=0.01913 | exact=0.7366 | pairwise=0.9932
+  step 471000 | phase 4 (phase4_d11) | loss=0.01921 | exact=0.7464 | pairwise=0.9930
+  step 472000 | phase 4 (phase4_d11) | loss=0.01894 | exact=0.7563 | pairwise=0.9931
+  step 473000 | phase 4 (phase4_d11) | loss=0.01922 | exact=0.7564 | pairwise=0.9931
+  step 474000 | phase 4 (phase4_d11) | loss=0.01920 | exact=0.7449 | pairwise=0.9930
+  step 475000 | phase 4 (phase4_d11) | loss=0.01929 | exact=0.7423 | pairwise=0.9932
+  step 476000 | phase 4 (phase4_d11) | loss=0.01869 | exact=0.7840 | pairwise=0.9930
+  step 477000 | phase 4 (phase4_d11) | loss=0.01908 | exact=0.7187 | pairwise=0.9928
+  step 478000 | phase 4 (phase4_d11) | loss=0.01897 | exact=0.7631 | pairwise=0.9929
+  step 479000 | phase 4 (phase4_d11) | loss=0.01913 | exact=0.7753 | pairwise=0.9926
+  step 480000 | phase 4 (phase4_d11) | loss=0.01914 | exact=0.7546 | pairwise=0.9921
+  step 481000 | phase 4 (phase4_d11) | loss=0.01920 | exact=0.7482 | pairwise=0.9931
+  step 482000 | phase 4 (phase4_d11) | loss=0.01913 | exact=0.7668 | pairwise=0.9931
+  step 483000 | phase 4 (phase4_d11) | loss=0.01911 | exact=0.7620 | pairwise=0.9929
+  step 484000 | phase 4 (phase4_d11) | loss=0.01915 | exact=0.7648 | pairwise=0.9931
+  step 485000 | phase 4 (phase4_d11) | loss=0.01911 | exact=0.7614 | pairwise=0.9933
+  step 486000 | phase 4 (phase4_d11) | loss=0.01937 | exact=0.7256 | pairwise=0.9927
+  step 487000 | phase 4 (phase4_d11) | loss=0.01911 | exact=0.7408 | pairwise=0.9928
+  step 488000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7799 | pairwise=0.9922
+  step 489000 | phase 4 (phase4_d11) | loss=0.01892 | exact=0.7729 | pairwise=0.9933
+  step 490000 | phase 4 (phase4_d11) | loss=0.01909 | exact=0.7566 | pairwise=0.9928
+  step 491000 | phase 4 (phase4_d11) | loss=0.01878 | exact=0.7797 | pairwise=0.9931
+  step 492000 | phase 4 (phase4_d11) | loss=0.01914 | exact=0.7676 | pairwise=0.9927
+  step 493000 | phase 4 (phase4_d11) | loss=0.01907 | exact=0.7559 | pairwise=0.9929
+  step 494000 | phase 4 (phase4_d11) | loss=0.01896 | exact=0.7196 | pairwise=0.9925
+  step 495000 | phase 4 (phase4_d11) | loss=0.01924 | exact=0.7591 | pairwise=0.9927
+  step 496000 | phase 4 (phase4_d11) | loss=0.01899 | exact=0.7698 | pairwise=0.9934
+  step 497000 | phase 4 (phase4_d11) | loss=0.01933 | exact=0.7659 | pairwise=0.9927
+  step 498000 | phase 4 (phase4_d11) | loss=0.01925 | exact=0.7357 | pairwise=0.9932
+  step 499000 | phase 4 (phase4_d11) | loss=0.01931 | exact=0.7647 | pairwise=0.9929
+  step 500000 | phase 4 (phase4_d11) | loss=0.01909 | exact=0.7522 | pairwise=0.9931
+
+Generating plots…
+
+Done. Best exact match: 0.7922
+Phase transitions (3):
+  step  68000: phase1_d7 -> phase2_d9 (reason=loss, steps_in_old=68,000)
+  step 168000: phase2_d9 -> phase3_d10 (reason=cap, steps_in_old=100,000)
+  step 268000: phase3_d10 -> phase4_d11 (reason=cap, steps_in_old=100,000)
+
+Results in: runs/curriculum_er_n40_493815/n40_p005_curriculum

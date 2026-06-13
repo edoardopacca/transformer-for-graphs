@@ -19,4 +19,4 @@ export VECLIB_MAXIMUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 export PYTHONUNBUFFERED=1
 
-python3 experiments2/retrain_and_test_2cliques.py --output_root runs/retrain_2cliques_3352759
+python3 experiments2/retrain_and_test_2cliques.py --output_root runs/report2/retrain_2cliques_3352759

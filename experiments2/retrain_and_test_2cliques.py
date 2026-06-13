@@ -478,7 +478,7 @@ def train_and_evaluate_single_run(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_root", type=str, default="runs/retrain_two_cliques")
+    parser.add_argument("--output_root", type=str, default="runs/report2/retrain_two_cliques")
     args = parser.parse_args()
 
     base_config = {

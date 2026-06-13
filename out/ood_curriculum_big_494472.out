@@ -1,0 +1,59 @@
+=== Job info ===
+Node:  gnode10
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True
+================
+Evaluating checkpoint: runs/curriculum_er_n40_big_494470/n40_p005_curriculum_big/best.pt
+Loaded n=40 model from runs/curriculum_er_n40_big_494470/n40_p005_curriculum_big/best.pt
+
+── Test: 2chains, n_active ∈ [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40], padded to 40, 10,000 graphs ──
+  gen 4.3s  eval 1.19s  exact=0.2839  pairwise=0.9537
+  per-n_active exact match:
+    n=14: 1.0000  (680 graphs)
+    n=16: 1.0000  (716 graphs)
+    n=18: 1.0000  (751 graphs)
+    n=20: 1.0000  (692 graphs)
+    n=22: 0.0000  (716 graphs)
+    n=24: 0.0000  (713 graphs)
+    n=26: 0.0000  (693 graphs)
+    n=28: 0.0000  (742 graphs)
+    n=30: 0.0000  (720 graphs)
+    n=32: 0.0000  (723 graphs)
+    n=34: 0.0000  (680 graphs)
+    n=36: 0.0000  (714 graphs)
+    n=38: 0.0000  (735 graphs)
+    n=40: 0.0000  (725 graphs)
+
+── Test: 2cliques, n_active ∈ [14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40], padded to 40, 10,000 graphs ──
+  gen 0.5s  eval 0.26s  exact=0.0000  pairwise=0.7444
+  per-n_active exact match:
+    n=14: 0.0000  (683 graphs)
+    n=16: 0.0000  (727 graphs)
+    n=18: 0.0000  (750 graphs)
+    n=20: 0.0000  (692 graphs)
+    n=22: 0.0000  (715 graphs)
+    n=24: 0.0000  (710 graphs)
+    n=26: 0.0000  (700 graphs)
+    n=28: 0.0000  (747 graphs)
+    n=30: 0.0000  (737 graphs)
+    n=32: 0.0000  (729 graphs)
+    n=34: 0.0000  (677 graphs)
+    n=36: 0.0000  (708 graphs)
+    n=38: 0.0000  (730 graphs)
+    n=40: 0.0000  (695 graphs)
+
+── Test: unfiltered ER(n=40, p=0.05), 10,000 graphs ──
+  gen 0.6s  eval 0.60s  exact=0.9949  pairwise=0.9999
+  per-diameter-bucket exact match:
+    D≤7: 1.0000  (n = 1,329)
+    D≤9: 0.9996  (n = 5,574)
+    D≤11: 0.9991  (n = 8,548)
+    D>11: 0.9704  (n = 1,452)
+
+Results written to runs/ood_eval_curriculum_big_494472/er_n40_big_curriculum_to_structured/results.json
+Generating plots …
+  wrote runs/ood_eval_curriculum_big_494472/er_n40_big_curriculum_to_structured/per_distance_bars.png
+  wrote runs/ood_eval_curriculum_big_494472/er_n40_big_curriculum_to_structured/per_n_active.png
+  wrote runs/ood_eval_curriculum_big_494472/er_n40_big_curriculum_to_structured/per_diam_bucket_ood.png
+
+Done. Output in runs/ood_eval_curriculum_big_494472

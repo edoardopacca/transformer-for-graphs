@@ -35,7 +35,7 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cu
 echo "================"
 
 python experiments2/reproduce_paper_n20.py \
-    --output_root "runs/repro_paper_n20_roberta" \
+    --output_root "runs/report3/repro_paper_n20_roberta" \
     --arch roberta \
     --num_workers 16 \
     --train_steps 1000000 \

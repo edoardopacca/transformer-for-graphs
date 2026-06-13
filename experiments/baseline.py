@@ -79,10 +79,10 @@ def main() -> None:
     # Plot training history (uses per-epoch OOD if available, otherwise falls back to final OOD values)
     plot_training_history(out_dir / "history.json", out_dir / "training_history.png", title=fig_title)
 
-    # Copy human-facing plots into the legacy `runs/baseline` folder so quick viewers
+    # Copy human-facing plots into the legacy `runs/report1/baseline` folder so quick viewers
     # can find PNGs there while `trainings/<run_id>` keeps the full dataset/checkpoints.
     try:
-        runs_dir = PROJECT_ROOT / "runs" / "baseline"
+        runs_dir = PROJECT_ROOT / "runs" / "report1" / "baseline"
         runs_dir.mkdir(parents=True, exist_ok=True)
         src_hist = out_dir / "training_history.png"
         if src_hist.exists():
@@ -162,9 +162,9 @@ def main() -> None:
     save_json(out_dir / "distance_metrics.json", dist_metrics)
     plot_distance_accuracy(out_dir / "distance_metrics.json", out_dir / "distance_accuracy.png")
 
-    # Also copy distance plot into `runs/baseline` for quick inspection
+    # Also copy distance plot into `runs/report1/baseline` for quick inspection
     try:
-        runs_dir = PROJECT_ROOT / "runs" / "baseline"
+        runs_dir = PROJECT_ROOT / "runs" / "report1" / "baseline"
         runs_dir.mkdir(parents=True, exist_ok=True)
         src_dist = out_dir / "distance_accuracy.png"
         if src_dist.exists():

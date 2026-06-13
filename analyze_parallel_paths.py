@@ -18,8 +18,8 @@ and the structural quantities R_eff(s,t), P^(3^L)(s,t), distance.
 The contrast is sharpest when ell exceeds the L=2 capacity (3^L=9), which needs
 room: run it on the n=64 reach checkpoints (and n=40), not only n=20.
 
-    python analyze_parallel_paths.py --checkpoint runs/reach_depth/reach_n64_L2_.../last.pt \
-        --output_dir runs/reach_depth/parallel_paths --path_lens 7 9 11 13 --max_paths 4
+    python analyze_parallel_paths.py --checkpoint runs/report3/reach_depth/reach_n64_L2_.../last.pt \
+        --output_dir runs/report3/reach_depth/parallel_paths --path_lens 7 9 11 13 --max_paths 4
 """
 from __future__ import annotations
 

@@ -29,7 +29,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 python -c "import torch; print('PyTorch', torch.__version__, '| CUDA available:', torch.cuda.is_available())"
 echo "================"
 
-OUT_ROOT="runs/ood_eval_n14_${SLURM_JOB_ID}"
+OUT_ROOT="runs/report2/ood_eval_n14_${SLURM_JOB_ID}"
 mkdir -p "$OUT_ROOT"
 
 echo ""
@@ -38,7 +38,7 @@ echo "# 2chains (n=14) -> ER(n=14, p in {0.05, 0.2, 0.5})"
 echo "###################################################"
 python experiments2/ood_evaluation.py \
     --mode n14_to_er \
-    --checkpoint runs/retrain_2chains_3352759/n14_k7_rep0/best.pt \
+    --checkpoint runs/report2/retrain_2chains_3352759/n14_k7_rep0/best.pt \
     --output_dir "$OUT_ROOT/2chains_to_er" \
     --num_workers 16
 
@@ -48,7 +48,7 @@ echo "# 2cliques (n=14) -> ER(n=14, p in {0.05, 0.2, 0.5})"
 echo "###################################################"
 python experiments2/ood_evaluation.py \
     --mode n14_to_er \
-    --checkpoint runs/retrain_2cliques_3352759/n14_k7_rep0/best.pt \
+    --checkpoint runs/report2/retrain_2cliques_3352759/n14_k7_rep0/best.pt \
     --output_dir "$OUT_ROOT/2cliques_to_er" \
     --num_workers 16
 

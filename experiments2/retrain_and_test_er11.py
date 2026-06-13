@@ -567,7 +567,7 @@ def train_and_evaluate_single_run(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output_root", type=str, default="runs/retrain_er_n20_diam11")
+    parser.add_argument("--output_root", type=str, default="runs/extra/retrain_er_n20_diam11")
     args = parser.parse_args()
 
     base_config = {

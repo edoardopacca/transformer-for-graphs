@@ -1,0 +1,45 @@
+=== Job info ===
+Node:  gnode11
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130 | CUDA: True | bf16: True
+================
+
+========================================================================
+  Big ER training: ER(n=40, p=0.05), filter=diam11
+  d_model=512, normalized-ReLU, online data, bf16
+  Output: runs/retrain_er_n40_big_494191/n40_p005_diam11_big
+========================================================================
+
+Generating 10,000 test graphs (D≤11) with 16 workers …
+  done in 2.4s
+  device: cuda
+  parameters: 6,347,304
+  Starting training: 1,000,000 steps × batch 1000 = 1,000,000,000 samples
+  step    5000 | lr=1.00e-04 | loss=0.072328 | exact=0.8826 | pair=0.9957 | 617.6s for 5000 steps
+  step   10000 | lr=1.00e-04 | loss=0.007388 | exact=0.9310 | pair=0.9978 | 608.5s for 5000 steps
+  step   15000 | lr=1.00e-04 | loss=0.003896 | exact=0.9070 | pair=0.9988 | 641.6s for 5000 steps
+  step   20000 | lr=9.99e-05 | loss=0.003477 | exact=0.9476 | pair=0.9991 | 611.2s for 5000 steps
+  step   25000 | lr=9.99e-05 | loss=0.002639 | exact=0.9617 | pair=0.9991 | 611.1s for 5000 steps
+  step   30000 | lr=9.98e-05 | loss=0.002061 | exact=0.9634 | pair=0.9995 | 610.5s for 5000 steps
+  step   35000 | lr=9.97e-05 | loss=0.001728 | exact=0.9701 | pair=0.9994 | 611.8s for 5000 steps
+  step   40000 | lr=9.96e-05 | loss=0.001493 | exact=0.9671 | pair=0.9995 | 608.2s for 5000 steps
+  step   45000 | lr=9.95e-05 | loss=0.001293 | exact=0.9626 | pair=0.9992 | 611.9s for 5000 steps
+  step   50000 | lr=9.94e-05 | loss=0.001176 | exact=0.9667 | pair=0.9996 | 614.1s for 5000 steps
+  step   55000 | lr=9.93e-05 | loss=0.001025 | exact=0.9790 | pair=0.9997 | 611.4s for 5000 steps
+  step   60000 | lr=9.91e-05 | loss=0.000948 | exact=0.9782 | pair=0.9998 | 612.1s for 5000 steps
+  step   65000 | lr=9.90e-05 | loss=0.000869 | exact=0.9780 | pair=0.9998 | 614.3s for 5000 steps
+  step   70000 | lr=9.88e-05 | loss=0.000787 | exact=0.9808 | pair=0.9999 | 625.5s for 5000 steps
+  step   75000 | lr=9.87e-05 | loss=0.000735 | exact=0.9827 | pair=0.9998 | 609.8s for 5000 steps
+  step   80000 | lr=9.85e-05 | loss=0.000716 | exact=0.9755 | pair=0.9997 | 611.7s for 5000 steps
+  step   85000 | lr=9.83e-05 | loss=0.000632 | exact=0.9824 | pair=0.9998 | 609.9s for 5000 steps
+  step   90000 | lr=9.81e-05 | loss=0.000605 | exact=0.9753 | pair=0.9997 | 611.0s for 5000 steps
+  step   95000 | lr=9.78e-05 | loss=0.000549 | exact=0.9855 | pair=0.9999 | 613.4s for 5000 steps
+  step  100000 | lr=9.76e-05 | loss=0.000496 | exact=0.9821 | pair=0.9998 | 608.2s for 5000 steps
+  step  105000 | lr=9.73e-05 | loss=0.000481 | exact=0.9878 | pair=0.9999 | 609.1s for 5000 steps
+  step  110000 | lr=9.71e-05 | loss=0.000414 | exact=0.9893 | pair=0.9999 | 610.1s for 5000 steps
+  step  115000 | lr=9.68e-05 | loss=0.000387 | exact=0.9877 | pair=0.9999 | 608.6s for 5000 steps
+  step  120000 | lr=9.65e-05 | loss=0.000370 | exact=0.9890 | pair=0.9999 | 612.5s for 5000 steps
+  step  125000 | lr=9.62e-05 | loss=0.000318 | exact=0.9907 | pair=0.9999 | 609.0s for 5000 steps
+  step  130000 | lr=9.59e-05 | loss=0.000314 | exact=0.9891 | pair=0.9999 | 612.8s for 5000 steps
+  step  135000 | lr=9.56e-05 | loss=0.000263 | exact=0.9922 | pair=0.9999 | 610.1s for 5000 steps
+  step  140000 | lr=9.53e-05 | loss=0.000281 | exact=0.9930 | pair=1.0000 | 613.7s for 5000 steps

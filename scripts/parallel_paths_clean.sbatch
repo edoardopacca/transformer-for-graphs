@@ -34,6 +34,6 @@ run () {
 
 for FAM in er mixed; do
   for S in 1000 2000 3000 4000; do
-    run "runs/families_n40/n40_${FAM}_roberta_linear_lam0_seed${S}/last.pt"
+    run "runs/report4/families_n40/n40_${FAM}_roberta_linear_lam0_seed${S}/last.pt"
   done
 done

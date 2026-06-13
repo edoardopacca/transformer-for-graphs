@@ -32,10 +32,10 @@ source ~/.bashrc
 conda activate graph_tf
 
 cd $SLURM_SUBMIT_DIR
-OUT_ROOT="runs/families_n20"
+OUT_ROOT="runs/report4/families_n20"
 STEPS=1000000
 LAMSTAR=1e-3                 # chosen from analysis + n=64 evidence; verified by the seed-1000 sweep
-EXISTING_ROOT="runs/repro_paper_n20_roberta"
+EXISTING_ROOT="runs/report3/repro_paper_n20_roberta"
 
 # ---- build the ordered RUNS table: "SET READOUT LAMBDA SEED ACTION" ----------
 RUNS=()

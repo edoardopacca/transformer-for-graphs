@@ -32,7 +32,7 @@ echo "================"
 # IMPORTANT: edit CKPT below to point at the curriculum run you want to evaluate.
 # Easiest: list the runs/ directory after the training job finishes and copy the
 # path of the n40_p005_curriculum/best.pt that was produced.
-CKPT="${CURRICULUM_CKPT:-$(ls -1dt runs/curriculum_er_n40_*/n40_p005_curriculum/best.pt 2>/dev/null | head -n 1)}"
+CKPT="${CURRICULUM_CKPT:-$(ls -1dt runs/report2/curriculum_er_n40_*/n40_p005_curriculum/best.pt 2>/dev/null | head -n 1)}"
 
 if [ -z "$CKPT" ] || [ ! -f "$CKPT" ]; then
     echo "ERROR: could not find curriculum checkpoint."
@@ -43,7 +43,7 @@ fi
 
 echo "Evaluating checkpoint: $CKPT"
 
-OUT_ROOT="runs/ood_eval_curriculum_${SLURM_JOB_ID}"
+OUT_ROOT="runs/report2/ood_eval_curriculum_${SLURM_JOB_ID}"
 mkdir -p "$OUT_ROOT"
 
 python experiments2/ood_evaluation.py \

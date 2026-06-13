@@ -95,7 +95,7 @@ def main() -> None:
     diameters = [None, 7, 9, 11]
 
     aggregated: dict[str, Any] = {}
-    out_runs = PROJECT_ROOT / "runs" / "restrict_diameter_sweep"
+    out_runs = PROJECT_ROOT / "runs" / "report1" / "restrict_diameter_sweep"
     ensure_dir(out_runs)
 
     for p in ps:

@@ -36,7 +36,7 @@ echo "================"
 
 # diam(G) <= 9 = 3^L (L=2): the "data lever" -> Restrict Diameter (<=9)
 python experiments2/reproduce_paper_n20.py \
-    --output_root "runs/repro_paper_n20" \
+    --output_root "runs/report3/repro_paper_n20" \
     --max_diameter 9 \
     --num_workers 16 \
     --train_steps 1000000 \

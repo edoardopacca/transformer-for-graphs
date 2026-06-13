@@ -12,7 +12,7 @@ lambda (~1e-3) and (ii) keep it at 0 for the first ``lap_warmup_start`` steps,
 then ramp linearly over ``lap_warmup_ramp`` steps, so the local solution forms
 before smoothness is applied as a regulariser.
 
-  python experiments2/train_families_n20.py --output_root runs/families \
+  python experiments2/train_families_n20.py --output_root runs/report4/families \
       --families mixed --arch roberta --readout similarity --lambda_lap 1e-3 \
       --train_steps 1000000 --batch_size 1000 --seed 1000
 """

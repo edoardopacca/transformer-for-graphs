@@ -33,7 +33,7 @@ source ~/.bashrc
 conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
-OUT_ROOT="runs/families_n40"
+OUT_ROOT="runs/report4/families_n40"
 STEPS=1000000
 
 RUNS=()

@@ -36,10 +36,10 @@ run () {  # $1 = checkpoint path
 # ---- n=40 mixed, linear + similarity, four seeds ----
 for RO in linear similarity; do
   for S in 1000 2000 3000 4000; do
-    run "runs/families_n40/n40_mixed_roberta_${RO}_lam0_seed${S}/last.pt"
+    run "runs/report4/families_n40/n40_mixed_roberta_${RO}_lam0_seed${S}/last.pt"
   done
 done
 
 # ---- n=64 depth-sweep L=2 (linear + similarity), for the depth comparison ----
-run "runs/reach_depth/reach_n64_L2_normalized_relu_seed1000/last.pt"
-run "runs/reach_depth/reach_n64_L2_normalized_relu_similarity_seed1000/last.pt"
+run "runs/report3/reach_depth/reach_n64_L2_normalized_relu_seed1000/last.pt"
+run "runs/report3/reach_depth/reach_n64_L2_normalized_relu_similarity_seed1000/last.pt"

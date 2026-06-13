@@ -73,7 +73,7 @@ def evaluate(model, xs, ys, device, batch=128):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", default="runs/reach_depth")
+    ap.add_argument("--runs_dir", default="runs/report3/reach_depth")
     ap.add_argument("--size", type=int, default=5000)
     args = ap.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available()

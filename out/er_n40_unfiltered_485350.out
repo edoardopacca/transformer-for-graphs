@@ -1,0 +1,764 @@
+=== Job info ===
+Node:     gnode11
+GPUs:     0
+NVIDIA H200 NVL, 143771 MiB
+PyTorch 2.11.0+cu130
+CUDA available: True
+================
+
+============================================================
+Experiment: ER(n=40, p=0.05)  filter=unfiltered
+Output:     runs/retrain_er_n40_485350/n40_p005_unfiltered
+============================================================
+
+Generating 6,000,000 train samples (unfiltered) with 16 workers …
+  train    25,000/6,000,000
+  train    50,000/6,000,000
+  train    75,000/6,000,000
+  train   100,000/6,000,000
+  train   125,000/6,000,000
+  train   150,000/6,000,000
+  train   175,000/6,000,000
+  train   200,000/6,000,000
+  train   225,000/6,000,000
+  train   250,000/6,000,000
+  train   275,000/6,000,000
+  train   300,000/6,000,000
+  train   325,000/6,000,000
+  train   350,000/6,000,000
+  train   375,000/6,000,000
+  train   400,000/6,000,000
+  train   425,000/6,000,000
+  train   450,000/6,000,000
+  train   475,000/6,000,000
+  train   500,000/6,000,000
+  train   525,000/6,000,000
+  train   550,000/6,000,000
+  train   575,000/6,000,000
+  train   600,000/6,000,000
+  train   625,000/6,000,000
+  train   650,000/6,000,000
+  train   675,000/6,000,000
+  train   700,000/6,000,000
+  train   725,000/6,000,000
+  train   750,000/6,000,000
+  train   775,000/6,000,000
+  train   800,000/6,000,000
+  train   825,000/6,000,000
+  train   850,000/6,000,000
+  train   875,000/6,000,000
+  train   900,000/6,000,000
+  train   925,000/6,000,000
+  train   950,000/6,000,000
+  train   975,000/6,000,000
+  train 1,000,000/6,000,000
+  train 1,025,000/6,000,000
+  train 1,050,000/6,000,000
+  train 1,075,000/6,000,000
+  train 1,100,000/6,000,000
+  train 1,125,000/6,000,000
+  train 1,150,000/6,000,000
+  train 1,175,000/6,000,000
+  train 1,200,000/6,000,000
+  train 1,225,000/6,000,000
+  train 1,250,000/6,000,000
+  train 1,275,000/6,000,000
+  train 1,300,000/6,000,000
+  train 1,325,000/6,000,000
+  train 1,350,000/6,000,000
+  train 1,375,000/6,000,000
+  train 1,400,000/6,000,000
+  train 1,425,000/6,000,000
+  train 1,450,000/6,000,000
+  train 1,475,000/6,000,000
+  train 1,500,000/6,000,000
+  train 1,525,000/6,000,000
+  train 1,550,000/6,000,000
+  train 1,575,000/6,000,000
+  train 1,600,000/6,000,000
+  train 1,625,000/6,000,000
+  train 1,650,000/6,000,000
+  train 1,675,000/6,000,000
+  train 1,700,000/6,000,000
+  train 1,725,000/6,000,000
+  train 1,750,000/6,000,000
+  train 1,775,000/6,000,000
+  train 1,800,000/6,000,000
+  train 1,825,000/6,000,000
+  train 1,850,000/6,000,000
+  train 1,875,000/6,000,000
+  train 1,900,000/6,000,000
+  train 1,925,000/6,000,000
+  train 1,950,000/6,000,000
+  train 1,975,000/6,000,000
+  train 2,000,000/6,000,000
+  train 2,025,000/6,000,000
+  train 2,050,000/6,000,000
+  train 2,075,000/6,000,000
+  train 2,100,000/6,000,000
+  train 2,125,000/6,000,000
+  train 2,150,000/6,000,000
+  train 2,175,000/6,000,000
+  train 2,200,000/6,000,000
+  train 2,225,000/6,000,000
+  train 2,250,000/6,000,000
+  train 2,275,000/6,000,000
+  train 2,300,000/6,000,000
+  train 2,325,000/6,000,000
+  train 2,350,000/6,000,000
+  train 2,375,000/6,000,000
+  train 2,400,000/6,000,000
+  train 2,425,000/6,000,000
+  train 2,450,000/6,000,000
+  train 2,475,000/6,000,000
+  train 2,500,000/6,000,000
+  train 2,525,000/6,000,000
+  train 2,550,000/6,000,000
+  train 2,575,000/6,000,000
+  train 2,600,000/6,000,000
+  train 2,625,000/6,000,000
+  train 2,650,000/6,000,000
+  train 2,675,000/6,000,000
+  train 2,700,000/6,000,000
+  train 2,725,000/6,000,000
+  train 2,750,000/6,000,000
+  train 2,775,000/6,000,000
+  train 2,800,000/6,000,000
+  train 2,825,000/6,000,000
+  train 2,850,000/6,000,000
+  train 2,875,000/6,000,000
+  train 2,900,000/6,000,000
+  train 2,925,000/6,000,000
+  train 2,950,000/6,000,000
+  train 2,975,000/6,000,000
+  train 3,000,000/6,000,000
+  train 3,025,000/6,000,000
+  train 3,050,000/6,000,000
+  train 3,075,000/6,000,000
+  train 3,100,000/6,000,000
+  train 3,125,000/6,000,000
+  train 3,150,000/6,000,000
+  train 3,175,000/6,000,000
+  train 3,200,000/6,000,000
+  train 3,225,000/6,000,000
+  train 3,250,000/6,000,000
+  train 3,275,000/6,000,000
+  train 3,300,000/6,000,000
+  train 3,325,000/6,000,000
+  train 3,350,000/6,000,000
+  train 3,375,000/6,000,000
+  train 3,400,000/6,000,000
+  train 3,425,000/6,000,000
+  train 3,450,000/6,000,000
+  train 3,475,000/6,000,000
+  train 3,500,000/6,000,000
+  train 3,525,000/6,000,000
+  train 3,550,000/6,000,000
+  train 3,575,000/6,000,000
+  train 3,600,000/6,000,000
+  train 3,625,000/6,000,000
+  train 3,650,000/6,000,000
+  train 3,675,000/6,000,000
+  train 3,700,000/6,000,000
+  train 3,725,000/6,000,000
+  train 3,750,000/6,000,000
+  train 3,775,000/6,000,000
+  train 3,800,000/6,000,000
+  train 3,825,000/6,000,000
+  train 3,850,000/6,000,000
+  train 3,875,000/6,000,000
+  train 3,900,000/6,000,000
+  train 3,925,000/6,000,000
+  train 3,950,000/6,000,000
+  train 3,975,000/6,000,000
+  train 4,000,000/6,000,000
+  train 4,025,000/6,000,000
+  train 4,050,000/6,000,000
+  train 4,075,000/6,000,000
+  train 4,100,000/6,000,000
+  train 4,125,000/6,000,000
+  train 4,150,000/6,000,000
+  train 4,175,000/6,000,000
+  train 4,200,000/6,000,000
+  train 4,225,000/6,000,000
+  train 4,250,000/6,000,000
+  train 4,275,000/6,000,000
+  train 4,300,000/6,000,000
+  train 4,325,000/6,000,000
+  train 4,350,000/6,000,000
+  train 4,375,000/6,000,000
+  train 4,400,000/6,000,000
+  train 4,425,000/6,000,000
+  train 4,450,000/6,000,000
+  train 4,475,000/6,000,000
+  train 4,500,000/6,000,000
+  train 4,525,000/6,000,000
+  train 4,550,000/6,000,000
+  train 4,575,000/6,000,000
+  train 4,600,000/6,000,000
+  train 4,625,000/6,000,000
+  train 4,650,000/6,000,000
+  train 4,675,000/6,000,000
+  train 4,700,000/6,000,000
+  train 4,725,000/6,000,000
+  train 4,750,000/6,000,000
+  train 4,775,000/6,000,000
+  train 4,800,000/6,000,000
+  train 4,825,000/6,000,000
+  train 4,850,000/6,000,000
+  train 4,875,000/6,000,000
+  train 4,900,000/6,000,000
+  train 4,925,000/6,000,000
+  train 4,950,000/6,000,000
+  train 4,975,000/6,000,000
+  train 5,000,000/6,000,000
+  train 5,025,000/6,000,000
+  train 5,050,000/6,000,000
+  train 5,075,000/6,000,000
+  train 5,100,000/6,000,000
+  train 5,125,000/6,000,000
+  train 5,150,000/6,000,000
+  train 5,175,000/6,000,000
+  train 5,200,000/6,000,000
+  train 5,225,000/6,000,000
+  train 5,250,000/6,000,000
+  train 5,275,000/6,000,000
+  train 5,300,000/6,000,000
+  train 5,325,000/6,000,000
+  train 5,350,000/6,000,000
+  train 5,375,000/6,000,000
+  train 5,400,000/6,000,000
+  train 5,425,000/6,000,000
+  train 5,450,000/6,000,000
+  train 5,475,000/6,000,000
+  train 5,500,000/6,000,000
+  train 5,525,000/6,000,000
+  train 5,550,000/6,000,000
+  train 5,575,000/6,000,000
+  train 5,600,000/6,000,000
+  train 5,625,000/6,000,000
+  train 5,650,000/6,000,000
+  train 5,675,000/6,000,000
+  train 5,700,000/6,000,000
+  train 5,725,000/6,000,000
+  train 5,750,000/6,000,000
+  train 5,775,000/6,000,000
+  train 5,800,000/6,000,000
+  train 5,825,000/6,000,000
+  train 5,850,000/6,000,000
+  train 5,875,000/6,000,000
+  train 5,900,000/6,000,000
+  train 5,925,000/6,000,000
+  train 5,950,000/6,000,000
+  train 5,975,000/6,000,000
+  train 6,000,000/6,000,000
+  train done in 581.0s (9.7 min)
+Generating 10,000 test samples (unfiltered) …
+  test  done in 15.5s
+RAM after generation: 18.6 GB
+
+  device: cuda
+  parameters: 72,296
+  step   1000  loss=0.21628  exact=0.2666  pairwise=0.9564
+  step   2000  loss=0.11398  exact=0.4403  pairwise=0.9661
+  step   3000  loss=0.09251  exact=0.4859  pairwise=0.9711
+  step   4000  loss=0.08035  exact=0.5892  pairwise=0.9734
+  step   5000  loss=0.07257  exact=0.6536  pairwise=0.9752
+  step   6000  loss=0.06937  exact=0.5489  pairwise=0.9767
+  step   7000  loss=0.06562  exact=0.6907  pairwise=0.9769
+  step   8000  loss=0.06423  exact=0.6655  pairwise=0.9772
+  step   9000  loss=0.06117  exact=0.6841  pairwise=0.9790
+  step  10000  loss=0.05973  exact=0.6846  pairwise=0.9797
+  step  11000  loss=0.05840  exact=0.6648  pairwise=0.9799
+  step  12000  loss=0.05759  exact=0.7047  pairwise=0.9798
+  step  13000  loss=0.05574  exact=0.6694  pairwise=0.9811
+  step  14000  loss=0.05495  exact=0.6307  pairwise=0.9801
+  step  15000  loss=0.05452  exact=0.6552  pairwise=0.9807
+  step  16000  loss=0.05368  exact=0.6843  pairwise=0.9811
+  step  17000  loss=0.05284  exact=0.6573  pairwise=0.9812
+  step  18000  loss=0.05288  exact=0.7489  pairwise=0.9798
+  step  19000  loss=0.05159  exact=0.6891  pairwise=0.9819
+  step  20000  loss=0.05070  exact=0.7141  pairwise=0.9814
+  step  21000  loss=0.05099  exact=0.7457  pairwise=0.9820
+  step  22000  loss=0.05047  exact=0.7127  pairwise=0.9819
+  step  23000  loss=0.04936  exact=0.7241  pairwise=0.9810
+  step  24000  loss=0.04839  exact=0.7474  pairwise=0.9827
+  step  25000  loss=0.04888  exact=0.7515  pairwise=0.9816
+  step  26000  loss=0.04820  exact=0.7240  pairwise=0.9824
+  step  27000  loss=0.04736  exact=0.6819  pairwise=0.9826
+  step  28000  loss=0.04719  exact=0.6934  pairwise=0.9825
+  step  29000  loss=0.04755  exact=0.6631  pairwise=0.9829
+  step  30000  loss=0.04620  exact=0.7487  pairwise=0.9825
+  step  31000  loss=0.04635  exact=0.6882  pairwise=0.9828
+  step  32000  loss=0.04632  exact=0.7425  pairwise=0.9834
+  step  33000  loss=0.04495  exact=0.7453  pairwise=0.9840
+  step  34000  loss=0.04526  exact=0.7586  pairwise=0.9833
+  step  35000  loss=0.04446  exact=0.7279  pairwise=0.9839
+  step  36000  loss=0.04418  exact=0.7300  pairwise=0.9840
+  step  37000  loss=0.04432  exact=0.7287  pairwise=0.9828
+  step  38000  loss=0.04419  exact=0.7291  pairwise=0.9842
+  step  39000  loss=0.04345  exact=0.7368  pairwise=0.9846
+  step  40000  loss=0.04333  exact=0.7454  pairwise=0.9844
+  step  41000  loss=0.04358  exact=0.7484  pairwise=0.9846
+  step  42000  loss=0.04241  exact=0.7552  pairwise=0.9843
+  step  43000  loss=0.04231  exact=0.7536  pairwise=0.9837
+  step  44000  loss=0.04208  exact=0.6975  pairwise=0.9840
+  step  45000  loss=0.04208  exact=0.7435  pairwise=0.9847
+  step  46000  loss=0.04182  exact=0.6525  pairwise=0.9833
+  step  47000  loss=0.04124  exact=0.7676  pairwise=0.9849
+  step  48000  loss=0.04149  exact=0.7643  pairwise=0.9848
+  step  49000  loss=0.04129  exact=0.7343  pairwise=0.9852
+  step  50000  loss=0.04075  exact=0.7095  pairwise=0.9852
+  step  51000  loss=0.04060  exact=0.7372  pairwise=0.9851
+  step  52000  loss=0.04002  exact=0.7380  pairwise=0.9849
+  step  53000  loss=0.03972  exact=0.7532  pairwise=0.9853
+  step  54000  loss=0.03970  exact=0.7123  pairwise=0.9854
+  step  55000  loss=0.03961  exact=0.7438  pairwise=0.9854
+  step  56000  loss=0.03944  exact=0.7489  pairwise=0.9857
+  step  57000  loss=0.03916  exact=0.7631  pairwise=0.9857
+  step  58000  loss=0.03861  exact=0.6925  pairwise=0.9849
+  step  59000  loss=0.03882  exact=0.7772  pairwise=0.9860
+  step  60000  loss=0.03856  exact=0.7769  pairwise=0.9849
+  step  61000  loss=0.03814  exact=0.7889  pairwise=0.9855
+  step  62000  loss=0.03821  exact=0.7089  pairwise=0.9852
+  step  63000  loss=0.03804  exact=0.7558  pairwise=0.9848
+  step  64000  loss=0.03775  exact=0.7402  pairwise=0.9864
+  step  65000  loss=0.03729  exact=0.7683  pairwise=0.9864
+  step  66000  loss=0.03754  exact=0.6941  pairwise=0.9858
+  step  67000  loss=0.03706  exact=0.7234  pairwise=0.9858
+  step  68000  loss=0.03726  exact=0.7184  pairwise=0.9862
+  step  69000  loss=0.03700  exact=0.7435  pairwise=0.9861
+  step  70000  loss=0.03705  exact=0.7622  pairwise=0.9868
+  step  71000  loss=0.03616  exact=0.7406  pairwise=0.9864
+  step  72000  loss=0.03660  exact=0.7602  pairwise=0.9863
+  step  73000  loss=0.03642  exact=0.7725  pairwise=0.9867
+  step  74000  loss=0.03596  exact=0.7137  pairwise=0.9864
+  step  75000  loss=0.03586  exact=0.7149  pairwise=0.9857
+  step  76000  loss=0.03595  exact=0.7645  pairwise=0.9865
+  step  77000  loss=0.03596  exact=0.7498  pairwise=0.9866
+  step  78000  loss=0.03566  exact=0.7319  pairwise=0.9868
+  step  79000  loss=0.03530  exact=0.7672  pairwise=0.9866
+  step  80000  loss=0.03568  exact=0.7693  pairwise=0.9866
+  step  81000  loss=0.03503  exact=0.7013  pairwise=0.9864
+  step  82000  loss=0.03534  exact=0.7496  pairwise=0.9868
+  step  83000  loss=0.03501  exact=0.7492  pairwise=0.9865
+  step  84000  loss=0.03506  exact=0.7714  pairwise=0.9871
+  step  85000  loss=0.03437  exact=0.7538  pairwise=0.9874
+  step  86000  loss=0.03479  exact=0.7449  pairwise=0.9873
+  step  87000  loss=0.03464  exact=0.7382  pairwise=0.9874
+  step  88000  loss=0.03408  exact=0.7686  pairwise=0.9877
+  step  89000  loss=0.03461  exact=0.7586  pairwise=0.9875
+  step  90000  loss=0.03384  exact=0.7709  pairwise=0.9876
+  step  91000  loss=0.03426  exact=0.7333  pairwise=0.9872
+  step  92000  loss=0.03377  exact=0.7579  pairwise=0.9877
+  step  93000  loss=0.03378  exact=0.7804  pairwise=0.9875
+  step  94000  loss=0.03396  exact=0.7296  pairwise=0.9872
+  step  95000  loss=0.03348  exact=0.7823  pairwise=0.9873
+  step  96000  loss=0.03356  exact=0.7184  pairwise=0.9863
+  step  97000  loss=0.03355  exact=0.7698  pairwise=0.9875
+  step  98000  loss=0.03334  exact=0.7641  pairwise=0.9882
+  step  99000  loss=0.03333  exact=0.7573  pairwise=0.9873
+  step 100000  loss=0.03263  exact=0.7402  pairwise=0.9880
+  step 101000  loss=0.03268  exact=0.7187  pairwise=0.9873
+  step 102000  loss=0.03286  exact=0.7654  pairwise=0.9875
+  step 103000  loss=0.03316  exact=0.7635  pairwise=0.9877
+  step 104000  loss=0.03244  exact=0.7561  pairwise=0.9879
+  step 105000  loss=0.03306  exact=0.7216  pairwise=0.9878
+  step 106000  loss=0.03274  exact=0.7507  pairwise=0.9879
+  step 107000  loss=0.03232  exact=0.7407  pairwise=0.9878
+  step 108000  loss=0.03258  exact=0.7991  pairwise=0.9878
+  step 109000  loss=0.03236  exact=0.7560  pairwise=0.9881
+  step 110000  loss=0.03248  exact=0.7124  pairwise=0.9874
+  step 111000  loss=0.03203  exact=0.7819  pairwise=0.9883
+  step 112000  loss=0.03217  exact=0.7937  pairwise=0.9877
+  step 113000  loss=0.03185  exact=0.7486  pairwise=0.9882
+  step 114000  loss=0.03213  exact=0.7796  pairwise=0.9880
+  step 115000  loss=0.03210  exact=0.7678  pairwise=0.9881
+  step 116000  loss=0.03190  exact=0.7699  pairwise=0.9880
+  step 117000  loss=0.03194  exact=0.7934  pairwise=0.9877
+  step 118000  loss=0.03172  exact=0.7917  pairwise=0.9880
+  step 119000  loss=0.03136  exact=0.7537  pairwise=0.9881
+  step 120000  loss=0.03150  exact=0.7554  pairwise=0.9883
+  step 121000  loss=0.03193  exact=0.7756  pairwise=0.9883
+  step 122000  loss=0.03109  exact=0.7719  pairwise=0.9884
+  step 123000  loss=0.03193  exact=0.7517  pairwise=0.9884
+  step 124000  loss=0.03129  exact=0.7722  pairwise=0.9886
+  step 125000  loss=0.03190  exact=0.7832  pairwise=0.9882
+  step 126000  loss=0.03124  exact=0.7333  pairwise=0.9880
+  step 127000  loss=0.03138  exact=0.7569  pairwise=0.9883
+  step 128000  loss=0.03120  exact=0.7464  pairwise=0.9887
+  step 129000  loss=0.03126  exact=0.7667  pairwise=0.9885
+  step 130000  loss=0.03138  exact=0.7548  pairwise=0.9887
+  step 131000  loss=0.03096  exact=0.7574  pairwise=0.9884
+  step 132000  loss=0.03101  exact=0.7647  pairwise=0.9885
+  step 133000  loss=0.03074  exact=0.7646  pairwise=0.9883
+  step 134000  loss=0.03099  exact=0.7416  pairwise=0.9881
+  step 135000  loss=0.03095  exact=0.7947  pairwise=0.9882
+  step 136000  loss=0.03097  exact=0.7636  pairwise=0.9881
+  step 137000  loss=0.03140  exact=0.7173  pairwise=0.9874
+  step 138000  loss=0.03096  exact=0.7616  pairwise=0.9887
+  step 139000  loss=0.03072  exact=0.7331  pairwise=0.9877
+  step 140000  loss=0.03106  exact=0.7562  pairwise=0.9887
+  step 141000  loss=0.03088  exact=0.7898  pairwise=0.9888
+  step 142000  loss=0.03053  exact=0.7694  pairwise=0.9888
+  step 143000  loss=0.03050  exact=0.7917  pairwise=0.9884
+  step 144000  loss=0.03056  exact=0.7656  pairwise=0.9881
+  step 145000  loss=0.03073  exact=0.7516  pairwise=0.9881
+  step 146000  loss=0.03075  exact=0.7502  pairwise=0.9882
+  step 147000  loss=0.03030  exact=0.7685  pairwise=0.9883
+  step 148000  loss=0.03014  exact=0.7750  pairwise=0.9885
+  step 149000  loss=0.03039  exact=0.7307  pairwise=0.9882
+  step 150000  loss=0.03042  exact=0.7617  pairwise=0.9885
+  step 151000  loss=0.03045  exact=0.7430  pairwise=0.9889
+  step 152000  loss=0.03018  exact=0.7766  pairwise=0.9888
+  step 153000  loss=0.03060  exact=0.7606  pairwise=0.9889
+  step 154000  loss=0.03037  exact=0.7701  pairwise=0.9887
+  step 155000  loss=0.03006  exact=0.7592  pairwise=0.9888
+  step 156000  loss=0.02997  exact=0.7788  pairwise=0.9887
+  step 157000  loss=0.03039  exact=0.7664  pairwise=0.9884
+  step 158000  loss=0.03026  exact=0.7720  pairwise=0.9888
+  step 159000  loss=0.02981  exact=0.7553  pairwise=0.9889
+  step 160000  loss=0.03012  exact=0.7798  pairwise=0.9887
+  step 161000  loss=0.03062  exact=0.7443  pairwise=0.9885
+  step 162000  loss=0.02986  exact=0.7787  pairwise=0.9885
+  step 163000  loss=0.03002  exact=0.7470  pairwise=0.9891
+  step 164000  loss=0.02974  exact=0.7913  pairwise=0.9888
+  step 165000  loss=0.02977  exact=0.7688  pairwise=0.9887
+  step 166000  loss=0.02987  exact=0.7212  pairwise=0.9881
+  step 167000  loss=0.02985  exact=0.7629  pairwise=0.9889
+  step 168000  loss=0.02962  exact=0.7669  pairwise=0.9891
+  step 169000  loss=0.02965  exact=0.7697  pairwise=0.9890
+  step 170000  loss=0.02975  exact=0.7863  pairwise=0.9893
+  step 171000  loss=0.02972  exact=0.7692  pairwise=0.9890
+  step 172000  loss=0.02955  exact=0.7863  pairwise=0.9888
+  step 173000  loss=0.02961  exact=0.7365  pairwise=0.9880
+  step 174000  loss=0.02994  exact=0.7705  pairwise=0.9892
+  step 175000  loss=0.02957  exact=0.7788  pairwise=0.9890
+  step 176000  loss=0.02994  exact=0.8070  pairwise=0.9883
+  step 177000  loss=0.02986  exact=0.7806  pairwise=0.9890
+  step 178000  loss=0.02929  exact=0.7915  pairwise=0.9889
+  step 179000  loss=0.02917  exact=0.7930  pairwise=0.9889
+  step 180000  loss=0.02976  exact=0.7673  pairwise=0.9890
+  step 181000  loss=0.02967  exact=0.7646  pairwise=0.9891
+  step 182000  loss=0.02922  exact=0.7596  pairwise=0.9884
+  step 183000  loss=0.02944  exact=0.7504  pairwise=0.9884
+  step 184000  loss=0.02939  exact=0.7750  pairwise=0.9890
+  step 185000  loss=0.02936  exact=0.7645  pairwise=0.9892
+  step 186000  loss=0.02995  exact=0.7414  pairwise=0.9892
+  step 187000  loss=0.02923  exact=0.7387  pairwise=0.9887
+  step 188000  loss=0.02949  exact=0.7463  pairwise=0.9889
+  step 189000  loss=0.02919  exact=0.7509  pairwise=0.9891
+  step 190000  loss=0.02940  exact=0.7953  pairwise=0.9885
+  step 191000  loss=0.02923  exact=0.7671  pairwise=0.9891
+  step 192000  loss=0.02936  exact=0.7742  pairwise=0.9887
+  step 193000  loss=0.02931  exact=0.7540  pairwise=0.9893
+  step 194000  loss=0.02914  exact=0.7587  pairwise=0.9890
+  step 195000  loss=0.02866  exact=0.7390  pairwise=0.9891
+  step 196000  loss=0.02914  exact=0.7674  pairwise=0.9890
+  step 197000  loss=0.02913  exact=0.7740  pairwise=0.9894
+  step 198000  loss=0.02937  exact=0.7657  pairwise=0.9891
+  step 199000  loss=0.02866  exact=0.7664  pairwise=0.9893
+  step 200000  loss=0.02894  exact=0.8060  pairwise=0.9886
+  step 201000  loss=0.02896  exact=0.8019  pairwise=0.9882
+  step 202000  loss=0.02910  exact=0.7893  pairwise=0.9890
+  step 203000  loss=0.02910  exact=0.7233  pairwise=0.9888
+  step 204000  loss=0.02898  exact=0.7338  pairwise=0.9893
+  step 205000  loss=0.02912  exact=0.7750  pairwise=0.9892
+  step 206000  loss=0.02908  exact=0.7515  pairwise=0.9888
+  step 207000  loss=0.02904  exact=0.7290  pairwise=0.9890
+  step 208000  loss=0.02897  exact=0.7563  pairwise=0.9892
+  step 209000  loss=0.02890  exact=0.7727  pairwise=0.9896
+  step 210000  loss=0.02857  exact=0.7686  pairwise=0.9894
+  step 211000  loss=0.02871  exact=0.8116  pairwise=0.9888
+  step 212000  loss=0.02887  exact=0.7597  pairwise=0.9895
+  step 213000  loss=0.02900  exact=0.7814  pairwise=0.9882
+  step 214000  loss=0.02889  exact=0.7572  pairwise=0.9893
+  step 215000  loss=0.02891  exact=0.7875  pairwise=0.9893
+  step 216000  loss=0.02871  exact=0.7071  pairwise=0.9888
+  step 217000  loss=0.02891  exact=0.7931  pairwise=0.9890
+  step 218000  loss=0.02821  exact=0.7627  pairwise=0.9894
+  step 219000  loss=0.02839  exact=0.7578  pairwise=0.9893
+  step 220000  loss=0.02874  exact=0.7636  pairwise=0.9896
+  step 221000  loss=0.02869  exact=0.7777  pairwise=0.9888
+  step 222000  loss=0.02849  exact=0.7790  pairwise=0.9888
+  step 223000  loss=0.02868  exact=0.7834  pairwise=0.9893
+  step 224000  loss=0.02839  exact=0.7628  pairwise=0.9897
+  step 225000  loss=0.02887  exact=0.7700  pairwise=0.9888
+  step 226000  loss=0.02834  exact=0.7393  pairwise=0.9883
+  step 227000  loss=0.02861  exact=0.7748  pairwise=0.9894
+  step 228000  loss=0.02853  exact=0.7542  pairwise=0.9890
+  step 229000  loss=0.02858  exact=0.7656  pairwise=0.9896
+  step 230000  loss=0.02873  exact=0.7807  pairwise=0.9896
+  step 231000  loss=0.02854  exact=0.7844  pairwise=0.9895
+  step 232000  loss=0.02860  exact=0.7750  pairwise=0.9896
+  step 233000  loss=0.02823  exact=0.7629  pairwise=0.9896
+  step 234000  loss=0.02831  exact=0.7566  pairwise=0.9892
+  step 235000  loss=0.02833  exact=0.7696  pairwise=0.9893
+  step 236000  loss=0.02806  exact=0.7531  pairwise=0.9899
+  step 237000  loss=0.02806  exact=0.7625  pairwise=0.9899
+  step 238000  loss=0.02835  exact=0.7687  pairwise=0.9894
+  step 239000  loss=0.02819  exact=0.7834  pairwise=0.9893
+  step 240000  loss=0.02877  exact=0.7917  pairwise=0.9888
+  step 241000  loss=0.02815  exact=0.7702  pairwise=0.9894
+  step 242000  loss=0.02841  exact=0.7722  pairwise=0.9896
+  step 243000  loss=0.02819  exact=0.7998  pairwise=0.9895
+  step 244000  loss=0.02812  exact=0.7776  pairwise=0.9896
+  step 245000  loss=0.02832  exact=0.7710  pairwise=0.9895
+  step 246000  loss=0.02805  exact=0.7988  pairwise=0.9886
+  step 247000  loss=0.02778  exact=0.7522  pairwise=0.9893
+  step 248000  loss=0.02835  exact=0.7731  pairwise=0.9893
+  step 249000  loss=0.02838  exact=0.7135  pairwise=0.9883
+  step 250000  loss=0.02812  exact=0.7685  pairwise=0.9895
+  step 251000  loss=0.02806  exact=0.7367  pairwise=0.9895
+  step 252000  loss=0.02817  exact=0.7442  pairwise=0.9892
+  step 253000  loss=0.02785  exact=0.7623  pairwise=0.9899
+  step 254000  loss=0.02794  exact=0.7731  pairwise=0.9892
+  step 255000  loss=0.02794  exact=0.7714  pairwise=0.9896
+  step 256000  loss=0.02766  exact=0.7434  pairwise=0.9895
+  step 257000  loss=0.02754  exact=0.7637  pairwise=0.9894
+  step 258000  loss=0.02817  exact=0.7556  pairwise=0.9899
+  step 259000  loss=0.02800  exact=0.7455  pairwise=0.9896
+  step 260000  loss=0.02759  exact=0.7779  pairwise=0.9894
+  step 261000  loss=0.02765  exact=0.7157  pairwise=0.9893
+  step 262000  loss=0.02760  exact=0.7514  pairwise=0.9893
+  step 263000  loss=0.02791  exact=0.7822  pairwise=0.9899
+  step 264000  loss=0.02746  exact=0.7352  pairwise=0.9892
+  step 265000  loss=0.02744  exact=0.6779  pairwise=0.9862
+  step 266000  loss=0.02828  exact=0.7839  pairwise=0.9896
+  step 267000  loss=0.02789  exact=0.7576  pairwise=0.9893
+  step 268000  loss=0.02726  exact=0.7632  pairwise=0.9897
+  step 269000  loss=0.02745  exact=0.7633  pairwise=0.9900
+  step 270000  loss=0.02766  exact=0.7497  pairwise=0.9898
+  step 271000  loss=0.02772  exact=0.7524  pairwise=0.9898
+  step 272000  loss=0.02777  exact=0.7732  pairwise=0.9898
+  step 273000  loss=0.02771  exact=0.7576  pairwise=0.9901
+  step 274000  loss=0.02773  exact=0.7391  pairwise=0.9895
+  step 275000  loss=0.02746  exact=0.7510  pairwise=0.9898
+  step 276000  loss=0.02750  exact=0.7477  pairwise=0.9891
+  step 277000  loss=0.02738  exact=0.7674  pairwise=0.9898
+  step 278000  loss=0.02739  exact=0.7633  pairwise=0.9896
+  step 279000  loss=0.02792  exact=0.7645  pairwise=0.9900
+  step 280000  loss=0.02779  exact=0.7662  pairwise=0.9898
+  step 281000  loss=0.02777  exact=0.7433  pairwise=0.9894
+  step 282000  loss=0.02713  exact=0.7648  pairwise=0.9901
+  step 283000  loss=0.02720  exact=0.7450  pairwise=0.9900
+  step 284000  loss=0.02748  exact=0.7909  pairwise=0.9896
+  step 285000  loss=0.02710  exact=0.7692  pairwise=0.9897
+  step 286000  loss=0.02744  exact=0.7166  pairwise=0.9898
+  step 287000  loss=0.02758  exact=0.7598  pairwise=0.9899
+  step 288000  loss=0.02742  exact=0.7646  pairwise=0.9896
+  step 289000  loss=0.02749  exact=0.7779  pairwise=0.9891
+  step 290000  loss=0.02724  exact=0.7342  pairwise=0.9898
+  step 291000  loss=0.02733  exact=0.7660  pairwise=0.9898
+  step 292000  loss=0.02731  exact=0.7635  pairwise=0.9898
+  step 293000  loss=0.02713  exact=0.7962  pairwise=0.9890
+  step 294000  loss=0.02694  exact=0.7407  pairwise=0.9899
+  step 295000  loss=0.02697  exact=0.7529  pairwise=0.9898
+  step 296000  loss=0.02712  exact=0.7022  pairwise=0.9889
+  step 297000  loss=0.02719  exact=0.7306  pairwise=0.9899
+  step 298000  loss=0.02724  exact=0.7536  pairwise=0.9900
+  step 299000  loss=0.02728  exact=0.7593  pairwise=0.9891
+  step 300000  loss=0.02754  exact=0.7783  pairwise=0.9900
+  step 301000  loss=0.02701  exact=0.7562  pairwise=0.9895
+  step 302000  loss=0.02742  exact=0.7984  pairwise=0.9895
+  step 303000  loss=0.02712  exact=0.7480  pairwise=0.9901
+  step 304000  loss=0.02720  exact=0.7630  pairwise=0.9896
+  step 305000  loss=0.02716  exact=0.7527  pairwise=0.9901
+  step 306000  loss=0.02685  exact=0.7624  pairwise=0.9898
+  step 307000  loss=0.02726  exact=0.7525  pairwise=0.9896
+  step 308000  loss=0.02702  exact=0.7537  pairwise=0.9898
+  step 309000  loss=0.02715  exact=0.7505  pairwise=0.9894
+  step 310000  loss=0.02721  exact=0.7315  pairwise=0.9896
+  step 311000  loss=0.02696  exact=0.7275  pairwise=0.9900
+  step 312000  loss=0.02726  exact=0.7524  pairwise=0.9900
+  step 313000  loss=0.02703  exact=0.7822  pairwise=0.9896
+  step 314000  loss=0.02669  exact=0.7584  pairwise=0.9901
+  step 315000  loss=0.02715  exact=0.7873  pairwise=0.9896
+  step 316000  loss=0.02706  exact=0.7795  pairwise=0.9895
+  step 317000  loss=0.02697  exact=0.7605  pairwise=0.9899
+  step 318000  loss=0.02737  exact=0.7725  pairwise=0.9901
+  step 319000  loss=0.02670  exact=0.7660  pairwise=0.9902
+  step 320000  loss=0.02703  exact=0.7497  pairwise=0.9902
+  step 321000  loss=0.02626  exact=0.7926  pairwise=0.9888
+  step 322000  loss=0.02687  exact=0.7485  pairwise=0.9902
+  step 323000  loss=0.02661  exact=0.7558  pairwise=0.9902
+  step 324000  loss=0.02642  exact=0.7891  pairwise=0.9898
+  step 325000  loss=0.02681  exact=0.7687  pairwise=0.9900
+  step 326000  loss=0.02662  exact=0.7667  pairwise=0.9901
+  step 327000  loss=0.02675  exact=0.7565  pairwise=0.9901
+  step 328000  loss=0.02706  exact=0.7666  pairwise=0.9900
+  step 329000  loss=0.02645  exact=0.7570  pairwise=0.9898
+  step 330000  loss=0.02656  exact=0.7811  pairwise=0.9900
+  step 331000  loss=0.02680  exact=0.7800  pairwise=0.9900
+  step 332000  loss=0.02622  exact=0.7304  pairwise=0.9896
+  step 333000  loss=0.02653  exact=0.7567  pairwise=0.9897
+  step 334000  loss=0.02663  exact=0.7638  pairwise=0.9900
+  step 335000  loss=0.02660  exact=0.7696  pairwise=0.9897
+  step 336000  loss=0.02684  exact=0.7752  pairwise=0.9903
+  step 337000  loss=0.02668  exact=0.7525  pairwise=0.9900
+  step 338000  loss=0.02675  exact=0.7487  pairwise=0.9898
+  step 339000  loss=0.02662  exact=0.7586  pairwise=0.9900
+  step 340000  loss=0.02658  exact=0.7536  pairwise=0.9896
+  step 341000  loss=0.02661  exact=0.7425  pairwise=0.9902
+  step 342000  loss=0.02683  exact=0.7728  pairwise=0.9904
+  step 343000  loss=0.02645  exact=0.7247  pairwise=0.9902
+  step 344000  loss=0.02673  exact=0.7773  pairwise=0.9900
+  step 345000  loss=0.02671  exact=0.7511  pairwise=0.9897
+  step 346000  loss=0.02648  exact=0.7539  pairwise=0.9898
+  step 347000  loss=0.02660  exact=0.7847  pairwise=0.9897
+  step 348000  loss=0.02665  exact=0.7446  pairwise=0.9906
+  step 349000  loss=0.02675  exact=0.7566  pairwise=0.9900
+  step 350000  loss=0.02663  exact=0.7256  pairwise=0.9894
+  step 351000  loss=0.02653  exact=0.7570  pairwise=0.9900
+  step 352000  loss=0.02658  exact=0.7471  pairwise=0.9897
+  step 353000  loss=0.02642  exact=0.7412  pairwise=0.9899
+  step 354000  loss=0.02669  exact=0.7846  pairwise=0.9898
+  step 355000  loss=0.02640  exact=0.7738  pairwise=0.9899
+  step 356000  loss=0.02658  exact=0.7531  pairwise=0.9898
+  step 357000  loss=0.02644  exact=0.7052  pairwise=0.9895
+  step 358000  loss=0.02615  exact=0.7769  pairwise=0.9901
+  step 359000  loss=0.02679  exact=0.7261  pairwise=0.9898
+  step 360000  loss=0.02653  exact=0.7690  pairwise=0.9898
+  step 361000  loss=0.02667  exact=0.7859  pairwise=0.9903
+  step 362000  loss=0.02650  exact=0.7473  pairwise=0.9902
+  step 363000  loss=0.02639  exact=0.7897  pairwise=0.9898
+  step 364000  loss=0.02619  exact=0.7548  pairwise=0.9904
+  step 365000  loss=0.02663  exact=0.7414  pairwise=0.9902
+  step 366000  loss=0.02629  exact=0.7754  pairwise=0.9896
+  step 367000  loss=0.02677  exact=0.7671  pairwise=0.9905
+  step 368000  loss=0.02605  exact=0.7163  pairwise=0.9902
+  step 369000  loss=0.02641  exact=0.7815  pairwise=0.9900
+  step 370000  loss=0.02645  exact=0.7743  pairwise=0.9900
+  step 371000  loss=0.02615  exact=0.7819  pairwise=0.9899
+  step 372000  loss=0.02646  exact=0.7845  pairwise=0.9899
+  step 373000  loss=0.02619  exact=0.7516  pairwise=0.9902
+  step 374000  loss=0.02654  exact=0.7480  pairwise=0.9898
+  step 375000  loss=0.02646  exact=0.7707  pairwise=0.9903
+  step 376000  loss=0.02616  exact=0.7570  pairwise=0.9907
+  step 377000  loss=0.02613  exact=0.7533  pairwise=0.9903
+  step 378000  loss=0.02634  exact=0.7788  pairwise=0.9904
+  step 379000  loss=0.02620  exact=0.7682  pairwise=0.9901
+  step 380000  loss=0.02579  exact=0.7688  pairwise=0.9901
+  step 381000  loss=0.02631  exact=0.7617  pairwise=0.9902
+  step 382000  loss=0.02611  exact=0.7524  pairwise=0.9899
+  step 383000  loss=0.02637  exact=0.7062  pairwise=0.9888
+  step 384000  loss=0.02633  exact=0.7646  pairwise=0.9897
+  step 385000  loss=0.02657  exact=0.7584  pairwise=0.9904
+  step 386000  loss=0.02616  exact=0.7800  pairwise=0.9902
+  step 387000  loss=0.02616  exact=0.7092  pairwise=0.9896
+  step 388000  loss=0.02630  exact=0.7803  pairwise=0.9898
+  step 389000  loss=0.02636  exact=0.6978  pairwise=0.9887
+  step 390000  loss=0.02645  exact=0.7438  pairwise=0.9898
+  step 391000  loss=0.02648  exact=0.7643  pairwise=0.9897
+  step 392000  loss=0.02650  exact=0.7397  pairwise=0.9898
+  step 393000  loss=0.02603  exact=0.7552  pairwise=0.9904
+  step 394000  loss=0.02639  exact=0.6843  pairwise=0.9888
+  step 395000  loss=0.02646  exact=0.7836  pairwise=0.9901
+  step 396000  loss=0.02622  exact=0.7629  pairwise=0.9900
+  step 397000  loss=0.02651  exact=0.7654  pairwise=0.9902
+  step 398000  loss=0.02620  exact=0.7701  pairwise=0.9906
+  step 399000  loss=0.02618  exact=0.7478  pairwise=0.9900
+  step 400000  loss=0.02602  exact=0.7509  pairwise=0.9895
+  step 401000  loss=0.02629  exact=0.7420  pairwise=0.9900
+  step 402000  loss=0.02649  exact=0.7793  pairwise=0.9903
+  step 403000  loss=0.02579  exact=0.7760  pairwise=0.9900
+  step 404000  loss=0.02621  exact=0.7539  pairwise=0.9903
+  step 405000  loss=0.02613  exact=0.7671  pairwise=0.9902
+  step 406000  loss=0.02586  exact=0.7464  pairwise=0.9899
+  step 407000  loss=0.02625  exact=0.7235  pairwise=0.9901
+  step 408000  loss=0.02641  exact=0.7642  pairwise=0.9902
+  step 409000  loss=0.02616  exact=0.7464  pairwise=0.9899
+  step 410000  loss=0.02622  exact=0.7531  pairwise=0.9900
+  step 411000  loss=0.02606  exact=0.7164  pairwise=0.9902
+  step 412000  loss=0.02613  exact=0.7721  pairwise=0.9905
+  step 413000  loss=0.02594  exact=0.7596  pairwise=0.9905
+  step 414000  loss=0.02613  exact=0.7286  pairwise=0.9901
+  step 415000  loss=0.02578  exact=0.7708  pairwise=0.9902
+  step 416000  loss=0.02617  exact=0.7380  pairwise=0.9900
+  step 417000  loss=0.02592  exact=0.7642  pairwise=0.9902
+  step 418000  loss=0.02596  exact=0.7293  pairwise=0.9901
+  step 419000  loss=0.02588  exact=0.7290  pairwise=0.9900
+  step 420000  loss=0.02612  exact=0.7525  pairwise=0.9900
+  step 421000  loss=0.02597  exact=0.7458  pairwise=0.9898
+  step 422000  loss=0.02626  exact=0.7349  pairwise=0.9900
+  step 423000  loss=0.02596  exact=0.7387  pairwise=0.9904
+  step 424000  loss=0.02567  exact=0.7559  pairwise=0.9905
+  step 425000  loss=0.02625  exact=0.7046  pairwise=0.9894
+  step 426000  loss=0.02606  exact=0.7509  pairwise=0.9904
+  step 427000  loss=0.02626  exact=0.7413  pairwise=0.9905
+  step 428000  loss=0.02637  exact=0.7343  pairwise=0.9903
+  step 429000  loss=0.02586  exact=0.7318  pairwise=0.9899
+  step 430000  loss=0.02633  exact=0.7823  pairwise=0.9906
+  step 431000  loss=0.02579  exact=0.7532  pairwise=0.9905
+  step 432000  loss=0.02608  exact=0.7704  pairwise=0.9903
+  step 433000  loss=0.02601  exact=0.7724  pairwise=0.9902
+  step 434000  loss=0.02658  exact=0.7921  pairwise=0.9898
+  step 435000  loss=0.02626  exact=0.7678  pairwise=0.9900
+  step 436000  loss=0.02580  exact=0.7820  pairwise=0.9900
+  step 437000  loss=0.02615  exact=0.7596  pairwise=0.9904
+  step 438000  loss=0.02578  exact=0.7726  pairwise=0.9902
+  step 439000  loss=0.02606  exact=0.7664  pairwise=0.9903
+  step 440000  loss=0.02611  exact=0.7207  pairwise=0.9894
+  step 441000  loss=0.02581  exact=0.7715  pairwise=0.9904
+  step 442000  loss=0.02572  exact=0.7852  pairwise=0.9903
+  step 443000  loss=0.02624  exact=0.7587  pairwise=0.9902
+  step 444000  loss=0.02595  exact=0.7212  pairwise=0.9892
+  step 445000  loss=0.02596  exact=0.7730  pairwise=0.9903
+  step 446000  loss=0.02555  exact=0.7867  pairwise=0.9901
+  step 447000  loss=0.02591  exact=0.7527  pairwise=0.9901
+  step 448000  loss=0.02584  exact=0.7401  pairwise=0.9904
+  step 449000  loss=0.02596  exact=0.7708  pairwise=0.9905
+  step 450000  loss=0.02615  exact=0.7648  pairwise=0.9902
+  step 451000  loss=0.02595  exact=0.7864  pairwise=0.9898
+  step 452000  loss=0.02575  exact=0.7736  pairwise=0.9904
+  step 453000  loss=0.02590  exact=0.7596  pairwise=0.9904
+  step 454000  loss=0.02622  exact=0.7954  pairwise=0.9898
+  step 455000  loss=0.02609  exact=0.7343  pairwise=0.9906
+  step 456000  loss=0.02575  exact=0.7783  pairwise=0.9902
+  step 457000  loss=0.02588  exact=0.7169  pairwise=0.9903
+  step 458000  loss=0.02579  exact=0.7769  pairwise=0.9901
+  step 459000  loss=0.02578  exact=0.7425  pairwise=0.9905
+  step 460000  loss=0.02596  exact=0.7316  pairwise=0.9903
+  step 461000  loss=0.02610  exact=0.8061  pairwise=0.9896
+  step 462000  loss=0.02580  exact=0.7435  pairwise=0.9905
+  step 463000  loss=0.02585  exact=0.7362  pairwise=0.9905
+  step 464000  loss=0.02604  exact=0.7629  pairwise=0.9903
+  step 465000  loss=0.02567  exact=0.7441  pairwise=0.9905
+  step 466000  loss=0.02564  exact=0.7562  pairwise=0.9903
+  step 467000  loss=0.02572  exact=0.7801  pairwise=0.9900
+  step 468000  loss=0.02599  exact=0.7855  pairwise=0.9900
+  step 469000  loss=0.02565  exact=0.7446  pairwise=0.9903
+  step 470000  loss=0.02587  exact=0.7625  pairwise=0.9903
+  step 471000  loss=0.02595  exact=0.7122  pairwise=0.9902
+  step 472000  loss=0.02565  exact=0.7729  pairwise=0.9900
+  step 473000  loss=0.02560  exact=0.7696  pairwise=0.9900
+  step 474000  loss=0.02603  exact=0.7542  pairwise=0.9903
+  step 475000  loss=0.02582  exact=0.7690  pairwise=0.9902
+  step 476000  loss=0.02571  exact=0.7557  pairwise=0.9905
+  step 477000  loss=0.02580  exact=0.7108  pairwise=0.9896
+  step 478000  loss=0.02617  exact=0.7686  pairwise=0.9905
+  step 479000  loss=0.02565  exact=0.7615  pairwise=0.9905
+  step 480000  loss=0.02592  exact=0.7828  pairwise=0.9897
+  step 481000  loss=0.02581  exact=0.7754  pairwise=0.9887
+  step 482000  loss=0.02585  exact=0.7871  pairwise=0.9904
+  step 483000  loss=0.02614  exact=0.7655  pairwise=0.9905
+  step 484000  loss=0.02548  exact=0.7723  pairwise=0.9901
+  step 485000  loss=0.02592  exact=0.7463  pairwise=0.9903
+  step 486000  loss=0.02572  exact=0.7509  pairwise=0.9900
+  step 487000  loss=0.02580  exact=0.6975  pairwise=0.9900
+  step 488000  loss=0.02599  exact=0.7502  pairwise=0.9903
+  step 489000  loss=0.02568  exact=0.7026  pairwise=0.9897
+  step 490000  loss=0.02598  exact=0.7412  pairwise=0.9907
+  step 491000  loss=0.02573  exact=0.7646  pairwise=0.9902
+  step 492000  loss=0.02583  exact=0.7496  pairwise=0.9899
+  step 493000  loss=0.02534  exact=0.7444  pairwise=0.9905
+  step 494000  loss=0.02549  exact=0.7226  pairwise=0.9902
+  step 495000  loss=0.02558  exact=0.7258  pairwise=0.9901
+  step 496000  loss=0.02621  exact=0.7572  pairwise=0.9901
+  step 497000  loss=0.02546  exact=0.7508  pairwise=0.9904
+  step 498000  loss=0.02571  exact=0.7153  pairwise=0.9903
+  step 499000  loss=0.02589  exact=0.7792  pairwise=0.9904
+  step 500000  loss=0.02599  exact=0.7619  pairwise=0.9903
+
+Done. Best exact match: 0.8116
+Results in: runs/retrain_er_n40_485350/n40_p005_unfiltered

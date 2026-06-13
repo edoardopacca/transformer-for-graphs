@@ -19,4 +19,4 @@ export VECLIB_MAXIMUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
 export PYTHONUNBUFFERED=1
 
-python3 experiments2/retrain_and_test_er11.py --output_root runs/retrain_er_n20_diam11_3352759
+python3 experiments2/retrain_and_test_er11.py --output_root runs/extra/retrain_er_n20_diam11_3352759

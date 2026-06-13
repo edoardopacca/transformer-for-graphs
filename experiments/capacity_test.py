@@ -202,8 +202,8 @@ def main() -> None:
     plot_capacity(xs, ys, out_png, threshold=args.reliable_threshold, L=L)
     print(f"Saved capacity plot to: {out_png.resolve()}")
 
-    # copy into runs/capacity_test for quick inspection
-    runs_dir = PROJECT_ROOT / "runs" / "capacity_test"
+    # copy into runs/report1/capacity_test for quick inspection
+    runs_dir = PROJECT_ROOT / "runs" / "report1" / "capacity_test"
     try:
         ensure_dir(runs_dir)
         shutil.copy2(out_png, runs_dir / "capacity.png")

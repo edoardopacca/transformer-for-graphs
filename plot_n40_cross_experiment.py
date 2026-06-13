@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 RUNS = {
-    "unfiltered": "/Users/edoardopaccagnella/transformer-for-graphs/runs/retrain_er_n40_485350/n40_p005_unfiltered/history.json",
-    "D≤11":       "/Users/edoardopaccagnella/transformer-for-graphs/runs/retrain_er_n40_485352/n40_p005_diam11/history.json",
-    "D≤9":        "/Users/edoardopaccagnella/transformer-for-graphs/runs/retrain_er_n40_485351/n40_p005_diam9/history.json",
-    "D≤7":        "/Users/edoardopaccagnella/transformer-for-graphs/runs/retrain_er_n40_485353/n40_p005_diam7/history.json",
+    "unfiltered": "/Users/edoardopaccagnella/transformer-for-graphs/runs/report2/retrain_er_n40_485350/n40_p005_unfiltered/history.json",
+    "D≤11":       "/Users/edoardopaccagnella/transformer-for-graphs/runs/report2/retrain_er_n40_485352/n40_p005_diam11/history.json",
+    "D≤9":        "/Users/edoardopaccagnella/transformer-for-graphs/runs/report2/retrain_er_n40_485351/n40_p005_diam9/history.json",
+    "D≤7":        "/Users/edoardopaccagnella/transformer-for-graphs/runs/report2/retrain_er_n40_485353/n40_p005_diam7/history.json",
 }
 
 # Visual style: distinct, color-blind friendly, ordered from most-restrictive to least
@@ -23,7 +23,7 @@ COLORS = {
 }
 ORDER = ["D≤7", "D≤9", "D≤11", "unfiltered"]
 
-OUT_DIR = Path("/Users/edoardopaccagnella/transformer-for-graphs/runs/n40_cross_experiment")
+OUT_DIR = Path("/Users/edoardopaccagnella/transformer-for-graphs/runs/report2/n40_cross_experiment")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

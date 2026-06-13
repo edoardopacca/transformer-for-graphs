@@ -193,7 +193,7 @@ $\approx 0.99$ and 2Clique pairwise $\approx 0.50$ across all runs.)}
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/repro_paper_n20/fig1_reproduction.png}{0.62}
+    \figorbox{runs/report3/repro_paper_n20/fig1_reproduction.png}{0.62}
     \caption{A.1-style model (mean over $3$ seeds): exact-match accuracy vs.\
     training step for the unrestricted model on ER (in-distribution), 2Chain and
     2Clique. In distribution the model is perfect; the two OOD families stay near
@@ -261,7 +261,7 @@ consistent improvement; it helps, hurts, or does nothing depending on the seed.
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/repro_paper_n20_roberta/seed_examples.png}{1.0}
+    \figorbox{runs/report3/repro_paper_n20_roberta/seed_examples.png}{1.0}
     \caption{Restricted ($D \le 9$, blue) vs.\ unrestricted (orange) training
     curves for the \emph{same} seed, RoBERTa-faithful, $n = 20$. Rows: OOD
     exact-match on 2Chain (top) and 2Clique (bottom); columns: seeds $1000$,
@@ -351,7 +351,7 @@ marks the best model in each column.}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{runs/n40_cross_experiment/cycles_per_distance_big.png}
+    \includegraphics[width=\textwidth]{runs/report3/n40_cross_experiment/cycles_per_distance_big.png}
     \caption{Per-distance pairwise accuracy on the cycle test sets. Rows:
     1cycle (top) and 2cycle (bottom); columns: the four diameter-controlled
     models. The number above each bar is the count of test pairs at that
@@ -400,7 +400,7 @@ as Table~\ref{tab:cycles}. Bold marks the best model in each column.}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{runs/n40_cross_experiment/cycles_per_distance_big_exp2.png}
+    \includegraphics[width=\textwidth]{runs/report3/n40_cross_experiment/cycles_per_distance_big_exp2.png}
     \caption{Per-distance pairwise accuracy on the cycle test sets for the exp2
     round (rows: 1cycle, 2cycle; columns: the four models).}
     \label{fig:cycles-exp2}
@@ -461,7 +461,7 @@ of off-diagonal pairs predicted connected. Bold marks the best model per column.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{runs/n40_cross_experiment/diagnose_2chains_k20.png}
+    \includegraphics[width=\textwidth]{runs/report3/n40_cross_experiment/diagnose_2chains_k20.png}
     \caption{Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the four
     models. The dashed red line marks the capacity $3^L = 9$; the dotted red line
     is the across-component (disconnected) accuracy. Accuracy is near perfect up
@@ -471,7 +471,7 @@ of off-diagonal pairs predicted connected. Bold marks the best model per column.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{runs/n40_cross_experiment/two_chains_pairwise_by_n_active_big.png}
+    \includegraphics[width=0.9\textwidth]{runs/report3/n40_cross_experiment/two_chains_pairwise_by_n_active_big.png}
     \caption{2-chains pairwise accuracy as a function of $n_{\text{active}}$
     (left: on the active block; right: on the full $40 \times 40$ canvas). The
     accuracy stays high even where exact match is already $0$.}
@@ -517,7 +517,7 @@ model per column.}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{runs/n40_cross_experiment/diagnose_2chains_k20_exp2.png}
+    \includegraphics[width=\textwidth]{runs/report3/n40_cross_experiment/diagnose_2chains_k20_exp2.png}
     \caption{Per-distance pairwise accuracy on 2-chains $(k = 20)$ for the exp2
     round. Dashed red line: capacity $3^L = 9$; dotted red line: across-component
     accuracy.}
@@ -582,13 +582,13 @@ $100\%$ balanced accuracy at the first evaluation ($2{,}000$ steps).}
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{runs/exp3_chaincount/chaincount_n40_seed1000/chaincount_n40_seed1000_accuracy.png}
+        \includegraphics[width=\textwidth]{runs/report3/exp3_chaincount/chaincount_n40_seed1000/chaincount_n40_seed1000_accuracy.png}
         \caption{Seed $1000$.}
     \end{subfigure}
     \hfill
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{runs/exp3_chaincount/chaincount_n40_seed2000/chaincount_n40_seed2000_accuracy.png}
+        \includegraphics[width=\textwidth]{runs/report3/exp3_chaincount/chaincount_n40_seed2000/chaincount_n40_seed2000_accuracy.png}
         \caption{Seed $2000$.}
     \end{subfigure}
     \caption{Balanced classification accuracy vs.\ training step for the two
@@ -668,7 +668,7 @@ resolves every distance present and is exact.}
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/reach_depth/reach_by_distance.png}{1.0}
+    \figorbox{runs/report3/reach_depth/reach_by_distance.png}{1.0}
     \caption{Pairwise accuracy on within-component pairs vs.\ shortest-path
     distance $d$, one panel per depth $L$ (test-pair counts above the bars; the
     red line marks $3^L$). Reach is flat at $1.0$ up to $3^L$, drops sharply at
@@ -707,5 +707,19 @@ that \emph{every} one does --- and path graphs are very low-degree, evidently no
 that adversarial case. So this experiment cleanly fixes the $L = 2$ wall at
 $3^2 = 9$ and shows it lifts with depth; locating the exact capacity of $L \ge 3$
 would require adversarial graphs at $n > 64$ (a clean follow-up).
+
+\section{Takeaway and outlook} Two points close the report. First, the
+training-dynamics-within-capacity mechanism --- the data lever of Part~I --- is
+\emph{not} the fix for this limitation: the wall is a property of the model's
+capacity ($3^L$), and steering the training distribution does not move it.
+Second, the capacity problem is clearly present in our experiments but its shape
+is not yet fully understood --- in particular, beyond $3^L{+}1$ the accuracy does
+\emph{not} decay monotonically; it partially recovers and even \emph{rises} at
+larger distances (e.g.\ for $L = 1$, reach climbs from $0.79$ at $d = 9$ to
+$0.91$ at $d = 40$), which a clean $3^L$ cut-off does not predict and which we
+still need to explain. We are currently testing whether a spectral / Laplacian
+inductive bias (the auxiliary $\mathrm{Tr}(H^\top L H)$ loss and a
+similarity-based read-out) helps the model improve \emph{beyond} its
+matrix-powering capacity.
 
 \end{document}

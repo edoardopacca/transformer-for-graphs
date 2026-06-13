@@ -22,7 +22,7 @@ source ~/.bashrc
 conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
-for d in runs/reach_depth/reach_n64_L*; do
+for d in runs/report3/reach_depth/reach_n64_L*; do
   [ -f "$d/last.pt" ] || continue
   echo "== $d =="
   python analyze_parallel_paths.py --checkpoint "$d/last.pt" \

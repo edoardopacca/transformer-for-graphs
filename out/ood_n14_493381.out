@@ -1,0 +1,43 @@
+=== Job info ===
+Node: gnode06
+NVIDIA H100 NVL, 95830 MiB
+PyTorch 2.11.0+cu130 | CUDA available: True
+================
+
+###################################################
+# 2chains (n=14) -> ER(n=14, p in {0.05, 0.2, 0.5})
+###################################################
+Loaded n=14 model from runs/retrain_2chains_3352759/n14_k7_rep0/best.pt
+
+── Test: ER(n=14, p=0.05), 10,000 graphs ──
+  gen 0.7s  eval 0.93s  exact=0.0000  pairwise=0.4986
+
+── Test: ER(n=14, p=0.2), 10,000 graphs ──
+  gen 0.4s  eval 0.06s  exact=0.0010  pairwise=0.5112
+
+── Test: ER(n=14, p=0.5), 10,000 graphs ──
+  gen 0.5s  eval 0.05s  exact=0.0000  pairwise=0.5185
+
+Results written to runs/ood_eval_n14_493381/2chains_to_er/results.json
+Generating plots …
+  wrote runs/ood_eval_n14_493381/2chains_to_er/per_distance_bars.png
+
+###################################################
+# 2cliques (n=14) -> ER(n=14, p in {0.05, 0.2, 0.5})
+###################################################
+Loaded n=14 model from runs/retrain_2cliques_3352759/n14_k7_rep0/best.pt
+
+── Test: ER(n=14, p=0.05), 10,000 graphs ──
+  gen 0.2s  eval 0.14s  exact=0.0000  pairwise=0.7380
+
+── Test: ER(n=14, p=0.2), 10,000 graphs ──
+  gen 0.4s  eval 0.06s  exact=0.0000  pairwise=0.3929
+
+── Test: ER(n=14, p=0.5), 10,000 graphs ──
+  gen 0.5s  eval 0.05s  exact=0.0000  pairwise=0.5326
+
+Results written to runs/ood_eval_n14_493381/2cliques_to_er/results.json
+Generating plots …
+  wrote runs/ood_eval_n14_493381/2cliques_to_er/per_distance_bars.png
+
+Done. Output in runs/ood_eval_n14_493381

@@ -30,5 +30,5 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA available:'
 echo "================"
 
 python experiments2/curriculum_er_n40.py \
-    --output_root "runs/curriculum_er_n40_${SLURM_JOB_ID}" \
+    --output_root "runs/report2/curriculum_er_n40_${SLURM_JOB_ID}" \
     --num_workers 16

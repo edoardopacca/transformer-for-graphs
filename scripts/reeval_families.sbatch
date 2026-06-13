@@ -23,12 +23,12 @@ conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
 # new families-experiment runs (last.pt)
-for d in runs/families_n20/*/ ; do
+for d in runs/report4/families_n20/*/ ; do
   [ -f "$d/last.pt" ] && echo "== $d ==" && \
     python eval_families.py --checkpoint "$d/last.pt" --output_dir "$d/families" --size 4000
 done
 # Report-III roberta baselines (best.pt)
-for d in runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed*/ ; do
+for d in runs/report3/repro_paper_n20_roberta/n20_p008_unrestricted_seed*/ ; do
   [ -f "$d/best.pt" ] && echo "== $d ==" && \
     python eval_families.py --checkpoint "$d/best.pt" --output_dir "$d/families" --size 4000
 done

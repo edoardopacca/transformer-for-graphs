@@ -37,10 +37,10 @@ from experiments2.ood_evaluation import (
 
 
 CHECKPOINTS = {
-    "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
-    "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
-    "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
-    "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+    "unfiltered": "runs/report2/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
+    "D<=11":      "runs/report2/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
+    "D<=9":       "runs/report2/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
+    "D<=7":       "runs/report2/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
 }
 
 COLORS = {
@@ -51,7 +51,7 @@ COLORS = {
 }
 ORDER = ["D<=7", "D<=9", "D<=11", "unfiltered"]
 
-OUT_DIR = PROJECT_ROOT / "runs" / "n40_cross_experiment"
+OUT_DIR = PROJECT_ROOT / "runs" / "report3" / "n40_cross_experiment"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

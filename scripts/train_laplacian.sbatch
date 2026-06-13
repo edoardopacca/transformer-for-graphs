@@ -33,7 +33,7 @@ esac
 
 echo "Node: $(hostname) | readout=$RO lambda=$LAM"
 python experiments2/train_laplacian.py \
-    --output_root "runs/laplacian" \
+    --output_root "runs/report4/laplacian" \
     --n_nodes 64 --n_layers 2 \
     --readout $RO --lambda_lap $LAM \
     --num_workers 16 --train_steps 500000 --batch_size 1000 --seed 1000

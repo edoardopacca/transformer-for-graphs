@@ -18,7 +18,7 @@ The script prints, per model, the accuracy split by target class, by distance
 bucket (d<=9 vs d>9), the full per-distance curve, the disconnected accuracy,
 trivial baselines, and the prediction confusion matrix — enough to decide A vs B.
 
-Runs locally. Output: runs/n40_cross_experiment/diagnose_2chains_*.
+Runs locally. Output: runs/report3/n40_cross_experiment/diagnose_2chains_*.
 """
 from __future__ import annotations
 
@@ -48,17 +48,17 @@ from experiments2.ood_evaluation import load_model
 CHECKPOINTS_BY_ROUND = {
     # First training round (seed 1000).
     1: {
-        "unfiltered": "runs/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
-        "D<=11":      "runs/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
-        "D<=9":       "runs/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
-        "D<=7":       "runs/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
+        "unfiltered": "runs/report2/retrain_er_n40_big_495903/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/report2/retrain_er_n40_big_494467/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/report2/retrain_er_n40_big_495198/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/report2/retrain_er_n40_big_495199/n40_p005_diam7_big/best.pt",
     },
     # Second training round, "exp2" (seed 2000).
     2: {
-        "unfiltered": "runs/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
-        "D<=11":      "runs/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
-        "D<=9":       "runs/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
-        "D<=7":       "runs/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
+        "unfiltered": "runs/report3/retrain_er_n40_big_exp2_499357/n40_p005_unfiltered_big/best.pt",
+        "D<=11":      "runs/report3/retrain_er_n40_big_exp2_499358/n40_p005_diam11_big/best.pt",
+        "D<=9":       "runs/report3/retrain_er_n40_big_exp2_499359/n40_p005_diam9_big/best.pt",
+        "D<=7":       "runs/report3/retrain_er_n40_big_exp2_499360/n40_p005_diam7_big/best.pt",
     },
 }
 ORDER = ["unfiltered", "D<=11", "D<=9", "D<=7"]
@@ -66,7 +66,7 @@ CAPACITY = 9          # 3^L, L = 2
 N = 40
 K = 20                # two chains of 20 -> n_active = 40
 N_TEST = 5_000
-OUT_DIR = PROJECT_ROOT / "runs" / "n40_cross_experiment"
+OUT_DIR = PROJECT_ROOT / "runs" / "report3" / "n40_cross_experiment"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

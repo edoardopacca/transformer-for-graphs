@@ -256,7 +256,7 @@ def main() -> None:
 
     modes = ["standard", "restrict_only", "curriculum_1", "curriculum_2"]
     aggregated: dict[str, Any] = {}
-    out_runs = PROJECT_ROOT / "runs" / "curriculum_diameter_dynamics"
+    out_runs = PROJECT_ROOT / "runs" / "report1" / "curriculum_diameter_dynamics"
     ensure_dir(out_runs)
 
     for mode in modes:

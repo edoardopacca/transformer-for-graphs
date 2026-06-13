@@ -124,7 +124,7 @@ path\_union are genuinely varied.)
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/family_gallery/gallery.png}{1.0}
+    \figorbox{runs/report4/family_gallery/gallery.png}{1.0}
     \caption{One example of each family ($n=16$; node colour = connected component).}
     \label{fig:gallery}
 \end{figure}
@@ -150,22 +150,29 @@ Accuracy is essentially perfect up to distance $\approx9$ and falls beyond it. T
 the result from Report~III: a $2$-layer model can confirm a connection only within
 $3^L=3^2=9$ hops; past that it sees no short path and can no longer tell a
 \emph{connected-but-far} pair from a \emph{disconnected} one, so it starts to make mistakes.
-(The partial recovery on the very farthest pairs is a quirk we do not fully explain and do
+(The partial recovery on the very farthest pairs is a thing we do not fully explain and do
 not rely on.) This is the main way the diameter matters: a graph whose farthest pairs sit
-beyond $9$ will have wrong entries, so its exact-match drops.
+beyond $9$ will have wrong entries, so its exact-match drops. Figure~\ref{fig:accdist} is an
+average over seeds; the per-seed numbers behind it (which seeds wall where, and which recover)
+are given later in Section~\ref{sec:perseed}.
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report4_figs/acc_vs_distance.png}{1.0}
-    \caption{Accuracy on connected pairs as a function of the distance between the two nodes
-    (standard linear model on a long chain; left $n=20$ over $8$ seeds, right $n=40$ over $4$
-    seeds; the band is $\pm1$ std across seeds). Perfect up to the capacity $3^L=9$, then a
-    drop. The $n=20$ band is wide because of the seed lottery (Section~\ref{sec:third-fam});
-    the $n=40$ curves are tighter and show the wall cleanly.}
+    \figorbox{runs/report4/report4_figs/acc_vs_distance.png}{1.0}
+    \caption{Accuracy on connected pairs vs the shortest-path distance between the two nodes.
+    \emph{Model:} the standard transformer ($L=2$, $d_{\mathrm{model}}=512$, single head,
+    \emph{linear} read-out) trained on \emph{ER only} --- $\mathrm{ER}(20,0.08)$ at $n=20$
+    ($8$ seeds, left) and $\mathrm{ER}(40,0.05)$ at $n=40$ ($4$ seeds, right). \emph{Test set:}
+    the held-out \textbf{chain\_plus} family (a long path plus a small separate component), which
+    the model never saw in training; we use it because it contains pairs at every distance. Each
+    line is the mean over the seeds, the band $\pm1$ std. Perfect up to the capacity $3^L=9$,
+    then a drop; the $n=20$ band is wide because of the seed lottery (per-seed in
+    Section~\ref{sec:perseed}), the $n=40$ curves are tighter.}
     \label{fig:accdist}
 \end{figure}
 
 \subsection{Density also matters, and it is a separate effect}
+\label{sec:density}
 
 Distance is not the only thing. The model was trained only on \emph{sparse} graphs (an
 $\mathrm{ER}(20,0.08)$ graph has on average $\approx1.6$ neighbours per node). If we hand it a
@@ -179,11 +186,15 @@ ingredients: \emph{distance vs.\ the capacity} and \emph{density vs.\ the traini
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report4_figs/acc_vs_density.png}{0.72}
-    \caption{Exact-match vs mean degree (density), on small-diameter graphs only (diameter
-    $\le6$, so this isolates density from the capacity wall). Both models do well near their
-    training density (dotted lines) and fail on denser graphs; the sparser-trained $n=40$
-    model collapses almost immediately. Band $=\pm1$ std over seeds.}
+    \figorbox{runs/report4/report4_figs/acc_vs_density.png}{0.72}
+    \caption{Whole-graph exact-match vs mean degree (density). \emph{Same model as
+    Figure~\ref{fig:accdist}} (standard, linear read-out, ER-trained; $n=20$ over $8$ seeds,
+    $n=40$ over $4$ seeds, mean $\pm1$ std). \emph{Test set:} a purpose-built pool of
+    single-component graphs (the difficulty-map pool: an ER density sweep, a random-regular degree
+    sweep, barbells, chains and cycles), here restricted to small diameter ($\le6$) so the density
+    effect is isolated from the capacity wall. Both models do well near their training density
+    (dotted lines) and fail on denser graphs; the sparser-trained $n=40$ model collapses almost
+    immediately.}
     \label{fig:accdens}
 \end{figure}
 
@@ -200,7 +211,7 @@ the difficulty is caused by the diameter or by the gap.
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report4_figs/diam_gap_collinear.png}{0.92}
+    \figorbox{runs/report4/report4_figs/diam_gap_collinear.png}{0.92}
     \caption{Where the test graphs sit in the (diameter, gap) plane ($n=20$; $n=40$ looks the
     same, correlation $-0.82$). Only \emph{connected} graphs are shown, because the diameter
     and the spectral gap are only defined for a single component --- the disconnected families
@@ -679,56 +690,80 @@ lottery.}
 \label{tab:bar_n20}
 \end{table}
 
-\subsection{barbell\_var: difficulty falls as the gap widens}
+\subsection{barbell\_var: a sweep that turns out not to be about the gap}
 
-To grade the effect, \emph{barbell\_var} varies the bottleneck strength (the clique size, hence
-the bridge length and the gap) while keeping the barbell shape. Sorted by gap
-(Table~\ref{tab:gap_bv}, per seed), a looser bottleneck (larger gap) is monotonically easier, at
-both sizes. The two sizes probe different gap ranges --- the larger cliques at $n=40$ make
-\emph{smaller} gaps ($0$--$0.005$, vs $0.005$--$0.02$ at $n=20$) --- so together they cover a
-wider span, and the direction (looser $=$ easier) holds throughout. The mixed-trained model is
-the more consistent: at $n=40$ it is exactly $0.00\to0.21$ across all four seeds. Only two gap
-buckets exist at each size, so this is a direction, not a law. The read-out makes no difference
-(linear and similarity behave identically, Thread~3), confirming the bottleneck is a limit of
-the trunk, not of the read-out.
+To grade the effect, \emph{barbell\_var} varies the clique size (and so the bridge length) while
+keeping the barbell shape. We sweep the full range (cliques from $2$ up to $n/2$), but on closer
+inspection this does \emph{not} isolate the gap, for two reasons. First, a barbell's gap is
+intrinsically tiny and barely moves: across the whole sweep it stays in $\approx0.006$--$0.019$
+at $n=20$ and $\approx0.0008$--$0.005$ at $n=40$, and it is \emph{non-monotone} (U-shaped) in the
+clique size --- larger at both ends (a long thin bridge, or a short bridge between big cliques)
+and smallest in between. So there is no wide, monotone gap range to read off. Second, changing
+the clique size changes the diameter ($3\to19$ at $n=20$) and the clique \emph{density} at the
+same time.
+
+Looking at the accuracy by the actual knob (Tables~\ref{tab:bvdiam_n20}--\ref{tab:bvdiam_n40},
+exact-match by diameter) makes clear that the difficulty tracks those, not the gap. The model
+fails on the big-dense-clique barbells (small diameter: two $10$-cliques are dense,
+out-of-distribution, and trigger the degree heuristic of Section~\ref{sec:third}) and succeeds
+only as the cliques shrink to sparse $2$--$4$-node ends on a long bridge (large diameter) ---
+while the gap is essentially constant across that whole range. So barbell\_var, like
+expander\_var below, does not isolate the gap: it just reconfirms that density and the bridge
+length matter (Thread~1). (The read-out makes no difference to it either --- linear and
+similarity are identical --- Thread~3.)
 
 \begin{table}[H]\centering\small
-\begin{tabular}{lcc@{\hskip 2em}cc}
+\begin{tabular}{lccccc}
 \toprule
- & \multicolumn{2}{c}{ER-trained} & \multicolumn{2}{c}{mixed-trained}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-seed & gap $0.005$--$0.01$ & $0.01$--$0.02$ & gap $0.005$--$0.01$ & $0.01$--$0.02$\\
+seed & $D3$ & $D7$ & $D11$ & $D15$ & $D19$ \\
 \midrule
-1000 & 0.24 & 0.49 & 0.14 & 0.64 \\
-2000 & 0.33 & 0.28 & 0.13 & 0.63 \\
-3000 & 0.01 & 0.04 & 0.03 & 0.63 \\
-4000 & 0.50 & 0.03 & 0.08 & 0.63 \\
-5000 & 0.48 & 0.20 & 0.15 & 0.63 \\
-6000 & 0.28 & 0.41 & 0.14 & 0.64 \\
-7000 & 0.23 & 0.62 & 0.14 & 0.64 \\
-8000 & 0.32 & 0.62 & 0.11 & 0.54 \\
+\multicolumn{6}{l}{\emph{ER-trained}}\\
+1000 & 0.00 & 0.00 & 0.00 & 1.00 & 0.94 \\
+2000 & 0.00 & 0.00 & 0.03 & 1.00 & 0.00 \\
+3000 & 0.00 & 0.00 & 0.00 & 0.05 & 0.00 \\
+4000 & 0.00 & 0.00 & 0.74 & 0.97 & 0.00 \\
+5000 & 0.00 & 0.00 & 0.90 & 1.00 & 0.00 \\
+6000 & 0.00 & 0.00 & 0.00 & 1.00 & 0.68 \\
+7000 & 0.00 & 0.00 & 0.00 & 1.00 & 0.98 \\
+8000 & 0.00 & 0.00 & 0.07 & 1.00 & 0.99 \\
+\midrule
+\multicolumn{6}{l}{\emph{mixed-trained}}\\
+1000 & 0.00 & 0.00 & 0.00 & 0.86 & 1.00 \\
+2000 & 0.00 & 0.00 & 0.00 & 0.84 & 1.00 \\
+3000 & 0.00 & 0.00 & 0.00 & 0.17 & 1.00 \\
+4000 & 0.00 & 0.00 & 0.00 & 0.52 & 1.00 \\
+5000 & 0.00 & 0.00 & 0.00 & 0.94 & 1.00 \\
+6000 & 0.00 & 0.00 & 0.00 & 0.90 & 1.00 \\
+7000 & 0.00 & 0.00 & 0.00 & 0.91 & 1.00 \\
+8000 & 0.00 & 0.00 & 0.00 & 0.68 & 1.00 \\
 \bottomrule\end{tabular}
-\caption{\textbf{barbell\_var}, $n=20$: exact-match by spectral-gap bucket (tighter cut on the
-left of each pair, looser on the right), per seed. A larger gap is easier.}
-\label{tab:gap_bv}
+\caption{\textbf{barbell\_var}, $n=20$: exact-match by graph diameter, per seed. Diameter grows
+as the cliques \emph{shrink} (the bridge lengthens): $D3$ is two $10$-cliques, $D19$ two
+$2$-cliques on a long thin bridge. The spectral gap stays $\approx0.006$--$0.019$ across the whole
+row, so this is not the gap --- it is the clique density (big dense cliques fail) and the bridge.}
+\label{tab:bvdiam_n20}
 \end{table}
 
 \begin{table}[H]\centering\small
-\begin{tabular}{lcc@{\hskip 2em}cc}
+\begin{tabular}{lcccccc}
 \toprule
- & \multicolumn{2}{c}{ER-trained} & \multicolumn{2}{c}{mixed-trained}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-seed & gap $0$--$0.002$ & $0.002$--$0.005$ & gap $0$--$0.002$ & $0.002$--$0.005$\\
+seed & $D3$ & $D11$ & $D19$ & $D27$ & $D35$ & $D39$ \\
 \midrule
-1000 & 0.00 & 0.00 & 0.00 & 0.21 \\
-2000 & 0.01 & 0.02 & 0.00 & 0.21 \\
-3000 & 0.00 & 0.00 & 0.00 & 0.21 \\
-4000 & 0.00 & 0.04 & 0.00 & 0.21 \\
+\multicolumn{7}{l}{\emph{ER-trained}}\\
+1000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+2000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 \\
+3000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 \\
+4000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.10 & 0.07 \\
+\midrule
+\multicolumn{7}{l}{\emph{mixed-trained}}\\
+1000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 1.00 \\
+2000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 1.00 \\
+3000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 1.00 \\
+4000 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 1.00 \\
 \bottomrule\end{tabular}
-\caption{\textbf{barbell\_var}, $n=40$: same, at a tighter-gap regime (larger cliques $\Rightarrow$
-smaller gaps). The mixed model is monotone and identical across seeds ($0.00\to0.21$); the
-ER-only model, never having seen cliques, is at $\approx0$ throughout.}
-\label{tab:gap_bv_n40}
+\caption{\textbf{barbell\_var}, $n=40$: same (gap $\approx0.0008$--$0.005$ throughout). Only the
+tiniest-clique, longest-bridge case ($D39$, essentially a long sparse path) is ever solved.}
+\label{tab:bvdiam_n40}
 \end{table}
 
 \subsection{expander\_var: a confounded negative}
@@ -792,89 +827,180 @@ the cycle $C_{40}$ of diameter $20$ --- the capacity wall of Thread~1, not a gap
 \label{tab:expvar_n40}
 \end{table}
 
+\subsection{A confound-free probe: the bottleneck \emph{can} be isolated, and it matters}
+\label{sec:ppclean}
+
+The two sweeps above did not isolate the gap because each moved something else with it. So we
+built a probe that holds everything else fixed. Two terminals $s,t$ are joined by $k$
+internally-disjoint paths of length $\ell$, so the \emph{distance} $\mathrm{dist}(s,t)=\ell$ is
+the same for every $k$; the terminals are padded with leaves to a \emph{fixed degree} (so they do
+not become higher-degree hubs as $k$ grows); and the rest of the canvas is filled with a sparse
+path (so the \emph{density} stays $\approx2$, like the training graphs, with no isolated padding).
+The only thing that changes with $k$ is the number of parallel routes between the terminals, i.e.\
+the effective resistance $\ell/k$. We measure the accuracy on the $(s,t)$ pair (always connected)
+at each $(k,\ell)$, on the standard \emph{linear} models at $n=40$, ER-trained and mixed-trained,
+four seeds each (Table~\ref{tab:ppclean}, Figure~\ref{fig:ppclean}).
+
+Now the answer is clean. \emph{Within} capacity ($\ell\le9$) the mixed model gets the pair right
+with a single path already, so $k$ barely matters. \emph{Beyond} capacity ($\ell=11,13,15$) a
+single path ($k=1$) fails (accuracy $\approx0.55$ --- the distance is past $3^L=9$), but adding
+parallel routes rescues it: $k=2$ lifts it to $\approx0.93$ and $k=3$ to $1.00$, at the
+\emph{same} distance and density. So the effective resistance genuinely matters, independently of
+the distance: with $k$ routes there are $k$ length-$\ell$ walks instead of one, the connection
+signal is $k$ times stronger, and the model confirms a connection it could not confirm over a
+single path of the same length. (The ER model, which never saw path-like graphs, is noisy and
+shows no such structure.) This is the one place we \emph{do} isolate the bottleneck, and the
+answer is positive: a tighter bottleneck (fewer routes, higher resistance) is harder, at fixed
+distance and density. It does not contradict Thread~1 --- on \emph{natural} graphs the gap is
+still collinear with the diameter, so it takes a built probe to separate them --- but it shows
+the bottleneck is a real, separable cause, not merely a confounded direction.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{within capacity} & \multicolumn{3}{c}{beyond capacity}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+$k$ & $\ell{=}5$ & $\ell{=}7$ & $\ell{=}9$ & $\ell{=}11$ & $\ell{=}13$ & $\ell{=}15$\\
+\midrule
+\multicolumn{7}{l}{\emph{ER-trained}}\\
+1 & 1.00 & 1.00 & 1.00 & 0.94 & 0.88 & 0.93 \\
+2 & 1.00 & 1.00 & 0.98 & 0.99 & 0.99 & 1.00 \\
+3 & 0.93 & 0.75 & 1.00 & 1.00 & 1.00 & -- \\
+4 & 0.98 & 0.81 & 1.00 & -- & -- & -- \\
+\midrule
+\multicolumn{7}{l}{\emph{mixed-trained}}\\
+1 & 0.79 & 0.94 & 0.99 & \textbf{0.55} & \textbf{0.53} & \textbf{0.55} \\
+2 & 1.00 & 1.00 & 1.00 & \textbf{0.93} & \textbf{0.93} & \textbf{0.95} \\
+3 & 1.00 & 1.00 & 1.00 & \textbf{1.00} & \textbf{1.00} & -- \\
+4 & 1.00 & 1.00 & 1.00 & -- & -- & -- \\
+\bottomrule\end{tabular}
+\caption{Confound-free parallel-paths probe. \emph{Model:} the standard \emph{linear} read-out at
+$n=40$, ER-trained (top block) and mixed-trained (bottom block). Each number is the
+\emph{mean over the four training seeds} of the accuracy on the terminal $(s,t)$ pair (always
+connected), measured on $400$ freshly-sampled probe graphs per cell. Columns are the fixed
+distance $\ell$; rows the number of parallel routes $k$ (so resistance $\ell/k$ falls downward).
+Beyond the capacity ($\ell>9$) a single route fails and more routes rescue it (bold) --- the
+effective resistance matters at fixed distance. Empty cells do not fit in $n=40$.}
+\label{tab:ppclean}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report4/report4_figs/parallel_paths_clean.png}{0.7}
+    \caption{Table~\ref{tab:ppclean} for the mixed model. Each line is a fixed distance $\ell$;
+    the beyond-capacity lines ($\ell=11,13,15$) climb steeply with $k$ --- at the same distance,
+    more parallel routes (lower resistance) make the connection easy.}
+    \label{fig:ppclean}
+\end{figure}
+
 \subsection{What we can and cannot say about the gap}
 
-Three constructions point the same way: a smaller gap --- a tighter bottleneck --- is harder. The
-barbell fails deep inside the capacity; barbell\_var eases monotonically as the gap widens;
-expander\_var fails at the smallest gaps (its other failures are the density confound). So the
-\emph{direction} is robust and reproducible across seeds. What we do \emph{not} have is
-isolation: each construction co-varies the gap with something else --- the barbell and
-expander\_var with density, barbell\_var with the bridge geometry --- and, as Thread~1 showed,
-on natural graphs the gap is collinear with the diameter anyway. So we cannot reduce
-``bottleneck'' to a clean number on the spectral gap. A genuinely confound-free probe would have
-to vary the gap while holding both the diameter and the density fixed (for instance, two
-terminals joined by a varying number of equal-length paths, but with the canvas filled and the
-terminal degree pinned so the distribution does not move) and be run on the $n=40$ ER and mixed
-models; we leave that as a follow-up. The honest summary of Threads~1--2: difficulty is the
-diameter (capacity) and the density of Thread~1, plus a bottleneck term that is real and
-monotone but not separable from the structure that creates it.
+A real bottleneck does add difficulty, and we can now say so two ways. At the pair level, the
+fixed barbell collapses on the bridge-crossing pairs at $d=3$, deep inside the capacity, where
+every non-bottleneck family is perfect. And, with the confound-free probe
+(Section~\ref{sec:ppclean}), we can finally \emph{isolate} the effect: holding the distance and
+the density fixed, fewer routes (a higher resistance) is harder --- beyond the capacity a single
+path fails where two or three succeed. What we still cannot do is read the bottleneck off a
+\emph{natural} graph as a number on the spectral gap: on natural graphs the gap is collinear with
+the diameter (Thread~1), and the two ``gap sweeps'' we tried do not actually isolate it
+(barbell\_var varies the clique density and bridge length, its gap being tiny and U-shaped;
+expander\_var varies the gap together with the density). So the bottleneck/resistance is a real,
+separable cause --- demonstrable with a built probe --- but inseparable from the diameter and the
+density on the graphs one meets in the wild. The honest summary of Threads~1--2: difficulty is
+the diameter (capacity) and the density of Thread~1, plus a genuine bottleneck/cut effect that a
+controlled probe isolates but a natural graph confounds with its diameter.
 
-\section{Thread 3: the read-out}
+\section{Thread 3: the read-out --- can a different head push the wall out?}
 \label{sec:readout}
 
-Having seen what is hard (the $3^L$ distance wall, density, a bottleneck), we ask whether the
-read-out can fix any of it. The similarity read-out is non-standard, so we treat it as a
-diagnostic, not a recommended architecture.
+Threads~1--2 found the model's main limit is the $3^L$ distance wall, a property of the model
+that steering the data cannot move (Report~III). Here we ask whether the \emph{read-out} --- how
+the model turns its per-node embeddings $h_i$ into a prediction $\hat R_{ij}$ --- can move it. The
+\textbf{standard (linear)} read-out maps the embeddings to $\hat R_{ij}$ through a symmetrised
+linear layer, which in practice reads connectivity off essentially a single node's embedding. We
+compare it to a \textbf{similarity} read-out that instead \emph{compares} the two embeddings,
+\[ \hat R_{ij} = \mathrm{scale}\cdot\cos(h_i, h_j) + \mathrm{bias}, \]
+and, separately, to an auxiliary \textbf{Laplacian-smoothness loss}. Both are non-standard, so we
+read them as diagnostics (``what is the trunk missing''), not as a recommended architecture. Every
+table keeps the read-outs (and where relevant the ER vs mixed training) separate, per seed, as in
+Threads~1--2. This thread also collects the two remaining error types --- the \emph{cut} and the
+\emph{degree heuristic} --- because both are about what the read-out and the data can or cannot
+repair.
 
-\paragraph{The Laplacian loss.} Sweeping $\lambda\in\{0,10^{-4},10^{-3},10^{-2}\}$ over
-eight seeds, the answer splits by training set. Under \textbf{mixed} training it is
-\emph{inert} ($\lambda=0$ vs $10^{-3}$: $|\Delta|\le0.04$ per family), because the
-similarity read-out already drives the Laplacian energy to $\approx0$. On the \textbf{ER}
-baseline it acts, as a \emph{connection-vs-cut} lever (Table~\ref{tab:lambda}): a small
-$\lambda$ extends long-range reach (chain\_plus $0.11\to0.41$, 1chain $0.64\to0.92$) but
-blurs component boundaries (2chains $0.47\to0.20$, its cut $0.99\to0.94$); $\lambda=10^{-2}$
-over-smooths and collapses. We drop $\lambda$ for the main results.
+\subsection{The similarity read-out doubles the reach radius}
 
-\begin{table}[H]
-\centering
-\begin{tabular}{lcc}
+\paragraph{Where it helps.} Tables~\ref{tab:simlin_n40}--\ref{tab:simlin_n20} give whole-graph
+exact-match per seed, linear vs.\ similarity, on the families where the two \emph{differ} (on the
+rest --- ER, 2cliques, 1chain, \ldots --- both read-outs are $\approx1.00$). The similarity
+read-out helps exactly the families that require propagating a connection over a \emph{long
+distance}: at $n=40$ it lifts path\_union ($0.26\to0.71$), chain\_plus ($0.06\to0.65$), 2chains
+($0\to$ up to $0.49$) and 2cycle ($0\to1.00$). It does \emph{nothing} for the barbell (a
+bottleneck) or for 1cycle --- a clean check: a single $C_{40}$ has pairs at distance $20$, just
+past the doubled reach $2\cdot 3^L=18$, while 2cycle's two $C_{20}$ top out at distance $10$ and
+are solved.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccc}
 \toprule
-ER-trained, similarity & $\lambda=0$ & $\lambda=10^{-3}$ \\
+seed & path\_un. & chain\_pl. & 2chains & 2cycle & 1cycle & barbell \\
 \midrule
-chain\_plus (held out) & 0.11 & \textbf{0.41} \\
-1chain                 & 0.64 & \textbf{0.92} \\
-path\_union            & 0.68 & \textbf{0.82} \\
-2chains                & \textbf{0.47} & 0.20 \\
-\bottomrule
-\end{tabular}
-\caption{The Laplacian loss on the \textbf{ER} baseline (similarity read-out, $n=20$,
-exact-match mean over $8$ seeds). A small $\lambda$ helps the long-range connection
-families and hurts the one needing a \emph{cut} (2chains). Under mixed training the same
-comparison is flat ($|\Delta|\le0.04$).}
-\label{tab:lambda}
+\multicolumn{7}{l}{\emph{linear read-out}}\\
+1000 & 0.25 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+2000 & 0.25 & 0.02 & 0.00 & 0.00 & 0.00 & 0.00 \\
+3000 & 0.30 & 0.16 & 0.00 & 0.00 & 0.00 & 0.00 \\
+4000 & 0.26 & 0.05 & 0.00 & 0.00 & 0.00 & 0.00 \\
+\midrule
+\multicolumn{7}{l}{\emph{similarity read-out}}\\
+1000 & \textbf{0.76} & \textbf{0.73} & 0.00 & \textbf{1.00} & 0.00 & 0.00 \\
+2000 & \textbf{0.76} & \textbf{0.73} & 0.00 & \textbf{1.00} & 0.00 & 0.00 \\
+3000 & \textbf{0.69} & \textbf{0.64} & \textbf{0.49} & \textbf{0.99} & 0.00 & 0.00 \\
+4000 & \textbf{0.62} & \textbf{0.48} & \textbf{0.35} & \textbf{1.00} & 0.00 & 0.00 \\
+\bottomrule\end{tabular}
+\caption{\textbf{$n=40$, mixed training}: whole-graph exact-match per seed, linear vs.\
+similarity read-out, on the families where the two differ. The similarity read-out helps the
+long-range families and not the bottleneck (barbell) or 1cycle (distance $20>2\cdot3^L=18$).}
+\label{tab:simlin_n40}
 \end{table}
 
-\paragraph{The similarity read-out helps long-range reach, not bottlenecks.} On mixed
-training (Table~\ref{tab:simlin}) it closes the gap on the long-propagation families
-(path\_union, held-out chain\_plus) and changes nothing on the barbell bottleneck. The
-same direction holds across the four $n=40$ seeds and all eight $n=20$ seeds.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lccl}
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
 \toprule
-Family & linear & similarity & \\
+seed & path\_union & chain\_plus & barbell \\
 \midrule
-path\_union              & 0.91 & \textbf{1.00} & long-range reach \\
-chain\_plus (held out)   & 0.78 & \textbf{1.00} & long-range reach, OOD \\
-barbell                  & 0.00 & 0.00          & hard bottleneck \\
-all other families       & 1.00 & 1.00          & already solved \\
-\bottomrule
-\end{tabular}
-\caption{Exact-match accuracy, mixed training, seed $1000$.}
-\label{tab:simlin}
+\multicolumn{4}{l}{\emph{linear read-out}}\\
+1000 & 0.91 & 0.78 & 0.00 \\
+2000 & 0.93 & 0.79 & 0.00 \\
+3000 & 0.92 & 0.79 & 0.00 \\
+4000 & 0.92 & 0.77 & 0.00 \\
+5000 & 0.93 & 0.78 & 0.00 \\
+6000 & 0.92 & 0.79 & 0.00 \\
+7000 & 0.92 & 0.80 & 0.00 \\
+8000 & 0.92 & 0.78 & 0.00 \\
+\midrule
+\multicolumn{4}{l}{\emph{similarity read-out}}\\
+1000 & \textbf{1.00} & \textbf{1.00} & 0.00 \\
+2000 & \textbf{0.95} & \textbf{0.87} & 0.00 \\
+3000 & \textbf{1.00} & \textbf{1.00} & 0.00 \\
+4000 & 0.80 & 0.06 & 0.00 \\
+5000 & \textbf{1.00} & \textbf{1.00} & 0.02 \\
+6000 & \textbf{1.00} & \textbf{1.00} & 0.36 \\
+7000 & \textbf{1.00} & \textbf{1.00} & 0.00 \\
+8000 & \textbf{1.00} & \textbf{1.00} & 0.00 \\
+\bottomrule\end{tabular}
+\caption{\textbf{$n=20$, mixed training}: same, per seed. Only path\_union and chain\_plus differ
+at $n=20$ (the cycles and 2chains are too short to exceed the capacity, so both read-outs solve
+them); the barbell is unsolved by both. Seed $4000$ is an unlucky similarity run.}
+\label{tab:simlin_n20}
 \end{table}
 
-\paragraph{At $n=40$, how it helps.} The $n=20$ families are too small to hold distances
-past $9$; the $n=40$ chain\_plus opens the range (Table~\ref{tab:chainplus_n40},
-Figure~\ref{fig:chainplus_n40}). The linear read-out breaks at $3^L=9$ and plateaus at
-$\approx0.55$; the similarity read-out holds to $\approx18$, dips, and recovers. Seeds
-$1000$--$3000$ agree, seed $4000$ is weaker (to $\approx14$) but always far past linear.
-Reading: the linear read-out infers connection from one embedding ($\sim3^L$ hops); cosine
-compares two, resolved once their two $3^L$ neighbourhoods overlap ($\approx2\cdot 3^L$).
-It cannot cross a bottleneck (barbell $=0$ for both, similarity even slightly worse on its
-connected pairs, reach $\approx0.30$ vs $\approx0.48$; the barbell bottleneck of
-Section~\ref{sec:diff}).
+\paragraph{The mechanism, distance by distance.} Table~\ref{tab:chainplus_n40} and
+Figure~\ref{fig:chainplus_n40} trace it on the held-out chain\_plus: the linear read-out breaks
+right at the capacity $3^L=9$ and sits at a $\approx0.55$ floor; the similarity read-out stays
+perfect to $\approx18$, then dips and recovers. The reading: the linear read-out infers
+$\hat R_{ij}$ from a single embedding $h_i$, which carries a $\sim3^L$-hop ``light cone'' of
+propagation; the similarity read-out compares \emph{two} embeddings, each with its own $3^L$
+cone, so the pair is resolved once the two cones overlap --- a meet-in-the-middle at
+$\sim2\cdot 3^L$.
 
 \begin{table}[H]
 \centering
@@ -901,20 +1027,20 @@ farthest), which is why we report the whole profile, not a single ``reach radius
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report4_figs/chainplus_n40_lin_vs_sim.png}{0.72}
+    \figorbox{runs/report4/report4_figs/chainplus_n40_lin_vs_sim.png}{0.72}
     \caption{Table~\ref{tab:chainplus_n40} drawn out (thick = mean of four seeds, thin =
     per seed). Linear (red) drops right after $3^L=9$; similarity (blue) holds to
     $\approx2\cdot 3^L=18$. Both recover on the farthest pairs.}
     \label{fig:chainplus_n40}
 \end{figure}
 
-\paragraph{It doubles the radius, not the depth-scaling.} Repeating the Report~III depth
-sweep ($n=64$ path-union, vary $L$) with the similarity read-out (Table~\ref{tab:depthsim}):
-linear resolves to $3^L$, similarity to exactly twice that ($d=6$ at $L=1$, $d=18$ at
-$L=2$), then degrades. The wall still triples per layer --- a fixed $\times2$, not a regime
-change. ($L=3$ saturates $n=64$, so the two cannot be separated there.) The $d=18$ point
-matches the $n=40$ chain\_plus bend, and in-distribution path-union exact rises
-$0.40\to0.62$ at $L=2$.
+\paragraph{Confirmed by depth.} Repeating the Report~III depth sweep ($n=64$ path-union, vary the
+number of layers $L$) with the similarity read-out (Table~\ref{tab:depthsim}, single seed) pins
+the factor: the linear read-out resolves to exactly $3^L$ ($d=3$ at $L=1$, $d=9$ at $L=2$), the
+similarity read-out to exactly twice that ($d=6$, $d=18$), then degrades. The wall still triples
+per layer, so the read-out buys a fixed factor of $2$, not a change of regime. ($L=3$ already
+saturates $n=64$, so the two cannot be separated there.) The $d=18$ point matches the $n=40$
+chain\_plus bend, and in-distribution path-union exact rises $0.40\to0.62$ at $L=2$.
 
 \begin{table}[H]
 \centering
@@ -933,6 +1059,52 @@ $2$ ($9$) & similarity & 1.00 & 1.00 & 1.00 & \textbf{1.00} & \textbf{1.00} & \t
 read-out resolves to $2\cdot 3^L$, double the linear $3^L$, at both depths; bold marks the
 distances it resolves and linear does not.}
 \label{tab:depthsim}
+\end{table}
+
+\paragraph{What it cannot fix: the bottleneck.} On the barbell the similarity read-out is no
+better than linear (exact $0$ for both, every seed, Tables~\ref{tab:simlin_n40}--\ref{tab:simlin_n20})
+and on the connected pairs it is even slightly \emph{worse} (reach $\approx0.30$ vs $\approx0.48$):
+comparing two embeddings buys nothing when the information cannot cross the cut in the first
+place. That limit belongs to the trunk and would need more depth, not a different read-out.
+
+\subsection{The Laplacian-smoothness loss}
+
+A different lever is to add, to the cross-entropy, an auxiliary loss that directly pushes the
+embeddings of \emph{adjacent} nodes together:
+\[ \mathcal{L}_{\mathrm{smooth}} \;=\; \frac{1}{|E|}\sum_{(i,j)\in E}\lVert h_i-h_j\rVert^2
+   \;=\; \frac{1}{|E|}\,\mathrm{Tr}\!\big(H^\top L\, H\big), \]
+where $H$ stacks the node embeddings, $L=D-A$ is the graph Laplacian and $|E|$ the number of
+edges; the term is weighted by $\lambda$. The motivation is spectral: the kernel of $L$ is exactly
+the per-component indicator vectors, so connected nodes ``should'' end up with equal embeddings.
+
+The effect splits by training set (Table~\ref{tab:lambda}, $\lambda$ swept over eight seeds).
+Under \textbf{mixed} training it is \emph{inert} ($\lambda=0$ vs $10^{-3}$: $|\Delta|\le0.04$ per
+family), because the similarity read-out already drives the smoothness energy to $\approx0$ on
+its own. On the \textbf{ER} baseline it does act, as a \emph{connection-vs-cut} lever: a small
+$\lambda$ extends long-range reach (chain\_plus $0.11\to0.41$, 1chain $0.64\to0.92$) but blurs
+the boundary the model needs to \emph{separate} components, hurting the one family that needs a
+cut (2chains $0.47\to0.20$, its cut accuracy $0.99\to0.94$); a large $\lambda=10^{-2}$
+over-smooths and collapses everything. So it trades cut for connection rather than removing the
+wall, and is redundant once mixed training or the similarity read-out is used; we drop it for the
+main results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\toprule
+ER-trained, similarity & $\lambda=0$ & $\lambda=10^{-3}$ \\
+\midrule
+chain\_plus (held out) & 0.11 & \textbf{0.41} \\
+1chain                 & 0.64 & \textbf{0.92} \\
+path\_union            & 0.68 & \textbf{0.82} \\
+2chains                & \textbf{0.47} & 0.20 \\
+\bottomrule
+\end{tabular}
+\caption{The Laplacian-smoothness loss on the \textbf{ER} baseline (similarity read-out, $n=20$,
+exact-match mean over $8$ seeds). A small $\lambda$ helps the long-range connection families and
+hurts the one needing a \emph{cut} (2chains). Under mixed training the same comparison is flat
+($|\Delta|\le0.04$).}
+\label{tab:lambda}
 \end{table}
 
 \subsection{Two ways to be wrong: under-reaching and over-connecting}
@@ -970,7 +1142,7 @@ buys reach by spending cut (ER 2chains: reach $1.00$, cut $0.99\to0.94$, eight s
 \label{tab:reachcut}
 \end{table}
 
-\section{A direct test: the near-miss cut}
+\subsection{A direct test of the cut: the near-miss probe}
 \label{sec:nearmiss}
 
 We split a single chain into two components by removing one edge, and measure cut accuracy
@@ -982,7 +1154,7 @@ embedding remembers the almost-path.
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report4_figs/near_miss_cut.png}{1.0}
+    \figorbox{runs/report4/report4_figs/near_miss_cut.png}{1.0}
     \caption{Near-miss cut test. Solid $=$ cut accuracy vs near-miss distance; dashed $=$
     reach vs distance, same axis. Left: $n=40$ mixed (mean of four seeds); right: $n=64$
     depth-sweep $L=2$ (one seed). Reach drops sharply at capacity ($9$ linear, $18$
@@ -1000,39 +1172,83 @@ model, so it is a model-specific imperfection, not a function of the capacity. T
 read-out flattens it to $0.95$--$1.0$ everywhere. So reach and cut are genuinely different
 failures, and the similarity read-out cleans up both.
 
-\section{A third failure mode: the degree heuristic}
+\subsection{A third failure mode: the degree heuristic --- fixed only by the data}
 \label{sec:third}
 
-On 2cliques the model often misses even the distance-$1$ within-clique pairs ($n=20$: $0.71$
-over eight seeds; $n=40$ ER: $0.00$--$0.96$ across the four seeds, $0.30$ at seed $1000$) ---
-it falls back on node degree in a dense graph, neither a reach nor a cut limit. This is
-recoverable: either the similarity read-out or mixed training lifts the $d=1$ pairs to
-$1.00$, but only \emph{mixed training} solves the whole 2cliques graph (the ER-trained
-similarity model has reach $1.00$ yet exact $0$, missing the across-clique cut, which ER-only
-training never shows it). So similarity fixes the heuristic at the pair level; the end-to-end
-fix needs the dense disconnected examples of mixed training. Unlike the bottleneck (which
-survives both interventions), the degree heuristic is a property of the narrow ER/linear
-baseline.
+Thread~1 found that graphs \emph{denser} than the training set are out-of-distribution and fail
+(Section~\ref{sec:density}, Figure~\ref{fig:accdens}). The sharpest single instance of that is the
+\textbf{2cliques} family, and it belongs in this thread because it is the one failure the
+read-out and the loss \emph{cannot} repair. On 2cliques the model has two jobs: \emph{connect} the
+pairs inside each clique (distance $1$, directly adjacent --- the easiest case in the report) and
+\emph{cut} the pairs across the two cliques. Table~\ref{tab:degree} splits the accuracy into those
+two jobs plus the whole-graph exact-match, for every training/read-out combination of this report
+($n=20$, eight seeds), including the Laplacian-loss run.
+
+The standard \textbf{ER, linear} baseline fails even the easy within-clique $d=1$ pairs (reach
+$0.71$, and seed-dependent, $0.20$--$1.00$): it mis-classifies \emph{directly connected} nodes
+just because they sit in a dense clique where every node has a high degree --- a degree-based
+shortcut, learned from sparse ER alone, that the high degree throws off. This is the
+\emph{degree heuristic}, and it is the same density-out-of-distribution effect as in Thread~1, now
+pinned to one family. The interventions of this thread act on it as follows:
+\begin{itemize}\setlength\itemsep{0.1em}
+  \item the \textbf{similarity read-out} fixes the within-clique reach outright ($\to1.00$) but
+        then \emph{over-connects} the two cliques (cut $\to0$), so exact-match stays $0$: never
+        having seen a dense block it must split off, it does not know the cliques are separate;
+  \item the \textbf{Laplacian loss} changes nothing here (identical to the read-out alone) --- it
+        helps long-range \emph{connection}, which is not the problem; 2cliques needs a cut;
+  \item only \textbf{mixed training} solves the whole family (reach, cut and exact all $1.00$,
+        either read-out), because the mixed set contains dense disconnected blocks (2cliques
+        itself, clique\_blocks) and so teaches both to connect inside a clique and to cut between
+        cliques.
+\end{itemize}
+So this failure is repaired only by the right \emph{data}, not by the read-out or the loss ---
+the mirror image of the distance wall (which the read-out doubles) and unlike the bottleneck of
+Thread~2 (which nothing here touches).
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llccc}
+\toprule
+training & read-out & within-clique reach ($d{=}1$) & across-clique cut & exact-match \\
+\midrule
+ER    & linear                          & $0.71$ (seed range $0.20$--$1.00$) & $0.89$ & $0.38$ \\
+ER    & similarity                      & \textbf{1.00} & \textbf{0.00} & $0.00$ \\
+ER    & similarity $+$ loss ($\lambda{=}10^{-3}$) & \textbf{1.00} & \textbf{0.00} & $0.00$ \\
+mixed & linear                          & \textbf{1.00} & \textbf{1.00} & \textbf{1.00} \\
+mixed & similarity                      & \textbf{1.00} & \textbf{1.00} & \textbf{1.00} \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{2cliques}, $n=20$, mean over the eight seeds. The ER/linear baseline fails the
+easy within-clique $d{=}1$ pairs (the degree heuristic). The similarity read-out --- with or
+without the Laplacian loss --- fixes that reach but then fails the cut (it over-connects the two
+cliques), so exact-match stays $0$. Only mixed training solves the whole family, with either
+read-out: it is fixed by the data, not the head.}
+\label{tab:degree}
+\end{table}
 
 \section{Takeaway}
 
-\emph{Difficulty (Threads~1--2).} Two separable axes: distance-vs-capacity (the $3^L$ wall)
-and density-vs-training (denser-than-training graphs fail, the $n=40$ model almost
-immediately). The spectral gap is \emph{not} a third separable axis --- collinear with the
-diameter on sparse graphs ($-0.92$), tied to density on the barbell --- though a bottleneck
-genuinely adds difficulty (it fails at $d=3$, inside capacity). So a smaller gap is harder as
-a direction, not a clean law.
+\emph{Difficulty (Threads~1--2).} A graph is hard for the standard model along two axes we can
+separate: \textbf{distance vs.\ capacity} (the $3^L=9$ wall --- the model confirms a connection
+only within $\sim9$ hops, sharply, as the per-seed tables show) and \textbf{density vs.\ training}
+(graphs denser than the ER training set are out-of-distribution and fail, the $n=40$ model almost
+at once). The spectral gap is \emph{not} a third axis one can read off a \emph{natural} graph:
+there it is collinear with the diameter ($-0.92$), and the two naive ``gap sweeps''
+(barbell\_var, expander\_var) turn out to vary the density and the diameter, not the gap. But a
+real bottleneck does add difficulty, and a confound-free probe --- fixed distance, fixed density,
+only the number of parallel routes varied --- \emph{isolates} it: beyond the capacity a single
+route fails where two or three succeed. So the bottleneck/resistance is a genuine, separable cause
+when we construct for it, even though a natural graph confounds it with the diameter.
 
-\emph{Architecture (Thread~3).} The Laplacian loss is redundant under mixed training and on
-the ER baseline only trades reach for cut. The similarity read-out doubles the reach radius
-($3^L\to 2\cdot 3^L$, at $L=1,2$, four $n=40$ seeds) and also removes the over-connection
-(cut $\approx0.8\to\approx1.0$), with no trade-off --- but cannot cross a bottleneck
-(barbell $=0$ for both read-outs). Mixed training, separately, removes the degree heuristic.
-Both the read-out and the loss are non-standard, so we read them as diagnostics, not a
-recommended architecture.
+\emph{Architecture (Thread~3).} The \textbf{similarity read-out} ($\hat R_{ij}\propto\cos(h_i,h_j)$)
+doubles the reach radius, from $3^L$ to $2\cdot3^L$ (measured at $L=1,2$ and on the held-out
+chain\_plus at $n=40$), because it compares two $3^L$-hop neighbourhoods that meet in the middle;
+it also removes the model's over-connection error (the cut), with no trade-off --- but it cannot
+cross a bottleneck (the barbell stays at $0$). The \textbf{Laplacian loss} is redundant once the
+read-out or mixed training is used; on the plain ER baseline it only trades reach for cut. Both
+are non-standard, so we read them as diagnostics, not a recommended architecture. The
+\textbf{degree heuristic} (failing the easy within-clique pairs of dense graphs) is repaired at
+the pair level by either the read-out or mixed training, but the whole 2cliques family is solved
+only by mixed training --- the right \emph{data}, not a different head.
 
-\emph{Open.} $n=64$ saturates at $L=3$, so the read-outs cannot be separated there (a larger
-$n$ is needed); and no construction varies the gap at fixed diameter and density --- which,
-the map suggests, may not be possible with natural graphs.
 
 \end{document}

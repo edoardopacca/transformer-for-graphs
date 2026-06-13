@@ -30,17 +30,17 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cu
 echo "================"
 
 # Auto-detect the most recent big curriculum checkpoint
-CKPT="${CURRICULUM_BIG_CKPT:-$(ls -1dt runs/curriculum_er_n40_big_*/n40_p005_curriculum_big/best.pt 2>/dev/null | head -n 1)}"
+CKPT="${CURRICULUM_BIG_CKPT:-$(ls -1dt runs/report2/curriculum_er_n40_big_*/n40_p005_curriculum_big/best.pt 2>/dev/null | head -n 1)}"
 
 if [ -z "$CKPT" ] || [ ! -f "$CKPT" ]; then
-    echo "ERROR: no big curriculum checkpoint found at runs/curriculum_er_n40_big_*/n40_p005_curriculum_big/best.pt"
+    echo "ERROR: no big curriculum checkpoint found at runs/report2/curriculum_er_n40_big_*/n40_p005_curriculum_big/best.pt"
     echo "Set CURRICULUM_BIG_CKPT=path/to/best.pt manually, or wait for the training job to finish."
     exit 1
 fi
 
 echo "Evaluating checkpoint: $CKPT"
 
-OUT_ROOT="runs/ood_eval_curriculum_big_${SLURM_JOB_ID}"
+OUT_ROOT="runs/report2/ood_eval_curriculum_big_${SLURM_JOB_ID}"
 mkdir -p "$OUT_ROOT"
 
 python experiments2/ood_evaluation.py \

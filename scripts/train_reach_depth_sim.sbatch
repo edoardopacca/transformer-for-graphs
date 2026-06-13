@@ -21,7 +21,7 @@
 #     multiplicative factor on an otherwise depth-bound quantity;
 #   - if it is ~fixed regardless of L           -> the read-out changes the regime.
 # Read it off history.json's final_per_dist (per-distance reach evolution), NOT a
-# single reach radius. Runs land in runs/reach_depth/reach_n64_L{L}_..._similarity_seed1000,
+# single reach radius. Runs land in runs/report3/reach_depth/reach_n64_L{L}_..._similarity_seed1000,
 # so they do not overwrite the existing linear checkpoints.
 
 mkdir -p out err
@@ -38,7 +38,7 @@ echo "Node: $(hostname) | L=${L} | readout=similarity (capacity 3^L matrix-power
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 python experiments2/train_reach_depth.py \
-    --output_root "runs/reach_depth" \
+    --output_root "runs/report3/reach_depth" \
     --n_nodes 64 \
     --n_layers ${L} \
     --attn_kind normalized_relu \

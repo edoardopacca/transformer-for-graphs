@@ -157,7 +157,7 @@ def main() -> None:
 
     diameters = [None, 7, 9, 11]
     aggregated = {}
-    out_runs = PROJECT_ROOT / "runs" / "restrict_diameter_dynamics"
+    out_runs = PROJECT_ROOT / "runs" / "report1" / "restrict_diameter_dynamics"
     ensure_dir(out_runs)
 
     for diam in diameters:

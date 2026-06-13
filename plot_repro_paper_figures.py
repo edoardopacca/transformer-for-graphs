@@ -1,5 +1,5 @@
 """
-Aggregate the reproduction runs under runs/repro_paper_n20/ and produce the
+Aggregate the reproduction runs under runs/report3/repro_paper_n20/ and produce the
 three paper figures (across the 3 seeds / iterations):
 
   fig1_reproduction.png   — unrestricted ER(n=20,p=0.08): ER / 2Chain / 2Clique
@@ -14,7 +14,7 @@ faint lines and a ±1 std band is shaded. Runs that are still in progress are
 handled by truncating every group to its common step prefix.
 
 Usage:
-    python plot_repro_paper_figures.py [--runs_dir runs/repro_paper_n20]
+    python plot_repro_paper_figures.py [--runs_dir runs/report3/repro_paper_n20]
 """
 from __future__ import annotations
 
@@ -76,7 +76,7 @@ def _plot_metric(ax, runs, key, label, color):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", type=str, default="runs/repro_paper_n20")
+    ap.add_argument("--runs_dir", type=str, default="runs/report3/repro_paper_n20")
     args = ap.parse_args()
     runs_dir = Path(args.runs_dir)
     groups = load_runs(runs_dir)

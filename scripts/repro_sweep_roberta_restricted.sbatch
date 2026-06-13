@@ -27,7 +27,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 # diam<=9 filter is CPU-bound (APSP per graph) -> more workers to feed the GPU
 python experiments2/reproduce_paper_n20.py \
-    --output_root "runs/repro_paper_n20_roberta" \
+    --output_root "runs/report3/repro_paper_n20_roberta" \
     --arch roberta \
     --max_diameter 9 \
     --num_workers 24 \

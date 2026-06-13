@@ -31,6 +31,6 @@ echo "================"
 
 # D<=11: acceptance ~84% → ~7.1M candidates with 60 workers, ~2 min
 python experiments2/retrain_and_test_er_n40.py \
-    --output_root "runs/retrain_er_n40_${SLURM_JOB_ID}" \
+    --output_root "runs/report2/retrain_er_n40_${SLURM_JOB_ID}" \
     --max_diameter 11 \
     --num_workers 16

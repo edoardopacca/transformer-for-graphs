@@ -153,6 +153,65 @@ attesa dei seed rimanenti + n40 + parallel_paths.
     l'**evoluzione completa** dell'accuracy lungo la distanza (curva/tabella
     per-distanza), non collassarla in un solo numero. Quel che conta è *come*
     evolve, non il massimo raggiunto.
+20. **Il report è per la PROF: deve VEDERE i risultati, non solo testo.** Ogni
+    affermazione importante va con una **tabella/figura**. Le tabelle: **per-seed**,
+    etichettate (n20/n40, ER/mixed, linear/similarity), e **solo le tipologie di
+    grafo interessanti** (NON quelle con tutti 1.00 / tutti 0 — non significative).
+    "Guardale tutte, riporta le interessanti." Stile da **studente al primo progetto**:
+    prosa semplice, niente toni da venditore; spiega i meccanismi in modo banale.
+21. **Ogni caption deve dire QUALE MODELLO e QUALE TEST SET.** L'utente si lamenta
+    se non si capisce: modello = *trainato su cosa* (ER vs mixed), *quanti seed*,
+    *quale dimensione* (L=2, d_model=512), e su *quale famiglia/pool* sono fatte le
+    medie. E dire se i numeri sono **media o mediana** e di quali seed.
+22. **`barbell_var` NON è un esperimento pulito sul gap.** Il gap di un barbell è
+    intrinsecamente minuscolo (n20: 0.006–0.019; n40: 0.0008–0.005) ed è **a U** nella
+    clique_size; e la clique_size cambia anche **diametro** (3↔19) e **densità** delle
+    cricche. Bucketare per gap mischia barbell diversissimi → fuorviante. La difficoltà
+    segue **densità cricche + lunghezza ponte**, NON lo scalare gap. → presentarlo
+    **per diametro/clique-size**, non per gap.
+23. **`expander_var` è confuso dalla densità** (variare il grado alza gap *e* densità →
+    OOD): la salita a gap piccolo è reale, la **discesa a gap grande è il confound
+    densità** (più netto a n40, trainato più sparso). NON isola il gap.
+24. **Il probe `parallel_paths` PULITO funziona (risultato positivo!).** Il vecchio
+    (su checkpoint n64 reach) era inconcludente per due confound: **padding isolato**
+    (canvas vuoto) e **terminali di grado k** (cambiano col k). Il nuovo
+    `eval_parallel_paths_clean.py` li toglie: **distanza fissa ℓ**, **canvas riempito**
+    (path sparso, grado medio ~2), **grado terminali fissato a 4** (padding con foglie);
+    varia solo k = #route (resistenza ℓ/k). Esito: **oltre la capacità, più route →
+    connessione confermata** (k=1 fallisce ~0.55, k=2→0.93, k=3→1.00 a distanza fissa).
+    Quindi il bottleneck/resistenza **è isolabile** con un probe costruito (anche se sui
+    grafi naturali resta collineare col diametro).
+25. **Il muro `3^L=9` è ARCHITETTURALE, non di dati.** 2chains/1cycle **sono nel
+    training mixed** (visti ~10⁸ volte, un solo grafo a meno di permutazione) e il
+    modello L=2 **comunque** non connette coppie oltre 9 hop → prova pulita che è un
+    limite di profondità, non di copertura dati. Buon argomento per il report.
+26. **Mappa di difficoltà: due assi SEPARABILI = diametro (capacità) + densità
+    (mean degree vs training).** Lo **spectral gap NON è separabile** sui grafi
+    naturali: corr(diametro, log-gap) = **−0.92** (un grafo sparso lungo ha diametro
+    grande E gap piccolo). Non c'è l'angolo "diametro grande + gap grande" → non si
+    distinguono osservativamente. Solo il **barbell** rompe la collinearità, ma essendo
+    denso finisce sull'asse densità.
+27. **reach vs cut sono fallimenti DIVERSI.** reach = il muro `3^L` (netto). cut
+    (over-connect) = un **avvallamento dolce, model-specific, NON a 9** (verificato:
+    un modello matrix-power *pulito* taglia perfetto — controllato con un oracolo, vedi
+    `eval_near_miss_cut.py`). La similarity sistema **entrambi**; la loss Laplaciana li
+    **scambia** (compra reach, spende cut).
+28. **Comportamento OLTRE il muro varia per famiglia:** chain_plus/path_union hanno un
+    **floor ~0.55 + risalita**; 2chains/1cycle/2cycle **crollano a 0** (niente risalita).
+    Stessa capacità 9, code diverse. A **n20** le famiglie strutturate sono troppo corte
+    per esporre il muro (il mixed le risolve); il muro **ritorna a n40**.
+29. **Due tipi di tabella, da NON confondere:** (a) **per-distanza-di-coppia** =
+    accuracy sulle coppie a shortest-path distance d (reach); (b) **per-diametro-del-
+    grafo** = exact-match dell'intero grafo al crescere del diametro. Scriverlo esplicito.
+30. **Trappole matplotlib/LaTeX ricorrenti:** `\le`/`\ge` nei titoli matplotlib →
+    usare unicode ≤ ≥ (già errore #8, ci ricasco). `\multirow` in LaTeX richiede il
+    package → usare il formato a blocchi `\multicolumn{n}{l}{\emph{...}}` (come il resto
+    del report). Il **degree heuristic** è un *density-OOD su 2cliques*: fixato solo dal
+    **mixed training** (i dati), NON dal read-out né dalla loss.
+31. **Quando un'analisi si rivela confusa/confondata, CORREGGILA onestamente** (es.
+    barbell_var-by-gap) invece di tenere una tabella fuorviante. L'utente apprezza
+    l'onestà e nota i confound — preferisce un risultato negativo pulito a uno positivo
+    sporco.
 
 ---
 
@@ -194,13 +253,21 @@ attesa dei seed rimanenti + n40 + parallel_paths.
   (`capacity_per_distance`, `by_diameter`, `by_spectral_gap`). Metriche per
   famiglia: `exact, pairwise, reach_acc, disc_acc, per_dist, by_diam, by_gap`.
 - `plot_families.py`: rigenera i png dai json (no GPU). Usare in locale dopo pull.
-- `analyze_parallel_paths.py`: l'esperimento controllato distanza-vs-cammini
-  (predizione, 1−cos, influenza-Jacobiana coi pesi veri, R_eff, P^{3^L}).
+- `eval_difficulty_map.py` + `scripts/eval_difficulty_map.sbatch`: per OGNI grafo di
+  un pool che copre il piano dumpa `(diameter, gap, mean_degree, ncomp, exact,
+  pairwise)` → `<ckpt>/difficulty_map/difficulty_map.json`. Eval-only sui ckpt linear.
+- `eval_near_miss_cut.py` + `scripts/near_miss_cut.sbatch`: test del **cut** (spezza una
+  catena togliendo 1 arco; cut-acc vs near-miss distance + reach vs distance). Valida
+  l'oracolo matrix-power (taglia perfetto).
+- `eval_parallel_paths_clean.py` + `scripts/parallel_paths_clean.sbatch`: probe **gap
+  confound-free** (distanza fissa, grado terminali fisso=4 con foglie, canvas riempito,
+  varia k=#route). Output `<ckpt>/parallel_paths_clean/parallel_paths_clean.json`.
+- `analyze_parallel_paths.py` + `scripts/parallel_paths.sbatch`: la VECCHIA versione (su
+  reach n64) — **inconcludente, NON usare** (vedi errore 24); rimossa dal report.
 - `scripts/`: `train_families.sbatch` (n20, array ordinato per seed, eval auto),
-  `train_families_n40.sbatch`, `reeval_families.sbatch` (ripassa tutti i ckpt),
-  `parallel_paths.sbatch` (sui reach n64).
+  `train_families_n40.sbatch`, `reeval_families.sbatch` (ripassa tutti i ckpt).
 - `notes/note_difficolta.tex`: spiegazione divulgativa (it) di tutto il filone.
-- Checkpoint riusati: roberta n20 unrestricted (8 seed, `runs/repro_paper_n20_roberta/`)
+- Checkpoint riusati: roberta n20 unrestricted (8 seed, `runs/report3/repro_paper_n20_roberta/`)
   = baseline `ER/linear`.
 
 ---
@@ -255,6 +322,14 @@ nei modelli n40big.
 Tutti i generatori producono adiacenza *senza* self-loop; i self-loop si
 aggiungono con `add_self_loops`. Target via `compute_connectivity_matrix`;
 distanze via `compute_all_pairs_shortest_paths` (APSP, scipy; serve `scipy`).
+
+**Composizione training `mixed` (Set B), da `train_families_n20.py`:** stream
+ONLINE (nessun set fisso) uniforme su **9 famiglie**: `er, er_blocks, clique_blocks,
+path_union, 2chains, 2cliques, 1cycle, 2cycle, 1chain`. **Tenute FUORI (eval/OOD):
+barbell, expander, chain_plus.** Batch 1000 × 10⁶ step ≈ 10⁹ grafi totali. NB: le
+famiglie deterministiche (1chain, 1cycle, 2chains, 2cliques, 2cycle) sono UN solo
+grafo a meno di permutazione → viste ~10⁸ volte ripermutate. ER trainato: a n20
+`ER(20,0.08)` (grado~1.6), a n40 `ER(40,0.05)` (grado~2.0).
 
 - `generate_er_graph(n, p, rng)` — Erdős–Rényi.
 - `generate_two_chains_graph(n, k)` — due path disgiunti da k (n=2k).
@@ -345,54 +420,49 @@ distanze via `compute_all_pairs_shortest_paths` (APSP, scipy; serve `scipy`).
   similarità (λ=0) aiuta il reach; la loss Laplaciana a λ=1 collassa il modello
   ("tutto connesso"). → motivò il filone Report 4 con λ piccolo + warmup.
 
-**Stato Report 4 (al 2026-06-11):** non più 1 seed. Risultati consolidati:
-- **Risultato-architettura (Thread 1), SOLIDO:** il read-out di similarità
-  **raddoppia il raggio di reach**: parete da `3^L` a `2·3^L`, misurata a L=1 (3→6)
-  e L=2 (9→18) col depth-sweep `train_reach_depth_sim.sbatch` (reach n64), e
-  riprodotta a n40 su **2 seed** (chain_plus: linear rompe a 9, similarity tiene a
-  18, quasi identici). Meccanismo: cos(h_i,h_j) confronta DUE coni di raggio 3^L →
-  "meet in the middle". Il read-out NON tocca il bottleneck (barbell=0). La parete
-  scala ×3/layer → guadagno a fattore costante, non cambio di regime.
-- **parallel_paths: INCONCLUDENTE** (confound di distribuzione: il grafo costruito
-  = pochi nodi attivi + canvas di isolati + terminali di grado k = OOD vs
-  path-union; smoking gun: k=1 ℓ=5, distanza 5≪9, fa 0.15). NON ri-presentarlo
-  come "test pulito". Da rifare confound-free (riempire il canvas, grado terminali
-  fisso) se si vuole l'isolamento causale del gap.
-- **Asse-gap (Thread 2/3):** direzione robusta (gap piccolo = difficile) su 3
-  costruzioni (barbell entro-capacità fallisce a d=3<9; barbell_var monotòno;
-  expander_var), ma nessuna isola il gap. Tesi: "**diametro E un termine di
-  bottleneck**", il termine reale e monotono ma non ancora isolato.
+**Stato Report 4 (al 2026-06-13): RISCRITTO E COMPLETO, 23 pagine, 3 thread + takeaway.**
+Tutto multi-seed (n20 = 8 seed, n40 = 4 seed); solo depth-sweep e i checkpoint reach
+n64 restano single-seed. Compila pulito da `report/4/`. Struttura:
 
-**IN CODA/RUNNING su HPC (al cambio chat, 2026-06-11):**
-- `fam20 --array=40-51%4` (seed **7000+8000**): completano gli **8 seed n20**
-  (1000–6000 già fatti). Indici: 7000=40-45, 8000=46-51.
-- `fam40 --array=12-15%2` (seed **4000**, quarto seed n40; 1000/2000/3000 fatti
-  o in chiusura). 4 arm: er-lin, er-sim, mixed-lin, mixed-sim.
-- `diffmap` (`eval_difficulty_map.sbatch`): **LA MAPPA DI DIFFICOLTÀ — deliverable
-  principale per la prof** (prima parte: accuracy vs diametro vs gap). Eval-only
-  sui ckpt **linear** (n20 8 seed repro `best.pt` + n40 er-linear `last.pt`).
-  Dumpa, per OGNI grafo, `(diameter, gap, mean_degree, ncomp, exact, pairwise)` in
-  `<ckpt_dir>/difficulty_map/difficulty_map.json` su un pool che copre il piano
-  (ER p-sweep + random-regular grado-variabile + barbell + 1chain/1cycle).
+- **Thread 1 — "what makes a graph hard: diameter and density".** Due assi
+  SEPARABILI: (1) distanza-vs-capacità (muro `3^L=9`, fig `acc_vs_distance.png`);
+  (2) densità-vs-training (grafi più densi del training falliscono, fig
+  `acc_vs_density.png`). Lo **spectral gap NON è un terzo asse separabile** sui grafi
+  naturali: corr(diametro, log-gap) = −0.92 (fig `diam_gap_collinear.png`, scatter
+  colorato per famiglia). + pannello famiglie (`tab:fam`, 8 seed) con onestà sulla
+  bimodalità per-seed. + tabelle **per-seed reach-by-distance** (chain_plus, 1chain,
+  path_union; n20+n40; ER vs mixed) e **per-graph-diameter** (path_union, er).
+- **Thread 2 — "the spectral gap: does a bottleneck add difficulty?".** barbell
+  (bottleneck a d=3 dentro capacità, `tab:bar_n40/n20`); barbell_var presentato
+  **per diametro** (è densità+ponte, NON gap — vedi errore 22); expander_var
+  (confound densità, errore 23); e il **probe parallel_paths CONFOUND-FREE** (errore
+  24, `eval_parallel_paths_clean.py`): risultato POSITIVO — oltre la capacità più
+  route (resistenza più bassa) → connessione confermata (`tab:ppclean`,
+  `parallel_paths_clean.png`). Conclusione: il bottleneck È isolabile con un probe
+  costruito, ma collineare col diametro sui grafi naturali.
+- **Thread 3 — "the read-out".** similarity raddoppia il reach (`tab:simlin_n40/n20`
+  per-seed solo famiglie interessanti, + `tab:chainplus_n40` + `fig:chainplus_n40` +
+  depth-sweep `tab:depthsim`); loss Laplaciana **con formula** (`tab:lambda`); reach
+  vs cut (`tab:reachcut`); near-miss cut (`eval_near_miss_cut.py`, `fig:nearmiss`);
+  degree heuristic (`tab:degree`, 5 arm incl. loss, n20). Near-miss e degree heuristic
+  sono **sottosezioni di Thread 3** (NON sezioni a sé — l'utente le voleva omogenee).
 
-**COSA DEVE FARE LA PROSSIMA CHAT quando i job finiscono:**
-1. Far pushare all'utente da HPC `runs/repro_paper_n20_roberta runs/families_n40`
-   (json piccoli), poi `git pull` in locale.
-2. **Costruire le figure aggregate della mappa di difficoltà** dai
-   `difficulty_map.json` (filtrare ncomp==1 = grafi connessi): (a) **heatmap 2D**
-   exact-match su (diametro × gap), poolata sui seed, una per n20 e una per n40 →
-   salvare in `runs/difficulty_map/map_combined.png`; (b) **partial-dependence**:
-   accuracy vs diametro a gap-band fissata, e accuracy vs gap a diametro-band
-   fissato, controllando per `mean_degree` (densità) → `runs/difficulty_map/
-   partial_dependence.png`. Queste due figure hanno già i placeholder `\figorbox`
-   nel `.tex` (sez. "The difficulty map"); appena generate compaiono.
-3. **Lettura attesa:** accuracy cala su ENTRAMBI gli assi (muro in diametro ~3^L +
-   degrado a gap piccolo); il test chiave è la partial-dependence **a diametro
-   fissato**: se l'accuracy varia ancora col gap → il gap aggiunge; se è piatta →
-   era solo diametro. Riportare onestamente, **mai `d*`** (vedi errore 19): mostrare
-   l'evoluzione completa, non un numero singolo.
-4. Aggiornare le tabelle n20/n40 multi-seed (7000/8000, seed4000) e togliere i
-   "[evaluation running]" dalle didascalie quando i dati ci sono.
+**Deliverable nuovi fatti questa sessione (script + risultati in repo):**
+- `eval_difficulty_map.py` (la mappa di difficoltà; bug `offdiag.reshape` fixato →
+  errore #20 nel codice: usare `offdiag.sum()`). Figure aggregate poi rifatte più
+  chiare: `runs/report4/report4_figs/acc_vs_distance.png`, `acc_vs_density.png`,
+  `diam_gap_collinear.png`. (Le vecchie `runs/report4/difficulty_map/map_combined.png` e
+  `partial_dependence.png` esistono ma sono superate.)
+- `eval_near_miss_cut.py` + `scripts/near_miss_cut.sbatch` (test del cut).
+- `eval_parallel_paths_clean.py` + `scripts/parallel_paths_clean.sbatch` (probe gap
+  confound-free; girato, risultato positivo).
+- Figure report in `runs/report4/report4_figs/`.
+
+**Stato job HPC: niente in coda/running.** Tutti i job completati (fam20 8 seed,
+fam40 4 seed, diffmap, near_miss_cut, ppclean).
+
+**Possibili follow-up (non urgenti):** depth-sweep a **n>64** per separare i read-out
+a L=3 (a n=64 sia linear che similarity saturano tutto il range, non si distinguono).
 
 - **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
   push`; in locale `git pull` poi generare le figure. NON lanciare `plot_families.py`

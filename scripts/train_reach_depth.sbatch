@@ -28,7 +28,7 @@ echo "Node: $(hostname) | L=${L} (capacity 3^L)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 python experiments2/train_reach_depth.py \
-    --output_root "runs/reach_depth" \
+    --output_root "runs/report3/reach_depth" \
     --n_nodes 64 \
     --n_layers ${L} \
     --attn_kind normalized_relu \

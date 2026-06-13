@@ -21,7 +21,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-RUNS = Path("runs/repro_paper_n20_roberta")
+RUNS = Path("runs/report3/repro_paper_n20_roberta")
 SEEDS = [1000, 6000, 7000]
 CONDS = [("unrestricted", "Unrestricted", "#ff7f0e"),
          ("diam9", "Restricted D≤9", "#1f77b4")]

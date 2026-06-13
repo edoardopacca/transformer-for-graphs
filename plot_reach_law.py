@@ -1,7 +1,7 @@
 """Summarise the depth->reach sweep: maximum exact-reach distance d* vs depth L,
 against the 3^L capacity prediction.
 
-Reads runs/reach_depth/reach_n*_L*_*/history.json and plots d*(L) with the
+Reads runs/report3/reach_depth/reach_n*_L*_*/history.json and plots d*(L) with the
 3^L curve and the n-1 measurement ceiling (d* cannot exceed n-1).
 """
 from __future__ import annotations
@@ -20,7 +20,7 @@ DIR_RE = re.compile(r"reach_n(?P<n>\d+)_L(?P<L>\d+)_(?P<attn>\w+?)_seed(?P<seed>
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs_dir", type=str, default="runs/reach_depth")
+    ap.add_argument("--runs_dir", type=str, default="runs/report3/reach_depth")
     args = ap.parse_args()
     runs_dir = Path(args.runs_dir)
 

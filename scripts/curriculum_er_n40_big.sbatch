@@ -30,7 +30,7 @@ python -c "import torch; print('PyTorch', torch.__version__, '| CUDA:', torch.cu
 echo "================"
 
 python experiments2/curriculum_er_n40_big.py \
-    --output_root "runs/curriculum_er_n40_big_${SLURM_JOB_ID}" \
+    --output_root "runs/report2/curriculum_er_n40_big_${SLURM_JOB_ID}" \
     --num_workers 32 \
     --train_steps 1000000 \
     --batch_size 1000
