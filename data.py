@@ -37,6 +37,45 @@ def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     return adj
 
 
+def generate_bridged_cliques_graph(n: int, rng: np.random.Generator | None = None,
+                                   clique_size: int | None = None) -> np.ndarray:
+    """Two cliques joined by a SINGLE bridge edge -> ONE connected component.
+
+    The advisor's DFS probe (Report V). Differs from generate_split_cliques_graph
+    (two cliques, NO bridge -> two components) by EXACTLY one edge, and that edge
+    creates a connection at shortest-path distance <= 3 (clique A -> bridge -> bridge
+    -> clique B). So matrix powering (A^{3^L}, capacity 9) detects it trivially at
+    any clique size, whereas a step/visit-bounded DFS must traverse a whole dense
+    clique before reaching the far one and so fails once a clique exceeds its budget.
+
+    ``clique_size`` c: each clique has c nodes (2c <= n); the remaining n-2c nodes
+    are isolated padding. Default c = n//2 (no padding). The bridge joins the last
+    node of clique A (index c-1) to the first node of clique B (index c). No
+    self-loops; node order NOT permuted (permute at the call site). ``rng`` is taken
+    for a uniform generator signature but unused (the graph is fixed given c)."""
+    c = n // 2 if clique_size is None else max(2, min(int(clique_size), n // 2))
+    adj = np.zeros((n, n), dtype=np.float32)
+    for idx in (np.arange(0, c), np.arange(c, 2 * c)):
+        adj[np.ix_(idx, idx)] = 1.0
+    np.fill_diagonal(adj, 0.0)
+    adj[c - 1, c] = adj[c, c - 1] = 1.0      # single bridge edge
+    return adj
+
+
+def generate_split_cliques_graph(n: int, rng: np.random.Generator | None = None,
+                                 clique_size: int | None = None) -> np.ndarray:
+    """Two cliques, NO bridge -> TWO components (the negative label of the
+    bridged-cliques probe, Report V). ``clique_size`` c as in
+    generate_bridged_cliques_graph; with c=n//2 this equals
+    generate_two_cliques_graph(n, n//2). Remaining n-2c nodes are isolated."""
+    c = n // 2 if clique_size is None else max(2, min(int(clique_size), n // 2))
+    adj = np.zeros((n, n), dtype=np.float32)
+    for idx in (np.arange(0, c), np.arange(c, 2 * c)):
+        adj[np.ix_(idx, idx)] = 1.0
+    np.fill_diagonal(adj, 0.0)
+    return adj
+
+
 def generate_one_chain_graph(n: int) -> np.ndarray:
     """Single path (chain) over all n nodes: 0-1-2-...-(n-1). One connected
     component. Used as the negative ("1 chain") class in the components task."""

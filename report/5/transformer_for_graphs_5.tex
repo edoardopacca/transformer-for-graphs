@@ -1,0 +1,306 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em   % let long \texttt{} identifiers break the line gracefully
+
+% Figures live in the repo's runs/ directory; this file sits in report/5/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part V: Is It Matrix Powering or DFS?}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent The earlier reports read the model's sharp distance-$3^L$ wall as evidence that
+the standard transformer computes connectivity by \emph{matrix powering} ($A^{3^L}$). This
+report asks a different question, suggested by the advisor: what if the model is instead
+learning a \emph{depth-first search} (DFS) --- a sequential traversal that explores a
+component node by node and runs out of budget after a bounded number of steps, rather than a
+parallel computation bounded by shortest-path \emph{distance}? The two mechanisms make
+opposite predictions on graphs that are \emph{short but large} --- in particular on two dense
+cliques joined by a single bridge edge --- and on whether \emph{density} helps or hurts. This
+report sets out the hypothesis, the predictions that separate it from matrix powering, and the
+experiments we will run; results follow in later revisions.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{What the first four reports established}
+\label{sec:recap}
+
+We start this report from a set of conclusions we now treat as established (each was
+multi-seed and is documented in Reports~I--IV). They are the ground this report builds on, and
+they are also the facts the DFS hypothesis must remain consistent with.
+
+\begin{itemize}\setlength\itemsep{0.25em}
+  \item \textbf{The data lever does not help the standard transformer generalise.} Restricting
+        the training data to within-capacity graphs (diameter $\le 3^L$), which is \emph{proven}
+        to help the disentangled transformer, does \emph{not} improve out-of-distribution
+        generalisation of a \emph{standard} transformer. Reproducing the paper's $n=20$ setup
+        over many seeds, the outcome is \textbf{seed-dominated}: whether a run finds the
+        generalising solution is a coin-flip ($\sim 3/8$ seeds in either condition), and the
+        clean ``phase transition'' the paper shows is, in our hands, a single lucky seed
+        (Report~III, Part~I). The filter only speeds up convergence (Report~II).
+  \item \textbf{There is a sharp wall at shortest-path distance $\approx 3^L$ ($=9$ for our
+        $L=2$ models), and it is architectural, not a data gap.} The wall moves with depth in a
+        causal depth sweep ($L=1\to d{=}3$, $L=2\to d{=}9$, $L=3\to$ the whole range;
+        Report~III). It appears even on families that are \emph{in} the training stream and seen
+        $\sim 10^8$ times (2chains, 1cycle at $n=40$: exactly $1.00$ up to $d=9$, then exactly
+        $0.00$; Report~IV, Thread~1). So steering the data cannot move it.
+  \item \textbf{Density is hard at inference --- but so far confounded with being
+        out-of-distribution.} A graph denser than the (sparse) training set fails even when its
+        diameter is tiny (Report~IV, Thread~1, density axis). We attributed this to the graph
+        being unlike anything seen in training. The single sharpest instance is the
+        \textbf{degree heuristic} on dense 2cliques, which is repaired \emph{only by the right
+        data} (mixed training), not by the read-out or the loss (Report~IV, Thread~3).
+  \item \textbf{The spectral gap is not a separable axis on natural graphs}
+        (collinear with the diameter, $-0.82$); a real bottleneck does add difficulty, but only
+        a purpose-built, confound-free probe isolates it (Report~IV, Thread~2).
+  \item \textbf{A similarity read-out doubles the reach to $2\cdot 3^L$} (meet-in-the-middle of
+        two $3^L$-hop neighbourhoods) and removes the over-connection (cut) error, \emph{but
+        cannot cross a bottleneck} --- that limit belongs to the trunk (Report~IV, Thread~3).
+  \item \textbf{Counting components is trivial} for the same trunk (1-chain vs 2-chain: $100\%$
+        in $2{,}000$ steps), so the bottleneck of the connectivity task is not sensing global
+        structure but producing correct long-range \emph{per-pair} reachability (Report~III).
+\end{itemize}
+
+\subsection{The new question: matrix powering or DFS?}
+\label{sec:question}
+
+Everything above was \emph{interpreted} through one algorithm: matrix powering. An $L$-layer
+model that repeatedly multiplies by the adjacency can confirm a connection within $3^L$ hops,
+which fits the distance-$9$ wall exactly. But that wall is also consistent with a \emph{second}
+algorithm we never separated from it: a \textbf{depth-first search}. A transformer cannot
+recurse without bound in a fixed number of layers, so any DFS it learns must be a
+\emph{bounded} traversal --- it explores a component step by step and \emph{stops after a
+limited number of steps}, leaving the rest of the component unreached. The advisor's hypothesis
+is that this, not matrix powering, may be what the model is doing: ``maybe the algorithm stops
+after a certain iteration instead of running to the end, so it never finishes learning the
+graph.''
+
+The distinction matters because the two algorithms are bounded by \emph{different} quantities,
+and on most graphs those quantities move together (a long graph has both a large distance and
+many nodes to traverse), which is exactly why the first four reports could not tell them apart.
+The point of this report is to build graphs where they \emph{disagree}.
+
+\section{Two hypotheses, and how to tell them apart}
+\label{sec:hypotheses}
+
+\paragraph{Matrix powering (the reading of Reports~I--IV).} Connectivity via $A^{k}$ with
+self-loops: $i$ and $j$ are connected iff $(A^{k})_{ij}>0$ for $k$ large enough. An $L$-layer
+model realises this up to $k=3^L$. This computation is \emph{parallel} (every pair is resolved
+at once), \emph{symmetric} (no preferred node or direction), and bounded by the
+shortest-path \emph{distance} between the two nodes. Crucially, a \emph{denser} graph has
+\emph{shorter} distances, so under matrix powering density should make connectivity
+\emph{easier}, not harder.
+
+\paragraph{DFS (the new hypothesis).} Connectivity by traversal: start at a node, walk into
+neighbours, mark everything reachable as one component. A bounded DFS visits at most some fixed
+number of nodes/edges before its budget runs out. This computation is \emph{sequential}, has a
+\emph{starting point} (so it can resolve part of a component and not the rest), and is bounded
+by the \emph{amount of structure to traverse} (number of nodes and edges), \emph{not} by
+distance. Under DFS a \emph{denser} graph is \emph{harder}: each node has more neighbours, so a
+fixed budget covers fewer nodes before it is exhausted.
+
+\paragraph{Where they disagree.} Table~\ref{tab:predict} lists the predictions that separate
+the two. The cleanest single discriminator is a graph that is \emph{short in distance but large
+in nodes to traverse}: two dense cliques joined by a single edge. There the bridge sits at
+distance $\le 3$ (trivial for matrix powering, well inside the $9$-hop capacity), but reaching
+the far clique requires traversing one whole dense clique first (expensive for a bounded DFS).
+
+\begin{table}[H]\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lll}
+\toprule
+Observation & Matrix powering predicts & DFS predicts \\
+\midrule
+What bounds a correct answer & shortest-path \emph{distance} ($\le 3^L$) & \emph{nodes/edges} traversed \\
+Dense clique + 1 bridge edge & easy (bridge is $\le 3$ hops) & hard (must cross a whole clique) \\
+Effect of density at inference & easier (shorter distances) & harder (more to explore) \\
+Effect of density in training & easier / faster to learn & harder / slower to learn \\
+Error pattern in $\hat R$ & symmetric, no preferred node & ordered, a start node fully resolved \\
+Asymmetry between two cliques & none & one clique can be right, the other partial \\
+\bottomrule
+\end{tabular}
+\caption{Predictions that separate the two hypotheses. The model studied throughout is the
+standard RoBERTa-faithful transformer with the \emph{linear} read-out of Reports~III--IV
+($L=2$, single head, $d_{\mathrm{model}}=512$), unless stated otherwise.}
+\label{tab:predict}
+\end{table}
+
+A note on consistency with prior results. The DFS reading does \emph{not} overturn the $3^L$
+wall: on the sparse, low-degree families of Reports~III--IV (chains, cycles, path unions) every
+node has $\approx 2$ neighbours, so ``distance'' and ``nodes traversed along the path'' are the
+same number, and a step-bounded DFS and a distance-bounded matrix power are
+\emph{indistinguishable} --- both wall at $9$. That is precisely why those experiments could not
+separate the two, and why the discriminating experiments below all break that coincidence
+(dense local structure, or density swept on its own).
+
+\section{The experiments we will run}
+\label{sec:plan}
+
+This section records the plan so the logic is legible to a future reader; results will be added
+as the runs complete. All experiments use the standard RoBERTa-faithful transformer with the
+linear read-out (the ``base'' model of Reports~III--IV), trained at $n=20$ and $n=40$, multi-seed,
+unless noted.
+
+\subsection{Core test: barbell (one bridge) vs.\ two cliques}
+\label{sec:plan-barbell}
+
+\paragraph{The two labels.} On $n$ nodes, split into a left half and a right half of $n/2$.
+\begin{itemize}\setlength\itemsep{0.1em}
+  \item \textbf{Label A --- bridged cliques (one component).} Each half is a clique; a
+        \emph{single} edge joins one node of the left clique to one node of the right. The
+        connectivity target $R$ is the all-ones matrix.
+  \item \textbf{Label B --- two cliques (two components).} The same two cliques, with
+        \emph{no} bridge. $R$ is block-diagonal (left block and right block all-ones,
+        cross-block all-zeros).
+\end{itemize}
+The two graphs differ by exactly one edge, and that edge creates a connection at distance
+$\le 3$. (This is \emph{not} the existing \texttt{generate\_barbell\_graph}, which joins
+$\sim n/3$ cliques through a long middle path; we added two new generators,
+\texttt{generate\_bridged\_cliques\_graph} and \texttt{generate\_split\_cliques\_graph}, both
+taking a \texttt{clique\_size} so we can sweep it.) We run this two ways:
+
+\emph{(a) Eval the existing base checkpoints.} The RoBERTa, linear read-out models of
+Reports~III--IV, both ER-trained and mixed-trained, at $n=20$ (eight seeds) and $n=40$ (four
+seeds), evaluated on the connectivity matrix --- what the base model already does. (2cliques is
+in the mixed training stream; the bridged version is held out, so it is the clean test.)
+
+\emph{(b) A dedicated, trainable classifier.} A graph-level binary classifier
+(\texttt{GraphBinaryClassifier}: the same standard trunk, mean-pool $+$ one logit) trained from
+scratch on a 50/50 bridged/split stream, to ask whether the architecture can be \emph{taught}
+to tell the two labels apart at all, and how that depends on the clique size. We train one model
+with the clique size drawn at random per sample and read accuracy \emph{by} clique size (flat
+$=$ matrix powering; falling at large $c$ $=$ a bounded-traversal limit), plus a few fixed-$c$
+runs to time convergence against density.
+
+\paragraph{What we measure.}
+\begin{enumerate}\setlength\itemsep{0.1em}
+  \item \textbf{Can the base model tell A from B?} Both as the full connectivity matrix
+        (does $\hat R$ contain the cross-block connection for A and not for B?) and, as a
+        cleaner readout, as a graph-level discrimination of the two labels. Matrix powering
+        $\Rightarrow$ easy at any clique size; DFS $\Rightarrow$ fails, and fails worse as the
+        cliques grow denser/larger.
+  \item \textbf{Where in $\hat R$ is the error (the ``stopped exploring'' signature)?} For
+        label A, split the matrix into the left-clique block, the right-clique block, and the
+        cross block, and report exact-match per block. The DFS signature is an \emph{asymmetry}:
+        the clique containing the (implicit) start node is resolved (block $\approx 1.00$) while
+        the cross block --- the far clique's connection to the near one --- is only partially
+        right ($\approx 0.5$), because the traversal crossed the bridge but ran out of budget
+        inside the far clique. Matrix powering predicts no such asymmetry.
+  \item \textbf{Scaling with clique size.} Sweep $n/2 \in \{\dots\}$ (clique size). Under matrix
+        powering the cross-block accuracy is flat in clique size (distance stays $\le 3$); under
+        DFS it falls as the cliques grow (more to traverse before reaching / finishing the
+        bridge).
+\end{enumerate}
+
+\subsection{Re-reading the existing barbell results for the same signature}
+\label{sec:plan-reuse}
+
+Report~IV already evaluated the (path-bridge) barbell per distance and found the mixed model
+collapses at the bridge while getting within-clique pairs right. We will re-open those
+predictions at the \emph{block} level (left clique / right clique / cross), to check for the
+same asymmetry --- whether one side is resolved and the other is not --- without training
+anything new. This is the cheap confirmation: the runs exist, we only add the per-block
+breakdown.
+
+\subsection{Density in optimisation, not just inference}
+\label{sec:plan-density}
+
+Reports~II--IV studied density (and diameter) at \emph{inference}. The DFS hypothesis makes a
+prediction about \emph{training}: if the model learns a traversal whose cost grows with the
+amount of structure, then \emph{denser} training graphs should make optimisation \emph{harder /
+slower}, whereas matrix powering (shorter distances when dense) predicts the opposite. We will
+sweep the training density (e.g.\ ER edge probability, or mean degree) at fixed $n$ and measure
+convergence speed and final in-distribution accuracy, and the OOD transfer of each. We separate
+this from the diameter sweep of Report~II (which varied distance, and found tighter $=$ faster):
+here we hold the regime and vary \emph{density} on its own, the quantity DFS is sensitive to and
+matrix powering is not.
+
+\subsection{Reference algorithms: a DFS oracle and a matrix-power oracle}
+\label{sec:plan-oracle}
+
+To make ``looks like DFS'' a measurement rather than a story, we implement reference
+connectivity-matrix predictors (\texttt{dfs\_oracle.py}) and compare the \emph{transformer's
+error pattern} to each:
+\begin{itemize}\setlength\itemsep{0.1em}
+  \item a \textbf{matrix-power oracle}: $\mathbf{1}[(A+I)^{3^L}>0]$, the clean distance-bounded
+        predictor (the cut oracle of Report~IV). On the bridged cliques it connects the two
+        sides at \emph{any} clique size (the bridge is $\le 3$ hops), so its cross-block curve
+        is flat at $1$.
+  \item a \textbf{bounded-traversal oracle}: from each start node, explore at most a fixed
+        \texttt{budget} of nodes and call them connected. The free parameter is the budget,
+        i.e.\ the number of nodes the traversal covers before it stops.
+\end{itemize}
+
+\paragraph{A subtlety we found while building the oracle (recorded for honesty).} ``DFS'' is the
+advisor's word for ``a traversal that stops early'', but the \emph{order} of exploration matters
+on this graph. A literal depth-first search \emph{dives}: from a node in the near clique it
+reaches the bridge endpoint within a couple of steps and crosses to the far clique almost
+immediately, so a budget-bounded \emph{DFS} does \emph{not} get stuck in the near clique (we
+checked: its cross-block rate is high). The clean ``gets stuck in the near clique'' behaviour is
+the budget-bounded \emph{breadth}-first traversal, which first fills the whole near clique (all
+$c-1$ neighbours at distance $1$) and only crosses the bridge once the budget exceeds the
+near-clique size $c$ --- so it fails the cross pairs for budget $\le c$, sharply, however few
+hops away the far clique is. We therefore use the \textbf{visit-bounded BFS} (a ball of the $k$
+nearest nodes) as the primary ``bounded-traversal'' reference and keep the bounded DFS as a
+second, partial-coverage reference. Both are visit-count-bounded, which is the property that
+distinguishes them from the distance-bounded matrix power; the BFS is simply the cleaner
+discriminator for two dense cliques on a single bridge.
+
+We score, per family, which oracle the model's mistakes resemble --- agreement on the
+\emph{cross-block} entries where the two oracles disagree, not just overall accuracy --- and how
+that agreement moves with the clique size and with the budget. If the model's cross-block
+accuracy falls with the clique size and tracks a small-budget traversal where it parts from the
+matrix-power oracle, that is direct evidence for the bounded-traversal (DFS-like) reading; if it
+stays flat at $1$ like the matrix-power oracle, that is evidence for matrix powering.
+
+\paragraph{Implementation (this session).} New code: the two generators in \texttt{data.py};
+\texttt{dfs\_oracle.py} (matrix-power, bounded-BFS, bounded-DFS); \texttt{eval\_bridged\_cliques.py}
+(discrimination, per-block, asymmetry, clique-size sweep, oracle agreement; eval-only) with
+\texttt{scripts/eval\_bridged\_cliques.sbatch} over the base checkpoints; the dedicated
+classifier \texttt{experiments2/train\_bridged\_classifier.py} with
+\texttt{scripts/bridged\_classifier.sbatch}; the density-in-training sweep reuses
+\texttt{train\_families\_n20.py} (it already takes \texttt{--p}/\texttt{--n\_nodes}) via
+\texttt{scripts/density\_sweep.sbatch}; plotting in \texttt{plot\_bridged\_cliques.py} and
+\texttt{plot\_density\_sweep.py}. Outputs land under \texttt{runs/report5/}.
+
+\section{Results}
+\label{sec:results}
+
+\emph{To be added as the runs of Section~\ref{sec:plan} complete. Per the project conventions,
+every claim here will come with a per-seed table or figure, labelled by model (training set,
+read-out, $n$, number of seeds) and test set, and we will report whether the bridged-cliques
+vs.\ two-cliques discrimination, the per-block asymmetry, the clique-size scaling, the
+training-density effect, and the oracle-agreement point to matrix powering, to a bounded DFS,
+or to neither cleanly.}
+
+\end{document}
