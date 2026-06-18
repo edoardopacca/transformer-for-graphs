@@ -17,9 +17,12 @@
 #     optimisation angle for this task).
 # n=20, 200k steps (~20 min each).
 #
-# Indices (10 tasks): rand x4 seeds, then fixed c={3,6,10} x 2 seeds.
-#   sbatch --array=0-9%4 scripts/bridged_classifier.sbatch
-#   sbatch --array=0 scripts/bridged_classifier.sbatch    # print RUNS table only
+# Indices (10 tasks): rand x4 seeds, then fixed-c x 2 seeds.
+#   sbatch --array=0-9%4 scripts/bridged_classifier.sbatch              # n20, fixed c={3,6,10}
+#   sbatch --array=0 scripts/bridged_classifier.sbatch                  # print RUNS table only
+#   N=40 FIXED_C="5 10 15 20" sbatch --array=0-11%4 scripts/bridged_classifier.sbatch  # n40 (12 tasks)
+# N (default 20) and the fixed-c list FIXED_C (default "3 6 10") are read from the
+# environment so n40 needs no separate file; run names encode n{N} so they never collide.
 
 mkdir -p out
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
@@ -28,13 +31,14 @@ source ~/.bashrc
 conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
-N=20
+N=${N:-20}
+FIXED_C=${FIXED_C:-"3 6 10"}
 STEPS=200000
 OUT_ROOT="runs/report5/bridged_clf"
 
 RUNS=()                                   # "clique_size seed"
 for S in 1000 2000 3000 4000; do RUNS+=("-1 $S"); done    # random-c sweep
-for C in 3 6 10; do for S in 1000 2000; do RUNS+=("$C $S"); done; done   # fixed-c convergence
+for C in $FIXED_C; do for S in 1000 2000; do RUNS+=("$C $S"); done; done   # fixed-c convergence
 
 if [ -z "$SLURM_ARRAY_TASK_ID" ]; then
   echo "RUNS (${#RUNS[@]} tasks):"; for i in "${!RUNS[@]}"; do echo "  $i: ${RUNS[$i]}"; done; exit 0
