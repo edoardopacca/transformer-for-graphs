@@ -296,11 +296,109 @@ classifier \texttt{experiments2/train\_bridged\_classifier.py} with
 \section{Results}
 \label{sec:results}
 
-\emph{To be added as the runs of Section~\ref{sec:plan} complete. Per the project conventions,
-every claim here will come with a per-seed table or figure, labelled by model (training set,
-read-out, $n$, number of seeds) and test set, and we will report whether the bridged-cliques
-vs.\ two-cliques discrimination, the per-block asymmetry, the clique-size scaling, the
-training-density effect, and the oracle-agreement point to matrix powering, to a bounded DFS,
-or to neither cleanly.}
+The runs of Section~\ref{sec:plan} are completing in order. Below we report the first one that
+is finished and analysed --- the dedicated trainable classifier (Section~\ref{sec:plan-barbell},
+part~(b)). The base-model connectivity eval (per-block asymmetry, clique-size scaling,
+oracle-agreement) and the training-density sweep are still running; their results, and the
+overall matrix-powering-vs-DFS verdict, will be added as they land.
+
+\subsection{The dedicated classifier: the bridge is detectable at every clique size}
+\label{sec:res-clf}
+
+\paragraph{Setup recap.} We train the binary classifier of Section~\ref{sec:plan-barbell}(b)
+(the standard minimal trunk --- $L=2$, single head, $d_{\mathrm{model}}=512$, normalised-ReLU ---
+with mean-pool $+$ one logit) from scratch at $n=20$, $200{,}000$ steps. The data is an
+\emph{online stream}: there is no fixed training set, each graph is freshly generated at every
+step, with the bridged/split label drawn $50/50$. A graph of ``clique size $c$'' is two cliques of
+$c$ nodes (so $2c$ of the $n=20$ nodes are used, the remaining $20-2c$ left isolated), bridged or
+not; $c$ can range over $\{2,3,\dots,10\}$ ($c=10$ fills the whole canvas, no padding).
+
+The two \textbf{regimes} differ only in how $c$ is chosen for each graph of the stream, and they
+ask two different questions:
+\begin{itemize}\setlength\itemsep{0.1em}
+  \item \textbf{Random $c$ (the discriminator).} For \emph{every} training graph, $c$ is drawn
+        uniformly from $\{2,\dots,10\}$, so a \emph{single} model sees all clique sizes mixed
+        together (each $\approx 1/9$ of the stream). At evaluation we read accuracy \emph{separately
+        per clique size}: does the \emph{same} model get worse as the cliques grow? Flat in $c$ is
+        the matrix-powering reading, falling at large $c$ is the bounded-traversal (DFS-like)
+        reading. Four seeds.
+  \item \textbf{Fixed $c$ (convergence vs.\ density).} The whole stream uses a single clique size;
+        we train a separate model on $c=3$, on $c=6$ and on $c=10$ (two seeds each). Here the
+        question is about \emph{optimisation}, not capacity: is a denser clique slower or harder to
+        learn? We compare convergence speed and loss across the three densities.
+\end{itemize}
+The balanced test set has $200$ graphs per label per clique size (covering $c=2,\dots,10$ in the
+random regime, the single $c$ in the fixed regime).
+
+\paragraph{Final accuracy is flat at $1.0$ across every clique size.} By the end of training all
+four random-$c$ seeds reach $\approx1.00$ accuracy at \emph{every} clique size $c=2,\dots,10$
+(the largest pair of cliques fills the whole $n=20$ canvas); the worst single cell over all
+seeds and sizes is $0.995$. The fixed-$c$ runs tell the same story: $c=3$, $6$ and $10$ all reach
+$1.00$, and in fact already at the first evaluation ($2{,}000$ steps). So there is \emph{no
+permanent accuracy wall} in the clique size: the architecture can be taught to separate the two
+labels however large the cliques get, which is the matrix-powering-consistent outcome and rules
+out the strongest form of the DFS hypothesis (that a bridge behind a large clique is simply
+\emph{undetectable}).
+
+\paragraph{But the DFS difficulty ordering does show up --- in the learning dynamics.} The flat
+final curve hides a transient that is exactly the shape DFS predicts. Early in training
+(Table~\ref{tab:clf_early}, Figure~\ref{fig:clf}, left, at step $2{,}000$) accuracy is high at
+small cliques and \emph{falls at large ones}: on seed $1000$ it is $1.00$ up to $c=6$ but only
+$0.65$ at $c=8$ and $0.55$ ($\approx$ chance) at $c=10$; seed $3000$ shows a milder version
+($0.87$ at $c=10$), seed $4000$ milder still, and seed $2000$ is already flat. In other words the
+larger, denser cliques are the \emph{last} to be mastered --- a bounded-traversal-like ordering
+that the model eventually overcomes with more steps rather than a hard limit. The fixed-$c$ runs
+corroborate the optimisation side of this (Figure~\ref{fig:clf}, right): although accuracy hits
+$1.0$ immediately at every $c$, the early training \emph{loss} rises clearly with the clique
+size ($\approx0.05$ at $c=3$, $\approx0.17$ at $c=6$, $\approx0.35$ at $c=10$), so a denser clique
+is genuinely a bit harder to fit --- the ``density in optimisation'' effect DFS predicts ---
+just not hard enough to delay reaching $100\%$.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccccccc}
+\toprule
+seed & $c2$ & $c3$ & $c4$ & $c5$ & $c6$ & $c7$ & $c8$ & $c9$ & $c10$ \\
+\midrule
+1000 & 1.00 & 1.00 & 1.00 & 0.97 & 0.99 & 0.91 & \textbf{0.65} & \textbf{0.59} & \textbf{0.55} \\
+2000 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+3000 & 1.00 & 1.00 & 0.99 & 0.99 & 0.99 & 0.93 & 0.95 & 0.92 & \textbf{0.87} \\
+4000 & 1.00 & 1.00 & 1.00 & 1.00 & 0.99 & 1.00 & 0.98 & 0.99 & 0.97 \\
+\bottomrule
+\end{tabular}
+\caption{Classification accuracy \textbf{by clique size, early in training (step $2{,}000$)}, for
+the four random-$c$ seeds ($n=20$, balanced test set, $200$ graphs/label/size). Bold marks the
+cells near chance. The larger cliques are learned last (seed-dependently); by the end of training
+every cell is $\approx1.00$ (last row of the figure), so this is a transient ordering, not a
+wall.}
+\label{tab:clf_early}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/classifier_by_clique_size.png}{1.0}
+    \caption{Bridged-vs-split classifier, $n=20$, minimal trunk (mean-pool $+$ one logit).
+    \emph{Left:} accuracy by clique size at step $2{,}000$, one line per random-$c$ seed; the
+    larger cliques lag (seed-dependently), while the final accuracy is flat at $1.0$ for every
+    seed (green dashed). \emph{Right:} fixed-clique-size runs --- the early ($2{,}000$-step)
+    training loss grows with the clique size, even though accuracy is already $1.0$ at that point
+    for every $c$.}
+    \label{fig:clf}
+\end{figure}
+
+\paragraph{Two caveats, stated plainly.} First, training is \emph{noisy}: some seeds suffer
+transient mid-run collapses to chance on the hardest cliques before settling (e.g.\ seed $4000$
+dips on $c=10$ well past step $100{,}000$), so the clique-size ordering is a tendency of the
+early dynamics, not a clean monotone law --- the familiar seed lottery of Reports~III--IV, here at
+the level of which clique sizes are mastered when. Second, and more important for the headline
+question: this classifier is a \emph{weak} discriminator of matrix powering vs.\ DFS. The two
+labels differ by exactly one edge, and that edge leaves a purely \emph{local} footprint --- the
+two bridge endpoints have degree $c$ instead of $c-1$, and the total edge count differs by one ---
+so the labels are separable without ever propagating connectivity across the cliques. A flat
+$1.0$ therefore shows the bridge is \emph{detectable} at any clique size; it does \emph{not} show
+that the model computes the full connectivity matrix by matrix powering. That stronger question
+--- whether the base connectivity model actually fills $\hat R$ correctly across the bridge, and
+whether its errors carry the ordered ``start node fully resolved, far clique only partial''
+asymmetry of a bounded traversal --- is what the base-model eval (Section~\ref{sec:plan-barbell}(a))
+and the oracle comparison (Section~\ref{sec:plan-oracle}) decide, and those are still running.
 
 \end{document}
