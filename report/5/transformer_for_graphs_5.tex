@@ -189,10 +189,10 @@ $\sim n/3$ cliques through a long middle path; we added two new generators,
 \texttt{generate\_bridged\_cliques\_graph} and \texttt{generate\_split\_cliques\_graph}, both
 taking a \texttt{clique\_size} so we can sweep it.) We run this two ways:
 
-\emph{(a) Eval the existing base checkpoints.} The RoBERTa, linear read-out models of
-Reports~III--IV, both ER-trained and mixed-trained, at $n=20$ (eight seeds) and $n=40$ (four
-seeds), evaluated on the connectivity matrix --- what the base model already does. (2cliques is
-in the mixed training stream; the bridged version is held out, so it is the clean test.)
+\emph{(a) Eval the base connectivity model.} The RoBERTa, linear read-out model of
+Reports~III--IV, both ER-trained and mixed-trained, at $n=20$ and $n=40$, evaluated on the
+connectivity matrix --- what the base model already does. (2cliques is in the mixed training
+stream; the bridged version is held out, so it is the clean test.)
 
 \emph{(b) A dedicated, trainable classifier.} A graph-level binary classifier
 (\texttt{GraphBinaryClassifier}: the same standard trunk, mean-pool $+$ one logit) trained from

@@ -48,6 +48,20 @@ C'è anche un **terzo modo di fallire** oltre reach/cut: l'**euristica del grado
 (2cliques sbaglia coppie a d=1). Tutto su **1 seed** finora → preliminare, in
 attesa dei seed rimanenti + n40 + parallel_paths.
 
+**Report 5** (`report/5/transformer_for_graphs_5.tex`, compilare da `report/5/`):
+nuova domanda della **prof** — il transformer impara **matrix-powering** o un **DFS**
+(traversata sequenziale che si ferma dopo un budget di passi)? I due fanno predizioni
+**opposte** su grafi *corti ma grandi*. Esperimento core: **bridged-cliques vs split-cliques**
+(due clique da n/2; label A = unite da **un solo arco** → 1 componente, label B = niente arco
+→ 2 componenti). Matrix-power vede il ponte a distanza ≤3 (banale a ogni clique-size, dentro
+capacità 9); un DFS visit-bounded si "blocca" nella clique vicina prima di attraversare, e
+peggiora con la clique-size. Quattro misure: (1) discriminazione delle label; (2) **per-blocco**
+within-A/within-B/cross (dove si ferma); (3) **sweep clique-size** (cross-acc piatto=matrix-power,
+in discesa=DFS); (4) **confronto con oracoli** (matrix-power + bounded-BFS/DFS in `dfs_oracle.py`).
+Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in ottimizzazione**
+(ER a varie p: denso aiuta o rallenta il training?). NB: NON scrivere conclusioni — al
+2026-06-18 gli esperimenti girano, niente risultati ancora analizzati.
+
 ---
 
 ## 2. Workflow e REGOLE OPERATIVE (non negoziabili)
@@ -212,6 +226,47 @@ attesa dei seed rimanenti + n40 + parallel_paths.
     barbell_var-by-gap) invece di tenere una tabella fuorviante. L'utente apprezza
     l'onestà e nota i confound — preferisce un risultato negativo pulito a uno positivo
     sporco.
+32. **`__pycache__/*.pyc` sono TRACCIATI e bloccano `git pull` su HPC.** I job
+    rigenerano i `.pyc` → modifiche locali ai file tracciati → `git pull` aborta
+    ("local changes would be overwritten"). Analogo dei png (#14) e degli `out/*.out`
+    untracked che collidono quando un commit li aggiunge. Sblocco sicuro sul login node:
+    `git checkout -- __pycache__/` (scarta i .pyc, si rigenerano) poi
+    `git stash push -u -m "..."` (mette via gli out untracked senza perderli) poi
+    `git pull`. Fix definitivo (lo committa l'utente sul Mac):
+    `git rm -r --cached __pycache__ && printf '__pycache__/\n*.pyc\n' >> .gitignore`.
+33. **`runs/` è organizzata in bucket per-report** (vedi §5, riorganizzata 2026-06-13):
+    `runs/report1…4/` + `runs/extra/`. Ogni nuovo output va nel bucket del report
+    giusto; i path negli script/`.tex`/docs sono già aggiornati. `n40_cross_experiment`
+    è splittata fra report2 (convergence/per-distance) e report3 (resto). Cross-report:
+    report3 legge i modelli big da `report2/`, report4 legge `reach_depth` e
+    `repro_paper_n20_roberta` da `report3/`.
+34. **I checkpoint `.pt` dei report 3/4 sono STATI CANCELLATI (quota home).**
+    `find runs/report3 runs/report4 -name "*.pt"` = **0**. Le cartelle (json/png/families
+    eval) ci sono, ma i pesi no (gitignored + pulizia quota). → Qualsiasi "eval-only sui
+    base model esistenti" NON ha su cosa girare: prima **`find runs -name '*.pt'`**, poi o
+    riusi un `.pt` ancora presente o **riallena**. Per Report 5: n20 ER **riusato** da
+    `runs/report5/density_sweep/p08/` (= ER(20,0.08) linear, ancora su disco); n20 mixed + n40
+    er/mixed **riallenati** con `scripts/train_base_bridged_n{20,40}.sbatch` (auto-evalutano
+    bridged subito dopo). NON invalida i report precedenti (risultati in git), tocca solo i pesi.
+35. **La reference "si blocca" (DFS) pulita è un BFS visit-bounded, NON un DFS.** Su due clique
+    dense + 1 ponte, un DFS budget-bounded *si tuffa* e attraversa il ponte quasi subito
+    (cross-rate ~0.81 a budget=c) → NON modella il "bloccato nella clique vicina". Il BFS
+    visit-bounded riempie prima la clique vicina e attraversa solo se budget>c (cross ~0.01 a
+    c=10): è la reference pulita e monotona. `dfs_oracle.py` ha `matrix_power_connectivity`,
+    `bounded_bfs_connectivity` (primaria), `bounded_dfs_connectivity` (secondaria). Predizioni:
+    matrix-power cross-acc **piatto** nella clique-size; bounded-traversal **in discesa**.
+    Modello piatto→matrix-power, in discesa→DFS-like.
+36. **Il read-out lineare del RoBERTa NON è simmetrizzato** (`model.py:349`), a differenza del
+    minimal `GraphConnectivityTransformer` che simmetrizza (`:148`). Quindi sul base RoBERTa
+    `R̂_ij ≠ R̂_ji` è possibile → l'**asimmetria DFS è osservabile** (eval_bridged_cliques misura
+    il disaccordo per-direzione sul blocco cross).
+37. **`DataLoader(prefetch_factor=..., persistent_workers=True)` richiede `num_workers>0`**:
+    `train_bridged_classifier`/`train_families` crashano con `--num_workers 0` (debug locale).
+    Su HPC usa 16.
+38. **Densità a n20 alta = R quasi tutto-uno (trivialmente connesso)** → l'in-dist satura subito
+    (val→1.0 già a p=0.05). Il range utile per l'effetto densità-in-ottimizzazione è
+    **sparso→soglia** (p~0.05–0.15 a n20, soglia connettività ~0.15). A p≥0.2 il segnale è
+    confuso dal fatto che il task diventa banale.
 
 ---
 
@@ -240,6 +295,9 @@ attesa dei seed rimanenti + n40 + parallel_paths.
     (`retrain_er_n40_big_exp2_4993xx`, `ood_eval_n40_big_exp2_…`).
   - `runs/report4/` — difficoltà/architettura (`families_n20`, `families_n40`,
     `difficulty_map`, `laplacian`, `family_gallery`, `report4_figs`).
+  - `runs/report5/` — DFS vs matrix-power: `bridged_cliques/` (json per checkpoint, tag
+    `n{N}_{set}_seed{S}`), `bridged_clf/` (classificatore binario), `density_sweep/p{XX}/`
+    (ER a varie densità), `base_n20/`+`base_n40/` (base linear riallenati), `report5_figs/`.
   - `runs/extra/` — superato/orfano (`ood_eval_n40_big_495201`, `retrain_er_n20_diam11_…`).
   - **`n40_cross_experiment` è splittata**: `report2/` ne ha solo `01_convergence.png`
     e `02_per_distance.png`; il resto (cycles/diagnose/2chains/embed) è in `report3/`.
@@ -289,7 +347,27 @@ attesa dei seed rimanenti + n40 + parallel_paths.
   `train_families_n40.sbatch`, `reeval_families.sbatch` (ripassa tutti i ckpt).
 - `notes/note_difficolta.tex`: spiegazione divulgativa (it) di tutto il filone.
 - Checkpoint riusati: roberta n20 unrestricted (8 seed, `runs/report3/repro_paper_n20_roberta/`)
-  = baseline `ER/linear`.
+  = baseline `ER/linear`. **NB (2026-06-18): questi `.pt` non esistono più (vedi errore 34).**
+
+**File chiave Report 5 (matrix-powering vs DFS):**
+- `data.py`: `generate_bridged_cliques_graph(n, clique_size)` (due clique da n/2 + 1 ponte → 1
+  componente) e `generate_split_cliques_graph` (niente ponte → 2 componenti). Differiscono di 1 arco.
+- `dfs_oracle.py`: `matrix_power_connectivity(adj, L)` (distance-bounded, `(A+I)^{3^L}`),
+  `bounded_bfs_connectivity(adj, budget)` (visit-bounded, reference "stuck" primaria),
+  `bounded_dfs_connectivity` (secondaria). NumPy puro, no GPU.
+- `eval_bridged_cliques.py` (eval-only): discriminazione, per-blocco (within-A/within-B/cross),
+  asimmetria R̂_ij≠R̂_ji, sweep clique-size, confronto oracoli. Output
+  `<out>/bridged_cliques.json`. `plot_bridged_cliques.py` rigenera le figure pooled per seed.
+- `experiments2/train_bridged_classifier.py`: classificatore binario bridged/split
+  (`GraphBinaryClassifier`, trunk minimal single-head d512), clique-size random (accuracy-by-c)
+  o fissa (convergenza). Output `history.json` (`val_acc_by_c`) + curve png.
+- `plot_density_sweep.py`: convergenza/finale in-dist + OOD vs densità p (legge `density_sweep`).
+- `scripts/`: `eval_bridged_cliques.sbatch` (eval-only; n20 ER da `density_sweep/p08`, resto dai
+  retrain), `train_base_bridged_n20.sbatch` (n20 mixed + auto-eval bridged),
+  `train_base_bridged_n40.sbatch` (n40 er+mixed + auto-eval bridged), `density_sweep.sbatch`
+  (training ER a p={0.05,0.08,0.12,0.16,0.22}), `bridged_classifier.sbatch`.
+- Generatori chiave: il base RoBERTa linear è il modello sotto esame (read-out NON simmetrizzato,
+  errore 36). I `.pt` base vanno riallenati (errore 34).
 
 ---
 
@@ -484,6 +562,21 @@ fam40 4 seed, diffmap, near_miss_cut, ppclean).
 
 **Possibili follow-up (non urgenti):** depth-sweep a **n>64** per separare i read-out
 a L=3 (a n=64 sia linear che similarity saturano tutto il range, non si distinguono).
+
+**Stato Report 5 (al 2026-06-18): scaffolding + codice fatti, esperimenti IN CORSO, NIENTE
+risultati ancora analizzati.** Fatti e testati: generatori, `dfs_oracle.py`, `eval_bridged_cliques.py`,
+`train_bridged_classifier.py`, plotting, sbatch, `.tex` (intro + ipotesi + piano + metodi; sezione
+Results vuota). Stato job:
+- **Classificatore (`bridged_clf`, job 532252): COMPLETO**, 10 run (rand×4 seed + fissi c=3/6/10×2
+  seed), `history.json`+png. Da pushare/analizzare (accuracy-by-clique-size = firma DFS).
+- **Density sweep (job 532332): n20, ~14/20 fatti** (mancavano seed degli ultimi p al 2026-06-18).
+  Pushare SOLO a 20/20 (l'utente non vuole intermedi). Risultati grezzi visti: a p=0.05 in-dist→1.0.
+- **Bridged eval (job 532251): FALLITO** (0 checkpoint, errore 34) → sistemato: ora
+  `eval_bridged_cliques.sbatch` riusa density-p08 per n20 ER; n20 mixed + n40 vanno riallenati con
+  `train_base_bridged_n{20,40}.sbatch` (auto-evalutano bridged). Da lanciare.
+- **Prossimo per la nuova chat:** lanciare i 3 sbatch (eval_bridged + retrain n20/n40), pushare a
+  blocchi (`bridged_cliques`+`base_n20`, poi n40, poi density a 20/20), poi analizzare con
+  `plot_bridged_cliques.py`/`plot_density_sweep.py`. Domanda aperta: density anche a **n40**?
 
 - **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
   push`; in locale `git pull` poi generare le figure. NON lanciare `plot_families.py`
