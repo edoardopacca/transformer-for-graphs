@@ -10,12 +10,15 @@
 #SBATCH --error=out/%x_%A.out
 #
 # Report V, core experiment: bridged-cliques vs split-cliques on the BASE model
-# (RoBERTa, linear read-out). Eval-only on existing checkpoints -- no training.
-# Runs every base linear checkpoint we have (ER + mixed, n=20 + n=40, all seeds);
-# missing checkpoints are skipped. ~1-3 min per checkpoint, so one job covers all.
+# (RoBERTa, linear read-out). Eval-only -- runs every connectivity checkpoint that
+# EXISTS under runs/report5; missing ones are skipped. (The older Report-III/IV base
+# checkpoints were cleaned for quota, so we use: n20 ER from the density sweep p08
+# runs, and n20 mixed / n40 from the base retrains of scripts/train_base_bridged_*.)
+# ~1-3 min per checkpoint. The train_base_bridged_* scripts also auto-run this eval
+# on their own freshly trained checkpoint, so this file is mostly for the reused
+# n20-ER checkpoints + re-running after a code change.
 #
 #   sbatch scripts/eval_bridged_cliques.sbatch
-#
 # Then locally:  git pull ; python plot_bridged_cliques.py
 
 mkdir -p out
@@ -37,18 +40,15 @@ run_one () {   # $1 = checkpoint, $2 = tag (n{N}_{set}_seed{S})
   fi
 }
 
-# ER, n=20, linear  (Report-III RoBERTa baselines, best.pt; 8 seeds)
-for S in 1000 2000 3000 4000 5000 6000 7000 8000; do
-  run_one "runs/report3/repro_paper_n20_roberta/n20_p008_unrestricted_seed${S}/best.pt" "n20_er_seed${S}"
-done
-# mixed, n=20, linear  (Report-IV families, last.pt; 8 seeds)
-for S in 1000 2000 3000 4000 5000 6000 7000 8000; do
-  run_one "runs/report4/families_n20/n20_mixed_roberta_linear_lam0_seed${S}/last.pt" "n20_mixed_seed${S}"
-done
-# ER + mixed, n=40, linear  (Report-IV families_n40, last.pt; 4 seeds)
+# n20 ER linear: REUSE the density-sweep p08 runs (= ER(20,0.08) linear, 4 seeds)
 for S in 1000 2000 3000 4000; do
-  run_one "runs/report4/families_n40/n40_er_roberta_linear_lam0_seed${S}/last.pt"    "n40_er_seed${S}"
-  run_one "runs/report4/families_n40/n40_mixed_roberta_linear_lam0_seed${S}/last.pt" "n40_mixed_seed${S}"
+  run_one "runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed${S}/last.pt" "n20_er_seed${S}"
+done
+# n20 mixed linear + n40 er/mixed linear: from the base retrains (if present)
+for S in 1000 2000 3000 4000; do
+  run_one "runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed${S}/last.pt" "n20_mixed_seed${S}"
+  run_one "runs/report5/base_n40/n40_er_roberta_linear_lam0_seed${S}/last.pt"    "n40_er_seed${S}"
+  run_one "runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed${S}/last.pt" "n40_mixed_seed${S}"
 done
 
 echo "bridged-cliques eval done -> $OUT_ROOT"
