@@ -39,7 +39,8 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_er_graph, generate_two_chains_graph,
                   generate_two_cliques_graph, generate_one_cycle_graph,
                   generate_two_cycles_graph, generate_one_chain_graph,
-                  generate_path_union_graph, generate_blocks_graph)
+                  generate_path_union_graph, generate_blocks_graph,
+                  generate_bridged_cliques_graph, generate_split_cliques_graph)
 from model import (GraphConnectivityTransformer, RobertaGraphTransformer,
                    ModelConfig, laplacian_smoothness)
 from utils import ensure_dir, get_device, save_json, set_seed
@@ -63,6 +64,8 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "1cycle":      a = generate_one_cycle_graph(n)
     elif kind == "2cycle":      a = generate_two_cycles_graph(n, n // 2)
     elif kind == "1chain":      a = generate_one_chain_graph(n)
+    elif kind == "bridged":     a = generate_bridged_cliques_graph(n, rng, int(rng.integers(2, n // 2 + 1)))
+    elif kind == "split":       a = generate_split_cliques_graph(n, rng, int(rng.integers(2, n // 2 + 1)))
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -150,20 +153,29 @@ def main():
     ap.add_argument("--batch_size", type=int, default=1000)
     ap.add_argument("--eval_every", type=int, default=5000)
     ap.add_argument("--seed", type=int, default=1000)
+    ap.add_argument("--n_layers", type=int, default=2,
+                    help="depth L (Report V depth-sweep on bridged cliques uses 1/2/3)")
+    ap.add_argument("--include_bridged", action="store_true",
+                    help="augment the mixed stream with bridged+split cliques "
+                         "(random clique size) -- Report V data-prior test")
     args = ap.parse_args()
     n = args.n_nodes; p = args.p
 
     fam_tag = "mixed" if args.families == "mixed" else "er"
-    families = MIXED_FAMILIES if args.families == "mixed" else ["er"]
+    families = (MIXED_FAMILIES if args.families == "mixed" else ["er"])
+    if args.include_bridged:
+        families = families + ["bridged", "split"]
+        fam_tag = fam_tag + "br"
     lam_tag = f"lam{args.lambda_lap:g}" if args.lambda_lap > 0 else "lam0"
-    run_name = f"n{n}_{fam_tag}_{args.arch}_{args.readout}_{lam_tag}_seed{args.seed}"
+    L_tag = "" if args.n_layers == 2 else f"_L{args.n_layers}"
+    run_name = f"n{n}_{fam_tag}_{args.arch}_{args.readout}_{lam_tag}{L_tag}_seed{args.seed}"
     out_dir = Path(args.output_root) / run_name
     ensure_dir(out_dir)
 
     set_seed(args.seed)
     device = get_device("auto")
     is_roberta = args.arch == "roberta"
-    mcfg = ModelConfig(n=n, d_model=512, n_heads=1, d_ff=2048, n_layers=2,
+    mcfg = ModelConfig(n=n, d_model=512, n_heads=1, d_ff=2048, n_layers=args.n_layers,
                        dropout=0.1 if is_roberta else 0.0, attn_kind="normalized_relu",
                        norm_style="post" if is_roberta else "pre",
                        layer_norm_eps=1e-5, init_std=0.02, readout=args.readout)
