@@ -173,10 +173,20 @@ Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in
     grafo interessanti** (NON quelle con tutti 1.00 / tutti 0 — non significative).
     "Guardale tutte, riporta le interessanti." Stile da **studente al primo progetto**:
     prosa semplice, niente toni da venditore; spiega i meccanismi in modo banale.
-21. **Ogni caption deve dire QUALE MODELLO e QUALE TEST SET.** L'utente si lamenta
-    se non si capisce: modello = *trainato su cosa* (ER vs mixed), *quanti seed*,
-    *quale dimensione* (L=2, d_model=512), e su *quale famiglia/pool* sono fatte le
-    medie. E dire se i numeri sono **media o mediana** e di quali seed.
+21. **⚠️ REGOLA NON NEGOZIABILE — OGNI tabella e OGNI figura deve dichiarare MODELLO +
+    TRAINING SET + TEST SET nella caption. SEMPRE. Come nel Report 4.** È l'errore che
+    l'utente segnala più spesso: NON dare per scontato che si capisca dal testo. Ogni caption,
+    da sola, deve rispondere a:
+    - **MODELLO**: architettura (es. minimal/A.1 vs RoBERTa; read-out linear vs similarity),
+      `L=2`, `d_model=512`, n.ro teste, e — se è un classificatore — `mean-pool + 1 logit`.
+    - **TRAINING SET**: *trainato su cosa* (ER vs mixed; o lo stream specifico, es. 50/50
+      bridged/split random-c), **quanti seed**, **quale dimensione** (`n=20`/`n=40`).
+    - **TEST SET**: su *quale famiglia/pool* è misurato, e quanti grafi.
+    - **METRICA**: quale (exact-match / pairwise / reach / accuracy / loss) e se i numeri sono
+      **media o mediana** e di **quali seed**.
+    Template caption: «\emph{Model:} … (arch, L, d_model, read-out), trainato su … (training set),
+    N seed, n=…. \emph{Test set:} … (famiglia, #grafi). \emph{Metrica:} … (media/mediana su …).»
+    Se una caption non ha questi campi, è INCOMPLETA: aggiungerli prima di consegnare.
 22. **`barbell_var` NON è un esperimento pulito sul gap.** Il gap di un barbell è
     intrinsecamente minuscolo (n20: 0.006–0.019; n40: 0.0008–0.005) ed è **a U** nella
     clique_size; e la clique_size cambia anche **diametro** (3↔19) e **densità** delle
@@ -267,6 +277,33 @@ Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in
     (val→1.0 già a p=0.05). Il range utile per l'effetto densità-in-ottimizzazione è
     **sparso→soglia** (p~0.05–0.15 a n20, soglia connettività ~0.15). A p≥0.2 il segnale è
     confuso dal fatto che il task diventa banale.
+39. **Il classificatore bridged/split è un DISCRIMINATORE DEBOLE di matrix-power-vs-DFS.** I due
+    grafi differiscono di **un solo arco** con footprint **LOCALE** (i 2 estremi del ponte hanno
+    grado `c` invece di `c−1`; l'edge-count differisce di 1), separabile **senza** propagare la
+    connettività. Accuracy piatta a 1.0 **NON** prova il matrix-powering: mostra solo che il ponte
+    è *rilevabile* a qualsiasi clique-size (smonta solo la forma forte del DFS). Il test DECISIVO è
+    il **base model** sulla matrice R (per-blocco, asimmetria, oracoli), NON il classificatore.
+40. **Classificatore: l'ordinamento DFS appare SOLO nel transitorio.** Le clique grandi sono
+    imparate per ultime (a step 2000 l'accuracy cala con `c`; nei run a `c` fisso la **loss
+    iniziale** cresce con la densità), ma l'accuracy **finale è piatta a 1.0**. Training rumoroso:
+    alcuni seed crollano a ~0.5 a metà run prima di stabilizzarsi → l'ordinamento è una *tendenza*,
+    non una legge monotona. **NON** vendere il transitorio come un muro.
+41. **Il classificatore n20 arriva solo a `c=10`** (2c≤20): la conclusione "nessun muro" è testata
+    **solo fino a c=10**. Per spingere il range serve **n40** (c fino a 20). Lo sbatch è ora
+    parametrico: `N=40 FIXED_C="5 10 15 20" sbatch --array=0-11%4 scripts/bridged_classifier.sbatch`.
+42. **La bridged eval a n20 ER è CONFUSA.** Il modello ER è OOD sulle cricche dense (degree
+    heuristic, Report IV) → un cross-block che cala con la clique-size **NON** è attribuibile a DFS
+    (densità *e* lunghezza-da-attraversare crescono insieme, e l'ER fallisce le cricche comunque:
+    within-clique ~0.69, discrimination ~0.5–0.65). Il test pulito è il modello **MIXED** (ha visto
+    cricche dense in training → densità in-distribuzione).
+43. **`eval_bridged_cliques.sbatch` SALTA in silenzio i checkpoint mancanti** (gira ~30s e finisce
+    COMPLETED anche valutando quasi nulla). Sempre controllare il `.out` (righe `-- skip ...`) e
+    contare i json in `runs/report5/bridged_cliques/` prima di fidarsi. Va **ri-lanciata DOPO** che i
+    retrain base (`base_n20`/`base_n40`) sono finiti.
+44. **Concatenare job SLURM: `sbatch --dependency=afterany:JOB1:JOB2 ...`** (parte quando i
+    precedenti FINISCONO, comunque vada). Preferire **`afterany`** ad `afterok` per gli array:
+    `afterok` lascia il dipendente PD per sempre (`DependencyNeverSatisfied`) se anche un solo task
+    fallisce; la bridged eval salta comunque i checkpoint mancanti, quindi `afterany` è più robusto.
 
 ---
 
@@ -358,14 +395,24 @@ Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in
 - `eval_bridged_cliques.py` (eval-only): discriminazione, per-blocco (within-A/within-B/cross),
   asimmetria R̂_ij≠R̂_ji, sweep clique-size, confronto oracoli. Output
   `<out>/bridged_cliques.json`. `plot_bridged_cliques.py` rigenera le figure pooled per seed.
+- `eval_oracle_agreement_families.py` (eval-only, CAPSTONE): per ogni base checkpoint e ogni famiglia
+  naturale confronta R̂ del modello con l'oracolo matrix-power e con bounded-BFS(budget-sweep), overall
+  + sui pair dove i due oracoli DISACCORDANO; output `<out>/oracle_families.json` (per-famiglia +
+  `pooled`). `scripts/oracle_agreement_families.sbatch` (stessi 16 checkpoint dell'eval bridged),
+  aggregazione `plot_oracle_families.py`. Groundwork oracle-vs-oracle (senza modello):
+  `runs/report5/report5_figs/oracle_disagreement.{png,json}`.
 - `experiments2/train_bridged_classifier.py`: classificatore binario bridged/split
   (`GraphBinaryClassifier`, trunk minimal single-head d512), clique-size random (accuracy-by-c)
   o fissa (convergenza). Output `history.json` (`val_acc_by_c`) + curve png.
 - `plot_density_sweep.py`: convergenza/finale in-dist + OOD vs densità p (legge `density_sweep`).
+- `plot_bridged_classifier.py`: figura aggregata del classificatore dai `history.json` (no GPU;
+  per-seed accuracy-by-clique-size a step 2000 + loss-by-c dei run a c fisso → `runs/report5/
+  report5_figs/classifier_by_clique_size.png`). **NB: cablato sui run n20, da estendere se si fa n40.**
 - `scripts/`: `eval_bridged_cliques.sbatch` (eval-only; n20 ER da `density_sweep/p08`, resto dai
   retrain), `train_base_bridged_n20.sbatch` (n20 mixed + auto-eval bridged),
   `train_base_bridged_n40.sbatch` (n40 er+mixed + auto-eval bridged), `density_sweep.sbatch`
-  (training ER a p={0.05,0.08,0.12,0.16,0.22}), `bridged_classifier.sbatch`.
+  (training ER a p={0.05,0.08,0.12,0.16,0.22}), `bridged_classifier.sbatch` (**parametrico in `N` e
+  `FIXED_C` via env-var, default n20 c={3,6,10}**; n40 con `N=40 FIXED_C="5 10 15 20" --array=0-11%4`).
 - Generatori chiave: il base RoBERTa linear è il modello sotto esame (read-out NON simmetrizzato,
   errore 36). I `.pt` base vanno riallenati (errore 34).
 
@@ -563,20 +610,84 @@ fam40 4 seed, diffmap, near_miss_cut, ppclean).
 **Possibili follow-up (non urgenti):** depth-sweep a **n>64** per separare i read-out
 a L=3 (a n=64 sia linear che similarity saturano tutto il range, non si distinguono).
 
-**Stato Report 5 (al 2026-06-18): scaffolding + codice fatti, esperimenti IN CORSO, NIENTE
-risultati ancora analizzati.** Fatti e testati: generatori, `dfs_oracle.py`, `eval_bridged_cliques.py`,
-`train_bridged_classifier.py`, plotting, sbatch, `.tex` (intro + ipotesi + piano + metodi; sezione
-Results vuota). Stato job:
-- **Classificatore (`bridged_clf`, job 532252): COMPLETO**, 10 run (rand×4 seed + fissi c=3/6/10×2
-  seed), `history.json`+png. Da pushare/analizzare (accuracy-by-clique-size = firma DFS).
-- **Density sweep (job 532332): n20, ~14/20 fatti** (mancavano seed degli ultimi p al 2026-06-18).
-  Pushare SOLO a 20/20 (l'utente non vuole intermedi). Risultati grezzi visti: a p=0.05 in-dist→1.0.
-- **Bridged eval (job 532251): FALLITO** (0 checkpoint, errore 34) → sistemato: ora
-  `eval_bridged_cliques.sbatch` riusa density-p08 per n20 ER; n20 mixed + n40 vanno riallenati con
-  `train_base_bridged_n{20,40}.sbatch` (auto-evalutano bridged). Da lanciare.
-- **Prossimo per la nuova chat:** lanciare i 3 sbatch (eval_bridged + retrain n20/n40), pushare a
-  blocchi (`bridged_cliques`+`base_n20`, poi n40, poi density a 20/20), poi analizzare con
-  `plot_bridged_cliques.py`/`plot_density_sweep.py`. Domanda aperta: density anche a **n40**?
+**Stato Report 5 (aggiornato 2026-06-19, 2a sessione): CLASSIFICATORE (§5.1) e BASE-MODEL BRIDGED EVAL
+(§5.2) analizzati e SCRITTI. Il `.tex` arriva a 14 pagine, compila pulito da `report/5/`.** Restano
+da analizzare: la DENSITY SWEEP (dati già in locale, PRONTI → è il prossimo) e il CAPSTONE
+oracle-vs-famiglie (job HPC 533393 appena lanciato, dati NON ancora pullati). §5.1: setup due regimi +
+`tab:clf_early`/`tab:clf_early_n40` + `fig:clf`/`fig:clf_n40` + `fig:clf_loss` + caveat (errori 39–42).
+§5.2 (NUOVA): per-blocco `tab:base_blocks`, sweep `tab:base_sweep`+`fig:base_sweep`, oracle-follow
+`fig:base_oracle`, confound ER `tab:base_er`; + paragrafi divulgativi (cosa vuol dire "cross-block pair
+accuracy", come funziona il confronto con gli oracoli, perché non contraddice il classificatore) aggiunti
+su richiesta dell'utente.
+
+**>>> WORKFLOW PER LE PROSSIME CHAT: UN esperimento per chat. Leggere PRIMA `istruzioni.md` +
+`report/5/transformer_for_graphs_5.tex`, poi analizzare l'esperimento assegnato dai json già in
+`runs/report5/`, scrivere la sotto-sezione nei Results (caption complete — regola 21), e CONSEGNARE
+i comandi git all'utente (Claude non committa). Non rifare i job: i dati ci sono già. <<<**
+
+**>>> PROSSIMA CHAT = DENSITY SWEEP (è il prossimo dato locale non ancora analizzato). <<<**
+
+**Mappa per-esperimento** (✅ fatto&scritto · 🟢 dati pronti, DA analizzare · 🔵 job HPC in coda, dati NON
+ancora pullati · ⏳ in attesa/opzionale):
+
+- ✅ **Classificatore** (`runs/report5/bridged_clf/`, 22 run: n20 ×10, n40 ×12). ANALIZZATO e
+  SCRITTO (§5.1). Esito: accuracy finale **piatta a 1.0** fino a c=10 (n20) e c=20 (n40) → smonta
+  il DFS forte; l'ordinamento DFS è solo nel transitorio (clique grandi imparate per ultime; loss∝
+  densità). Discriminatore **debole** (errore 39). Plot: `plot_bridged_classifier.py`.
+
+- ✅ **Base-model bridged eval** (`runs/report5/bridged_cliques/`, 16 json). ANALIZZATO e SCRITTO
+  (§5.2) — **il test decisivo**. Esito (sul MIXED, il test pulito): within-A=within-B=1.00 e split
+  exact=1.00 (le cricche dense NON sono il problema), ma il **cross-block crolla con la clique-size**
+  (piatto a 1.0 fino a c≈6, →0 oltre), mentre l'oracolo matrix-power è piatto a 1.0 a ogni c (ponte
+  ≤3 hop). Il cutoff è un **budget assoluto di ~6–7 nodi** (stesso a n20 e n40) → NON distanza →
+  **traversata a budget (DFS-like), non matrix-powering**. NIENTE asimmetria direzionale (è una palla
+  BFS visit-bounded in parallelo, non una DFS single-start — correzione onesta della predizione).
+  Oracle-agreement: sul cross il modello segue il BFS visit-bounded (~99% a n20), non l'MP (0.48 =
+  solo i within-block). ER = cross-check confuso (errore 42, `tab:base_er`). Coerente col
+  classificatore: ponte *rilevabile* (footprint locale) ma *non propagato* in R̂. Plot:
+  `plot_bridged_cliques.py` + figure custom `base_bridged_cross_sweep.png`/`base_bridged_oracle_follow.png`.
+
+- 🟢 **Density sweep** (`runs/report5/density_sweep/p{05,08,12,16,22}/`, **20 run PRONTI**: n20 ER
+  linear × 4 seed per p). **PROSSIMO DA ANALIZZARE.** Domanda: densità in **ottimizzazione** — denso
+  aiuta o rallenta il training? (matrix-power: più denso = distanze più corte = più facile/veloce;
+  DFS: più denso = più da esplorare = più lento). Ogni run ha `history.json` (convergenza + val
+  finale) e `families/families_eval.json` (OOD). Plot: `plot_density_sweep.py`. Range utile
+  **sparso→soglia** (errore 38: a p≥0.2 il task è banale, in-dist→1.0). Una chat dedicata.
+
+- 🔵 **Capstone: oracle-vs-famiglie** (job HPC **533393** `oraclefam`, in coda 2026-06-19; output atteso
+  in `runs/report5/oracle_families/<tag>/oracle_families.json`, 16 checkpoint). Stesso test
+  matrix-power-vs-BFS dell'eval bridged, ma su TUTTE le famiglie naturali (n20/n40, ER/mixed). Script:
+  `eval_oracle_agreement_families.py` (smoke-tested), `scripts/oracle_agreement_families.sbatch`,
+  aggregazione `plot_oracle_families.py`. **CAVEAT ONESTO (groundwork già in locale,
+  `runs/report5/report5_figs/oracle_disagreement.{png,json}`, calcolato senza modello):** a n20 sulle
+  famiglie SPARSE i due oracoli quasi COINCIDONO a budget≈9 (er 0.10, 2chains/2cliques 0.01) → lì il
+  test è CIECO (coincidenza distanza≈nodi, §2 del `.tex`). Il potere discriminante sta nelle famiglie
+  DENSE (clique_blocks, barbell) e a n40 (grafi grandi). → metrica giusta = accordo sulle sole coppie
+  dove i due oracoli DISACCORDANO (`disagree_frac` nel json), NON l'accordo complessivo. Quando i json
+  sono pullati: `python plot_oracle_families.py` poi scrivere il §5.x come ULTIMO esperimento. Da fare
+  DOPO la density.
+
+- ⏳ **(opzionale) Re-read del barbell a livello blocco** (dati Report 4, `runs/report4/`): la §3.2
+  del `.tex` prevede di ri-aprire il barbell (ponte-path) a livello per-blocco per cercare la stessa
+  asimmetria, senza nuovi run. Solo analisi.
+
+- ⏳ **Base-model training** (`base_n20/`, `base_n40/`): servono soprattutto come pesi per la bridged
+  eval; di per sé poco interessanti (convergenza in-dist). Bassa priorità.
+
+- ⏳ **Verdetto finale matrix-power vs DFS**: sintesi conclusiva, da scrivere DOPO density + capstone.
+  Le fila già tirate finora: classificatore (capacità piatta a 1.0, costo solo in ottimizzazione →
+  smonta il DFS forte) + base-model bridged (cross crolla con clique-size a budget assoluto ~6–7 nodi
+  → traversata a budget, NON matrix-powering; ponte rilevabile ma non propagato). Mancano: density
+  (denso aiuta o rallenta in training?) + capstone (la traversata a budget regge su TUTTE le famiglie,
+  dove il test discrimina?).
+
+**Job HPC**: COMPLETED e pullati: 532252 clf n20, 532332 density, 532782 bridged parziale, 532783
+base20, 532784 base40, 532850 clf n40. **In coda (PD) al 2026-06-19**: `533393` (oraclefam = capstone
+oracle-vs-famiglie, NUOVO) e `532846` (bridged eval unificata su TUTTI i checkpoint). A job finiti, su
+HPC `git add runs/report5/oracle_families` (e `runs/report5/bridged_cliques` se serve set coerente) +
+commit + push; in locale `git pull` + `python plot_oracle_families.py`. NB controllare i `.out`
+(errore 43: l'eval salta in silenzio i checkpoint mancanti) e contare i json prima di fidarsi.
+Domanda aperta: density anche a **n40**?
 
 - **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
   push`; in locale `git pull` poi generare le figure. NON lanciare `plot_families.py`

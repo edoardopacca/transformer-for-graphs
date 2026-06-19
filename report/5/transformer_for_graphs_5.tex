@@ -296,11 +296,12 @@ classifier \texttt{experiments2/train\_bridged\_classifier.py} with
 \section{Results}
 \label{sec:results}
 
-The runs of Section~\ref{sec:plan} are completing in order. Below we report the first one that
-is finished and analysed --- the dedicated trainable classifier (Section~\ref{sec:plan-barbell},
-part~(b)). The base-model connectivity eval (per-block asymmetry, clique-size scaling,
-oracle-agreement) and the training-density sweep are still running; their results, and the
-overall matrix-powering-vs-DFS verdict, will be added as they land.
+The runs of Section~\ref{sec:plan} are completing in order. We report two: the dedicated
+trainable classifier (Section~\ref{sec:plan-barbell}, part~(b)), in
+Section~\ref{sec:res-clf}; and --- the decisive one --- the base connectivity model evaluated on
+the bridged cliques (Section~\ref{sec:plan-barbell}, part~(a), with the per-block,
+clique-size-sweep and oracle-agreement reads), in Section~\ref{sec:res-base}. The
+training-density sweep and the final matrix-powering-vs-DFS verdict will be added as they land.
 
 \subsection{The dedicated classifier: the bridge is detectable at every clique size}
 \label{sec:res-clf}
@@ -341,18 +342,20 @@ out the strongest form of the DFS hypothesis (that a bridge behind a large cliqu
 \emph{undetectable}).
 
 \paragraph{But the DFS difficulty ordering does show up --- in the learning dynamics.} The flat
-final curve hides a transient that is exactly the shape DFS predicts. Early in training
-(Table~\ref{tab:clf_early}, Figure~\ref{fig:clf}, left, at step $2{,}000$) accuracy is high at
-small cliques and \emph{falls at large ones}: on seed $1000$ it is $1.00$ up to $c=6$ but only
-$0.65$ at $c=8$ and $0.55$ ($\approx$ chance) at $c=10$; seed $3000$ shows a milder version
-($0.87$ at $c=10$), seed $4000$ milder still, and seed $2000$ is already flat. In other words the
-larger, denser cliques are the \emph{last} to be mastered --- a bounded-traversal-like ordering
-that the model eventually overcomes with more steps rather than a hard limit. The fixed-$c$ runs
-corroborate the optimisation side of this (Figure~\ref{fig:clf}, right): although accuracy hits
-$1.0$ immediately at every $c$, the early training \emph{loss} rises clearly with the clique
-size ($\approx0.05$ at $c=3$, $\approx0.17$ at $c=6$, $\approx0.35$ at $c=10$), so a denser clique
-is genuinely a bit harder to fit --- the ``density in optimisation'' effect DFS predicts ---
-just not hard enough to delay reaching $100\%$.
+final curve hides a transient that is exactly the shape DFS predicts. Figure~\ref{fig:clf} plots,
+for each seed, the accuracy of every clique size as a function of the training step (one line per
+size, colour $=$ size): the small cliques shoot up to $1.0$ almost immediately, the larger ones
+only later, so the curves fan out by size before all converging --- the larger, denser cliques are
+the \emph{last} to be mastered. Read as a snapshot early in training
+(Table~\ref{tab:clf_early}, step $2{,}000$): seed $1000$ is $1.00$ up to $c=6$ but only $0.65$ at
+$c=8$ and $0.55$ ($\approx$ chance) at $c=10$; seed $3000$ is milder ($0.87$ at $c=10$), seed
+$4000$ milder still, seed $2000$ already flat. This is a bounded-traversal-like ordering that the
+model overcomes with more steps, not a hard limit. The fixed-$c$ runs corroborate the optimisation
+side (Figure~\ref{fig:clf_loss}): although accuracy reaches $1.0$ at every $c$, the early
+($2{,}000$-step) training \emph{loss} rises with the clique size ($\approx0.05$ at $c=3$,
+$\approx0.17$ at $c=6$, $\approx0.35$ at $c=10$), so a denser clique is genuinely a bit harder to
+fit --- the ``density in optimisation'' effect DFS predicts --- just not hard enough to delay
+reaching $100\%$.
 
 \begin{table}[H]\centering\small
 \begin{tabular}{lccccccccc}
@@ -365,31 +368,120 @@ seed & $c2$ & $c3$ & $c4$ & $c5$ & $c6$ & $c7$ & $c8$ & $c9$ & $c10$ \\
 4000 & 1.00 & 1.00 & 1.00 & 1.00 & 0.99 & 1.00 & 0.98 & 0.99 & 0.97 \\
 \bottomrule
 \end{tabular}
-\caption{Classification accuracy \textbf{by clique size, early in training (step $2{,}000$)}, for
-the four random-$c$ seeds ($n=20$, balanced test set, $200$ graphs/label/size). Bold marks the
+\caption{\emph{Model:} the bridged-vs-split binary classifier --- minimal/A.1-style trunk ($L=2$,
+single head, $d_{\mathrm{model}}=512$, normalised-ReLU) with mean-pool $+$ one logit --- trained
+from scratch at $n=20$ ($200{,}000$ steps) on the online $50/50$ bridged/split stream with the
+clique size drawn uniformly per sample (\emph{random-$c$} regime), four seeds.
+\emph{Test set:} balanced, $200$ graphs per label per clique size $c=2,\dots,10$.
+Classification accuracy \textbf{by clique size, early in training (step $2{,}000$)}; bold marks the
 cells near chance. The larger cliques are learned last (seed-dependently); by the end of training
-every cell is $\approx1.00$ (last row of the figure), so this is a transient ordering, not a
-wall.}
+every cell is $\approx1.00$ (the trajectories all converge, Figure~\ref{fig:clf}), so this is a
+transient ordering, not a wall.}
 \label{tab:clf_early}
 \end{table}
 
 \begin{figure}[H]
     \centering
-    \figorbox{runs/report5/report5_figs/classifier_by_clique_size.png}{1.0}
-    \caption{Bridged-vs-split classifier, $n=20$, minimal trunk (mean-pool $+$ one logit).
-    \emph{Left:} accuracy by clique size at step $2{,}000$, one line per random-$c$ seed; the
-    larger cliques lag (seed-dependently), while the final accuracy is flat at $1.0$ for every
-    seed (green dashed). \emph{Right:} fixed-clique-size runs --- the early ($2{,}000$-step)
-    training loss grows with the clique size, even though accuracy is already $1.0$ at that point
-    for every $c$.}
+    \figorbox{runs/report5/report5_figs/classifier_trajectory_n20.png}{0.92}
+    \caption{\emph{Model:} the bridged-vs-split classifier (minimal trunk $L=2$, single head,
+    $d_{\mathrm{model}}=512$, mean-pool $+$ one logit), trained from scratch at $n=20$ on the online
+    $50/50$ bridged/split stream, \emph{random-$c$} regime (clique size drawn uniformly
+    $\{2,\dots,10\}$ per sample), one panel per seed. \emph{Test set:} balanced, $200$ graphs per
+    label per clique size. \textbf{Accuracy vs training step (log axis), one line per clique size}
+    (colour $=$ clique size $c$). Small cliques (dark) reach $1.0$ almost at once, the larger ones
+    (yellow) later, and every size converges to $1.0$ --- the difficulty ordering is in \emph{when}
+    a size is learned, not in whether it is. (At $n=20$, $c\le10$, the spread is small and partly
+    hidden by mid-run noise; it is much clearer at $n=40$, Figure~\ref{fig:clf_n40}.)}
     \label{fig:clf}
 \end{figure}
 
-\paragraph{Two caveats, stated plainly.} First, training is \emph{noisy}: some seeds suffer
-transient mid-run collapses to chance on the hardest cliques before settling (e.g.\ seed $4000$
-dips on $c=10$ well past step $100{,}000$), so the clique-size ordering is a tendency of the
-early dynamics, not a clean monotone law --- the familiar seed lottery of Reports~III--IV, here at
-the level of which clique sizes are mastered when. Second, and more important for the headline
+\paragraph{Pushing the range: $n=40$, cliques up to $c=20$.} At $n=20$ the largest clique is
+$c=10$, so the ``flat at $1.0$'' conclusion is only tested that far; a bounded-traversal limit, if
+real, might only bite at larger cliques. We therefore re-ran the whole classifier at $n=40$, where
+the clique size reaches $c=20$ (two $20$-cliques fill the entire canvas), with fixed sizes
+$c\in\{5,10,15,20\}$. The conclusion is the \emph{same, only stronger}. The final accuracy is
+\textbf{exactly $1.0$ at every clique size $c=2,\dots,20$, for all four seeds} (no dips at all,
+cleaner than $n=20$): doubling the range does not produce a wall, so the bridge stays detectable
+behind even a $20$-node dense clique --- the matrix-powering-consistent reading, and a sharper
+refutation of the strong DFS hypothesis.
+
+\paragraph{The bounded-traversal cost reappears --- as an optimisation cost, more clearly than at
+$n=20$.} With the larger range the difficulty ordering is now unmistakable. The per-size
+trajectories (Figure~\ref{fig:clf_n40}) fan out widely: small cliques are learned almost at once,
+the largest only after tens of thousands of steps. As a snapshot at step $2{,}000$
+(Table~\ref{tab:clf_early_n40}) accuracy falls \emph{monotonically} with the clique size: seed
+$4000$ is $1.00$ at $c=2$, $0.77$ at $c=8$ and flat at chance ($\approx0.50$) from $c\ge11$, with
+seed $3000$ similar and seeds $1000$/$2000$ slower still --- the larger the clique, the later it is
+mastered. The fixed-$c$ runs make the optimisation side explicit and sharp
+(Figure~\ref{fig:clf_loss}): the step-$2{,}000$ training loss climbs from $\approx0.1$ at $c=5$ to
+$\approx0.69$ ($=\ln 2$, i.e.\ \emph{still at chance}) at $c=15$ and $c=20$, and the step at which
+accuracy first reaches $0.99$ grows from $2{,}000$ (at $c=5,10$) to $4{,}000$--$6{,}000$ (at
+$c=15,20$). So a
+denser/larger clique is genuinely harder and slower to learn --- exactly the ``density in
+optimisation'' prediction of the DFS reading --- but, given enough steps, never an accuracy
+ceiling. The bounded-traversal difficulty shows up as a \emph{training cost}, not a capability
+limit. (At $n=20$, where $c\le10$, this was barely visible: every fixed-$c$ run was already at
+$1.0$ by the first evaluation.)
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccccc}
+\toprule
+seed & $c2$ & $c5$ & $c8$ & $c11$ & $c14$ & $c17$ & $c20$ \\
+\midrule
+1000 & 0.62 & 0.69 & 0.67 & 0.66 & 0.59 & 0.56 & \textbf{0.49} \\
+2000 & \textbf{0.50} & 0.55 & \textbf{0.47} & \textbf{0.50} & 0.52 & \textbf{0.50} & \textbf{0.50} \\
+3000 & 0.98 & 0.76 & \textbf{0.51} & \textbf{0.51} & \textbf{0.50} & \textbf{0.50} & \textbf{0.50} \\
+4000 & 1.00 & 0.88 & 0.77 & \textbf{0.52} & \textbf{0.52} & \textbf{0.50} & \textbf{0.50} \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the bridged-vs-split classifier (minimal trunk $L=2$, single head,
+$d_{\mathrm{model}}=512$, mean-pool $+$ one logit), trained from scratch at \textbf{$n=40$} on the
+online $50/50$ bridged/split stream, \emph{random-$c$} regime (clique size drawn uniformly
+$\{2,\dots,20\}$ per sample), four seeds. \emph{Test set:} balanced, $200$ graphs per label per
+clique size. Classification accuracy \textbf{by clique size, early in training (step $2{,}000$)}
+(cols thinned to $c=2,5,\dots,20$); bold marks cells at chance ($\approx0.50$). The drop with
+clique size is monotone and much deeper than at $n=20$ (Table~\ref{tab:clf_early}); by the end of
+training every cell is exactly $1.00$ for every seed.}
+\label{tab:clf_early_n40}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/classifier_trajectory_n40.png}{0.92}
+    \caption{\emph{Model:} the bridged-vs-split classifier (minimal trunk $L=2$, single head,
+    $d_{\mathrm{model}}=512$, mean-pool $+$ one logit), trained from scratch at \textbf{$n=40$} on
+    the online $50/50$ bridged/split stream, \emph{random-$c$} regime (clique size drawn uniformly
+    $\{2,\dots,20\}$ per sample), one panel per seed. \emph{Test set:} balanced, $200$ graphs per
+    label per clique size. Same layout as Figure~\ref{fig:clf}: accuracy vs training step (log
+    axis), one line per clique size (colour $=$ size). The fan is wide: small cliques (dark) reach
+    $1.0$ almost at once, the largest (yellow) only after tens of thousands of steps, but
+    \emph{every} size converges to $1.0$. The ordering is monotone in $c$ and far clearer than at
+    $n=20$.}
+    \label{fig:clf_n40}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/classifier_fixedc_loss.png}{0.6}
+    \caption{\emph{Model:} the bridged-vs-split classifier (minimal trunk $L=2$, single head,
+    $d_{\mathrm{model}}=512$, mean-pool $+$ one logit), but a \emph{separate} model trained from
+    scratch on each single \emph{fixed} clique size (\emph{fixed-$c$} regime: the online $50/50$
+    bridged/split stream uses one $c$), $n=20$ ($c\in\{3,6,10\}$) and $n=40$ ($c\in\{5,10,15,20\}$),
+    two seeds each. \emph{Plotted:} the \textbf{training} loss (on the stream, not a test metric) at
+    step $2{,}000$ vs the clique size (markers $=$ the two seeds, line $=$ mean). The loss rises
+    with the clique size and saturates at the chance value $\ln 2$ (dotted) for the largest $n=40$
+    cliques --- a denser clique is genuinely slower to fit (``density in optimisation''). The
+    held-out accuracy nonetheless reaches $1.0$ at every size with more steps, so this is a
+    convergence-speed effect, not a capability wall.}
+    \label{fig:clf_loss}
+\end{figure}
+
+\paragraph{Two caveats, stated plainly.} First, training is \emph{noisy} at both sizes: some seeds
+suffer transient mid-run collapses to chance on the hardest cliques before settling (the step at
+which all clique sizes stabilise above $0.99$ ranges from $\sim4{,}000$ to $\sim116{,}000$ across
+the $n=40$ seeds), so the clique-size ordering is a tendency of the early dynamics, not a clean
+monotone law --- the familiar seed lottery of Reports~III--IV, here at the level of which clique
+sizes are mastered when. Second, and more important for the headline
 question: this classifier is a \emph{weak} discriminator of matrix powering vs.\ DFS. The two
 labels differ by exactly one edge, and that edge leaves a purely \emph{local} footprint --- the
 two bridge endpoints have degree $c$ instead of $c-1$, and the total edge count differs by one ---
@@ -397,8 +489,253 @@ so the labels are separable without ever propagating connectivity across the cli
 $1.0$ therefore shows the bridge is \emph{detectable} at any clique size; it does \emph{not} show
 that the model computes the full connectivity matrix by matrix powering. That stronger question
 --- whether the base connectivity model actually fills $\hat R$ correctly across the bridge, and
-whether its errors carry the ordered ``start node fully resolved, far clique only partial''
-asymmetry of a bounded traversal --- is what the base-model eval (Section~\ref{sec:plan-barbell}(a))
-and the oracle comparison (Section~\ref{sec:plan-oracle}) decide, and those are still running.
+whether its errors carry the bounded-traversal signature --- is what the base-model eval
+(Section~\ref{sec:plan-barbell}(a)) and the oracle comparison (Section~\ref{sec:plan-oracle})
+decide. We turn to it now, and it gives a sharper answer than the classifier.
+
+\subsection{The base model: the single bridge is not propagated across a large clique}
+\label{sec:res-base}
+
+\paragraph{Setup recap.} This is the decisive test (Section~\ref{sec:plan-barbell}(a)). We take
+the base connectivity model of Reports~III--IV --- the RoBERTa-faithful transformer with the
+\emph{linear} read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), the model that emits the
+full $n\times n$ connectivity matrix $\hat R$ --- and feed it the bridged and split cliques
+\emph{without any further training} (eval-only). We use both the ER-trained and the mixed-trained
+checkpoints, at $n=20$ and $n=40$, four seeds each ($16$ checkpoints). The \textbf{mixed} model is
+the clean test: dense cliques (2cliques, clique-blocks) are in its training stream, so it is
+\emph{not} out-of-distribution on the cliques themselves; the \textbf{ER} model has only seen
+sparse graphs, so on dense cliques it is in the degree-heuristic OOD regime of Report~IV
+(within-clique accuracy already $<1$) and we read it only as a confounded cross-check, not as
+evidence on its own (Report~IV, Thread~1). For each bridged graph we split $\hat R$ into the
+left-clique block, the right-clique block and the cross block, and we sweep the clique size
+$c$ (so $2c$ nodes are used, the rest left isolated). The bridge always sits at distance $\le 3$,
+\emph{at every $c$} --- so matrix powering must score the cross block $1.0$ for all $c$, while a
+visit-bounded traversal must lose it once one clique alone exhausts the budget.
+
+\paragraph{What ``cross-block pair accuracy'' means (and why it is the quantity that matters).}
+The model outputs an $n\times n$ matrix $\hat R$; entry $\hat R_{ij}$ is its guess for ``are nodes
+$i$ and $j$ in the same component?'' A \emph{pair} is one such $(i,j)$ entry, and \emph{pair
+accuracy} on a set of pairs is just the fraction of those entries the model gets right (predicted
+$0/1$ equals the true $0/1$). We group the pairs into three blocks: \emph{within-A} (both nodes in
+the left clique), \emph{within-B} (both in the right clique), and \emph{cross} (one node in each
+clique). On a \emph{bridged} graph the two cliques are one component, so the true label of
+\emph{every} cross pair is $1$ (connected); cross-block accuracy is therefore the fraction of A--B
+pairs the model correctly calls connected, and $\approx 0.00$ means it calls essentially all of
+them \emph{disconnected}. The key thing to keep separate: the bridge is a single \emph{edge}, and
+it lives in the \emph{input} adjacency $A$ (the model can see it); the cross \emph{block} lives in
+the \emph{output} $\hat R$ and has $c^2$ entries. Filling it correctly does not mean copying one
+edge --- it means \emph{propagating} that one edge into ``and therefore all $c^2$ cross pairs are
+connected.'' Seeing the edge and propagating it are different operations, and that distinction is
+the whole story below.
+
+\paragraph{Within each clique: perfect. Across the bridge: collapses with clique size.} The mixed
+model resolves each clique \emph{perfectly} and reports two components on the split graph
+\emph{perfectly} --- within-A, within-B and the whole split matrix are all exactly $1.00$, every
+seed, both $n$ (Table~\ref{tab:base_blocks}). So the failure is \emph{not} that dense cliques are
+hard (they are in-distribution; the model gets them right). The only thing the mixed model misses
+is the \emph{cross} block of the bridged graph: at full clique size ($c=10$ at $n=20$, $c=20$ at
+$n=40$) the cross-block accuracy is $\approx 0.00$ --- it sees the two bridged cliques as
+\emph{two} components, exactly as if the bridge were not there. And the collapse is graded in the
+clique size (Figure~\ref{fig:base_sweep}, Table~\ref{tab:base_sweep}): cross accuracy is flat at
+$1.0$ for small cliques and falls to $0$ as the cliques grow ($n=20$: $1.0$ up to $c=6$, then
+$0.27$ at $c=7$, $0.01$ at $c=10$; $n=40$: $1.0$ up to $c=6$, $0.74$ at $c=7$, $0.27$ at $c=8$,
+$0$ from $c\simeq14$). The matrix-power oracle, on the same graphs, is flat at $1.0$ for every $c$
+(the bridge is $\le 3$ hops). \textbf{The model departs from matrix powering exactly where a
+bounded traversal would: once the near clique alone is too big to ``get through'' before reaching
+the far one.}
+
+\paragraph{The cutoff is an absolute node budget, not a fraction of the graph.} The collapse
+happens at roughly the \emph{same absolute clique size} at $n=20$ (knee at $c\approx6$--$7$) and
+$n=40$ (knee at $c\approx7$--$8$), even though $c=7$ is $70\%$ of the $n=20$ canvas but only $35\%$
+of the $n=40$ one. A traversal that can cover about $6$--$7$ nodes before running out of budget
+explains both. That is precisely the quantity the DFS hypothesis says bounds the model --- the
+\emph{number of nodes traversed} --- and \emph{not} the shortest-path distance, which is $\le 3$
+at every $c$ and would predict no collapse at all.
+
+\paragraph{No asymmetry: it is a parallel, symmetric bounded \emph{ball}, not a single-start DFS.}
+We had predicted (Table~\ref{tab:predict}) a \emph{directional} DFS signature --- one clique fully
+resolved, the far one only partial, $\hat R_{ij}\neq\hat R_{ji}$. We do \emph{not} see it: both
+cliques are resolved equally ($1.00$ vs $1.00$), the two cross directions fail equally
+($\hat R_{AB}\approx\hat R_{BA}\approx 0$), and the directional-disagreement rate is $\approx 0$.
+Stated honestly, the literal single-start-DFS picture is wrong here, and for a clear reason: a
+transformer emits all of $\hat R$ \emph{in parallel}, so there is no single start node. The right
+reference is the one we anticipated in Section~\ref{sec:plan-oracle} --- the
+\emph{visit-bounded BFS ball}: every node resolves the cluster of nodes within its budget (its own
+clique, which it gets exactly right), and the bridge into the far clique is dropped once the near
+clique alone fills the budget.
+
+\paragraph{How the oracle comparison works (and why the oracles are not ``always right'').} The two
+oracles are \emph{not} scored for correctness --- they are two \emph{reference algorithms}, and we
+ask which one the model's answers (mistakes included) look like. One of them, the \emph{matrix-power
+oracle} $\mathbf 1[(A+I)^{9}>0]$, does happen to be the true connectivity, so on these graphs it is
+right everywhere (cross block $=1$). The other, the \emph{visit-bounded BFS} with a fixed budget, is
+\emph{deliberately} an early-stopping algorithm: it explores a ball of the nearest budget-many nodes
+and calls only those connected, so on the bridged cliques it gets the cross block \emph{wrong} on
+purpose (it never leaves the near clique). They are useful precisely because they \emph{disagree},
+and exactly on the cross block. So the comparison is: take the model's $0/1$ for each pair and ask
+what fraction matches each oracle's $0/1$. ``Overall agreement with the matrix-power oracle is only
+$0.48$'' means the model's matrix matches the \emph{true} connectivity on only $48\%$ of pairs ---
+which is just the within-block pairs; it disagrees with the truth on essentially the whole cross
+block. The visit-bounded BFS, on the other hand, the model matches almost perfectly: at $n=20$,
+with the budget set to one clique ($b=c=10$), the model agrees with the BFS oracle on $99\%$ of all
+pairs, and on the contested cross entries --- the pairs where the two oracles split --- it sides
+with the BFS oracle $\approx 99.6\%$ of the time and with matrix powering $0.4\%$
+(Figure~\ref{fig:base_oracle}; identical across the four seeds, and the same direction at $n=40$,
+where it reaches $\sim\!79\%$ BFS on the contested entries at $b=10$ and keeps climbing toward the
+clique size). In words: the model is the early-stopping traversal almost exactly, and matrix
+powering only on the parts where the two cannot be told apart.
+
+\paragraph{The ER model is the confounded cross-check (do not read it alone).} The ER curves
+(Figure~\ref{fig:base_sweep}, bottom) fall with $c$ too, but for a mixture of reasons we cannot
+disentangle (Table~\ref{tab:base_er}): the ER model is already wrong \emph{within} the cliques
+(degree-heuristic OOD, within-clique accuracy $0.0$--$1.0$ depending on the seed), and it is far
+noisier seed-to-seed
+(one $n{=}40$ seed collapses to $0$ everywhere; another rises back toward $1$ at large $c$ only
+because the degree heuristic calls everything dense ``connected'' --- it then \emph{also} wrongly
+calls the \emph{split} cliques connected, so its discrimination stays at chance). A falling ER
+curve is therefore not clean evidence of bounded traversal --- density-OOD and bridge-distance
+grow together (Report~IV, error noted in our handoff). This is exactly why the mixed model is the
+test that counts, and there the within-clique blocks are perfect, so the cross collapse is
+attributable to the bridge alone.
+
+\paragraph{Why this does not contradict the classifier (cross block $\approx 0$ here, accuracy
+$1.0$ there).} This is the natural objection, so it is worth spelling out: in
+Section~\ref{sec:res-clf} the classifier reached $1.0$ at every clique size, and here the same kind
+of model scores $0.00$ on the same bridged graph. There is no contradiction, because the two models
+are asked \emph{different questions}. The classifier emits \emph{one bit} --- ``is there a bridge,
+yes or no?'' --- and that bit is readable from a purely \emph{local} fingerprint of the bridge edge:
+the two endpoints have degree $c$ instead of $c-1$, and the graph has one more edge in total. You
+can tell bridged from split by counting, without ever working out who is connected to whom. (This is
+the weak-discriminator caveat of Section~\ref{sec:res-clf}: detecting the edge is easy.) The base
+model is asked the \emph{harder} question --- fill in all $c^2$ cross pairs of $\hat R$ --- and that
+requires \emph{propagating} the single bridge edge into ``therefore every node on the left is
+connected to every node on the right.'' It is this propagation, not the detection, that fails:
+the model plainly \emph{sees} the bridge edge (it is right there in the input $A$, and the classifier
+proves it is usable), but it does \emph{not} carry that connection across a clique of more than
+$\sim 6$ nodes when it builds the connectivity matrix. So the user's intuition --- ``can't it just
+read off the $1$ at the bridge position?'' --- is exactly what the classifier does; the base model's
+job is the opposite of reading off one entry, it is spreading that one entry over the whole cross
+block, and that is where the bounded traversal runs out. On the decisive read --- a
+model that already handles the dense cliques, failing the bridge in a graded, absolute-node-budget
+way that tracks a visit-bounded traversal and parts from the matrix-power oracle --- the base-model
+eval comes down on the side of a \emph{bounded-traversal} mechanism, not distance-bounded matrix
+powering.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llcccc}
+\toprule
+ & & \multicolumn{3}{c}{bridged graph (one component)} & split graph \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-6}
+$n$ & seed & within-A & within-B & cross & exact-match \\
+\midrule
+\multicolumn{6}{l}{\emph{$n=20$, clique size $c=10$ (fills the canvas)}} \\
+20 & 1000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
+20 & 2000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 3000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 4000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+\multicolumn{6}{l}{\emph{$n=40$, clique size $c=20$ (fills the canvas)}} \\
+40 & 1000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
+40 & 2000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
+40 & 3000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
+40 & 4000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer --- RoBERTa-faithful trunk, \emph{linear}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), emitting the full $n\times n$ matrix
+$\hat R$ --- \textbf{mixed}-trained (the $9$-family online stream of Reports~III--IV, which includes
+dense cliques), four seeds, $n=20$ and $n=40$; \emph{eval-only}, no further training.
+\emph{Test set:} bridged cliques and split cliques at the full clique size ($2{,}000$ graphs each).
+\emph{Metric:} per-block pair accuracy (within each clique, and the cross block A$\leftrightarrow$B)
+on the bridged graph, and exact-match on the split graph; per seed. The within-clique blocks and
+the entire split matrix are perfect; only the \emph{cross} block (the single bridge) is missed
+(bold), at every seed. The two cross directions agree (no asymmetry), and the discrimination
+accuracy is $0.50$ (the model calls bridged and split alike --- both ``two components''). The ER
+model is omitted here (within-clique accuracy $<1$, confounded; see text).}
+\label{tab:base_blocks}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/base_bridged_cross_sweep.png}{0.95}
+    \caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, linear read-out,
+    $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only; \emph{top row}
+    \textbf{mixed}-trained (clean: dense cliques are in training), \emph{bottom row} \textbf{ER}-trained
+    (confounded: degree-heuristic OOD on dense cliques); $n=20$ (left), $n=40$ (right); four seeds
+    each (thin lines $=$ seeds, thick $=$ mean). \emph{Test set:} bridged cliques, $\ge 400$ graphs
+    per clique size. \emph{Metric:} cross-block pair accuracy (does $\hat R$ connect the two
+    cliques?) vs clique size $c$. The bridge sits at distance $\le 3$ at \emph{every} $c$, so the
+    matrix-power oracle (green dashed) is flat at $1$; the mixed model instead collapses from $1$ to
+    $0$ once the near clique exceeds $\sim 6$--$7$ nodes --- at roughly the same \emph{absolute}
+    clique size for both $n$ --- the visit-bounded-traversal prediction. The ER curves fall too but
+    are noisy and confounded (see text), and are shown only as a cross-check.}
+    \label{fig:base_sweep}
+\end{figure}
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lccccccccc}
+\toprule
+clique size $c$ & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 10 & 14 \\
+\midrule
+model, $n=20$ (mean) & 1.00 & 1.00 & 1.00 & 1.00 & 0.95 & 0.27 & 0.13 & 0.01 & --- \\
+model, $n=40$ (mean) & 0.89$^\dagger$ & 1.00 & 1.00 & 1.00 & 0.95 & 0.74 & 0.27 & 0.09 & 0.00 \\
+matrix-power oracle  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the \textbf{mixed}-trained base connectivity transformer (RoBERTa trunk,
+linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only,
+four seeds, $n=20$ and $n=40$. \emph{Test set:} bridged cliques, $\ge 400$ graphs per clique size.
+\emph{Metric:} cross-block pair accuracy on the bridged graph, \emph{mean over the four seeds}, by
+clique size $c$ (selected columns; $c$ runs to $10$ at $n=20$ and to $20$ at $n=40$, all $0.00$
+from $c=14$ on). The matrix-power oracle stays flat at $1$ because the bridge is always $\le 3$
+hops; the model collapses with $c$. $^\dagger$the $n=40$, $c=2$ mean is pulled down by one noisy
+seed ($0.58$; the other three are $\approx 1.00$).}
+\label{tab:base_sweep}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/base_bridged_oracle_follow.png}{0.95}
+    \caption{\emph{Model:} the \textbf{mixed}-trained base connectivity transformer (RoBERTa trunk,
+    linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only,
+    four seeds; $n=20$ (left), $n=40$ (right). \emph{Test set:} bridged cliques at full clique size,
+    $500$ graphs. \emph{Metric:} restricted to the cross pairs where the matrix-power oracle and the
+    visit-bounded-BFS oracle \emph{disagree} (the bridge pairs), the fraction the model matches to
+    each oracle, as the BFS budget $b$ varies. The model tracks the early-stopping BFS, not matrix
+    powering: as $b$ approaches one clique (dashed line) the model matches BFS on $\to 1.0$ of the
+    contested pairs and matrix powering on $\to 0$. This is the same fact as the cross collapse,
+    read against the two reference algorithms.}
+    \label{fig:base_oracle}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llcccc}
+\toprule
+$n$ & seed & within-A & within-B & cross & discrimination \\
+\midrule
+20 & 1000 & 1.00 & 1.00 & 0.09 & 0.50 \\
+20 & 2000 & 0.26 & 0.25 & 0.18 & 0.50 \\
+20 & 3000 & 0.62 & 0.61 & 0.04 & 0.50 \\
+20 & 4000 & 0.69 & 0.70 & 0.66 & 0.65 \\
+40 & 1000 & 0.30 & 0.30 & 0.24 & 0.50 \\
+40 & 2000 & 0.00 & 0.00 & 0.00 & 0.50 \\
+40 & 3000 & 0.96 & 0.96 & 0.93 & 0.50 \\
+40 & 4000 & 0.02 & 0.02 & 0.00 & 0.50 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the \textbf{ER}-trained base connectivity transformer (RoBERTa trunk, linear
+read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$) --- the
+\emph{confounded} cross-check --- eval-only, four seeds, $n=20$ and $n=40$. \emph{Test set:} bridged
+cliques at full clique size ($c=10$ at $n=20$, $c=20$ at $n=40$), $2{,}000$ graphs. \emph{Metric:}
+per-block pair accuracy on the bridged graph (within each clique, and the cross block), and the
+graph-level discrimination accuracy. Contrast with the clean mixed model (Table~\ref{tab:base_blocks},
+where within-A and within-B are a flat $1.00$): here the within-clique accuracy is all over the place
+($0.00$ to $1.00$) and swings wildly by seed, because the ER model has never seen a dense clique and
+is in the degree-heuristic OOD regime of Report~IV --- it is already wrong \emph{inside} the cliques,
+so a low cross accuracy cannot be blamed on the bridge. Seed $3000$ at $n=40$ even gets a high cross
+accuracy ($0.93$) for the wrong reason (it calls everything dense ``connected''), yet its
+discrimination stays at chance ($0.50$) because it then also calls the \emph{split} cliques
+connected. This is why we read the conclusion off the mixed model, not this one.}
+\label{tab:base_er}
+\end{table}
 
 \end{document}
