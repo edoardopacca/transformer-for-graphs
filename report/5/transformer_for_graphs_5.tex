@@ -242,46 +242,53 @@ slower}, whereas matrix powering (shorter distances when dense) predicts the opp
 sweep the training density (e.g.\ ER edge probability, or mean degree) at fixed $n$ and measure
 convergence speed and final in-distribution accuracy, and the OOD transfer of each. We separate
 this from the diameter sweep of Report~II (which varied distance, and found tighter $=$ faster):
-here we hold the regime and vary \emph{density} on its own, the quantity DFS is sensitive to and
-matrix powering is not.
+here we hold the regime and vary \emph{density} on its own, the quantity a bounded traversal (DFS
+or BFS) is sensitive to and matrix powering is not.
 
-\subsection{Reference algorithms: a DFS oracle and a matrix-power oracle}
+\subsection{Reference algorithms: matrix power, bounded DFS, and bounded BFS}
 \label{sec:plan-oracle}
 
-To make ``looks like DFS'' a measurement rather than a story, we implement reference
-connectivity-matrix predictors (\texttt{dfs\_oracle.py}) and compare the \emph{transformer's
-error pattern} to each:
+To make ``looks like a bounded traversal'' a measurement rather than a story, we implement
+\emph{three} reference connectivity-matrix predictors (\texttt{dfs\_oracle.py}) and compare the
+\emph{transformer's error pattern} to each. Crucially we keep the two visit-bounded traversals
+\emph{separate}, because --- as the next paragraph shows --- they make \emph{opposite} predictions
+on this graph, so they are not interchangeable and the experiment can tell them apart.
 \begin{itemize}\setlength\itemsep{0.1em}
   \item a \textbf{matrix-power oracle}: $\mathbf{1}[(A+I)^{3^L}>0]$, the clean distance-bounded
         predictor (the cut oracle of Report~IV). On the bridged cliques it connects the two
         sides at \emph{any} clique size (the bridge is $\le 3$ hops), so its cross-block curve
         is flat at $1$.
-  \item a \textbf{bounded-traversal oracle}: from each start node, explore at most a fixed
-        \texttt{budget} of nodes and call them connected. The free parameter is the budget,
-        i.e.\ the number of nodes the traversal covers before it stops.
+  \item a \textbf{bounded-DFS oracle}: from each start node run a \emph{depth}-first search and
+        stop after visiting a fixed \texttt{budget} of nodes, calling them connected.
+  \item a \textbf{bounded-BFS oracle}: from each start node run a \emph{breadth}-first search
+        (a ball of the \texttt{budget} nearest nodes) and call them connected.
 \end{itemize}
+Both visit-bounded oracles are bounded by the \emph{number of nodes visited}, the property that
+distinguishes them from the distance-bounded matrix power; what differs is the \emph{order} of
+exploration, and on two dense cliques on one bridge that order changes everything.
 
-\paragraph{A subtlety we found while building the oracle (recorded for honesty).} ``DFS'' is the
-advisor's word for ``a traversal that stops early'', but the \emph{order} of exploration matters
-on this graph. A literal depth-first search \emph{dives}: from a node in the near clique it
-reaches the bridge endpoint within a couple of steps and crosses to the far clique almost
-immediately, so a budget-bounded \emph{DFS} does \emph{not} get stuck in the near clique (we
-checked: its cross-block rate is high). The clean ``gets stuck in the near clique'' behaviour is
-the budget-bounded \emph{breadth}-first traversal, which first fills the whole near clique (all
-$c-1$ neighbours at distance $1$) and only crosses the bridge once the budget exceeds the
-near-clique size $c$ --- so it fails the cross pairs for budget $\le c$, sharply, however few
-hops away the far clique is. We therefore use the \textbf{visit-bounded BFS} (a ball of the $k$
-nearest nodes) as the primary ``bounded-traversal'' reference and keep the bounded DFS as a
-second, partial-coverage reference. Both are visit-count-bounded, which is the property that
-distinguishes them from the distance-bounded matrix power; the BFS is simply the cleaner
-discriminator for two dense cliques on a single bridge.
+\paragraph{Depth-first dives, breadth-first gets stuck --- and that opposite trend is what
+separates them.} The advisor's word was ``DFS'', loosely ``a traversal that stops early''; making
+it precise forces the split above, and on this graph the two halves behave \emph{oppositely}. A
+bounded \emph{DFS} \emph{dives}: from a node in the near clique it reaches the bridge endpoint
+within a couple of steps and crosses to the far clique almost immediately, so it does \emph{not}
+get stuck in the near clique --- its cross-block rate is high, and \emph{rises} as the budget (and
+clique size) grows, because a larger budget reaches deeper into the far clique. A bounded
+\emph{BFS} instead \emph{gets stuck}: it first fills the whole near clique (all $c-1$ neighbours at
+distance $1$) and only crosses the bridge once the budget exceeds the near-clique size $c$ --- so
+its cross-block rate is low and \emph{falls} with the clique size, however few hops away the far
+clique is. This opposite trend (DFS up, BFS down) is exactly the lever the clique-size sweep uses
+to decide which one the model resembles; the directional asymmetry of the single-start DFS (one
+clique resolved, the other partial) is a second lever.
 
 We score, per family, which oracle the model's mistakes resemble --- agreement on the
-\emph{cross-block} entries where the two oracles disagree, not just overall accuracy --- and how
-that agreement moves with the clique size and with the budget. If the model's cross-block
-accuracy falls with the clique size and tracks a small-budget traversal where it parts from the
-matrix-power oracle, that is direct evidence for the bounded-traversal (DFS-like) reading; if it
-stays flat at $1$ like the matrix-power oracle, that is evidence for matrix powering.
+\emph{cross-block} entries where the matrix-power and traversal oracles disagree, not just overall
+accuracy --- and how that agreement moves with the clique size and with the budget. If the model's
+cross-block accuracy falls with the clique size, that already rules the depth-first oracle out (it
+\emph{rises}); whether it then tracks the breadth-first oracle at a small budget, or stays flat at
+$1$ like matrix power, is what decides between a visit-bounded traversal and matrix powering.
+(As Section~\ref{sec:res-base} reports, the model falls, has no asymmetry, and matches the
+breadth-first oracle --- so from there on we carry matrix power vs.\ bounded-BFS.)
 
 \paragraph{Implementation (this session).} New code: the two generators in \texttt{data.py};
 \texttt{dfs\_oracle.py} (matrix-power, bounded-BFS, bounded-DFS); \texttt{eval\_bridged\_cliques.py}
@@ -296,12 +303,18 @@ classifier \texttt{experiments2/train\_bridged\_classifier.py} with
 \section{Results}
 \label{sec:results}
 
-The runs of Section~\ref{sec:plan} are completing in order. We report two: the dedicated
+The runs of Section~\ref{sec:plan} are completing in order. We report three: the dedicated
 trainable classifier (Section~\ref{sec:plan-barbell}, part~(b)), in
-Section~\ref{sec:res-clf}; and --- the decisive one --- the base connectivity model evaluated on
+Section~\ref{sec:res-clf}; the decisive one --- the base connectivity model evaluated on
 the bridged cliques (Section~\ref{sec:plan-barbell}, part~(a), with the per-block,
-clique-size-sweep and oracle-agreement reads), in Section~\ref{sec:res-base}. The
-training-density sweep and the final matrix-powering-vs-DFS verdict will be added as they land.
+clique-size-sweep and oracle-agreement reads), in Section~\ref{sec:res-base}; and the
+density-in-optimisation sweep (Section~\ref{sec:plan-density}), in
+Section~\ref{sec:res-density}. Three further experiments are queued or launched and reported as
+stubs here: the oracle agreement across the natural families (the capstone,
+Section~\ref{sec:res-capstone}); the bridged probe under the similarity read-out, asking whether
+the node budget scales with the read-out (Section~\ref{sec:res-sim}); and the capacity-vs-data-prior
+pair --- training with bridged cliques in the stream, plus a depth sweep (Section~\ref{sec:res-capacity}).
+The final matrix-powering-vs-DFS verdict (Section~\ref{sec:verdict}) is written once these land.
 
 \subsection{The dedicated classifier: the bridge is detectable at every clique size}
 \label{sec:res-clf}
@@ -338,11 +351,14 @@ seeds and sizes is $0.995$. The fixed-$c$ runs tell the same story: $c=3$, $6$ a
 $1.00$, and in fact already at the first evaluation ($2{,}000$ steps). So there is \emph{no
 permanent accuracy wall} in the clique size: the architecture can be taught to separate the two
 labels however large the cliques get, which is the matrix-powering-consistent outcome and rules
-out the strongest form of the DFS hypothesis (that a bridge behind a large clique is simply
-\emph{undetectable}).
+out the strongest form of the bounded-traversal hypothesis (that a bridge behind a large clique is
+simply \emph{undetectable}). (This classifier cannot tell bounded-DFS from bounded-BFS --- both
+predict the same difficulty ordering below; that separation waits for the base model,
+Section~\ref{sec:res-base}.)
 
-\paragraph{But the DFS difficulty ordering does show up --- in the learning dynamics.} The flat
-final curve hides a transient that is exactly the shape DFS predicts. Figure~\ref{fig:clf} plots,
+\paragraph{But the bounded-traversal difficulty ordering does show up --- in the learning
+dynamics.} The flat final curve hides a transient that is exactly the shape a bounded traversal
+predicts. Figure~\ref{fig:clf} plots,
 for each seed, the accuracy of every clique size as a function of the training step (one line per
 size, colour $=$ size): the small cliques shoot up to $1.0$ almost immediately, the larger ones
 only later, so the curves fan out by size before all converging --- the larger, denser cliques are
@@ -354,8 +370,8 @@ model overcomes with more steps, not a hard limit. The fixed-$c$ runs corroborat
 side (Figure~\ref{fig:clf_loss}): although accuracy reaches $1.0$ at every $c$, the early
 ($2{,}000$-step) training \emph{loss} rises with the clique size ($\approx0.05$ at $c=3$,
 $\approx0.17$ at $c=6$, $\approx0.35$ at $c=10$), so a denser clique is genuinely a bit harder to
-fit --- the ``density in optimisation'' effect DFS predicts --- just not hard enough to delay
-reaching $100\%$.
+fit --- the ``density in optimisation'' effect a bounded traversal predicts --- just not hard
+enough to delay reaching $100\%$.
 
 \begin{table}[H]\centering\small
 \begin{tabular}{lccccccccc}
@@ -403,7 +419,7 @@ $c\in\{5,10,15,20\}$. The conclusion is the \emph{same, only stronger}. The fina
 \textbf{exactly $1.0$ at every clique size $c=2,\dots,20$, for all four seeds} (no dips at all,
 cleaner than $n=20$): doubling the range does not produce a wall, so the bridge stays detectable
 behind even a $20$-node dense clique --- the matrix-powering-consistent reading, and a sharper
-refutation of the strong DFS hypothesis.
+refutation of the strong bounded-traversal hypothesis (the ``undetectable'' form).
 
 \paragraph{The bounded-traversal cost reappears --- as an optimisation cost, more clearly than at
 $n=20$.} With the larger range the difficulty ordering is now unmistakable. The per-size
@@ -418,8 +434,8 @@ $\approx0.69$ ($=\ln 2$, i.e.\ \emph{still at chance}) at $c=15$ and $c=20$, and
 accuracy first reaches $0.99$ grows from $2{,}000$ (at $c=5,10$) to $4{,}000$--$6{,}000$ (at
 $c=15,20$). So a
 denser/larger clique is genuinely harder and slower to learn --- exactly the ``density in
-optimisation'' prediction of the DFS reading --- but, given enough steps, never an accuracy
-ceiling. The bounded-traversal difficulty shows up as a \emph{training cost}, not a capability
+optimisation'' prediction of a bounded traversal (DFS or BFS alike) --- but, given enough steps,
+never an accuracy ceiling. The bounded-traversal difficulty shows up as a \emph{training cost}, not a capability
 limit. (At $n=20$, where $c\le10$, this was barely visible: every fixed-$c$ run was already at
 $1.0$ by the first evaluation.)
 
@@ -482,7 +498,8 @@ which all clique sizes stabilise above $0.99$ ranges from $\sim4{,}000$ to $\sim
 the $n=40$ seeds), so the clique-size ordering is a tendency of the early dynamics, not a clean
 monotone law --- the familiar seed lottery of Reports~III--IV, here at the level of which clique
 sizes are mastered when. Second, and more important for the headline
-question: this classifier is a \emph{weak} discriminator of matrix powering vs.\ DFS. The two
+question: this classifier is a \emph{weak} discriminator of matrix powering vs.\ a bounded
+traversal. The two
 labels differ by exactly one edge, and that edge leaves a purely \emph{local} footprint --- the
 two bridge endpoints have degree $c$ instead of $c-1$, and the total edge count differs by one ---
 so the labels are separable without ever propagating connectivity across the cliques. A flat
@@ -552,17 +569,28 @@ explains both. That is precisely the quantity the DFS hypothesis says bounds the
 \emph{number of nodes traversed} --- and \emph{not} the shortest-path distance, which is $\le 3$
 at every $c$ and would predict no collapse at all.
 
-\paragraph{No asymmetry: it is a parallel, symmetric bounded \emph{ball}, not a single-start DFS.}
-We had predicted (Table~\ref{tab:predict}) a \emph{directional} DFS signature --- one clique fully
-resolved, the far one only partial, $\hat R_{ij}\neq\hat R_{ji}$. We do \emph{not} see it: both
-cliques are resolved equally ($1.00$ vs $1.00$), the two cross directions fail equally
-($\hat R_{AB}\approx\hat R_{BA}\approx 0$), and the directional-disagreement rate is $\approx 0$.
-Stated honestly, the literal single-start-DFS picture is wrong here, and for a clear reason: a
-transformer emits all of $\hat R$ \emph{in parallel}, so there is no single start node. The right
-reference is the one we anticipated in Section~\ref{sec:plan-oracle} --- the
-\emph{visit-bounded BFS ball}: every node resolves the cluster of nodes within its budget (its own
-clique, which it gets exactly right), and the bridge into the far clique is dropped once the near
-clique alone fills the budget.
+\paragraph{The two visit-bounded references make opposite predictions here --- and bounded-DFS is
+rejected twice over.} This is the experiment that separates a bounded \emph{depth}-first search
+from a bounded \emph{breadth}-first one, and the data picks the second on two independent grounds.
+\emph{(i) Trend with clique size} (Figure~\ref{fig:base_sweep}, the two extra oracle curves). A
+bounded DFS \emph{dives}: from a node in the near clique it reaches the bridge in a step or two and
+crosses, so a \emph{bigger} budget lets it reach \emph{deeper} into the far clique --- its
+cross-block accuracy \emph{rises} with the clique size ($0.19\to0.62$ at $n=20$, $\to0.69$ at
+$n=40$, orange). The model does the \emph{opposite}: it \emph{falls} from $1$ to $0$. A bounded BFS
+fills the near clique first and only crosses once the budget exceeds it, so its cross accuracy is
+low and falling (red) --- the same direction as the model. So the model is \emph{not} a depth-first
+search; its trend matches the breadth-first ball. \emph{(ii) Asymmetry.} A single-start DFS also
+predicts a \emph{directional} signature (Table~\ref{tab:predict}): the start clique fully resolved,
+the far one only partial, $\hat R_{ij}\neq\hat R_{ji}$. We see none --- both cliques are resolved
+equally ($1.00$ vs $1.00$), both cross directions fail equally
+($\hat R_{AB}\approx\hat R_{BA}\approx0$), and the directional-disagreement rate is $\approx0$. The
+reason is structural: a transformer emits all of $\hat R$ \emph{in parallel}, so there is no single
+start node and no preferred direction. Both checks point to the same reference, the
+\emph{visit-bounded BFS ball} we anticipated in Section~\ref{sec:plan-oracle}: every node resolves
+the budget-many nearest nodes (its own clique, exactly right) and drops the bridge into the far
+clique once the near clique alone fills the budget. We therefore set the depth-first reading aside
+and carry the contrast \emph{matrix powering vs bounded-BFS} forward (it is also the contrast the
+natural-families capstone uses).
 
 \paragraph{How the oracle comparison works (and why the oracles are not ``always right'').} The two
 oracles are \emph{not} scored for correctness --- they are two \emph{reference algorithms}, and we
@@ -582,8 +610,14 @@ pairs, and on the contested cross entries --- the pairs where the two oracles sp
 with the BFS oracle $\approx 99.6\%$ of the time and with matrix powering $0.4\%$
 (Figure~\ref{fig:base_oracle}; identical across the four seeds, and the same direction at $n=40$,
 where it reaches $\sim\!79\%$ BFS on the contested entries at $b=10$ and keeps climbing toward the
-clique size). In words: the model is the early-stopping traversal almost exactly, and matrix
-powering only on the parts where the two cannot be told apart.
+clique size). One honest refinement, visible in the clique-size sweep
+(Figure~\ref{fig:base_sweep}) rather than in this single-$c$ scan: at \emph{small} cliques the
+model is genuinely \emph{matrix power} (cross block $=1.0$, where the BFS oracle is already near
+$0$), not BFS. The fuller statement is therefore that the model computes connectivity correctly
+\emph{up to a node budget} of $\sim6$--$7$ --- where it equals matrix power --- and collapses to the
+stuck-BFS floor beyond it. That is exactly a \emph{visit-bounded} computation: matrix power within
+the budget, a stalled traversal past it. The agreement numbers above are measured at the full
+clique size, where the budget is already exceeded and the model has settled onto the BFS branch.
 
 \paragraph{The ER model is the confounded cross-check (do not read it alone).} The ER curves
 (Figure~\ref{fig:base_sweep}, bottom) fall with $c$ too, but for a mixture of reasons we cannot
@@ -663,11 +697,15 @@ model is omitted here (within-clique accuracy $<1$, confounded; see text).}
     (confounded: degree-heuristic OOD on dense cliques); $n=20$ (left), $n=40$ (right); four seeds
     each (thin lines $=$ seeds, thick $=$ mean). \emph{Test set:} bridged cliques, $\ge 400$ graphs
     per clique size. \emph{Metric:} cross-block pair accuracy (does $\hat R$ connect the two
-    cliques?) vs clique size $c$. The bridge sits at distance $\le 3$ at \emph{every} $c$, so the
-    matrix-power oracle (green dashed) is flat at $1$; the mixed model instead collapses from $1$ to
-    $0$ once the near clique exceeds $\sim 6$--$7$ nodes --- at roughly the same \emph{absolute}
-    clique size for both $n$ --- the visit-bounded-traversal prediction. The ER curves fall too but
-    are noisy and confounded (see text), and are shown only as a cross-check.}
+    cliques?) vs clique size $c$, against all three reference oracles. The bridge sits at distance
+    $\le 3$ at \emph{every} $c$, so the \textbf{matrix-power} oracle (green dashed) is flat at $1$;
+    the \textbf{bounded-DFS} oracle (orange dash-dot) \emph{rises} with $c$ (it dives across the
+    bridge and reaches deeper into the far clique as the budget grows); the \textbf{bounded-BFS}
+    oracle (red dotted) stays low (it gets stuck in the near clique). The mixed model (blue)
+    collapses from $1$ to $0$ once the near clique exceeds $\sim 6$--$7$ nodes --- at roughly the
+    same \emph{absolute} clique size for both $n$ --- i.e.\ it follows the falling BFS branch and is
+    the \emph{opposite} of the rising DFS, ruling out the depth-first reading. The ER curves (bottom)
+    fall too but are noisy and confounded (see text), and are shown only as a cross-check.}
     \label{fig:base_sweep}
 \end{figure}
 
@@ -737,5 +775,272 @@ discrimination stays at chance ($0.50$) because it then also calls the \emph{spl
 connected. This is why we read the conclusion off the mixed model, not this one.}
 \label{tab:base_er}
 \end{table}
+
+\subsection{Density in optimisation: denser training is faster, not slower}
+\label{sec:res-density}
+
+\paragraph{Setup recap.} This is the training-side test of Section~\ref{sec:plan-density}. We
+train the base connectivity model --- the same RoBERTa-faithful trunk with the \emph{linear}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$) --- from scratch on a pure ER stream at
+$n=20$, for $1{,}000{,}000$ steps, four seeds, sweeping the edge probability
+$p\in\{0.05,0.08,0.12,0.16,0.22\}$ (mean degree $\approx 1.0,\,1.6,\,2.4,\,3.2,\,4.4$; the
+$n=20$ connectivity threshold $\ln 20/20\approx 0.15$ sits inside the sweep). Nothing else
+changes between runs. This experiment does \emph{not} separate the two visit-bounded algorithms
+from each other --- \emph{both} bounded-DFS and bounded-BFS are bounded by the amount of structure
+to traverse, so both predict a \emph{denser} stream should be \emph{harder / slower} to fit. What
+it separates is the visit-bounded family as a whole from matrix powering, which predicts the
+\emph{opposite} (denser graphs have shorter distances, so connectivity is easier). We read two
+things off each run: how fast and how reliably the in-distribution exact match converges, and
+how well the trained model transfers out of distribution.
+
+\paragraph{Denser training converges faster and more reliably --- the matrix-powering
+direction.} Figure~\ref{fig:dens_conv} and Table~\ref{tab:dens_conv} are unambiguous: as the
+training density rises, the model reaches a given in-distribution accuracy in \emph{fewer}
+steps, not more. The number of steps to $0.99$ exact match drops from $\sim\!10^5$ at $p=0.05$
+to $\sim\!7\cdot10^4$ at $p=0.12$ and to $\sim\!5{,}000$ (the very first evaluation) at
+$p\ge0.16$; the accuracy at the first eval ($5{,}000$ steps) climbs monotonically with $p$
+($0.71\to0.57\to0.93\to0.99\to0.999$). Reliability moves the same way: at the sparse end some
+seeds never finish converging (one of four at $p=0.05$, two of four at $p=0.08$ plateau at
+$\approx0.95$--$0.98$, never crossing $0.99$ --- the familiar seed lottery of Reports~I--III),
+whereas every seed at $p\ge0.12$ reaches exactly $1.00$. So denser training is both faster and
+less of a coin-flip. This is the \emph{matrix-powering}-consistent outcome and the opposite of
+what the strong ``density hurts optimisation'' form of \emph{either} visit-bounded hypothesis
+(DFS or BFS) predicts.
+
+\paragraph{The honest caveat: ER conflates density with distance, so this is not a clean probe
+of the traversal axis.} Two things must be said plainly. First, the very sparse end is
+non-monotone: $p=0.08$ is actually the \emph{noisiest} setting (worst seed lottery), not
+$p=0.05$, because near the connectivity threshold the target matrix $R$ is a genuine mix of
+connected and disconnected pairs (hardest to fit), while at $p=0.05$ it is almost all-zeros and
+at $p\ge0.16$ almost all-ones (both trivial). Second, and more important: in an ER graph,
+raising the density \emph{shortens distances} at the same time as it adds edges, and beyond
+$p\approx0.16$ the in-distribution task is essentially trivial (the graph is one component, $R$
+is all-ones, the first eval is already at ceiling --- the saturation we flagged in advance). So
+``denser $=$ faster'' here is largely the connectivity \emph{task} getting easier (shorter
+distances, simpler target), \emph{not} a clean measurement of the quantity a bounded traversal
+(DFS or BFS) is sensitive to.
+The ER sweep cannot isolate ``more nodes to traverse at fixed distance,'' because in ER more
+edges means \emph{shorter} distance, the reverse coupling. That clean isolation is exactly what
+the bridged-clique experiments do (bridge fixed at $\le3$ hops, only the clique size grows), and
+there --- Sections~\ref{sec:res-clf}--\ref{sec:res-base} --- the bounded-traversal cost
+\emph{does} appear (the classifier's transient slowdown with clique size, the base model's
+cross-block collapse). The two results are consistent: when density and distance move together
+(ER), the distance effect wins and denser is easier; when they are decoupled (cliques), the
+traversal-cost effect surfaces. The ER sweep therefore rules out the strong claim that dense
+\emph{training} is simply harder for \emph{any} visit-bounded traversal, without touching the
+bounded-BFS evidence from the clique tests.
+
+\paragraph{OOD transfer peaks just below the connectivity threshold.} The more interesting
+read is the out-of-distribution transfer (Figure~\ref{fig:dens_ood}, Table~\ref{tab:dens_ood}).
+On the long, sparse structured families held out of this stream (1cycle, path-union, chain-plus),
+exact match is \emph{non-monotone} in $p$, with a clear peak at $p=0.12$ --- just below the
+connectivity threshold --- and a collapse on either side. Too sparse ($p=0.05$--$0.08$): transfer
+is a seed lottery (only the one or two seeds that fully converge transfer at all; the rest are
+near $0$). Too dense ($p\ge0.16$): transfer collapses across all seeds, because a model trained on
+short, dense graphs never practises long-range reach, so it fails the long structured graphs ---
+$p=0.22$ gives $\approx0$ on every held-out family. The sweet spot at $p=0.12$ is also the
+\emph{least} seed-dependent (all four seeds agree: 1cycle $=1.00$, path-union $\approx0.73$,
+chain-plus $\approx0.37$), because at that density the training graphs span the widest useful
+range of distances. This is a small but clean ``don't train too dense'' lesson, and it is
+consistent with the distance reading: dense training narrows the distances seen and costs the
+model its long-range reach.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llccc}
+\toprule
+$p$ & seed & steps to $0.90$ & steps to $0.99$ & final exact \\
+\midrule
+\multicolumn{5}{l}{\emph{$p=0.05$ (mean degree $\approx1.0$)}} \\
+0.05 & 1000 & 10k & 105k & 1.000 \\
+0.05 & 2000 & 25k & \textbf{---} & \textbf{0.979} \\
+0.05 & 3000 & 10k & 150k & 0.994 \\
+0.05 & 4000 & 15k & 210k & 0.993 \\
+\multicolumn{5}{l}{\emph{$p=0.08$ (mean degree $\approx1.6$; paper's density)}} \\
+0.08 & 1000 & 25k & 75k & 1.000 \\
+0.08 & 2000 & 55k & \textbf{---} & \textbf{0.947} \\
+0.08 & 3000 & 40k & 90k & 1.000 \\
+0.08 & 4000 & 50k & \textbf{---} & \textbf{0.947} \\
+\multicolumn{5}{l}{\emph{$p=0.12$ (mean degree $\approx2.4$)}} \\
+0.12 & 1000--4000 & 5k & 70--75k & 1.000 \\
+\multicolumn{5}{l}{\emph{$p=0.16$ (mean degree $\approx3.2$, above threshold)}} \\
+0.16 & 1000--4000 & 5k & 5--10k & 1.000 \\
+\multicolumn{5}{l}{\emph{$p=0.22$ (mean degree $\approx4.4$, well above threshold)}} \\
+0.22 & 1000--4000 & 5k & 5k & 1.000 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer --- RoBERTa-faithful trunk, \emph{linear}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$) --- trained from scratch on a pure
+\textbf{ER} stream at $n=20$ for $1{,}000{,}000$ steps, four seeds per density.
+\emph{Training/eval set:} freshly-generated ER$(20,p)$ graphs (online stream); the metric is on a
+held-out ER$(20,p)$ validation batch at the same $p$. \emph{Metric:} training steps to reach
+$0.90$ and $0.99$ \textbf{in-distribution exact match}, and the final exact match, \emph{per seed}
+(the $p\ge0.12$ rows collapse the four seeds, which agree to within one eval grid point of
+$5{,}000$ steps). ``\textbf{---}'' marks seeds that never reach $0.99$ (bold final $<1$). Denser
+training converges in fewer steps and with fewer stragglers; the noisiest setting is $p=0.08$
+(near the connectivity threshold, where the target is hardest), not the sparsest. The first
+evaluation is at step $5{,}000$, so ``5k'' means already converged at the first checkpoint.}
+\label{tab:dens_conv}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/density_convergence.png}{1.0}
+    \caption{\emph{Model:} the base connectivity transformer (RoBERTa-faithful trunk, linear
+    read-out, $L=2$, single head, $d_{\mathrm{model}}=512$), trained from scratch on a pure
+    \textbf{ER}$(20,p)$ stream, four seeds per density, $1{,}000{,}000$ steps. \emph{Eval set:}
+    held-out ER$(20,p)$ at the same $p$. \emph{Metric:} in-distribution exact match. \textbf{(A)}
+    convergence trajectory vs training step (log axis; thin $=$ each seed, thick $=$ mean per
+    density, colour $=$ $p$): denser climbs faster. \textbf{(B)} steps to reach $0.99$ exact vs
+    $p$ (per seed; black bar $=$ mean over the converging seeds; ``$\times$'' $=$ a seed that
+    never reached $0.99$): monotone speed-up, by two orders of magnitude. \textbf{(C)} final exact
+    match vs $p$ (per seed): the sparse seeds straggle below $1.0$, every seed at $p\ge0.12$ is
+    exactly $1.0$. The speed-up is the matrix-powering direction (denser $=$ shorter distances $=$
+    easier), with the caveat that at $p\ge0.16$ the task is near-trivial (see text).}
+    \label{fig:dens_conv}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccc}
+\toprule
+family & $p{=}0.05$ & $p{=}0.08$ & $p{=}0.12$ & $p{=}0.16$ \\
+\midrule
+1cycle      & 1.00 / 0 / 0 / 0      & 1.00 / 0 / 0.77 / 0   & \textbf{1.00 (all 4)} & 0.78 / 0.99 / 0.82 / 0.49 \\
+path-union  & 0.41 / .05 / .02 / .04 & 0.74 / .04 / .35 / .01 & \textbf{0.71--0.74}   & 0.37 (all 4) \\
+chain-plus  & 0.33 / 0 / 0 / 0      & 0.26 / 0 / 0.24 / 0   & \textbf{0.36--0.39}   & 0.23 (all 4) \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer (RoBERTa-faithful trunk, linear read-out,
+$L=2$, single head, $d_{\mathrm{model}}=512$), \textbf{ER}$(20,p)$-trained, four seeds per density;
+\emph{eval-only} on families held out of the ER stream. \emph{Test set:} the long structured
+families of Report~IV (1cycle, path-union, chain-plus), $\ge400$ graphs each. \emph{Metric:}
+\textbf{OOD exact match}, listed \emph{per seed} (seeds $1000/2000/3000/4000$) where they disagree,
+or as a range/``all 4'' where they agree; $p=0.22$ omitted (all families $\approx0$, every seed).
+Transfer is non-monotone and peaks at $p=0.12$, just below the connectivity threshold, where it is
+also the most seed-consistent; too sparse is a seed lottery, too dense collapses (the model never
+sees long distances). This matches the distance reading of the convergence result.}
+\label{tab:dens_ood}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/density_ood.png}{1.0}
+    \caption{\emph{Model:} the base connectivity transformer (RoBERTa-faithful trunk, linear
+    read-out, $L=2$, single head, $d_{\mathrm{model}}=512$), \textbf{ER}$(20,p)$-trained, four
+    seeds per density; \emph{eval-only}. \emph{Test set:} long structured families held out of the
+    ER stream (1cycle, path-union, chain-plus), $\ge400$ graphs each. \emph{Metric:} OOD exact
+    match vs training density $p$ (grey dots $=$ each seed, red bar $=$ mean). Transfer is noisy
+    and seed-dominated at the sparse end, peaks at $p=0.12$ (and is cleanest there --- all four
+    seeds agree), and collapses for $p\ge0.16$ as the dense training graphs stop exposing the model
+    to long distances.}
+    \label{fig:dens_ood}
+\end{figure}
+
+% =====================================================================
+% PLACEHOLDERS FOR THE REMAINING EXPERIMENTS (added 2026-06-19).
+% Each subsection below is a STUB: the runs are queued/launched, the data
+% is not in yet. For each, the % comments give a future chat: (a) which
+% script produced it and the output path, (b) the prediction / what to
+% look for, (c) the caption fields required by rule 21 (MODEL+TRAIN+TEST+
+% METRIC). Replace the italic "[Results pending ...]" line with the real
+% tables/figures once the json are pulled. ONE experiment per chat.
+% Order of the final report: 5.4 capstone -> 5.5 similarity -> 5.6
+% capacity-vs-data-prior -> 6 verdict. The old-seed eval
+% (scripts/eval_bridged_oldseeds.sbatch) does NOT get its own subsection:
+% its n20-mixed seeds 5000-8000 pool into sec 5.2 (just rebuild that
+% figure/table with 8 seeds), and runs/report5/bridged_cliques_xcheck/ is
+% only a consistency check to mention in one sentence in 5.2.
+% =====================================================================
+
+\subsection{Oracle agreement across the natural families (capstone)}
+\label{sec:res-capstone}
+% SOURCE: eval_oracle_agreement_families.py via scripts/oracle_agreement_families.sbatch
+%   (HPC job 533393). Output: runs/report5/oracle_families/<tag>/oracle_families.json
+%   (per-family + "pooled"); aggregate with plot_oracle_families.py.
+% WHAT IT TESTS: sec 5.2 showed (on the bridged cliques only) the model tracks a
+%   visit-bounded BFS, not matrix power. This generalises that to ALL natural families
+%   (n20/n40, ER/mixed): for each checkpoint, agreement of R-hat with the matrix-power
+%   oracle vs the bounded-BFS oracle (budget sweep), restricted to the CROSS pairs where
+%   the two oracles DISAGREE (json field disagree_frac) -- NOT overall agreement.
+% PREDICTION: if the model is visit-bounded, on the families where the two oracles split
+%   it should side with bounded-BFS, more so on DENSE families (clique_blocks, er_blocks)
+%   and at n40. ONLY matrix-power vs bounded-BFS here (DFS already rejected in 5.2).
+% HONEST CAVEAT (groundwork runs/report5/report5_figs/oracle_disagreement.{png,json}):
+%   on SPARSE families at n20 the two oracles nearly coincide (disagree_frac ~0.01-0.10)
+%   -> the test is BLIND there (distance ~ nodes-traversed). Discriminating power is in
+%   the DENSE families and at n40. Report disagree_frac, say where it is too small to read.
+% CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), mixed- and ER-trained,
+%   4 seeds, n20/n40. Test = the natural families (#graphs each). Metric = fraction of the
+%   oracle-disagreement cross pairs the model matches BFS vs matrix-power (mean over seeds).
+\emph{[Results pending --- HPC job 533393 (\texttt{oraclefam}) still queued at 2026-06-19;
+pull \texttt{runs/report5/oracle\_families/}, run \texttt{plot\_oracle\_families.py}, then
+write this as the last evidence subsection before the verdict.]}
+
+\subsection{Does the node budget scale with the read-out?}
+\label{sec:res-sim}
+% SOURCE: eval_bridged_cliques.py (eval-only) via scripts/eval_bridged_similarity.sbatch
+%   on the EXISTING similarity checkpoints (runs/families_n{20,40}/..._similarity_lam0_seed*).
+%   Output: runs/report5/bridged_similarity/<tag>/bridged_cliques.json.
+%   NB: plot_bridged_cliques.py must be extended to read this dir.
+% WHAT IT TESTS: Report IV showed the similarity read-out DOUBLES the distance reach
+%   (3^L -> 2*3^L). If the clique-size node budget of sec 5.2 (~6-7) is the SAME capacity,
+%   the bridged cross-block knee should move from ~6-7 to ~13-14 under similarity.
+% PREDICTION: knee doubles -> budget and distance-reach are the same lever (ties 5.2 to
+%   Report IV). Knee unchanged -> they are different mechanisms (also informative).
+% CAPTION (rule 21): Model = base RoBERTa SIMILARITY read-out (L=2, 1 head, d512),
+%   mixed-trained (clean) + ER (cross-check), 8 seeds n20 / 4 seeds n40. Test = bridged
+%   cliques, >=400 graphs per clique size. Metric = cross-block pair accuracy vs clique
+%   size (mean over seeds), against the matrix-power and bounded-BFS oracles.
+\emph{[Results pending --- launch \texttt{scripts/eval\_bridged\_similarity.sbatch}
+(eval-only, $\sim$30 min), pull \texttt{runs/report5/bridged\_similarity/}, extend
+\texttt{plot\_bridged\_cliques.py}, then report the knee location vs the linear baseline
+of Section~\ref{sec:res-base}.]}
+
+\subsection{Capacity or data prior? Training on bridged cliques, and a depth sweep}
+\label{sec:res-capacity}
+% SOURCE (Exp 2, data axis): train_families_n20.py --include_bridged via
+%   scripts/train_bridged_in_stream.sbatch (bridged+split ADDED to the mixed stream,
+%   random clique size). Checkpoints: runs/report5/train_bridged_in_stream/
+%   n{N}_mixedbr_roberta_linear_lam0_seed*; auto-eval -> runs/report5/bridged_cliques_trained/.
+% SOURCE (Exp 1, depth axis, OPTIONAL): train_families_n20.py --n_layers via
+%   scripts/train_bridged_depth_sweep.sbatch (mixed, bridged HELD OUT, L=1 and L=3;
+%   L=2 = the existing base). Checkpoints: runs/report5/depth_sweep/
+%   n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*; auto-eval -> runs/report5/bridged_cliques_depth/.
+% WHAT THEY TEST: the main caveat -- is the cross-block collapse of sec 5.2 a hard
+%   CAPACITY limit at L=2, or just a DATA gap (bridged cliques were held out)?
+% PREDICTIONS:
+%   Exp 2: cross-block STILL collapses with clique size after training on bridged
+%     -> hard visit-bounded capacity (strong conclusion). It learns to propagate at all c
+%     -> it was a data gap (revise the verdict).
+%   Exp 1: the clique-size knee MOVES with depth L (e.g. roughly tracks 3^L)
+%     -> the budget IS the architectural capacity, same limit as the distance-9 wall, and
+%     the data-prior reading is killed. Knee stays ~6-7 at every L -> NOT the 3^L capacity
+%     (a surprise worth reporting).
+% CAPTION (rule 21): Model = base RoBERTa linear; Exp 2 trained on mixed+bridged
+%   (fam_tag mixedbr), Exp 1 trained on mixed at L in {1,2,3}; seeds + n as launched.
+%   Test = bridged cliques (>=400 per clique size). Metric = cross-block pair accuracy
+%   vs clique size (mean over seeds), vs the matrix-power and bounded-BFS oracles.
+\emph{[Results pending --- launch \texttt{scripts/train\_bridged\_in\_stream.sbatch}
+(Exp 2, decisive) and optionally \texttt{scripts/train\_bridged\_depth\_sweep.sbatch}
+(Exp 1, bonus). Compare the cross-block-vs-clique-size curve to the held-out baseline of
+Section~\ref{sec:res-base}: same collapse $=$ capacity, no collapse $=$ data gap; knee
+moving with $L$ $=$ the $3^L$ capacity.]}
+
+\section{Verdict: what is the model computing?}
+\label{sec:verdict}
+% WRITE THIS LAST, after the capstone + Exp 3 (+ Exp 2). Synthesise:
+%  - DFS rejected (5.2: cross-block falls with c, DFS oracle rises; zero asymmetry).
+%  - Not pure matrix power either (5.2: collapse at an absolute node budget ~6-7, while
+%    distance stays <=3).
+%  - Best reading: a parallel, fixed-depth neighbourhood aggregation (matrix-power family)
+%    capped by a node budget, NOT by distance; on sparse graphs the cap looks like the
+%    distance-9 wall, on dense graphs like the ~6-7 node budget -- the same capacity, two
+%    geometries. Density-in-training (5.3) points the matrix-power way (denser = faster),
+%    ruling out the strong "dense training is harder for any visit-bounded traversal".
+%  - Tie in: capstone (does BFS reading hold across families?), similarity (5.5: budget
+%    doubles with the read-out?), capacity-vs-data-prior (5.6). State clearly which of
+%    "capacity" vs "data prior" the evidence supports.
+%  - Future work (NOT done here): mechanistic probe (attention_maps/embeddings -- turns
+%    "resembles" into "computes"); clique density at fixed node count (Exp 5).
+\emph{[To be written once Sections~\ref{sec:res-capstone}--\ref{sec:res-capacity} land.]}
 
 \end{document}
