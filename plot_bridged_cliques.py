@@ -115,6 +115,92 @@ def plot_oracle_follow(groups, out):
         fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
 
 
+def plot_combined_cross_sweep(groups, out):
+    """The report figure base_bridged_cross_sweep.png: a 2x2 grid (rows = mixed/ER,
+    cols = n20/n40) of model cross-block accuracy vs clique size, against ALL THREE
+    reference oracles, so the three-way comparison is explicit:
+      matrix-power (distance-bounded) -- flat at 1 (the bridge is <= 3 hops at every c);
+      bounded-DFS  (visit-bounded, dives) -- RISES with c (crosses the bridge early
+                    and reaches deeper into the far clique as the budget grows);
+      bounded-BFS  (visit-bounded, ball) -- FALLS to ~0 (stuck in the near clique).
+    The model falls from 1 to 0: it tracks matrix power up to a node budget (~6-7),
+    then collapses to the stuck-BFS floor -- the OPPOSITE trend to DFS, which rejects
+    the depth-first reading."""
+    rows = [("mixed", "clean: dense cliques in training"),
+            ("er", "confounded: degree-heuristic OOD")]
+    ns = sorted({n for (n, _) in groups})
+    fig, axes = plt.subplots(2, len(ns), figsize=(5.2 * len(ns), 8.4), squeeze=False)
+    for ri, (fam, subtitle) in enumerate(rows):
+        for ci, n in enumerate(ns):
+            ax = axes[ri][ci]
+            results = groups.get((n, fam))
+            if not results:
+                ax.set_visible(False); continue
+            cs = results[0][1]["clique_size_sweep"]["clique_sizes"]
+            mean, _, A = _mean_curve(results, ["clique_size_sweep", "model_cross_acc"])
+            for row in A:
+                ax.plot(cs, row, color="tab:blue", alpha=0.22, lw=1)
+            ax.plot(cs, mean, color="tab:blue", lw=2.6, marker="o", ms=4,
+                    label="model (mean over seeds)")
+            mp, _, _ = _mean_curve(results, ["clique_size_sweep", "oracle_mp_cross_acc"])
+            dfs, _, _ = _mean_curve(results, ["clique_size_sweep", "oracle_dfs_cross_acc"])
+            bfs, _, _ = _mean_curve(results, ["clique_size_sweep", "oracle_bfs_cross_acc"])
+            ax.plot(cs, mp, color="tab:green", lw=2, ls="--",
+                    label="matrix-power oracle (distance-bounded)")
+            ax.plot(cs, dfs, color="tab:orange", lw=2, ls="-.",
+                    label="bounded-DFS oracle (dives, budget=c)")
+            ax.plot(cs, bfs, color="tab:red", lw=2, ls=":",
+                    label="bounded-BFS oracle (gets stuck, budget=c)")
+            ax.set_ylim(-0.02, 1.02); ax.grid(alpha=0.3)
+            ax.set_xlabel("clique size c")
+            if ci == 0:
+                ax.set_ylabel(f"{fam}-trained\ncross-block accuracy")
+            ax.set_title(f"n={n}, {fam}-trained ({len(results)} seeds)\n{subtitle}", fontsize=9)
+            if ri == 0 and ci == 0:
+                ax.legend(fontsize=7.5, loc="center left")
+    fig.suptitle("Bridged cliques: does the model carry the single bridge across the cliques as they grow?\n"
+                 "model FALLS like a stuck bounded-BFS, the OPPOSITE of bounded-DFS (which rises); "
+                 "matrix power stays flat at 1", fontsize=11)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    f = out / "base_bridged_cross_sweep.png"
+    fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
+
+
+def plot_combined_oracle_follow(groups, out):
+    """The report figure base_bridged_oracle_follow.png: for the MIXED model, on the
+    cross entries where matrix-power and bounded-BFS disagree, the fraction the model
+    matches to each, vs the BFS budget. (DFS is absent here: it is already rejected by
+    the clique-size sweep, where its curve rises while the model's falls.)"""
+    ns = sorted({n for (n, _) in groups})
+    fig, axes = plt.subplots(1, len(ns), figsize=(5.6 * len(ns), 4.6), squeeze=False)
+    for ci, n in enumerate(ns):
+        ax = axes[0][ci]
+        results = groups.get((n, "mixed"))
+        if not results:
+            ax.set_visible(False); continue
+        budgets = results[0][1]["oracle_agreement_bridged"]["budgets"]
+        mp, _, _ = _mean_curve(results, ["oracle_agreement_bridged", "model_follows_mp_on_disagree"])
+        bfs, _, _ = _mean_curve(results, ["oracle_agreement_bridged", "model_follows_bfs_on_disagree"])
+        ax.plot(budgets, mp, color="tab:green", lw=2, marker="o",
+                label="model follows matrix-power")
+        ax.plot(budgets, bfs, color="tab:red", lw=2, marker="s",
+                label="model follows bounded-BFS")
+        ax.axvline(n // 2, color="grey", ls="--", lw=1, label="one clique (budget = c)")
+        ax.axhline(0.5, color="k", lw=0.8, ls=":")
+        ax.set_ylim(0, 1.02); ax.grid(alpha=0.3)
+        ax.set_xlabel("bounded-BFS budget (nodes per start)")
+        if ci == 0:
+            ax.set_ylabel("fraction of contested cross pairs matched")
+        ax.set_title(f"n={n}, mixed-trained ({len(results)} seeds)", fontsize=10)
+        if ci == 0:
+            ax.legend(fontsize=8)
+    fig.suptitle("On the cross pairs where matrix-power and bounded-BFS disagree, the mixed model "
+                 "tracks bounded-BFS, not matrix power", fontsize=11)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    f = out / "base_bridged_oracle_follow.png"
+    fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="runs/report5/bridged_cliques")
@@ -128,6 +214,8 @@ def main():
     plot_clique_sweep(groups, out)
     plot_blocks(groups, out)
     plot_oracle_follow(groups, out)
+    plot_combined_cross_sweep(groups, out)      # report figure (3 oracles)
+    plot_combined_oracle_follow(groups, out)     # report figure
 
 
 if __name__ == "__main__":
