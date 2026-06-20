@@ -55,7 +55,7 @@ def main():
 
     # one panel per (n, set): model-follows-MP vs model-follows-BFS on disagreeing pairs,
     # pooled over families+seeds, vs budget.
-    conds = sorted(groups)
+    conds = sorted(groups.items())
     fig, axes = plt.subplots(2, 2, figsize=(11, 8))
     pos = {(20, "mixed"): (0, 0), (40, "mixed"): (0, 1),
            (20, "er"): (1, 0), (40, "er"): (1, 1)}

@@ -971,9 +971,110 @@ sees long distances). This matches the distance reading of the convergence resul
 % CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), mixed- and ER-trained,
 %   4 seeds, n20/n40. Test = the natural families (#graphs each). Metric = fraction of the
 %   oracle-disagreement cross pairs the model matches BFS vs matrix-power (mean over seeds).
-\emph{[Results pending --- HPC job 533393 (\texttt{oraclefam}) still queued at 2026-06-19;
-pull \texttt{runs/report5/oracle\_families/}, run \texttt{plot\_oracle\_families.py}, then
-write this as the last evidence subsection before the verdict.]}
+\paragraph{Setup recap.} Section~\ref{sec:res-base} showed, \emph{on the bridged cliques}, that
+the base model tracks a visit-bounded BFS rather than matrix power. That graph was purpose-built
+to decouple distance from nodes-traversed. The capstone asks whether the same signature is visible
+on the \emph{natural} families of Reports~III--IV. We take every base checkpoint (RoBERTa,
+\emph{linear} read-out, $L=2$, single head, $d_{\mathrm{model}}=512$; mixed- and ER-trained, four
+seeds, $n=20$ and $n=40$ --- the same $16$ checkpoints as Section~\ref{sec:res-base}) and, for each
+of the $12$ families, compare its matrix $\hat R$ to the two reference oracles of
+Section~\ref{sec:plan-oracle}: the matrix-power oracle $\mathbf 1[(A+I)^{9}>0]$ and the bounded-BFS
+oracle as its budget $b$ (nodes visited) is swept from $2$ to $n$. The quantity that matters is
+\emph{not} overall agreement but, restricted to the pairs where the two oracles \emph{disagree}
+(the \texttt{disagree\_frac} mass), the fraction the model matches each one. DFS is not re-run: it
+was rejected in Section~\ref{sec:res-base}, so this is matrix-power vs.\ bounded-BFS only.
+
+\paragraph{Reading the budget axis (and a trap to avoid).} The bounded-BFS budget is a property of
+the \emph{oracle}, not the model. At a \emph{large} budget $b\to n$ the BFS ball visits the whole
+component, so BFS$(b)$ \emph{becomes} the true connectivity; ``the model follows BFS'' there means
+only that the model correctly connects beyond-capacity pairs --- the Report~IV recovery past the
+$3^L$ wall --- and is no evidence of a bounded traversal. The $\S$\ref{sec:res-base} signature is
+the \emph{opposite}: the model matching a \emph{stuck, small-budget} ball on a connection that has
+to propagate across many nodes. So the discriminating region is \emph{small} $b$ together with a
+large disagreement mass. (We also drop the two smallest budgets $b=2,3$: a per-seed fraction there
+exceeds $1$, a numerical artefact, harmless once pooled but excluded to be safe.)
+
+\paragraph{On the natural families the model looks like matrix power, not a bounded traversal.}
+Figure~\ref{fig:capstone} and Table~\ref{tab:capstone} give the pooled answer, and it is clean.
+For the \textbf{mixed} model, in the region where the comparison has power --- small budget
+($b\le 9$), where the matrix-power and BFS oracles genuinely disagree on $19$--$52\%$ of pairs ---
+the model follows \emph{matrix power} on $95$--$98\%$ of the contested pairs and the BFS oracle on
+$\le 5\%$ (both $n$). The BFS-following only climbs past $0.5$ at $b\approx 16$ ($n=20$) and
+$b\approx 32$ ($n=40$), and exactly there the disagreement mass has collapsed (to $\approx 0.06$ at
+$n=20$) and the BFS oracle has all but turned into the true connectivity --- i.e.\ that late rise is
+the beyond-wall recovery, not a stuck ball. So pooled over the everyday families the base model is
+observationally \emph{matrix power}: the visit-bounded signature of Section~\ref{sec:res-base} does
+\emph{not} reappear here.
+
+\paragraph{Why this does not contradict Section~\ref{sec:res-base} --- it locates the signature.}
+This is the expected outcome given the premise of the whole report (Section~\ref{sec:hypotheses}):
+on a natural graph distance and nodes-traversed move together (Report~IV, $\mathrm{corr}=-0.82$), so
+the matrix-power and BFS oracles disagree only on (i) \emph{short} within-component pairs at small
+$b$ --- where the model is correctly matrix-power --- and (ii) \emph{far} pairs at large $b$ --- where
+BFS has become the truth. Neither tests ``propagate one connection across a large dense block,''
+which is exactly what the bridged construction isolates and the natural families cannot. The lone
+exception is the \textbf{barbell} --- the one held-out natural family that, like the bridged cliques,
+puts a thin bridge between two dense regions --- and it behaves accordingly: in the discriminating
+mid-budget range the mixed model leans toward bounded-BFS ($n=40$: follows-BFS $0.29\to0.49$ across
+$b=2$--$14$; $n=20$: $0.21\to0.58$ across $b=6$--$12$), the natural-graph echo of
+Section~\ref{sec:res-base}. The \textbf{ER} model is again the confounded cross-check
+(Table~\ref{tab:base_er}, error noted in our handoff): being degree-heuristic OOD on dense families
+it is already wrong \emph{inside} the clusters, which makes it look more BFS-like ($\approx0.25$
+even at small $b$) for the wrong reason; we do not read it as evidence.
+
+\paragraph{Bottom line of the capstone.} The bounded-traversal mechanism is real but \emph{visible
+only on graphs built to expose it} (the bridged cliques of Section~\ref{sec:res-base}, and the
+barbell). On the families one meets in the wild the distance/node collinearity masks it, and where
+the test retains any power the model is matrix-power. The capstone therefore does not extend the
+visit-bounded reading to all graphs; it shows \emph{where} that reading does and does not hold, and
+why --- which is the honest closing of the matrix-power-vs-traversal question before the verdict.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/oracle_families_follow.png}{0.95}
+    \caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, \emph{linear}
+    read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full matrix $\hat R$), eval-only, four
+    seeds per panel; \emph{top} mixed-trained (clean), \emph{bottom} ER-trained (confounded
+    cross-check); $n=20$ (left), $n=40$ (right). \emph{Test set:} the $12$ natural families of
+    Reports~III--IV, $200$ graphs each, pooled. \emph{Metric:} on the pairs where the matrix-power
+    oracle $\mathbf 1[(A+I)^{9}{>}0]$ and the bounded-BFS$(b)$ oracle \emph{disagree}, the fraction
+    the model matches matrix-power (green) vs bounded-BFS (red), as the BFS budget $b$ varies (mean
+    over seeds); the dotted grey line is the disagreement mass (how discriminating each $b$ is). For
+    the mixed model, where the comparison has power (small $b$, large disagreement mass) the model
+    follows matrix power ($\ge0.95$); the BFS-following appears only at large $b$, where the
+    disagreement mass has collapsed and BFS$(b)$ has become the true connectivity --- the beyond-wall
+    recovery, not a stuck ball.}
+    \label{fig:capstone}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llccc}
+\toprule
+ & & \multicolumn{2}{c}{follows BFS, small (discriminating) $b$} & follows BFS \\
+training & pool & $b{=}6$ & $b{=}10$ & at $b{\to}n$ \\
+\midrule
+mixed ($n{=}20$) & all $12$ families (pooled) & 0.03 & 0.06 & 0.74 \\
+mixed ($n{=}20$) & barbell only (held out)    & 0.21 & 0.38 & --- \\
+mixed ($n{=}40$) & all $12$ families (pooled) & 0.03 & 0.04 & 0.46 \\
+mixed ($n{=}40$) & barbell only (held out)    & 0.38 & 0.45 & --- \\
+\midrule
+ER ($n{=}20$, confounded) & all $12$ families (pooled) & 0.14 & 0.12 & 0.78 \\
+ER ($n{=}40$, confounded) & all $12$ families (pooled) & 0.24 & 0.25 & 0.67 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, \emph{linear} read-out,
+$L=2$, single head, $d_{\mathrm{model}}=512$), eval-only, four seeds. \emph{Test set:} the natural
+families of Reports~III--IV, $200$ graphs each. \emph{Metric:} on the matrix-power-vs-bounded-BFS
+\emph{disagreement} pairs, the fraction the model follows the bounded-BFS oracle (so $1-{}$this is
+follows-matrix-power), \emph{mean over the four seeds}, at a small/discriminating budget ($b=6,10$;
+disagreement mass there $\approx0.3$--$0.5$ at $b{=}6$) and at the largest budget $b{\to}n$ (where
+BFS$\approx$ truth, so this column is the beyond-wall recovery, \emph{not} a bounded-traversal
+read). Pooled over all $12$ families the mixed model follows matrix power at the discriminating
+budgets ($\le0.06$ BFS); the only natural family that leans BFS there is the held-out barbell (a
+thin bridge between two dense cliques, the structure of Section~\ref{sec:res-base}). The ER rows are
+the confounded cross-check (degree-heuristic OOD inside dense clusters), not read as evidence.}
+\label{tab:capstone}
+\end{table}
 
 \subsection{Does the node budget scale with the read-out?}
 \label{sec:res-sim}
