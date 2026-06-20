@@ -309,12 +309,13 @@ Section~\ref{sec:res-clf}; the decisive one --- the base connectivity model eval
 the bridged cliques (Section~\ref{sec:plan-barbell}, part~(a), with the per-block,
 clique-size-sweep and oracle-agreement reads), in Section~\ref{sec:res-base}; and the
 density-in-optimisation sweep (Section~\ref{sec:plan-density}), in
-Section~\ref{sec:res-density}. Three further experiments are queued or launched and reported as
-stubs here: the oracle agreement across the natural families (the capstone,
-Section~\ref{sec:res-capstone}); the bridged probe under the similarity read-out, asking whether
-the node budget scales with the read-out (Section~\ref{sec:res-sim}); and the capacity-vs-data-prior
-pair --- training with bridged cliques in the stream, plus a depth sweep (Section~\ref{sec:res-capacity}).
-The final matrix-powering-vs-DFS verdict (Section~\ref{sec:verdict}) is written once these land.
+Section~\ref{sec:res-density}. We then add two more: the oracle agreement across the natural
+families --- the capstone that asks whether the bridged-clique signature survives on everyday graphs
+(Section~\ref{sec:res-capstone}); and the bridged probe re-run under the similarity read-out, asking
+whether the node budget scales with the read-out (Section~\ref{sec:res-sim}). One experiment remains
+a stub: the capacity-vs-data-prior pair --- training with bridged cliques in the stream, plus a depth
+sweep (Section~\ref{sec:res-capacity}), still running. The final matrix-powering-vs-DFS verdict
+(Section~\ref{sec:verdict}) is written once it lands.
 
 \subsection{The dedicated classifier: the bridge is detectable at every clique size}
 \label{sec:res-clf}
@@ -1109,10 +1110,144 @@ the confounded cross-check (degree-heuristic OOD inside dense clusters), not rea
 %   mixed-trained (clean) + ER (cross-check), 8 seeds n20 / 4 seeds n40. Test = bridged
 %   cliques, >=400 graphs per clique size. Metric = cross-block pair accuracy vs clique
 %   size (mean over seeds), against the matrix-power and bounded-BFS oracles.
-\emph{[Results pending --- launch \texttt{scripts/eval\_bridged\_similarity.sbatch}
-(eval-only, $\sim$30 min), pull \texttt{runs/report5/bridged\_similarity/}, extend
-\texttt{plot\_bridged\_cliques.py}, then report the knee location vs the linear baseline
-of Section~\ref{sec:res-base}.]}
+\paragraph{Setup recap.} Section~\ref{sec:res-base} found that the base model carries the
+bridge across the cliques only \emph{up to a node budget} of $\sim6$--$7$, and beyond that the
+cross block collapses. That budget is a number of \emph{nodes}, not a distance, and the obvious
+follow-up question is: where does that number come from? Report~IV gives one clean handle. The
+\emph{similarity} read-out --- $\hat R_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$
+instead of a linear map on the pair --- doubles the \emph{distance} reach there, from $3^L$ to
+$2\cdot3^L$, because asking ``do the two nodes' $3^L$-hop neighbourhoods \emph{overlap}'' is a
+meet-in-the-middle that needs each node to reach only halfway. If the clique-size budget of
+Section~\ref{sec:res-base} is the \emph{same} capacity seen in a different geometry, then swapping
+the read-out should move the bridged-clique knee the same way --- from $\sim6$--$7$ to
+$\sim13$--$14$. If the budget instead stays put, the node budget and the distance reach are
+\emph{different} mechanisms (also worth knowing). We test this without training anything new: we
+take the existing similarity checkpoints of Report~IV (\texttt{runs/families\_n\{20,40\}/}
+$\ldots$\texttt{similarity}$\ldots$) and run the identical bridged-clique eval of
+Section~\ref{sec:res-base} on them --- eight seeds at $n=20$, four at $n=40$, mixed-trained (the
+clean test) plus the ER cross-check.
+
+\paragraph{The similarity read-out does not fix the bridge --- it moves the budget.} Two facts,
+in order. First, at the \emph{full} clique size the similarity model fails the bridge exactly as
+the linear one did: the cross block is $0.00$, every one of the eight ($n=20$) / four ($n=40$)
+seeds, while each clique is still resolved perfectly (within-A $=$ within-B $=1.00$) and the split
+graph is exact ($1.00$); discrimination is at chance ($0.50$), the model calling bridged and split
+alike (Table~\ref{tab:sim_blocks}). So the similarity read-out does \emph{not} remove the
+bounded-traversal limit --- the same wall is there. Second, and the point of the experiment: the
+wall has \emph{moved out}. On the $n=40$ sweep, where the canvas has room to grow the cliques, the
+cross-block knee shifts from $c\approx7$ under the linear read-out to $c\approx11$--$12$ under
+similarity (Figure~\ref{fig:simknee}, Table~\ref{tab:sim_sweep}): the similarity model is still a
+flat $1.00$ at $c=8$ (linear is already $0.27$ there) and only crosses $0.5$ between $c=11$ and
+$c=12$. The node budget grew by roughly $4$--$5$ nodes --- in the direction of the predicted
+doubling, if a little short of a clean $\times2$.
+
+\paragraph{Why the doubling ties Section~\ref{sec:res-base} to Report~IV.} This is the causal link
+we were after. The linear read-out asks a \emph{one-sided} question --- is node $j$ inside node
+$i$'s aggregated neighbourhood? --- so node $i$ alone must reach all the way across the near clique
+to the far one, and it runs out at $\sim6$--$7$ nodes. The similarity read-out asks a
+\emph{two-sided} one --- do $i$'s and $j$'s neighbourhoods overlap? --- so each node need only reach
+the bridge from its own side, and the reachable clique size roughly doubles. This is the \emph{same}
+meet-in-the-middle that doubles the distance reach in Report~IV; that one architectural change lifts
+\emph{both} the distance reach and the clique-size node budget tells us they are two geometries of
+\emph{one} capacity, not two unrelated limits. It also says something about \emph{where} that
+capacity lives: a quantity that an \emph{output} read-out (a cosine vs.\ a linear map, downstream of
+the trunk) can enlarge is a property of \emph{how far the trunk's neighbourhood aggregation reaches},
+which is precisely the matrix-power picture --- a fixed-depth, parallel aggregation with a budget ---
+and \emph{not} a fixed step-count of a sequential traversal, which an output map could not touch. The
+failure also stays perfectly symmetric (directional disagreement $0.000$ at every seed), as it must:
+$\cos$ is symmetric by construction, so similarity cannot show the DFS asymmetry --- but the linear
+read-out, which \emph{could}, already showed none (Section~\ref{sec:res-base}).
+
+\paragraph{Two honest caveats.} First, the budget moves cleanly only at $n=40$. At $n=20$ the
+largest clique is $c=10$ and the two cliques fill the whole canvas, so a budget of $\sim12$--$14$
+simply cannot be exercised; there the similarity knee sits at $c\approx6$--$7$ like the linear one
+(if anything the collapse past it is \emph{sharper} --- straight to $0.00$ by $c=8$), the same
+``too small at $n=20$, the wall returns at $n=40$'' pattern the distance wall shows throughout
+Reports~III--IV. The clean read is the $n=40$ mixed model. Second, the shift is $\sim\times1.5$, not
+exactly $\times2$; part of that is that at the largest $n=40$ cliques ($c\to20$) the cliques again
+fill the canvas, so the very top of the sweep is canvas-limited too. The conclusion we draw is the
+\emph{direction and the link} --- the read-out moves the node budget, the same lever that moves the
+distance reach --- not a precise multiplier. The \textbf{ER} model is, as everywhere in this report,
+the confounded cross-check and must not be read as evidence: under the similarity read-out the ER
+model calls the cross block connected at \emph{every} clique size (cross $=1.00$, flat), but for the
+wrong reason --- it over-connects everything dense (the degree heuristic of Report~IV), so it
+\emph{also} calls the \emph{split} cliques connected, leaving its split exact-match at $0.00$ and its
+discrimination at chance ($0.50$); a flat-$1.00$ cross curve here is the over-connection artefact, not
+a propagated bridge (Table~\ref{tab:sim_blocks}, bottom).
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lccccccccccc}
+\toprule
+read-out & \multicolumn{11}{c}{cross-block accuracy on bridged cliques, mean over seeds} \\
+\midrule
+\multicolumn{12}{l}{\emph{$n=20$, mixed (clique size $c$):}} \\
+clique size $c$ & 4 & 5 & 6 & 7 & 8 & 9 & 10 & & & & \\
+linear (4 seeds)      & 1.00 & 1.00 & 0.95 & 0.27 & 0.13 & 0.08 & 0.01 & & & & \\
+similarity (8 seeds)  & 1.00 & 1.00 & 0.65 & 0.27 & 0.04 & 0.00 & 0.00 & & & & \\
+\midrule
+\multicolumn{12}{l}{\emph{$n=40$, mixed (clique size $c$):}} \\
+clique size $c$ & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 16 & 20 \\
+linear (4 seeds)      & 0.95 & 0.74 & 0.27 & 0.16 & 0.09 & 0.07 & 0.05 & 0.02 & 0.00 & 0.00 & 0.00 \\
+similarity (4 seeds)  & 1.00 & 0.99 & 0.95 & 0.87 & 0.77 & 0.64 & 0.38 & 0.27 & 0.25 & 0.01 & 0.00 \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer (RoBERTa-faithful trunk, $L=2$, single
+head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$) with the \textbf{linear} vs the
+\textbf{similarity} read-out ($\hat R_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$), both
+\textbf{mixed}-trained (the $9$-family stream of Reports~III--IV); \emph{eval-only}, no further
+training. \emph{Test set:} bridged cliques, $\ge400$ graphs per clique size. \emph{Metric:}
+cross-block pair accuracy (does $\hat R$ connect the two cliques across the single bridge?),
+\emph{mean over seeds}, by clique size $c$ (columns thinned). At $n=40$ the knee --- where the curve
+crosses $0.5$ --- moves from $c\approx7$ (linear) to $c\approx11$--$12$ (similarity); at $n=20$ the
+canvas caps $c$ at $10$ and the knee does not move. The matrix-power oracle is flat at $1.00$ for
+every $c$ (the bridge is $\le3$ hops; omitted). Linear rows reproduce Table~\ref{tab:base_sweep}.}
+\label{tab:sim_sweep}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report5/report5_figs/base_bridged_similarity_knee.png}{0.95}
+    \caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, $L=2$, single head,
+    $d_{\mathrm{model}}=512$, full matrix $\hat R$), \textbf{mixed}-trained, with the \textbf{linear}
+    (blue) vs the \textbf{similarity} (purple) read-out; eval-only, eight seeds at $n=20$ / four at
+    $n=40$ for similarity, four for linear (thin $=$ seeds, thick $=$ mean). \emph{Test set:} bridged
+    cliques, $\ge400$ graphs per clique size. \emph{Metric:} cross-block pair accuracy vs clique size
+    $c$; the green dashed line is the matrix-power oracle (flat at $1$, bridge $\le3$ hops). At $n=40$
+    (right) the similarity read-out holds the bridge across a larger clique --- the knee moves from
+    $c\approx7$ to $c\approx11$--$12$ --- the same meet-in-the-middle that doubles the distance reach
+    in Report~IV. At $n=20$ (left) the cliques fill the canvas by $c=10$, so the larger budget cannot
+    be exercised and the knee is unchanged. Neither read-out connects the bridge at the full clique
+    size: the wall is moved, not removed.}
+    \label{fig:simknee}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lllcccccc}
+\toprule
+read-out & train & $n$ & within-A & within-B & cross & split exact & disc. & seeds \\
+\midrule
+similarity & mixed & 20 & 1.00 & 1.00 & \textbf{0.00} & 1.00 & 0.50 & 8 (all identical) \\
+similarity & mixed & 40 & 1.00 & 1.00 & \textbf{0.00} & 1.00 & 0.50 & 4 (all identical) \\
+\midrule
+similarity & ER & 20 & 1.00 & 1.00 & $1.00^\ast$ & \textbf{0.00} & 0.50 & 8 (all identical) \\
+similarity & ER & 40 & 1.00 & 1.00 & $1.00^\ast$ & \textbf{0.00} & 0.50 & 4 (all identical) \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, $L=2$, single head,
+$d_{\mathrm{model}}=512$) with the \textbf{similarity} read-out, mixed- and ER-trained;
+\emph{eval-only}. \emph{Test set:} bridged and split cliques at the full clique size ($c=10$ at
+$n=20$, $c=20$ at $n=40$), $2{,}000$ graphs each. \emph{Metric:} per-block pair accuracy on the
+bridged graph (within each clique, cross block), exact-match on the split graph, and graph-level
+discrimination; per seed (the seeds are \emph{identical} to two decimals, so we report the common
+value and the seed count). The \emph{mixed} model (top, the clean test) resolves each clique and the
+split graph perfectly but misses the cross block entirely ($0.00$) --- exactly the linear-read-out
+result of Table~\ref{tab:base_blocks}, confirming the similarity read-out only shifts the budget, it
+does not cross the bridge at full size. $^\ast$The \emph{ER} model's cross $=1.00$ is the
+over-connection confound, not a propagated bridge: it calls everything dense connected, so it also
+calls the \emph{split} cliques connected (split exact $0.00$) and its discrimination is at chance
+($0.50$). Read the mixed rows only.}
+\label{tab:sim_blocks}
+\end{table}
 
 \subsection{Capacity or data prior? Training on bridged cliques, and a depth sweep}
 \label{sec:res-capacity}

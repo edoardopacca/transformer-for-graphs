@@ -62,7 +62,11 @@ Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in
 (ER a varie p: denso aiuta o rallenta il training?). **STATO al 2026-06-20 (5a sessione): §5.1–5.4
 analizzate e SCRITTE (22 pp.); affinamento chiave = TRE oracoli MP/DFS/BFS (errore 45), esito = il
 modello è una traversata visit-bounded (MP fino a budget ~6–7 nodi, poi BFS-bloccato), DFS rifiutato.
-PROSSIMO = §5.5 (dati pronti). Vedi §11 "Stato Report 5" per il dettaglio completo e il piano.**
+§5.5 (similarity-budget) ora ANALIZZATA e SCRITTA (6a sessione, 25 pp.): il read-out di similarità
+SPOSTA il budget-nodi (knee n40 mixed da c≈7 lineare a c≈11–12 similarity ≈ il doubling previsto =
+stesso meet-in-the-middle che raddoppia il reach in Report IV → budget-nodi e reach-distanza = stessa
+capacità in due geometrie); a n20 invariato (canvas c≤10 troppo piccolo); ER = confound over-connect.
+PROSSIMO = §5.6 (job trbr in corso) + §6 verdetto. Vedi §11 "Stato Report 5" per il dettaglio.**
 
 ---
 
@@ -823,39 +827,52 @@ ancora pullati · ⏳ in attesa/opzionale):
   ER = confuso. Conclusione: il capstone **localizza** la firma (solo su grafi costruiti), non la estende.
   **ADDENDUM 6a sessione (errore 50): DFS NON dato per morto** → capstone RIESEGUITO con anche l'oracolo DFS
   (`scripts/oracle_agreement_families_dfs.sbatch` → `runs/report5/oracle_families_dfs/`), per vedere se sul
-  **barbell** il modello segue BFS (si blocca) o DFS (si tuffa). Job `oraclefamdfs` in coda al 2026-06-20.
-  Quando torna: leggere `model_follows_{bfs,dfs}_on_bfsdfs` sul barbell/famiglie dense → poi fold di 1 frase
-  in §5.4 (e sblocco di §6).
+  **barbell** il modello segue BFS (si blocca) o DFS (si tuffa). **Job `oraclefamdfs` (533651) FINITO al
+  2026-06-20 (6a sessione) — DATI PRONTI DA ANALIZZARE.** Quando pullato: leggere
+  `model_follows_{bfs,dfs}_on_bfsdfs` sul barbell/famiglie dense → poi fold di 1 frase in §5.4 (aggiornare anche
+  la frase "still in the queue" del `.tex`) e SBLOCCO di §6.
 
-- 🟢 **Exp 3 — similarity-budget** (§5.5, stub `sec:res-sim`) — **DATI PRONTI, È IL PROSSIMO DA ANALIZZARE.**
-  Job `533476` (brsim) FINITO → `runs/report5/bridged_similarity/<tag>/bridged_cliques.json`, **24 json** (tag
-  `n{20,40}_{mixed,er}_sim_seed{S}`). Sono `eval_bridged_cliques.py` sui pesi SIMILARITY, stesso formato dei
-  json linear di §5.2. DA FARE: **estendere `plot_bridged_cliques.py`** a `bridged_similarity/` (oggi cablato su
-  `bridged_cliques/`; readout nel campo json), confrontare il **knee cross-block-vs-clique-size** col LINEAR §5.2
-  (knee c≈6–7). Predizione: knee ~6–7→~13–14 ⇒ budget-nodi = capacità-di-distanza (similarity raddoppia il reach
-  a 2·3^L, Report IV); invariato ⇒ meccanismi diversi. Leggere SOLO il mixed (ER confuso, errore 42). Caption
-  regola 21, riempire `sec:res-sim`.
+- ✅ **Exp 3 — similarity-budget** (§5.5, `sec:res-sim`). ANALIZZATO e SCRITTO (6a sessione). Job `533476`
+  (brsim), **24 json** in `runs/report5/bridged_similarity/<tag>/` (tag `n{20,40}_{mixed,er}_sim_seed{S}`: n20
+  8+8, n40 4+4). `plot_bridged_cliques.py` ESTESO (`load_all_sim` + `plot_similarity_vs_linear` → figura
+  `base_bridged_similarity_knee.png`; regex `_sim` separata, non tocca le figure §5.2). **Esito (sul MIXED, il
+  test pulito):** il similarity NON rimuove il muro — a clique-size pieno il cross-block crolla a 0.00 ESATTO
+  ogni seed (within=1.00, split-exact=1.00, disc=0.50, asym=0.000), come il lineare — ma **SPOSTA il budget**:
+  knee **n40 da c≈7 (lin) a c≈11–12 (sim)**, +4/5 nodi, ≈ il doubling previsto. Stesso meet-in-the-middle che
+  raddoppia il reach 3^L→2·3^L (Report IV): il read-out *one-sided* (lin: j nel ball di i) vs *two-sided* (sim:
+  ball di i ∩ ball di j) → ogni nodo deve raggiungere solo il ponte → budget-nodi ~×2. ⇒ **budget-nodi (§5.2) e
+  reach-distanza (Report IV) = STESSA capacità, due geometrie**, e poiché un read-out di OUTPUT la allarga, il
+  limite vive in *quanto lontano aggrega il trunk* = matrix-power-con-budget, NON uno step-count di traversata
+  sequenziale (un output map non lo toccherebbe). **Caveat onesti:** il knee si muove pulito SOLO a n40 (a n20
+  c≤10 riempie il canvas, budget ~12–14 non esercitabile → knee invariato ~6–7, anzi crollo più netto); shift
+  ~×1.5 non esatto ×2 (anche a n40 c→20 riempie il canvas). **ER = confound:** cross=1.00 PIATTO a ogni c ma per
+  il motivo SBAGLIATO (over-connect tutto il denso → chiama connesse anche le split → split-exact=0.00,
+  disc=0.50). Tabelle `tab:sim_sweep` (knee lin-vs-sim per-c) + `tab:sim_blocks` (per-blocco a c pieno),
+  figura `fig:simknee`. Compila pulito (25 pp.).
 
-- 🔵 **Exp 2 — train-on-bridged** (§5.6, stub `sec:res-capacity`; il test DECISIVO capacità-vs-prior-dati). **IN
-  CORSO al 2026-06-20: NON pronto** (`trbr` 533479_0-3 RUNNING su 8 seed, 533480_4-7 PD — aspettare TUTTI gli 8).
+- 🟢 **Exp 2 — train-on-bridged** (§5.6, stub `sec:res-capacity`; il test DECISIVO capacità-vs-prior-dati).
+  **TUTTI gli 8 seed FINITI al 2026-06-20 (6a sessione)** — `trbr` 533479_0-3 + 533480_4-7 COMPLETED. **DATI PRONTI
+  DA ANALIZZARE** (appena pullati). Output eval in `runs/report5/bridged_cliques_trained/n{N}_seed{S}`.
   Script `scripts/train_bridged_in_stream.sbatch` (training ~12h/job; `--array=0-3%4` n40 prima, `4-7%4` n20).
   Usa `train_families_n20.py --include_bridged` (famiglie `bridged`+`split` random-c nello stream; fam_tag
   `mixedbr`). Checkpoint `runs/report5/train_bridged_in_stream/n{N}_mixedbr_roberta_linear_lam0_seed*`; auto-eval
   bridged → `runs/report5/bridged_cliques_trained/n{N}_seed{S}`. Lettura: cross-block crolla LO STESSO con c ⇒
   capacità dura a L=2; impara a propagare a ogni c ⇒ era buco di dati (rivedere il verdetto). (Non lanciato.)
 
-- ⏳ **Exp 1 — depth-sweep su bridged** (BONUS elegante, va in §5.6 con Exp 2). Script
-  `scripts/train_bridged_depth_sweep.sbatch` (`train_families_n20.py --n_layers` 1/3; mixed, bridged HELD-OUT;
-  L=2 = base esistente). `--array=0-3%4` n20 L1/L3 economico (~2-3h); n40 lento (L3 ~14h). Checkpoint
+- 🟡 **Exp 1 — depth-sweep su bridged** (BONUS elegante, va in §5.6 con Exp 2). **6/8 task FINITI al
+  2026-06-20 (6a sessione); 2 ANCORA RUNNING** (`brdepth` 533483_6, 533483_7 su gnode05/06) → **NON pullare/
+  analizzare finché non finiscono tutti** (sono i task n40 lenti). Script `scripts/train_bridged_depth_sweep.sbatch`
+  (`train_families_n20.py --n_layers` 1/3; mixed, bridged HELD-OUT; L=2 = base esistente). `--array=0-3%4` n20
+  L1/L3 economico (~2-3h); n40 lento (L3 ~14h). Checkpoint
   `runs/report5/depth_sweep/n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*`; auto-eval → `runs/report5/bridged_cliques_depth/`.
-  Predizione: knee che cresce con L (≈3^L) ⇒ è la capacità architetturale, uccide il prior-dati. Fallo solo se
-  vuoi l'aggancio causale forte budget↔3^L. (Non lanciato.)
+  Predizione: knee che cresce con L (≈3^L) ⇒ è la capacità architetturale, uccide il prior-dati.
 
-- 🔵 **Old-seed bridged eval** (GRATIS, eval-only). Script `scripts/eval_bridged_oldseeds.sbatch` sui checkpoint
+- 🟢 **Old-seed bridged eval** (GRATIS, eval-only). **FINITO al 2026-06-20 (6a sessione)** — `broldsd` 533484
+  COMPLETED. **DATI PRONTI.** Script `scripts/eval_bridged_oldseeds.sbatch` sui checkpoint
   ORIGINALI Report 4 (`runs/families_n{20,40}/...linear...`). Output: (a) `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}`
-  → **+4 seed nel pool §5.2** (rigenerare fig/tab §5.2 a 8 seed); (b) `runs/report5/bridged_cliques_xcheck/`
-  → consistenza retrain-vs-originali (1 frase in §5.2). Guadagno reale = +4 seed n20-mixed; il resto è verifica.
-  (Non lanciato.)
+  → **+4 seed nel pool §5.2** (rigenerare fig/tab §5.2 a 8 seed: basta ri-girare `plot_bridged_cliques.py`, che
+  auto-poola per seed); (b) `runs/report5/bridged_cliques_xcheck/` → consistenza retrain-vs-originali (1 frase in
+  §5.2). Guadagno reale = +4 seed n20-mixed; il resto è verifica.
 
 - ⏳ **(opzionale) Re-read del barbell a livello blocco** (dati Report 4, `runs/report4/`): la §3.2
   del `.tex` prevede di ri-aprire il barbell (ponte-path) a livello per-blocco per cercare la stessa
@@ -876,18 +893,22 @@ ancora pullati · ⏳ in attesa/opzionale):
   read-out?) + §5.6 (capacità dura o buco di dati?) + **`oracle_families_dfs` (DFS regge il rifiuto anche sul
   barbell naturale? errore 50)**. Scrivere §6 SOLO dopo §5.5, §5.6 E il ritorno di `oracle_families_dfs`.
 
-**Job HPC (aggiornato 2026-06-20, 5a sessione, `squeue`/`sacct`):**
-- COMPLETED e pullati/scritti: `533393` oraclefam (§5.4 ✅), `533476` brsim (§5.5 dati pronti 🟢),
+**Job HPC (aggiornato 2026-06-20, 6a sessione, `squeue`/`sacct`):**
+- ✅ COMPLETED, pullati e SCRITTI: `533393` oraclefam (§5.4), `533476` brsim (§5.5, scritto 6a sessione),
   `532846` bridged (re-run §5.2, ridondante), + i vecchi (clf, density, base20/40).
-- **RUNNING/PENDING — NON pullare/pushare/analizzare finché non finiscono TUTTI:** `trbr` train-on-bridged
-  §5.6 (533479_0-3 R, 533480_4-7 PD; servono tutti e 8 i seed prima di analizzare), `brdepth` depth-sweep
-  §5.6-bonus (533482/483 PD), `broldsd` +4 seed §5.2 (533484 PD), **`oraclefamdfs` capstone-con-DFS §5.4
-  (NUOVO, 6a sessione, errore 50; eval-only ~30 min, 16 ckpt → `runs/report5/oracle_families_dfs/`)**. NB
-  `trbr` 533478 era il launcher da 2s (non un risultato). Output attesi: `train_bridged_in_stream/`+
-  `bridged_cliques_trained/` (trbr), `depth_sweep/`+`bridged_cliques_depth/` (brdepth), `bridged_cliques/`(+4
-  seed)+`bridged_cliques_xcheck/` (broldsd), `oracle_families_dfs/` (oraclefamdfs).
-- Quando finiscono: su HPC `git add` SCOPED solo le dir del job FINITO (non `runs/report5` intero, o stagi
-  output parziali degli altri job ancora in corso) + commit + push; in locale `git pull` poi i plot.
+- 🟢 **COMPLETED — DA PULLARE e ANALIZZARE (uno per chat):** `trbr` train-on-bridged §5.6 (533479_0-3 +
+  533480_4-7, TUTTI e 8 i seed → `runs/report5/bridged_cliques_trained/` + `train_bridged_in_stream/`);
+  `oraclefamdfs` capstone-con-DFS §5.4 (533651 → `runs/report5/oracle_families_dfs/`); `broldsd` +4 seed §5.2
+  (533484 → `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}` + `bridged_cliques_xcheck/`).
+- 🟡 **ANCORA RUNNING — NON pullare la sua dir finché non finisce:** `brdepth` depth-sweep §5.6-bonus —
+  6/8 task COMPLETED, **533483_6 e 533483_7 R** (n40 lenti) → `runs/report5/depth_sweep/` +
+  `bridged_cliques_depth/` sono PARZIALI, non stagiarle.
+- **PUSH (su HPC) SCOPED solo le dir dei job FINITI** (NON `runs/report5` intero, o stagi i parziali di
+  `brdepth`): `git add runs/report5/bridged_cliques_trained runs/report5/train_bridged_in_stream
+  runs/report5/oracle_families_dfs runs/report5/bridged_cliques runs/report5/bridged_cliques_xcheck`, poi
+  `git status` per VERIFICARE che NIENTE di `depth_sweep/`/`bridged_cliques_depth/` sia staged, poi commit+push.
+  In locale `git pull` poi i plot/analisi. (Ordine: prima pusha §5.5 dal Mac, poi pull+push da HPC — errore
+  "divergent branches" se entrambi i lati hanno commit non sincronizzati.)
   Comando per stampare la tabella RUNS di un array sbatch SENZA lanciarlo: `bash scripts/<nome>.sbatch`.
 - Domanda aperta: density anche a **n40**?
 

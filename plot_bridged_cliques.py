@@ -201,10 +201,79 @@ def plot_combined_oracle_follow(groups, out):
     fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
 
 
+SIM_TAG_RE = re.compile(r"n(\d+)_(er|mixed)_sim_seed(\d+)")
+
+
+def load_all_sim(root):
+    """Same as load_all but for the SIMILARITY read-out checkpoints, whose tags
+    carry an extra '_sim' (n{N}_{set}_sim_seed{S})."""
+    groups = defaultdict(list)
+    for jf in sorted(Path(root).glob("*/bridged_cliques.json")):
+        m = SIM_TAG_RE.search(jf.parent.name)
+        if not m:
+            continue
+        n, fam, seed = int(m.group(1)), m.group(2), int(m.group(3))
+        groups[(n, fam)].append((seed, json.loads(jf.read_text())))
+    return groups
+
+
+def plot_similarity_vs_linear(lin_root, sim_root, out):
+    """Report figure base_bridged_similarity_knee.png (Section 5.5): the MIXED model's
+    cross-block accuracy vs clique size, LINEAR vs SIMILARITY read-out overlaid, one
+    panel per n. Report IV showed the similarity read-out doubles the DISTANCE reach
+    (3^L -> 2*3^L, a meet-in-the-middle of two neighbourhoods); here we ask whether it
+    also moves the NODE budget of Section 5.2. The matrix-power oracle (flat at 1) is
+    drawn as the distance-bounded reference. The knee moves right under similarity at
+    n40 (where the canvas has room), the same lever lifting both budgets."""
+    lin = load_all(lin_root)
+    sim = load_all_sim(sim_root)
+    ns = sorted({n for (n, _) in sim})
+    fig, axes = plt.subplots(1, len(ns), figsize=(6.0 * len(ns), 4.7), squeeze=False)
+    for ci, n in enumerate(ns):
+        ax = axes[0][ci]
+        lr = lin.get((n, "mixed")); sr = sim.get((n, "mixed"))
+        if not sr:
+            ax.set_visible(False); continue
+        cs = sr[0][1]["clique_size_sweep"]["clique_sizes"]
+        # similarity model
+        mean_s, _, As = _mean_curve(sr, ["clique_size_sweep", "model_cross_acc"])
+        for row in As:
+            ax.plot(cs, row, color="tab:purple", alpha=0.18, lw=1)
+        ax.plot(cs, mean_s, color="tab:purple", lw=2.6, marker="s", ms=4,
+                label=f"model, SIMILARITY read-out ({len(sr)} seeds)")
+        # linear model (same clique-size grid)
+        if lr:
+            cs_l = lr[0][1]["clique_size_sweep"]["clique_sizes"]
+            mean_l, _, Al = _mean_curve(lr, ["clique_size_sweep", "model_cross_acc"])
+            for row in Al:
+                ax.plot(cs_l, row, color="tab:blue", alpha=0.18, lw=1)
+            ax.plot(cs_l, mean_l, color="tab:blue", lw=2.6, marker="o", ms=4,
+                    label=f"model, LINEAR read-out ({len(lr)} seeds)")
+        mp, _, _ = _mean_curve(sr, ["clique_size_sweep", "oracle_mp_cross_acc"])
+        ax.plot(cs, mp, color="tab:green", lw=2, ls="--",
+                label="matrix-power oracle (distance-bounded)")
+        ax.axhline(0.5, color="k", lw=0.8, ls=":")
+        ax.set_ylim(-0.02, 1.02); ax.grid(alpha=0.3)
+        ax.set_xlabel("clique size c (each clique has c nodes)")
+        if ci == 0:
+            ax.set_ylabel("cross-block accuracy on bridged cliques")
+        ax.set_title(f"n={n}, mixed-trained", fontsize=10)
+        if ci == 0:
+            ax.legend(fontsize=8, loc="lower left")
+    fig.suptitle("Does the similarity read-out move the node budget? Cross-block collapse vs clique size,\n"
+                 "linear vs similarity read-out (mixed model). The knee moves right at n=40 "
+                 "(canvas has room); at n=20 (c<=10) it is capped", fontsize=11)
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
+    f = out / "base_bridged_similarity_knee.png"
+    fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="runs/report5/bridged_cliques")
     ap.add_argument("--output_dir", default="runs/report5/report5_figs")
+    ap.add_argument("--similarity_root", default="runs/report5/bridged_similarity",
+                    help="if present, also draw the linear-vs-similarity knee figure (Section 5.5)")
     args = ap.parse_args()
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
     groups = load_all(args.root)
@@ -216,6 +285,12 @@ def main():
     plot_oracle_follow(groups, out)
     plot_combined_cross_sweep(groups, out)      # report figure (3 oracles)
     plot_combined_oracle_follow(groups, out)     # report figure
+    if args.similarity_root and Path(args.similarity_root).exists():
+        sim_groups = load_all_sim(args.similarity_root)
+        if sim_groups:
+            print("similarity conditions:",
+                  {f"n{n}_{s}": len(v) for (n, s), v in sim_groups.items()})
+            plot_similarity_vs_linear(args.root, args.similarity_root, out)  # report figure 5.5
 
 
 if __name__ == "__main__":
