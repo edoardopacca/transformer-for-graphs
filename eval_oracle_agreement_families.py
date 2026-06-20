@@ -8,15 +8,19 @@ power. This script asks the same question on the *natural* families of Reports I
 (n20/n40, ER/mixed). It is eval-only (n auto-detected from the checkpoint).
 
 For each family we build a pool, run the model, and compare its connectivity matrix
-$\\hat R$ to two reference algorithms (dfs_oracle.py):
+$\\hat R$ to THREE reference algorithms (dfs_oracle.py):
   * matrix-power oracle  : 1[(A+I)^{3^L} > 0]   (distance-bounded; = true connectivity
                            within capacity)
-  * bounded-BFS(b) oracle: visit at most b nearest nodes per start (node-bounded)
+  * bounded-BFS(b) oracle: visit at most b nearest nodes per start (node-bounded, stalls)
+  * bounded-DFS(b) oracle: depth-first, at most b nodes per start (node-bounded, dives)
 sweeping the budget b. We report, per family and pooled:
-  - model_vs_mp / model_vs_truth pairwise agreement (off-diagonal),
-  - model_vs_bfs(b) agreement for each b,
-  - the MP-vs-BFS disagreement mass (how discriminating the family is at that b), and
-  - on the DISAGREEING pairs only, the fraction of the model that follows MP vs BFS.
+  - model_vs_mp / model_vs_bfs(b) / model_vs_dfs(b) / model_vs_truth agreement (off-diag),
+  - three disagreement masses (MP-vs-BFS, MP-vs-DFS, BFS-vs-DFS) -- how discriminating b is,
+  - on each pair of oracles' DISAGREEING pairs only, the fraction the model follows each.
+  The BFS-vs-DFS contrast is the direct separator (sec 5.2: DFS rises, BFS falls, so they
+  split exactly on the contested pairs -- we re-run the capstone WITH the DFS oracle to
+  check whether the model resembles a depth- or a breadth-first traversal on the natural
+  families, the barbell in particular, rather than provisionally dropping DFS).
 
 HONESTY NOTE built into the output: on sparse, low-degree families distance ~= nodes
 traversed, so MP and BFS(b~=9) barely disagree -- the comparison there is vacuous and
@@ -35,7 +39,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from dfs_oracle import matrix_power_connectivity, bounded_bfs_connectivity
+from dfs_oracle import (matrix_power_connectivity, bounded_bfs_connectivity,
+                        bounded_dfs_connectivity)
 from eval_families import build_family, load_model, predict
 
 NATURAL = ["er", "er_blocks", "clique_blocks", "path_union", "2chains", "2cliques",
@@ -62,13 +67,29 @@ def agreement_block(pred, ys, adj, n, L, budgets, off):
         "mp_vs_truth": float((mp[om] == ys[om]).mean()),
         "budgets": list(budgets),
         "model_vs_bfs": [],
+        "model_vs_dfs": [],
         "disagree_frac": [],            # MP vs BFS(b): how discriminating this b is
         "model_follows_mp_on_disagree": [],
         "model_follows_bfs_on_disagree": [],
+        # MP vs DFS(b): the same read but against the depth-first reference.
+        "disagree_frac_mp_dfs": [],
+        "model_follows_mp_on_mpdfs": [],
+        "model_follows_dfs_on_mpdfs": [],
+        # BFS(b) vs DFS(b): the cleanest separator -- on the bridged cliques DFS RISES
+        # (it dives across the bridge) while BFS FALLS (it stalls in the near clique),
+        # so the two visit-bounded oracles disagree exactly on the contested pairs.
+        # Which one the model follows there decides between a depth- and a breadth-
+        # first traversal directly.
+        "disagree_frac_bfs_dfs": [],
+        "model_follows_bfs_on_bfsdfs": [],
+        "model_follows_dfs_on_bfsdfs": [],
     }
     for b in budgets:
         bfs = np.stack([bounded_bfs_connectivity(adj[i], b) for i in range(G)])
+        dfs = np.stack([bounded_dfs_connectivity(adj[i], b) for i in range(G)])
         out["model_vs_bfs"].append(float((pred[om] == bfs[om]).mean()))
+        out["model_vs_dfs"].append(float((pred[om] == dfs[om]).mean()))
+        # MP vs BFS
         dis = om & (mp != bfs)
         out["disagree_frac"].append(float(dis.mean()))
         if dis.any():
@@ -77,6 +98,24 @@ def agreement_block(pred, ys, adj, n, L, budgets, off):
         else:
             out["model_follows_mp_on_disagree"].append(None)
             out["model_follows_bfs_on_disagree"].append(None)
+        # MP vs DFS
+        disd = om & (mp != dfs)
+        out["disagree_frac_mp_dfs"].append(float(disd.mean()))
+        if disd.any():
+            out["model_follows_mp_on_mpdfs"].append(float((pred[disd] == mp[disd]).mean()))
+            out["model_follows_dfs_on_mpdfs"].append(float((pred[disd] == dfs[disd]).mean()))
+        else:
+            out["model_follows_mp_on_mpdfs"].append(None)
+            out["model_follows_dfs_on_mpdfs"].append(None)
+        # BFS vs DFS (the visit-bounded separator)
+        disbd = om & (bfs != dfs)
+        out["disagree_frac_bfs_dfs"].append(float(disbd.mean()))
+        if disbd.any():
+            out["model_follows_bfs_on_bfsdfs"].append(float((pred[disbd] == bfs[disbd]).mean()))
+            out["model_follows_dfs_on_bfsdfs"].append(float((pred[disbd] == dfs[disbd]).mean()))
+        else:
+            out["model_follows_bfs_on_bfsdfs"].append(None)
+            out["model_follows_dfs_on_bfsdfs"].append(None)
     return out
 
 
@@ -113,8 +152,10 @@ def main():
         b9 = budgets.index(9) if 9 in budgets else len(budgets) // 2
         fm = res["families"][fam]
         print(f"  {fam:13s} vs_truth={fm['model_vs_truth']:.3f} vs_mp={fm['model_vs_mp']:.3f} "
-              f"| b=9: vs_bfs={fm['model_vs_bfs'][b9]:.3f} disagree={fm['disagree_frac'][b9]:.3f} "
-              f"follows_bfs={fm['model_follows_bfs_on_disagree'][b9]}")
+              f"| b=9: vs_bfs={fm['model_vs_bfs'][b9]:.3f} vs_dfs={fm['model_vs_dfs'][b9]:.3f} "
+              f"| BFSvsDFS disagree={fm['disagree_frac_bfs_dfs'][b9]:.3f} "
+              f"follows_bfs={fm['model_follows_bfs_on_bfsdfs'][b9]} "
+              f"follows_dfs={fm['model_follows_dfs_on_bfsdfs'][b9]}")
         pooled_pred.append(pred); pooled_ys.append(ys); pooled_adj.append(adj)
 
     res["pooled"] = agreement_block(np.concatenate(pooled_pred), np.concatenate(pooled_ys),

@@ -963,7 +963,8 @@ sees long distances). This matches the distance reading of the convergence resul
 %   the two oracles DISAGREE (json field disagree_frac) -- NOT overall agreement.
 % PREDICTION: if the model is visit-bounded, on the families where the two oracles split
 %   it should side with bounded-BFS, more so on DENSE families (clique_blocks, er_blocks)
-%   and at n40. ONLY matrix-power vs bounded-BFS here (DFS already rejected in 5.2).
+%   and at n40. MP-vs-BFS in the main figure; the DFS oracle is re-added (oracle_families_dfs/,
+%   job oraclefamdfs) to confirm DFS is rejected on the natural barbell too -- NOT assumed dead.
 % HONEST CAVEAT (groundwork runs/report5/report5_figs/oracle_disagreement.{png,json}):
 %   on SPARSE families at n20 the two oracles nearly coincide (disagree_frac ~0.01-0.10)
 %   -> the test is BLIND there (distance ~ nodes-traversed). Discriminating power is in
@@ -981,8 +982,20 @@ of the $12$ families, compare its matrix $\hat R$ to the two reference oracles o
 Section~\ref{sec:plan-oracle}: the matrix-power oracle $\mathbf 1[(A+I)^{9}>0]$ and the bounded-BFS
 oracle as its budget $b$ (nodes visited) is swept from $2$ to $n$. The quantity that matters is
 \emph{not} overall agreement but, restricted to the pairs where the two oracles \emph{disagree}
-(the \texttt{disagree\_frac} mass), the fraction the model matches each one. DFS is not re-run: it
-was rejected in Section~\ref{sec:res-base}, so this is matrix-power vs.\ bounded-BFS only.
+(the \texttt{disagree\_frac} mass), the fraction the model matches each one. The figures below
+report matrix-power vs.\ bounded-BFS, the contrast Section~\ref{sec:res-base} singled out on the
+bridged cliques. We do \emph{not}, however, treat the depth-first oracle as settled: its rejection
+in Section~\ref{sec:res-base} rests on the \emph{constructed} bridged cliques, and the capstone now
+shows (next paragraphs) that the only \emph{natural} family carrying that same bridge-behind-a-dense-
+clique structure --- and the only one where a visit-bounded signature appears at all --- is the
+barbell. It would be circular to declare DFS dead on the strength of the one construction and then
+not check the one natural graph that reproduces it. We have therefore re-run this same capstone with
+the bounded-\emph{DFS} oracle added back (\texttt{eval\_oracle\_agreement\_families.py} now scores all
+three oracles, including the BFS-vs-DFS contrast, into
+\texttt{runs/report5/oracle\_families\_dfs/}); at the time of writing that job is still in the queue,
+so the depth-first comparison on the natural families --- and the verdict on whether the barbell sides
+with the breadth- or the depth-first reference --- is reported in a later revision
+(Section~\ref{sec:verdict} will not be finalised before it lands).
 
 \paragraph{Reading the budget axis (and a trap to avoid).} The bounded-BFS budget is a property of
 the \emph{oracle}, not the model. At a \emph{large} budget $b\to n$ the BFS ball visits the whole
@@ -1027,7 +1040,12 @@ only on graphs built to expose it} (the bridged cliques of Section~\ref{sec:res-
 barbell). On the families one meets in the wild the distance/node collinearity masks it, and where
 the test retains any power the model is matrix-power. The capstone therefore does not extend the
 visit-bounded reading to all graphs; it shows \emph{where} that reading does and does not hold, and
-why --- which is the honest closing of the matrix-power-vs-traversal question before the verdict.
+why. One step is still open before the verdict: because the barbell is the single natural family that
+shows the bounded signature, \emph{which} bounded traversal it resembles --- the stalling breadth-first
+ball or the diving depth-first walk --- is exactly the discriminator we should not skip, and it is the
+object of the DFS-inclusive re-run noted above (\texttt{oracle\_families\_dfs}, queued). Until that
+lands we hold the depth-first oracle as rejected \emph{on the constructed bridged cliques only}, not
+yet on the natural graphs.
 
 \begin{figure}[H]
     \centering
@@ -1129,7 +1147,10 @@ moving with $L$ $=$ the $3^L$ capacity.]}
 \section{Verdict: what is the model computing?}
 \label{sec:verdict}
 % WRITE THIS LAST, after the capstone + Exp 3 (+ Exp 2). Synthesise:
-%  - DFS rejected (5.2: cross-block falls with c, DFS oracle rises; zero asymmetry).
+%  - DFS rejected ON THE BRIDGED CLIQUES (5.2: cross-block falls with c, DFS oracle rises;
+%    zero asymmetry). NATURAL-graph DFS check pending (oracle_families_dfs, sec 5.4) -- the
+%    barbell is the only natural family with the signature, so confirm BFS-not-DFS there
+%    before finalising. Do NOT write the verdict until oracle_families_dfs lands.
 %  - Not pure matrix power either (5.2: collapse at an absolute node budget ~6-7, while
 %    distance stays <=3).
 %  - Best reading: a parallel, fixed-depth neighbourhood aggregation (matrix-power family)
