@@ -3,6 +3,18 @@
 Documento di riferimento per chiunque (incluso Claude in una nuova chat) riprenda
 questo progetto. Leggere **tutto** prima di agire.
 
+> **⚠️ REGOLA DI LETTURA NON NEGOZIABILE (prima di toccare qualsiasi cosa).** Leggere
+> **attentamente OGNI riga** di questo `istruzioni.md` e **OGNI riga dei 5 report** dai
+> sorgenti `.tex` (`report/2..5/*.tex`; il report 1 è solo PDF). In particolare il
+> **Report 5** (`report/5/transformer_for_graphs_5.tex`) va **riletto 4 VOLTE riga per
+> riga** prima di scriverci dentro: è lungo, denso, e gli errori più gravi di questa sessione
+> sono nati dal **non aver letto tutto** (vedi errore 52: analizzato solo il barbell e lasciato
+> figura/tabella incomplete perché non si era ragionato su cosa l'esperimento misurava su
+> *tutte* le famiglie). Non saltare righe perché "sembrano un dettaglio": le caption, i `%`
+> commento negli stub, e le righe-errore qui sotto contengono i vincoli che fanno fallire chi
+> non li legge. Non rispondere/agire da una vista parziale di un file: se un `Read` è troncato,
+> continuare fino in fondo.
+
 ---
 
 ## 1. Obiettivo del progetto
@@ -59,14 +71,22 @@ peggiora con la clique-size. Quattro misure: (1) discriminazione delle label; (2
 within-A/within-B/cross (dove si ferma); (3) **sweep clique-size** (cross-acc piatto=matrix-power,
 in discesa=DFS); (4) **confronto con oracoli** (matrix-power + bounded-BFS/DFS in `dfs_oracle.py`).
 Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in ottimizzazione**
-(ER a varie p: denso aiuta o rallenta il training?). **STATO al 2026-06-20 (5a sessione): §5.1–5.4
-analizzate e SCRITTE (22 pp.); affinamento chiave = TRE oracoli MP/DFS/BFS (errore 45), esito = il
-modello è una traversata visit-bounded (MP fino a budget ~6–7 nodi, poi BFS-bloccato), DFS rifiutato.
-§5.5 (similarity-budget) ora ANALIZZATA e SCRITTA (6a sessione, 25 pp.): il read-out di similarità
-SPOSTA il budget-nodi (knee n40 mixed da c≈7 lineare a c≈11–12 similarity ≈ il doubling previsto =
-stesso meet-in-the-middle che raddoppia il reach in Report IV → budget-nodi e reach-distanza = stessa
-capacità in due geometrie); a n20 invariato (canvas c≤10 troppo piccolo); ER = confound over-connect.
-PROSSIMO = §5.6 (job trbr in corso) + §6 verdetto. Vedi §11 "Stato Report 5" per il dettaglio.**
+(ER a varie p: denso aiuta o rallenta il training?). **STATO al 2026-06-20 (7a sessione): §5.1–5.5 analizzate e SCRITTE (26 pp.), compila pulito da
+`report/5/`.** §5.1–5.4: affinamento chiave = TRE oracoli MP/DFS/BFS (errore 45), esito = il modello è
+una traversata visit-bounded (MP fino a budget ~6–7 nodi, poi BFS-bloccato), DFS rifiutato.
+§5.5 (similarity-budget, 6a sessione): il read-out di similarità SPOSTA il budget-nodi (knee n40 mixed da
+c≈7 lineare a c≈11–12 similarity ≈ il doubling previsto = stesso meet-in-the-middle che raddoppia il reach in
+Report IV → budget-nodi e reach-distanza = stessa capacità in due geometrie); a n20 invariato; ER = confound.
+**§5.4 chiusa del tutto (7a sessione): il capstone DFS-incluso (`oracle_families_dfs/`) è stato ANALIZZATO su
+TUTTE e 12 le famiglie (non solo barbell): pooled, ai budget discriminanti il modello segue matrix-power su
+SIA BFS (≤0.05) SIA DFS (≤0.06) → "non è una traversata bounded" vale per ENTRAMBE; il barbell n40 è l'unica
+firma bounded e lì il contrasto DIRETTO BFS-vs-DFS dà BFS 0.61–0.74, non DFS → DFS rifiutato anche sul grafo
+naturale. Figura `oracle_families_follow.png` ora a 3 curve (MP/BFS/DFS), `tab:capstone` con blocco follows-DFS.
+§5.2 portata a 8 seed n20-mixed (`broldsd`) + frase xcheck.** **STATO al 2026-06-20 (8a sessione): §5.6 (train-on-bridged
+`trbr`) + §6 VERDETTO SCRITTI → REPORT 5 COMPLETO (30 pp.). §5.6: il crollo cross-block di §5.2 era un BUCO DI DATI,
+non un muro duro (col bridged nello stream il modello propaga il ponte a OGNI clique-size, c≤20) → verdetto =
+matrix-powering distance-bounded, NON traversata bounded; DFS morto. PROSSIMO = solo il BONUS opzionale depth-sweep §5.7
+(`sec:res-depth`, stub pronto; dati 6/8, n40-L3 in coda). Vedi §11 "Stato Report 5" per il dettaglio.**
 
 ---
 
@@ -379,6 +399,37 @@ PROSSIMO = §5.6 (job trbr in corso) + §6 verdetto. Vedi §11 "Stato Report 5" 
     locali. Le figure §5.1–5.3 + i 3 plot-script erano rimasti **non committati da sessioni precedenti** →
     pushati questa sessione (commit "missing 5.1-5.3 figures"). Anche la revisione editoriale del **Report IV
     `.tex`** (retitoli sezioni + cross-ref) era non committata → pushata.
+52. **⚠️ QUANDO UN ESPERIMENTO MISURA UNA QUANTITÀ SU *TUTTE* LE FAMIGLIE/CONDIZIONI, ANALIZZALA SU TUTTE,
+    non solo sul caso "interessante".** Errore della 7a sessione: il capstone DFS-incluso
+    (`oracle_families_dfs/`) calcola model-vs-DFS su **tutte e 12 le famiglie naturali**, esattamente come
+    model-vs-BFS. Avevo letto i campi DFS **solo sul barbell** e lasciato Figura `oracle_families_follow.png`
+    + `tab:capstone` **con solo BFS** → la conclusione «il modello = matrix-power, non una traversata bounded»
+    parlava solo di BFS, e il lettore (giustamente) ha chiesto "dove sta il DFS sulle 12 famiglie?".
+    **Lettura giusta:** pooled sulle 12 famiglie, ai budget discriminanti il modello segue **matrix-power
+    su SIA BFS (≤0.05) SIA DFS (≤0.06)** (le due curve "follows-traversal" si sovrappongono ~0) → "non è una
+    traversata bounded" vale per ENTRAMBE. Fix fatto: `plot_oracle_families.py` ora legge
+    `oracle_families_dfs/` (verificato: riproduce le curve MP/BFS originali identiche) e disegna la **3a curva
+    arancione follows-DFS** (`model_follows_dfs_on_mpdfs`, massa `disagree_frac_mp_dfs`); `tab:capstone` ha il
+    blocco **follows-DFS** (b=6,10). REGOLA generale: prima di scrivere, chiediti "questo json/script copre più
+    casi di quelli che sto guardando?" e copri TUTTI quelli rilevanti, non solo l'highlight.
+53. **NON confondere DUE confronti diversi nel capstone (errore concettuale facile).** (a) **MP-vs-traversata**
+    (follows-MP vs follows-BFS *e* follows-DFS, ognuno sulle proprie coppie di disaccordo con MP): dice se il
+    modello = matrix-power o una traversata bounded — risposta = MP su tutte le 12 famiglie, contro ENTRAMBE le
+    traversate. (b) **BFS-vs-DFS DIRETTO** (`model_follows_{bfs,dfs}_on_bfsdfs`, sulle coppie dove BFS e DFS
+    *fra loro* disaccordano): serve SOLO a dire *quale* traversata quando una firma bounded esiste — cioè sul
+    **barbell n40** (→ BFS 0.61–0.74, non DFS). La `tab:capstone` di per sé **non separa** BFS da DFS sul barbell
+    (le colonne follows-BFS/follows-DFS sono entrambe "segue una traversata vs MP", e sul barbell sono simili);
+    quella separazione è il contrasto diretto (b), riportato nel TESTO. Tenere i due confronti distinti nelle
+    caption (l'ho scritto esplicito in `tab:capstone` e nel paragrafo "Setup" del §5.4). **Reliability (errore
+    46):** usare solo i budget dove `follows_x+follows_y≈1`; b=2,3 scartati (artefatto), pooled è pulito; nel
+    barbell n20 il separatore è **troppo debole** (≈0.54 mass-weighted, near toss-up) → dirlo, non forzare.
+54. **Il read-out del capstone è MASS-WEIGHTED o al budget di picco-massa, MAI un singolo budget arbitrario.**
+    Il `model_follows_*` va letto dove la **massa di disaccordo** è alta (la regione discriminante): a budget
+    grande la massa collassa e l'oracolo bounded ≈ verità → "segue BFS/DFS" lì è solo il **recupero oltre-muro**
+    (Report IV), NON una firma bounded (errore 47, la TRAPPOLA del budget grande). Le famiglie a clique singola
+    densa (2cliques, clique_blocks) hanno `disagree_frac_bfs_dfs=0` (BFS e DFS coincidono su una palla densa) →
+    **non separano** e non vanno lette come evidenza. Il barbell è l'unica famiglia naturale con massa BFS-DFS
+    utile, e solo a **n40** (a n20 il canvas è troppo piccolo).
 
 ---
 
@@ -694,10 +745,44 @@ fam40 4 seed, diffmap, near_miss_cut, ppclean).
 **Possibili follow-up (non urgenti):** depth-sweep a **n>64** per separare i read-out
 a L=3 (a n=64 sia linear che similarity saturano tutto il range, non si distinguono).
 
-**Stato Report 5 (aggiornato 2026-06-20, 5a sessione): §5.1, §5.2, §5.3 E §5.4 (CAPSTONE) analizzati e
-SCRITTI. Il `.tex` arriva a 22 pagine, compila pulito da `report/5/`.** Restano: §5.5 similarity-budget
-(dati GIÀ pullati in `runs/report5/bridged_similarity/` — PROSSIMO), §5.6 capacità-vs-prior-dati (job trbr
-ancora in corso, NON pronto), §6 verdetto (per ultimo). §5.1: setup due regimi + `tab:clf_early`/`tab:clf_early_n40`
+**>>> AGGIORNAMENTO 8a sessione (2026-06-20): §5.6 (train-on-bridged, il DECISIVO) ANALIZZATA e SCRITTA + §6
+VERDETTO SCRITTO → IL REPORT 5 È COMPLETO (30 pp., compila pulito da `report/5/`).** §5.6 (`sec:res-capacity`):
+i `runs/report5/bridged_cliques_trained/` (8 seed: n20×4 c≤10, n40×4 c≤20) mostrano che, col bridged+split AGGIUNTO
+allo stream mixed (`--include_bridged`, fam_tag `mixedbr`), il cross-block è **1.00 a OGNI clique-size** (piatto
+sull'oracolo matrix-power, knee SPARITO), disc=1.00, split-exact=1.00 (NON over-connette), asimmetria≈0 — vs il
+baseline held-out §5.2 che crolla a 0 oltre c≈6–7. **ESITO: il "node budget" di §5.2 era un BUCO DI DATI, non un
+muro di capacità duro** (il ponte è SEMPRE a distanza ≤3 = dentro capacità 3^L=9 a ogni c → l'architettura L=2 ne è
+capace, mancava solo nei dati). Caveat onesto scritto: NON sposta il muro-distanza 3^L (skill within-capacity); il
+depth-sweep `brdepth` (L1/L3, ancora in coda) è il test del knee∝3^L. Connesso a §5.5 (il read-out muove il budget):
+budget malleabile su 2 leve ⇒ artefatto soft, non secondo limite ⇒ inclina verso matrix-power. Figura
+`base_bridged_trained_knee.png` (held-out vs trained, 2 pannelli n20/n40) da `plot_bridged_cliques.py`
+ESTESO (`load_all_trained` + `plot_trained_vs_heldout`, regex `n{N}_seed{S}`, `--trained_root`). §6 (`sec:verdict`):
+sintesi — DFS rifiutato 2 volte (§5.2 costruiti + §5.4 barbell naturale); non matrix-power LETTERALE (budget ~6–7 a
+distanza ≤3) MA il budget è rimovibile (§5.5 read-out + §5.6 dati) = euristica data-prior, non capacità; density §5.3
+(denso=più veloce) e capstone §5.4 (MP dove il test ha potere) confermano ⇒ **verdetto = matrix-powering
+distance-bounded, NON traversata bounded**; caveat: evidenza comportamentale (serve probe meccanicistico) + §5.6 testa
+solo within-capacity. **Consegnati i comandi git all'utente** (Claude non committa): `report/5/transformer_for_graphs_5.{tex,pdf}`,
+`plot_bridged_cliques.py`, `runs/report5/report5_figs/base_bridged_trained_knee.png` (+ i png rigenerati identici). <<<**
+
+**>>> AGGIORNAMENTO 7a sessione (2026-06-20): §5.4 chiusa COMPLETAMENTE col DFS-su-tutte-le-famiglie + §5.2 a
+8 seed. Il `.tex` è a 26 pp., compila pulito. RESTA SOLO §5.6 (dati pronti) + §6 verdetto (ora SBLOCCATO).** Cosa
+fatto: (1) **§5.4 — capstone DFS-incluso ANALIZZATO su TUTTE e 12 le famiglie** (non solo barbell, errore 52):
+pooled, ai budget discriminanti il modello segue matrix-power su SIA BFS (≤0.05) SIA DFS (≤0.06) → "non è una
+traversata bounded" vale per ENTRAMBE; il **barbell n40** è l'unica firma bounded naturale e il contrasto DIRETTO
+BFS-vs-DFS lì dà **BFS 0.61–0.74, non DFS** (n20 troppo debole, ≈0.54; 2cliques/clique_blocks danno 0 disaccordo
+BFS-DFS). `plot_oracle_families.py` ora legge `oracle_families_dfs/` e disegna la **3a curva follows-DFS**
+(figura `oracle_families_follow.png` a 3 curve MP/BFS/DFS); `tab:capstone` ha il blocco **follows-DFS**; testo+caption
+§5.4 riscritti per coprire entrambe le traversate (errori 52–54). (2) **§5.2 a 8 seed n20-mixed** (`broldsd`,
+seeds 5000–8000 poolati ri-girando `plot_bridged_cliques.py`): numeri invariati (knee c≈6–7, cross≈0; c=6 0.95→0.94),
+tabelle/caption aggiornate a 8 seed, + 1 frase **xcheck** (retrain `bridged_cliques_xcheck/` riproduce gli originali
+a 2 decimali). §5.5 linear-n20 etichettato a 8 seed per coerenza con la figura rigenerata. **Consegnati i comandi
+git all'utente** (Claude non committa): `plot_oracle_families.py`, `plot_bridged_cliques.py`,
+`report/5/transformer_for_graphs_5.{tex,pdf}`, figure in `runs/report5/report5_figs/`. <<<**
+
+**Stato Report 5 (aggiornato 2026-06-20, 5a sessione, vedi 7a sopra per il delta): §5.1, §5.2, §5.3 E §5.4 (CAPSTONE)
+analizzati e SCRITTI. Il `.tex` arriva a 22 pagine (ORA 26), compila pulito da `report/5/`.** Restano: §5.5 similarity-budget
+(SCRITTA in 6a sessione), §5.6 capacità-vs-prior-dati (dati ORA PRONTI in `runs/report5/bridged_cliques_trained/`,
+era "job trbr in corso"), §6 verdetto (per ultimo, ora sbloccato lato DFS). §5.1: setup due regimi + `tab:clf_early`/`tab:clf_early_n40`
 + `fig:clf`/`fig:clf_n40` + `fig:clf_loss` + caveat (errori 39–42). §5.2: per-blocco `tab:base_blocks`, sweep
 `tab:base_sweep`+`fig:base_sweep`, oracle-follow `fig:base_oracle`, confound ER `tab:base_er`. §5.3:
 `tab:dens_conv`/`tab:dens_ood` + `fig:dens_conv`/`fig:dens_ood`. §5.4 (NUOVA, errori 46–49): `fig:capstone`
@@ -737,13 +822,20 @@ power, bounded DFS, and bounded BFS"; tolto il paragrafo "A subtlety... recorded
 separa DFS da BFS (entrambi visit-bounded → "denso rallenta"): separa MP dalla famiglia visit-bounded.
 Figure base rifatte a 3 oracoli (`plot_bridged_cliques.py` → `plot_combined_cross_sweep`/`_oracle_follow`).
 
-**>>> WORKFLOW PER LE PROSSIME CHAT: UN esperimento per chat. Leggere PRIMA `istruzioni.md` +
-`report/5/transformer_for_graphs_5.tex`, poi analizzare l'esperimento assegnato dai json già in
-`runs/report5/`, scrivere la sotto-sezione nei Results (caption complete — regola 21), e CONSEGNARE
-i comandi git all'utente (Claude non committa). Non rifare i job: i dati ci sono già. <<<**
+**>>> WORKFLOW PER LE PROSSIME CHAT: UN esperimento per chat. Leggere PRIMA, RIGA PER RIGA, TUTTO
+`istruzioni.md` + TUTTI i 5 report dai `.tex` — e **rileggere il Report 5 (`report/5/transformer_for_graphs_5.tex`)
+4 VOLTE riga per riga** (vedi regola di lettura in cima al file): la maggior parte degli errori nasce dal non aver
+letto tutto. POI analizzare l'esperimento assegnato dai json già in `runs/report5/`, **coprendo TUTTE le
+famiglie/condizioni che l'esperimento misura, non solo il caso interessante** (errore 52), scrivere la sotto-sezione
+nei Results (caption complete — regola 21; tabella+figura per ogni claim — regola 20), e CONSEGNARE i comandi git
+all'utente (Claude non committa). Non rifare i job: i dati ci sono già. <<<**
 
-**>>> PIANO PER CHIUDERE IL REPORT (4 esperimenti rimasti, UNO per chat, riempire lo stub `.tex`
-corrispondente). Ordine consigliato per importanza/costo:**
+**>>> PIANO PER CHIUDERE IL REPORT — AGGIORNATO 8a sessione: §5.4/§5.5/§5.6/§6 e old-seed sono TUTTI FATTI E
+SCRITTI. IL REPORT 5 È COMPLETO (30 pp.). RESTA SOLO un BONUS OPZIONALE: il depth-sweep §5.7 (`sec:res-depth`),
+stub già pronto nel `.tex` con scaffolding completo nei `%` → vedi la voce "Exp 1 — depth-sweep" nella mappa sotto
+(dati 6/8 pronti, n40-L3 in coda). La cronologia 1–4 qui sotto è storica. NB: se il depth-sweep non viene mai scritto,
+il report resta comunque completo (il muro 3^L è già stabilito nei Report III–IV; §5.7 lo aggancia causalmente al
+node-budget, ma non è un gate).**
 
 1. **§5.4 CAPSTONE oracle-vs-famiglie** (`sec:res-capstone`). ✅ **FATTO e SCRITTO** (5a sessione, vedi
    errori 46–49). Job `533393` finito, json in `runs/report5/oracle_families/` (16). Figura ufficiale
@@ -772,9 +864,12 @@ corrispondente). Ordine consigliato per importanza/costo:**
    +4 seed n20-mixed (5000-8000) nel pool `runs/report5/bridged_cliques/` (rigenera la figura/tabella §5.2 a
    8 seed) + `runs/report5/bridged_cliques_xcheck/` (consistenza retrain vs originali, 1 frase in §5.2).
 
-4. **§6 VERDETTO** (`sec:verdict`). Da scrivere PER ULTIMO, dopo 1–3. Sintesi: non-DFS, non-MP-puro,
-   visit-bounded (MP fino a budget ~6-7 nodi, poi BFS-bloccato); densità (§5.3) punta verso MP; future work =
-   probe meccanicistico + densità-clique a node-count fisso. Lo stub nel `.tex` ha già la scaletta nei `%`. <<<**
+4. **§6 VERDETTO** (`sec:verdict`). Da scrivere PER ULTIMO, dopo §5.6. **ORA SBLOCCATO lato DFS** (il capstone
+   DFS-incluso è chiuso, 7a sessione: DFS rifiutato anche sul barbell naturale n40) → **l'UNICO gate residuo è
+   §5.6** (train-on-bridged: capacità dura o buco di dati?). Sintesi: non-DFS, non-MP-puro, visit-bounded (MP fino
+   a budget ~6-7 nodi, poi BFS-bloccato); densità (§5.3) punta verso MP; future work = probe meccanicistico +
+   densità-clique a node-count fisso. Lo stub `sec:verdict` nel `.tex` ha già la scaletta aggiornata nei `%`
+   (DFS landed, manca solo §5.6). <<<**
 
 **Mappa per-esperimento** (✅ fatto&scritto · 🟢 dati pronti, DA analizzare · 🔵 job HPC in coda, dati NON
 ancora pullati · ⏳ in attesa/opzionale):
@@ -826,11 +921,16 @@ ancora pullati · ⏳ in attesa/opzionale):
   distanza≈nodi); UNICA eccezione il **barbell** (held-out, ponte+cricche dense → inclina BFS, n40 0.29→0.49).
   ER = confuso. Conclusione: il capstone **localizza** la firma (solo su grafi costruiti), non la estende.
   **ADDENDUM 6a sessione (errore 50): DFS NON dato per morto** → capstone RIESEGUITO con anche l'oracolo DFS
-  (`scripts/oracle_agreement_families_dfs.sbatch` → `runs/report5/oracle_families_dfs/`), per vedere se sul
-  **barbell** il modello segue BFS (si blocca) o DFS (si tuffa). **Job `oraclefamdfs` (533651) FINITO al
-  2026-06-20 (6a sessione) — DATI PRONTI DA ANALIZZARE.** Quando pullato: leggere
-  `model_follows_{bfs,dfs}_on_bfsdfs` sul barbell/famiglie dense → poi fold di 1 frase in §5.4 (aggiornare anche
-  la frase "still in the queue" del `.tex`) e SBLOCCO di §6.
+  (`scripts/oracle_agreement_families_dfs.sbatch` → `runs/report5/oracle_families_dfs/`).
+  **✅ ANALIZZATO e SCRITTO (7a sessione, errori 52–54).** Il DFS è stato letto su **TUTTE e 12 le famiglie**, non
+  solo barbell (errore 52): pooled, ai budget discriminanti il modello segue **matrix-power su SIA BFS (≤0.05) SIA
+  DFS (≤0.06)** → "non è bounded" vale per entrambe le traversate; al budget grande entrambe salgono = recupero
+  oltre-muro (errore 47/54). Il contrasto DIRETTO `model_follows_{bfs,dfs}_on_bfsdfs` (sulle coppie dove BFS e DFS
+  fra loro disaccordano) separa le due **solo sul barbell n40** (→ **BFS 0.61–0.74, non DFS**; n20 ≈0.54 troppo
+  debole; 2cliques/clique_blocks = 0 disaccordo BFS-DFS). `plot_oracle_families.py` ora legge `oracle_families_dfs/`
+  (verificato identico a `oracle_families/` su MP/BFS) e disegna la **3a curva follows-DFS** →
+  `oracle_families_follow.png` a 3 curve; `tab:capstone` esteso col blocco follows-DFS; testo/caption §5.4 riscritti
+  (la frase "still in the queue" è stata SOSTITUITA col risultato). **§6 ora sbloccato lato DFS.**
 
 - ✅ **Exp 3 — similarity-budget** (§5.5, `sec:res-sim`). ANALIZZATO e SCRITTO (6a sessione). Job `533476`
   (brsim), **24 json** in `runs/report5/bridged_similarity/<tag>/` (tag `n{20,40}_{mixed,er}_sim_seed{S}`: n20
@@ -851,28 +951,40 @@ ancora pullati · ⏳ in attesa/opzionale):
   figura `fig:simknee`. Compila pulito (25 pp.).
 
 - 🟢 **Exp 2 — train-on-bridged** (§5.6, stub `sec:res-capacity`; il test DECISIVO capacità-vs-prior-dati).
-  **TUTTI gli 8 seed FINITI al 2026-06-20 (6a sessione)** — `trbr` 533479_0-3 + 533480_4-7 COMPLETED. **DATI PRONTI
-  DA ANALIZZARE** (appena pullati). Output eval in `runs/report5/bridged_cliques_trained/n{N}_seed{S}`.
+  **>>> QUESTO È IL PROSSIMO ESPERIMENTO DA ANALIZZARE (la chat che riceve questo handoff fa SOLO questo). <<<**
+  **TUTTI gli 8 seed FINITI** — `trbr` 533479_0-3 + 533480_4-7 COMPLETED. **DATI PRONTI** (già in repo).
+  Output eval in `runs/report5/bridged_cliques_trained/n{N}_seed{S}`.
   Script `scripts/train_bridged_in_stream.sbatch` (training ~12h/job; `--array=0-3%4` n40 prima, `4-7%4` n20).
   Usa `train_families_n20.py --include_bridged` (famiglie `bridged`+`split` random-c nello stream; fam_tag
   `mixedbr`). Checkpoint `runs/report5/train_bridged_in_stream/n{N}_mixedbr_roberta_linear_lam0_seed*`; auto-eval
   bridged → `runs/report5/bridged_cliques_trained/n{N}_seed{S}`. Lettura: cross-block crolla LO STESSO con c ⇒
   capacità dura a L=2; impara a propagare a ogni c ⇒ era buco di dati (rivedere il verdetto). (Non lanciato.)
 
-- 🟡 **Exp 1 — depth-sweep su bridged** (BONUS elegante, va in §5.6 con Exp 2). **6/8 task FINITI al
-  2026-06-20 (6a sessione); 2 ANCORA RUNNING** (`brdepth` 533483_6, 533483_7 su gnode05/06) → **NON pullare/
-  analizzare finché non finiscono tutti** (sono i task n40 lenti). Script `scripts/train_bridged_depth_sweep.sbatch`
-  (`train_families_n20.py --n_layers` 1/3; mixed, bridged HELD-OUT; L=2 = base esistente). `--array=0-3%4` n20
-  L1/L3 economico (~2-3h); n40 lento (L3 ~14h). Checkpoint
-  `runs/report5/depth_sweep/n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*`; auto-eval → `runs/report5/bridged_cliques_depth/`.
-  Predizione: knee che cresce con L (≈3^L) ⇒ è la capacità architetturale, uccide il prior-dati.
+- 🟢 **Exp 1 — depth-sweep su bridged** (BONUS elegante; ORA È L'UNICO ESPERIMENTO RIMASTO → stub `sec:res-depth`
+  §5.7 PRONTO nel `.tex` con tutto lo scaffolding nei `%`). **DATI PARZIALI al 2026-06-20 (8a sessione): 6/8 task
+  COMPLETED, 2 ANCORA RUNNING** (`brdepth` 533483_6, 533483_7 = n40 L3 su gnode05/06). Mapping array (N P L seed):
+  0:n20-L1-s1000, 1:n20-L1-s2000, 2:n20-L3-s1000, 3:n20-L3-s2000, 4:n40-L1-s1000, 5:n40-L1-s2000, 6:n40-L3-s1000,
+  7:n40-L3-s2000 → **FINITI: tutto n20 (L1+L3) e n40-L1; MANCA solo n40-L3 (task 6,7)**. Script
+  `scripts/train_bridged_depth_sweep.sbatch` (`train_families_n20.py --n_layers` 1/3; mixed, bridged HELD-OUT;
+  **L=2 = base esistente, riusa `runs/report5/bridged_cliques/n{N}_mixed_seed*` di §5.2**). Checkpoint
+  `runs/report5/depth_sweep/n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*`; auto-eval → `runs/report5/bridged_cliques_depth/n{N}_L{L}_seed{S}/`.
+  **PROSSIMA CHAT — riempire `sec:res-depth`:** (1) aspettare task 6/7 (o scrivere n20+n40-L1 e aggiungere n40-L3
+  quando atterra; contare i json, errore 43); (2) estendere `plot_bridged_cliques.py` con `load_all_depth` (regex
+  `n(\d+)_L(\d+)_seed(\d+)` → chiave `(n,L)`) + `plot_depth_knee` che sovrappone model-cross-acc-vs-clique-size per
+  L=1,2,3 per n (L=2 da `bridged_cliques/`), con oracolo MP → figura `base_bridged_depth_knee.png`; specchiare il
+  wiring `plot_trained_vs_heldout`/`--trained_root`. Predizione: **knee cresce con L (≈3^L) ⇒ il node-budget di §5.2 È
+  la capacità matrix-power in nodi (= muro distanza-9, due geometrie); knee fermo ~6–7 a ogni L ⇒ NON è 3^L** (sorpresa
+  da riportare onestamente). **CONFOUND da NON mancare:** a L=1 la capacità MP è esattamente 3 hop e il cross è a
+  distanza ≤3 → l'L=1 può perdere il cross per la DISTANZA, non per il budget; leggere L=2-vs-L=3 come confronto pulito.
+  Poi piegare 1 frase in §5.6 ("what it does not settle") e nel §6 verdetto.
 
-- 🟢 **Old-seed bridged eval** (GRATIS, eval-only). **FINITO al 2026-06-20 (6a sessione)** — `broldsd` 533484
-  COMPLETED. **DATI PRONTI.** Script `scripts/eval_bridged_oldseeds.sbatch` sui checkpoint
-  ORIGINALI Report 4 (`runs/families_n{20,40}/...linear...`). Output: (a) `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}`
-  → **+4 seed nel pool §5.2** (rigenerare fig/tab §5.2 a 8 seed: basta ri-girare `plot_bridged_cliques.py`, che
-  auto-poola per seed); (b) `runs/report5/bridged_cliques_xcheck/` → consistenza retrain-vs-originali (1 frase in
-  §5.2). Guadagno reale = +4 seed n20-mixed; il resto è verifica.
+- ✅ **Old-seed bridged eval** (GRATIS, eval-only). **ANALIZZATO e FOLDATO in §5.2 (7a sessione).** `broldsd`
+  533484. (a) `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}` → **+4 seed nel pool §5.2** (ri-girato
+  `plot_bridged_cliques.py`, auto-poola per seed): numeri invariati (knee c≈6–7, cross≈0; c=6 0.95→0.94), tabelle
+  `tab:base_blocks`/`tab:base_sweep` + caption a **8 seed**, oracle-follow 99.6%→99.4%. (b)
+  `runs/report5/bridged_cliques_xcheck/` → retrain riproduce gli originali a **2 decimali** ogni seed → **1 frase
+  xcheck** aggiunta al §5.2 setup. NB: la figura §5.5 ora mostra linear-n20 a 8 seed → etichette `tab:sim_sweep`
+  linear-n20 e caption `fig:simknee` aggiornate (numeri linear invariati).
 
 - ⏳ **(opzionale) Re-read del barbell a livello blocco** (dati Report 4, `runs/report4/`): la §3.2
   del `.tex` prevede di ri-aprire il barbell (ponte-path) a livello per-blocco per cercare la stessa
@@ -881,28 +993,27 @@ ancora pullati · ⏳ in attesa/opzionale):
 - ⏳ **Base-model training** (`base_n20/`, `base_n40/`): servono soprattutto come pesi per la bridged
   eval; di per sé poco interessanti (convergenza in-dist). Bassa priorità.
 
-- ⏳ **Verdetto finale matrix-power vs bounded-BFS** (§6, stub `sec:verdict`; DFS già scartato in §5.2):
-  sintesi conclusiva, da scrivere PER ULTIMO, DOPO capstone (§5.4) + similarity (§5.5) + capacità-vs-prior
-  (§5.6). Le fila già tirate: classificatore (capacità piatta a 1.0, costo solo in
+- ⏳ **Verdetto finale matrix-power vs bounded-BFS** (§6, stub `sec:verdict`; DFS scartato in §5.2 E §5.4 —
+  costruiti E barbell naturale): sintesi conclusiva, da scrivere PER ULTIMO, DOPO §5.6 (gli altri sono FATTI). Le fila già tirate: classificatore (capacità piatta a 1.0, costo solo in
   ottimizzazione → smonta la forma forte della traversata) + base-model bridged (cross crolla con
   clique-size a budget assoluto ~6–7 nodi → traversata visit-bounded NON matrix-powering; DFS rifiutato
   **sui bridged COSTRUITI**, modello = MP-fino-a-budget-poi-BFS) + density (denso = più veloce in training →
   direzione MP, ma ER conflà densità e distanza, non isola l'asse visit-bounded) + **capstone (§5.4, FATTO): la
   firma BFS NON regge su tutte le famiglie naturali — il modello è MP dove il test ha potere, BFS solo sui grafi
-  costruiti (barbell). Localizza, non estende.** Mancano per il verdetto: §5.5 (il budget raddoppia col
-  read-out?) + §5.6 (capacità dura o buco di dati?) + **`oracle_families_dfs` (DFS regge il rifiuto anche sul
-  barbell naturale? errore 50)**. Scrivere §6 SOLO dopo §5.5, §5.6 E il ritorno di `oracle_families_dfs`.
+  costruiti (barbell). Localizza, non estende.** + **capstone-DFS (§5.4, 7a sessione, FATTO): su tutte le 12
+  famiglie il modello segue MP su SIA BFS SIA DFS (≤0.06); DFS rifiutato anche sul barbell naturale n40 (BFS
+  0.61–0.74) → DFS morto sia sui costruiti sia sul naturale.** + §5.5 (FATTO: il budget-nodi raddoppia col
+  read-out = stessa capacità del reach-distanza). **Manca SOLO §5.6** (capacità dura o buco di dati?). Scrivere
+  §6 SOLO dopo §5.6.
 
-**Job HPC (aggiornato 2026-06-20, 6a sessione, `squeue`/`sacct`):**
-- ✅ COMPLETED, pullati e SCRITTI: `533393` oraclefam (§5.4), `533476` brsim (§5.5, scritto 6a sessione),
-  `532846` bridged (re-run §5.2, ridondante), + i vecchi (clf, density, base20/40).
-- 🟢 **COMPLETED — DA PULLARE e ANALIZZARE (uno per chat):** `trbr` train-on-bridged §5.6 (533479_0-3 +
-  533480_4-7, TUTTI e 8 i seed → `runs/report5/bridged_cliques_trained/` + `train_bridged_in_stream/`);
-  `oraclefamdfs` capstone-con-DFS §5.4 (533651 → `runs/report5/oracle_families_dfs/`); `broldsd` +4 seed §5.2
-  (533484 → `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}` + `bridged_cliques_xcheck/`).
-- 🟡 **ANCORA RUNNING — NON pullare la sua dir finché non finisce:** `brdepth` depth-sweep §5.6-bonus —
-  6/8 task COMPLETED, **533483_6 e 533483_7 R** (n40 lenti) → `runs/report5/depth_sweep/` +
-  `bridged_cliques_depth/` sono PARZIALI, non stagiarle.
+**Job HPC (aggiornato 2026-06-20, 8a sessione, `squeue`/`sacct`):**
+- ✅ COMPLETED, pullati e SCRITTI: `533393` oraclefam (§5.4), `533476` brsim (§5.5), `533651` oraclefamdfs
+  (§5.4 DFS), `533484` broldsd (§5.2 8-seed), `532846` bridged (re-run §5.2, ridondante), **`533479_0-3` +
+  `533480_4-7` trbr (§5.6 train-on-bridged, SCRITTO 8a sessione)**, + i vecchi (clf, density, base20/40).
+- 🟢 **COMPLETED — il PROSSIMO da analizzare (riempie `sec:res-depth` §5.7):** `brdepth` depth-sweep —
+  task 0-5 COMPLETED (tutto n20 L1/L3 + n40-L1) → `runs/report5/depth_sweep/` + `bridged_cliques_depth/`.
+- 🟡 **ANCORA RUNNING — non stagiare la dir finché non finisce:** `brdepth` `533483_6` e `533483_7` (n40 L3,
+  gnode05/06) → la parte n40-L3 di `bridged_cliques_depth/` è PARZIALE. Quando finiscono: pullare e completare §5.7.
 - **PUSH (su HPC) SCOPED solo le dir dei job FINITI** (NON `runs/report5` intero, o stagi i parziali di
   `brdepth`): `git add runs/report5/bridged_cliques_trained runs/report5/train_bridged_in_stream
   runs/report5/oracle_families_dfs runs/report5/bridged_cliques runs/report5/bridged_cliques_xcheck`, poi

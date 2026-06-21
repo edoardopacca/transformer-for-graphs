@@ -312,10 +312,10 @@ density-in-optimisation sweep (Section~\ref{sec:plan-density}), in
 Section~\ref{sec:res-density}. We then add two more: the oracle agreement across the natural
 families --- the capstone that asks whether the bridged-clique signature survives on everyday graphs
 (Section~\ref{sec:res-capstone}); and the bridged probe re-run under the similarity read-out, asking
-whether the node budget scales with the read-out (Section~\ref{sec:res-sim}). One experiment remains
-a stub: the capacity-vs-data-prior pair --- training with bridged cliques in the stream, plus a depth
-sweep (Section~\ref{sec:res-capacity}), still running. The final matrix-powering-vs-DFS verdict
-(Section~\ref{sec:verdict}) is written once it lands.
+whether the node budget scales with the read-out (Section~\ref{sec:res-sim}). We close with the
+decisive capacity-vs-data-prior test --- retraining with bridged cliques in the stream and asking
+whether the cross-block collapse survives (Section~\ref{sec:res-capacity}) --- and then the final
+matrix-powering verdict (Section~\ref{sec:verdict}).
 
 \subsection{The dedicated classifier: the bridge is detectable at every clique size}
 \label{sec:res-clf}
@@ -519,7 +519,11 @@ the base connectivity model of Reports~III--IV --- the RoBERTa-faithful transfor
 \emph{linear} read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), the model that emits the
 full $n\times n$ connectivity matrix $\hat R$ --- and feed it the bridged and split cliques
 \emph{without any further training} (eval-only). We use both the ER-trained and the mixed-trained
-checkpoints, at $n=20$ and $n=40$, four seeds each ($16$ checkpoints). The \textbf{mixed} model is
+checkpoints, at $n=20$ and $n=40$, four seeds each --- eight for the $n=20$ mixed model
+($20$ checkpoints in all). (As a consistency check, independently retrained copies of the four
+$n=20$/$n=40$ base checkpoints reproduce every block accuracy below to two decimals on each seed
+--- \texttt{bridged\_cliques\_xcheck/}, so the result is not an artefact of one particular set of
+weights.) The \textbf{mixed} model is
 the clean test: dense cliques (2cliques, clique-blocks) are in its training stream, so it is
 \emph{not} out-of-distribution on the cliques themselves; the \textbf{ER} model has only seen
 sparse graphs, so on dense cliques it is in the degree-heuristic OOD regime of Report~IV
@@ -608,8 +612,8 @@ which is just the within-block pairs; it disagrees with the truth on essentially
 block. The visit-bounded BFS, on the other hand, the model matches almost perfectly: at $n=20$,
 with the budget set to one clique ($b=c=10$), the model agrees with the BFS oracle on $99\%$ of all
 pairs, and on the contested cross entries --- the pairs where the two oracles split --- it sides
-with the BFS oracle $\approx 99.6\%$ of the time and with matrix powering $0.4\%$
-(Figure~\ref{fig:base_oracle}; identical across the four seeds, and the same direction at $n=40$,
+with the BFS oracle $\approx 99.4\%$ of the time and with matrix powering $0.6\%$
+(Figure~\ref{fig:base_oracle}; identical across the eight seeds, and the same direction at $n=40$,
 where it reaches $\sim\!79\%$ BFS on the contested entries at $b=10$ and keeps climbing toward the
 clique size). One honest refinement, visible in the clique-size sweep
 (Figure~\ref{fig:base_sweep}) rather than in this single-$c$ scan: at \emph{small} cliques the
@@ -665,9 +669,13 @@ $n$ & seed & within-A & within-B & cross & exact-match \\
 \midrule
 \multicolumn{6}{l}{\emph{$n=20$, clique size $c=10$ (fills the canvas)}} \\
 20 & 1000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
-20 & 2000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 2000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
 20 & 3000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
 20 & 4000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 5000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 6000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 7000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
+20 & 8000 & 1.00 & 1.00 & \textbf{0.01} & 1.00 \\
 \multicolumn{6}{l}{\emph{$n=40$, clique size $c=20$ (fills the canvas)}} \\
 40 & 1000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
 40 & 2000 & 1.00 & 1.00 & \textbf{0.00} & 1.00 \\
@@ -678,7 +686,7 @@ $n$ & seed & within-A & within-B & cross & exact-match \\
 \caption{\emph{Model:} the base connectivity transformer --- RoBERTa-faithful trunk, \emph{linear}
 read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), emitting the full $n\times n$ matrix
 $\hat R$ --- \textbf{mixed}-trained (the $9$-family online stream of Reports~III--IV, which includes
-dense cliques), four seeds, $n=20$ and $n=40$; \emph{eval-only}, no further training.
+dense cliques), eight seeds at $n=20$ and four at $n=40$; \emph{eval-only}, no further training.
 \emph{Test set:} bridged cliques and split cliques at the full clique size ($2{,}000$ graphs each).
 \emph{Metric:} per-block pair accuracy (within each clique, and the cross block A$\leftrightarrow$B)
 on the bridged graph, and exact-match on the split graph; per seed. The within-clique blocks and
@@ -696,7 +704,8 @@ model is omitted here (within-clique accuracy $<1$, confounded; see text).}
     $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only; \emph{top row}
     \textbf{mixed}-trained (clean: dense cliques are in training), \emph{bottom row} \textbf{ER}-trained
     (confounded: degree-heuristic OOD on dense cliques); $n=20$ (left), $n=40$ (right); four seeds
-    each (thin lines $=$ seeds, thick $=$ mean). \emph{Test set:} bridged cliques, $\ge 400$ graphs
+    each, eight for the $n=20$ mixed panel (thin lines $=$ seeds, thick $=$ mean). \emph{Test set:}
+    bridged cliques, $\ge 400$ graphs
     per clique size. \emph{Metric:} cross-block pair accuracy (does $\hat R$ connect the two
     cliques?) vs clique size $c$, against all three reference oracles. The bridge sits at distance
     $\le 3$ at \emph{every} $c$, so the \textbf{matrix-power} oracle (green dashed) is flat at $1$;
@@ -715,15 +724,16 @@ model is omitted here (within-clique accuracy $<1$, confounded; see text).}
 \toprule
 clique size $c$ & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 10 & 14 \\
 \midrule
-model, $n=20$ (mean) & 1.00 & 1.00 & 1.00 & 1.00 & 0.95 & 0.27 & 0.13 & 0.01 & --- \\
+model, $n=20$ (mean) & 1.00 & 1.00 & 1.00 & 1.00 & 0.94 & 0.27 & 0.13 & 0.01 & --- \\
 model, $n=40$ (mean) & 0.89$^\dagger$ & 1.00 & 1.00 & 1.00 & 0.95 & 0.74 & 0.27 & 0.09 & 0.00 \\
 matrix-power oracle  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
 \bottomrule
 \end{tabular}
 \caption{\emph{Model:} the \textbf{mixed}-trained base connectivity transformer (RoBERTa trunk,
 linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only,
-four seeds, $n=20$ and $n=40$. \emph{Test set:} bridged cliques, $\ge 400$ graphs per clique size.
-\emph{Metric:} cross-block pair accuracy on the bridged graph, \emph{mean over the four seeds}, by
+eight seeds at $n=20$ and four at $n=40$. \emph{Test set:} bridged cliques, $\ge 400$ graphs per
+clique size. \emph{Metric:} cross-block pair accuracy on the bridged graph, \emph{mean over the
+seeds}, by
 clique size $c$ (selected columns; $c$ runs to $10$ at $n=20$ and to $20$ at $n=40$, all $0.00$
 from $c=14$ on). The matrix-power oracle stays flat at $1$ because the bridge is always $\le 3$
 hops; the model collapses with $c$. $^\dagger$the $n=40$, $c=2$ mean is pulled down by one noisy
@@ -736,8 +746,9 @@ seed ($0.58$; the other three are $\approx 1.00$).}
     \figorbox{runs/report5/report5_figs/base_bridged_oracle_follow.png}{0.95}
     \caption{\emph{Model:} the \textbf{mixed}-trained base connectivity transformer (RoBERTa trunk,
     linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full-matrix $\hat R$), eval-only,
-    four seeds; $n=20$ (left), $n=40$ (right). \emph{Test set:} bridged cliques at full clique size,
-    $500$ graphs. \emph{Metric:} restricted to the cross pairs where the matrix-power oracle and the
+    eight seeds at $n=20$ / four at $n=40$; $n=20$ (left), $n=40$ (right). \emph{Test set:} bridged
+    cliques at full clique size, $500$ graphs. \emph{Metric:} restricted to the cross pairs where the
+    matrix-power oracle and the
     visit-bounded-BFS oracle \emph{disagree} (the bridge pairs), the fraction the model matches to
     each oracle, as the BFS budget $b$ varies. The model tracks the early-stopping BFS, not matrix
     powering: as $b$ approaches one clique (dashed line) the model matches BFS on $\to 1.0$ of the
@@ -979,24 +990,33 @@ to decouple distance from nodes-traversed. The capstone asks whether the same si
 on the \emph{natural} families of Reports~III--IV. We take every base checkpoint (RoBERTa,
 \emph{linear} read-out, $L=2$, single head, $d_{\mathrm{model}}=512$; mixed- and ER-trained, four
 seeds, $n=20$ and $n=40$ --- the same $16$ checkpoints as Section~\ref{sec:res-base}) and, for each
-of the $12$ families, compare its matrix $\hat R$ to the two reference oracles of
-Section~\ref{sec:plan-oracle}: the matrix-power oracle $\mathbf 1[(A+I)^{9}>0]$ and the bounded-BFS
-oracle as its budget $b$ (nodes visited) is swept from $2$ to $n$. The quantity that matters is
-\emph{not} overall agreement but, restricted to the pairs where the two oracles \emph{disagree}
-(the \texttt{disagree\_frac} mass), the fraction the model matches each one. The figures below
-report matrix-power vs.\ bounded-BFS, the contrast Section~\ref{sec:res-base} singled out on the
-bridged cliques. We do \emph{not}, however, treat the depth-first oracle as settled: its rejection
+of the $12$ families, compare its matrix $\hat R$ to the three reference oracles of
+Section~\ref{sec:plan-oracle}: the matrix-power oracle $\mathbf 1[(A+I)^{9}>0]$ and the two
+visit-bounded traversals (bounded-BFS and bounded-DFS) as their budget $b$ (nodes visited) is swept
+from $2$ to $n$. The quantity that matters is \emph{not} overall agreement but, restricted to the
+pairs where matrix power and a given traversal \emph{disagree} (the \texttt{disagree\_frac} mass),
+the fraction the model matches each one. The figures below report matrix-power vs.\ \emph{both}
+bounded traversals, so the natural-family test is run against BFS and DFS alike. We do not treat the
+depth-first oracle as settled from Section~\ref{sec:res-base} alone: its rejection
 in Section~\ref{sec:res-base} rests on the \emph{constructed} bridged cliques, and the capstone now
 shows (next paragraphs) that the only \emph{natural} family carrying that same bridge-behind-a-dense-
 clique structure --- and the only one where a visit-bounded signature appears at all --- is the
 barbell. It would be circular to declare DFS dead on the strength of the one construction and then
 not check the one natural graph that reproduces it. We have therefore re-run this same capstone with
 the bounded-\emph{DFS} oracle added back (\texttt{eval\_oracle\_agreement\_families.py} now scores all
-three oracles, including the BFS-vs-DFS contrast, into
-\texttt{runs/report5/oracle\_families\_dfs/}); at the time of writing that job is still in the queue,
-so the depth-first comparison on the natural families --- and the verdict on whether the barbell sides
-with the breadth- or the depth-first reference --- is reported in a later revision
-(Section~\ref{sec:verdict} will not be finalised before it lands).
+three oracles, including the direct BFS-vs-DFS contrast, into
+\texttt{runs/report5/oracle\_families\_dfs/}). That re-run has now landed, and on the barbell ---
+restricted to the cross pairs where the BFS and DFS oracles \emph{themselves} disagree, the direct
+separator --- the breadth-first reading holds where the test has power: at $n=40$ (larger cliques, a
+disagreement mass up to $\approx0.28$) the mixed model sides with the \emph{breadth}-first oracle on
+$0.61$--$0.74$ of those pairs across the discriminating budgets ($b=8$--$20$) and with the
+\emph{depth}-first one on only $0.26$--$0.37$. At $n=20$ the separation is too weak to call
+(mass-weighted follows-BFS $\approx0.54$, a near toss-up that even leans depth-first at the single
+peak-mass budget), and the dense single-clique families (2cliques, clique-blocks) produce \emph{zero}
+BFS--DFS disagreement, so they cannot separate the two at all. So where the natural-graph test retains
+any power --- the $n=40$ barbell --- it reconfirms the breadth-first, not depth-first, reading of
+Section~\ref{sec:res-base}, and the depth-first rejection no longer rests on the constructed cliques
+alone.
 
 \paragraph{Reading the budget axis (and a trap to avoid).} The bounded-BFS budget is a property of
 the \emph{oracle}, not the model. At a \emph{large} budget $b\to n$ the BFS ball visits the whole
@@ -1008,17 +1028,22 @@ to propagate across many nodes. So the discriminating region is \emph{small} $b$
 large disagreement mass. (We also drop the two smallest budgets $b=2,3$: a per-seed fraction there
 exceeds $1$, a numerical artefact, harmless once pooled but excluded to be safe.)
 
-\paragraph{On the natural families the model looks like matrix power, not a bounded traversal.}
-Figure~\ref{fig:capstone} and Table~\ref{tab:capstone} give the pooled answer, and it is clean.
-For the \textbf{mixed} model, in the region where the comparison has power --- small budget
-($b\le 9$), where the matrix-power and BFS oracles genuinely disagree on $19$--$52\%$ of pairs ---
-the model follows \emph{matrix power} on $95$--$98\%$ of the contested pairs and the BFS oracle on
-$\le 5\%$ (both $n$). The BFS-following only climbs past $0.5$ at $b\approx 16$ ($n=20$) and
-$b\approx 32$ ($n=40$), and exactly there the disagreement mass has collapsed (to $\approx 0.06$ at
-$n=20$) and the BFS oracle has all but turned into the true connectivity --- i.e.\ that late rise is
-the beyond-wall recovery, not a stuck ball. So pooled over the everyday families the base model is
-observationally \emph{matrix power}: the visit-bounded signature of Section~\ref{sec:res-base} does
-\emph{not} reappear here.
+\paragraph{On the natural families the model looks like matrix power, not a bounded traversal ---
+neither breadth- nor depth-first.} Figure~\ref{fig:capstone} and Table~\ref{tab:capstone} give the
+pooled answer over all $12$ families, against \emph{both} bounded traversals at once (the figure now
+carries three curves: follows matrix-power, follows bounded-BFS, follows bounded-DFS --- the last
+added by the DFS-inclusive re-run). It is clean. For the \textbf{mixed} model, in the region where
+the comparison has power --- small budget ($b\le 9$), where matrix power genuinely disagrees with
+the traversal oracles on $19$--$52\%$ of pairs --- the model follows \emph{matrix power} on
+$95$--$98\%$ of the contested pairs, the BFS oracle on $\le 5\%$ \emph{and} the DFS oracle on
+$\le 6\%$ (both $n$; the BFS- and DFS-following curves sit on top of each other, near zero). So the
+DFS oracle is matched no better than the BFS one: pooled over the natural families the model is not a
+bounded traversal of \emph{either} kind. Both traversal curves only climb past $0.5$ at large budget
+--- $b\approx 16$ ($n=20$), $b\approx 32$ ($n=40$) --- and exactly there the disagreement mass has
+collapsed (to $\approx 0.06$ at $n=20$) and the bounded oracle has all but turned into the true
+connectivity, so that late rise is the beyond-wall recovery (Report~IV), not a stuck ball. Pooled
+over the everyday families the base model is observationally \emph{matrix power}: the visit-bounded
+signature of Section~\ref{sec:res-base} does \emph{not} reappear here, for BFS or DFS.
 
 \paragraph{Why this does not contradict Section~\ref{sec:res-base} --- it locates the signature.}
 This is the expected outcome given the premise of the whole report (Section~\ref{sec:hypotheses}):
@@ -1041,12 +1066,13 @@ only on graphs built to expose it} (the bridged cliques of Section~\ref{sec:res-
 barbell). On the families one meets in the wild the distance/node collinearity masks it, and where
 the test retains any power the model is matrix-power. The capstone therefore does not extend the
 visit-bounded reading to all graphs; it shows \emph{where} that reading does and does not hold, and
-why. One step is still open before the verdict: because the barbell is the single natural family that
-shows the bounded signature, \emph{which} bounded traversal it resembles --- the stalling breadth-first
-ball or the diving depth-first walk --- is exactly the discriminator we should not skip, and it is the
-object of the DFS-inclusive re-run noted above (\texttt{oracle\_families\_dfs}, queued). Until that
-lands we hold the depth-first oracle as rejected \emph{on the constructed bridged cliques only}, not
-yet on the natural graphs.
+why. The one step that was still open before the verdict --- because the barbell is the single natural
+family that shows the bounded signature, \emph{which} bounded traversal it resembles, the stalling
+breadth-first ball or the diving depth-first walk --- is now answered by the DFS-inclusive re-run above
+(\texttt{oracle\_families\_dfs}): on the $n=40$ barbell, the only natural setting where the contrast has
+power, the model tracks the breadth-first oracle, not the depth-first one. The depth-first reading is
+therefore rejected not only on the constructed bridged cliques but on the one natural graph that
+reproduces them; matrix power vs.\ bounded-BFS is the contrast we carry into the verdict.
 
 \begin{figure}[H]
     \centering
@@ -1055,43 +1081,53 @@ yet on the natural graphs.
     read-out, $L=2$, single head, $d_{\mathrm{model}}=512$, full matrix $\hat R$), eval-only, four
     seeds per panel; \emph{top} mixed-trained (clean), \emph{bottom} ER-trained (confounded
     cross-check); $n=20$ (left), $n=40$ (right). \emph{Test set:} the $12$ natural families of
-    Reports~III--IV, $200$ graphs each, pooled. \emph{Metric:} on the pairs where the matrix-power
-    oracle $\mathbf 1[(A+I)^{9}{>}0]$ and the bounded-BFS$(b)$ oracle \emph{disagree}, the fraction
-    the model matches matrix-power (green) vs bounded-BFS (red), as the BFS budget $b$ varies (mean
-    over seeds); the dotted grey line is the disagreement mass (how discriminating each $b$ is). For
-    the mixed model, where the comparison has power (small $b$, large disagreement mass) the model
-    follows matrix power ($\ge0.95$); the BFS-following appears only at large $b$, where the
-    disagreement mass has collapsed and BFS$(b)$ has become the true connectivity --- the beyond-wall
-    recovery, not a stuck ball.}
+    Reports~III--IV, $200$ graphs each, pooled. \emph{Metric:} on the pairs where matrix power
+    $\mathbf 1[(A+I)^{9}{>}0]$ and a bounded traversal \emph{disagree}, the fraction the model matches
+    matrix-power (green), bounded-BFS (red, on the MP-vs-BFS pairs), and bounded-DFS (orange, on the
+    MP-vs-DFS pairs), as the budget $b$ varies (mean over seeds); the dotted/dash-dot lines are the
+    two disagreement masses (how discriminating each $b$ is). For the mixed model (top), where the
+    comparison has power (small $b$, large disagreement mass), the model follows matrix power
+    ($\ge0.95$) and \emph{neither} traversal --- the BFS and DFS curves overlap near zero; both rise
+    only at large $b$, where the disagreement mass has collapsed and the bounded oracle has become the
+    true connectivity --- the beyond-wall recovery, not a stuck ball. The ER model (bottom) is the
+    confounded cross-check (it looks more traversal-like inside dense clusters for the wrong reason;
+    see text).}
     \label{fig:capstone}
 \end{figure}
 
-\begin{table}[H]\centering\small
-\begin{tabular}{llccc}
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llcccccc}
 \toprule
- & & \multicolumn{2}{c}{follows BFS, small (discriminating) $b$} & follows BFS \\
-training & pool & $b{=}6$ & $b{=}10$ & at $b{\to}n$ \\
+ & & \multicolumn{2}{c}{follows BFS} & \multicolumn{2}{c}{follows DFS} & follows trav. \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-7}
+training & pool & $b{=}6$ & $b{=}10$ & $b{=}6$ & $b{=}10$ & at $b{\to}n$ \\
 \midrule
-mixed ($n{=}20$) & all $12$ families (pooled) & 0.03 & 0.06 & 0.74 \\
-mixed ($n{=}20$) & barbell only (held out)    & 0.21 & 0.38 & --- \\
-mixed ($n{=}40$) & all $12$ families (pooled) & 0.03 & 0.04 & 0.46 \\
-mixed ($n{=}40$) & barbell only (held out)    & 0.38 & 0.45 & --- \\
+mixed ($n{=}20$) & all $12$ families (pooled) & 0.03 & 0.06 & 0.03 & 0.06 & 0.74 \\
+mixed ($n{=}20$) & barbell only (held out)    & 0.21 & 0.38 & 0.25 & 0.39 & --- \\
+mixed ($n{=}40$) & all $12$ families (pooled) & 0.03 & 0.04 & 0.03 & 0.03 & 0.46 \\
+mixed ($n{=}40$) & barbell only (held out)    & 0.38 & 0.45 & 0.35 & 0.33 & --- \\
 \midrule
-ER ($n{=}20$, confounded) & all $12$ families (pooled) & 0.14 & 0.12 & 0.78 \\
-ER ($n{=}40$, confounded) & all $12$ families (pooled) & 0.24 & 0.25 & 0.67 \\
+ER ($n{=}20$, confounded) & all $12$ families (pooled) & 0.14 & 0.12 & 0.13 & 0.07 & 0.78 \\
+ER ($n{=}40$, confounded) & all $12$ families (pooled) & 0.24 & 0.25 & 0.26 & 0.28 & 0.67 \\
 \bottomrule
 \end{tabular}
 \caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, \emph{linear} read-out,
 $L=2$, single head, $d_{\mathrm{model}}=512$), eval-only, four seeds. \emph{Test set:} the natural
-families of Reports~III--IV, $200$ graphs each. \emph{Metric:} on the matrix-power-vs-bounded-BFS
-\emph{disagreement} pairs, the fraction the model follows the bounded-BFS oracle (so $1-{}$this is
-follows-matrix-power), \emph{mean over the four seeds}, at a small/discriminating budget ($b=6,10$;
-disagreement mass there $\approx0.3$--$0.5$ at $b{=}6$) and at the largest budget $b{\to}n$ (where
-BFS$\approx$ truth, so this column is the beyond-wall recovery, \emph{not} a bounded-traversal
-read). Pooled over all $12$ families the mixed model follows matrix power at the discriminating
-budgets ($\le0.06$ BFS); the only natural family that leans BFS there is the held-out barbell (a
-thin bridge between two dense cliques, the structure of Section~\ref{sec:res-base}). The ER rows are
-the confounded cross-check (degree-heuristic OOD inside dense clusters), not read as evidence.}
+families of Reports~III--IV, $200$ graphs each. \emph{Metric:} the fraction the model follows a
+\emph{bounded traversal} rather than matrix power, on the pairs where the two disagree --- the
+\emph{follows BFS} columns on the matrix-power-vs-bounded-BFS disagreement pairs, the \emph{follows
+DFS} columns on the matrix-power-vs-bounded-DFS pairs (so $1-{}$each is follows-matrix-power),
+\emph{mean over the four seeds} --- at a small/discriminating budget ($b=6,10$; disagreement mass
+there $\approx0.3$--$0.5$ at $b{=}6$) and at the largest budget $b{\to}n$ (where the bounded oracle
+$\approx$ truth, so that single column --- common to BFS and DFS --- is the beyond-wall recovery,
+\emph{not} a bounded-traversal read). Pooled over all $12$ families the mixed model follows matrix
+power at the discriminating budgets, matching \emph{neither} traversal ($\le0.06$ for BFS \emph{and}
+DFS); the only natural family that leans toward a bounded traversal there is the held-out barbell (a
+thin bridge between two dense cliques, the structure of Section~\ref{sec:res-base}). Note these
+columns do \emph{not} by themselves separate BFS from DFS on the barbell (both disagree with matrix
+power on similar pairs); the \emph{direct} BFS-vs-DFS contrast --- which the barbell follows --- is
+reported in the text (at $n=40$ it is BFS, $0.61$--$0.74$, not DFS). The ER rows are the confounded
+cross-check (degree-heuristic OOD inside dense clusters), not read as evidence.}
 \label{tab:capstone}
 \end{table}
 
@@ -1182,7 +1218,7 @@ read-out & \multicolumn{11}{c}{cross-block accuracy on bridged cliques, mean ove
 \midrule
 \multicolumn{12}{l}{\emph{$n=20$, mixed (clique size $c$):}} \\
 clique size $c$ & 4 & 5 & 6 & 7 & 8 & 9 & 10 & & & & \\
-linear (4 seeds)      & 1.00 & 1.00 & 0.95 & 0.27 & 0.13 & 0.08 & 0.01 & & & & \\
+linear (8 seeds)      & 1.00 & 1.00 & 0.94 & 0.27 & 0.13 & 0.08 & 0.01 & & & & \\
 similarity (8 seeds)  & 1.00 & 1.00 & 0.65 & 0.27 & 0.04 & 0.00 & 0.00 & & & & \\
 \midrule
 \multicolumn{12}{l}{\emph{$n=40$, mixed (clique size $c$):}} \\
@@ -1210,7 +1246,7 @@ every $c$ (the bridge is $\le3$ hops; omitted). Linear rows reproduce Table~\ref
     \caption{\emph{Model:} the base connectivity transformer (RoBERTa trunk, $L=2$, single head,
     $d_{\mathrm{model}}=512$, full matrix $\hat R$), \textbf{mixed}-trained, with the \textbf{linear}
     (blue) vs the \textbf{similarity} (purple) read-out; eval-only, eight seeds at $n=20$ / four at
-    $n=40$ for similarity, four for linear (thin $=$ seeds, thick $=$ mean). \emph{Test set:} bridged
+    $n=40$, for both read-outs (thin $=$ seeds, thick $=$ mean). \emph{Test set:} bridged
     cliques, $\ge400$ graphs per clique size. \emph{Metric:} cross-block pair accuracy vs clique size
     $c$; the green dashed line is the matrix-power oracle (flat at $1$, bridge $\le3$ hops). At $n=40$
     (right) the similarity read-out holds the bridge across a larger clique --- the knee moves from
@@ -1249,7 +1285,7 @@ calls the \emph{split} cliques connected (split exact $0.00$) and its discrimina
 \label{tab:sim_blocks}
 \end{table}
 
-\subsection{Capacity or data prior? Training on bridged cliques, and a depth sweep}
+\subsection{Capacity or data prior? Adding the bridged cliques to the training stream}
 \label{sec:res-capacity}
 % SOURCE (Exp 2, data axis): train_families_n20.py --include_bridged via
 %   scripts/train_bridged_in_stream.sbatch (bridged+split ADDED to the mixed stream,
@@ -1273,19 +1309,175 @@ calls the \emph{split} cliques connected (split exact $0.00$) and its discrimina
 %   (fam_tag mixedbr), Exp 1 trained on mixed at L in {1,2,3}; seeds + n as launched.
 %   Test = bridged cliques (>=400 per clique size). Metric = cross-block pair accuracy
 %   vs clique size (mean over seeds), vs the matrix-power and bounded-BFS oracles.
-\emph{[Results pending --- launch \texttt{scripts/train\_bridged\_in\_stream.sbatch}
-(Exp 2, decisive) and optionally \texttt{scripts/train\_bridged\_depth\_sweep.sbatch}
-(Exp 1, bonus). Compare the cross-block-vs-clique-size curve to the held-out baseline of
-Section~\ref{sec:res-base}: same collapse $=$ capacity, no collapse $=$ data gap; knee
-moving with $L$ $=$ the $3^L$ capacity.]}
+\paragraph{The one caveat that the rest of the report cannot remove on its own.} Everything so far
+is an \emph{eval-only} read on the base model of Reports~III--IV: the bridged and split cliques were
+held \emph{out} of training (the nine-family stream of Section~\ref{sec:plan-oracle} never contains a
+clique joined by a single bridge). The cross-block collapse of Section~\ref{sec:res-base} --- the
+whole bounded-traversal signature --- could therefore mean two very different things. It could be a
+\emph{hard capacity} limit: the $L=2$ trunk simply cannot carry a single edge across more than
+$\sim6$--$7$ nodes when it builds $\hat R$, no matter what it is trained on. Or it could be a mere
+\emph{data gap}: the trunk \emph{can} do it, but never had a reason to learn to, because nothing in
+its training distribution rewarded propagating one bridge across a dense block. These have opposite
+consequences for the verdict, and only one experiment tells them apart --- \emph{put the structure in
+the training stream and retrain}.
+
+\paragraph{The test, and why the geometry makes it sharp.} We retrain the same base connectivity
+model (RoBERTa-faithful trunk, linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$) on the
+identical nine-family mixed stream \emph{plus} bridged and split cliques at a random clique size every
+batch (the \texttt{-{}-include\_bridged} stream, fam-tag \texttt{mixedbr}); four seeds at $n=20$ and
+four at $n=40$, the same $10^6$-step budget as the base model. Then we re-run the bridged probe of
+Section~\ref{sec:res-base} on the retrained weights. The key geometric fact, already used in
+Section~\ref{sec:res-base}, is what makes this decisive: \emph{in a bridged-cliques graph the two
+bridge endpoints are one hop apart, and every cross pair is at distance $\le 3$ --- at every clique
+size}. So matrix powering (capacity $3^L=9$) is \emph{capable} of the cross block for all $c$;
+nothing about the distance ever exceeds the architecture. If retraining makes the collapse vanish,
+the limit of Section~\ref{sec:res-base} was never the architecture --- it was the data. If the
+collapse survives retraining, then there is a genuine $L=2$ bottleneck even on a within-capacity
+target, and the bounded-traversal reading is structural.
+
+\paragraph{Result: the collapse vanishes completely.} With the bridged cliques in the stream, the
+cross block is propagated \emph{perfectly at every clique size}, every seed, both canvas sizes
+(Figure~\ref{fig:capacity}, Table~\ref{tab:capacity}). The clique-size sweep, which fell from $1$ to
+$0$ for the held-out model, is now flat at $1.00$ all the way to the largest clique that fits ($c=10$
+at $n=20$, $c=20$ at $n=40$) --- it lies exactly on the matrix-power oracle, with no knee at all. The
+$\sim6$--$7$ node budget of Section~\ref{sec:res-base} is simply gone. And the retrained model has
+\emph{not} bought this by over-connecting: it still calls the \emph{split} cliques two separate
+components perfectly (split exact-match $1.00$, cross-connected rate $0.00$), so its
+bridged-vs-split discrimination is $1.00$ at every clique size where the held-out model sat at chance
+($0.50$). The cross block stays symmetric (directional-disagreement rate $\approx0$), as before ---
+so the new ability is genuine \emph{propagation} of the one bridge, not a degree-driven ``dense means
+connected'' shortcut. (The only residual blemish is a single $n=40$ seed whose whole-graph
+exact-match at the largest clique is $0.71$ rather than $1.00$, from a few stray within-clique entries;
+its cross block and discrimination are still $1.00$.) This is the cleaner of the two outcomes:
+\textbf{the Section~\ref{sec:res-base} collapse was a data gap, not a hard capacity wall.}
+
+\begin{figure}[H]\centering
+\figorbox{runs/report5/report5_figs/base_bridged_trained_knee.png}{0.95}
+\caption{\emph{Model:} the base connectivity transformer --- RoBERTa-faithful trunk, \emph{linear}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), full $n\times n$ output $\hat R$.
+\emph{Training set:} the nine-family mixed online stream of Reports~III--IV (which includes dense
+cliques but \emph{not} bridged cliques) for the \emph{held-out} baseline of
+Section~\ref{sec:res-base} (blue; eight seeds at $n=20$, four at $n=40$); the \emph{same} stream
+\emph{plus} bridged/split cliques at a random clique size for the \emph{trained-on-bridged} model
+(olive; \texttt{-{}-include\_bridged}, four seeds each $n$). \emph{Test set:} bridged cliques across
+the clique-size sweep ($\ge 400$ graphs per clique size). \emph{Metric:} cross-block pair accuracy
+(fraction of A$\leftrightarrow$B pairs correctly called connected), mean over seeds, faint lines per
+seed; the matrix-power oracle $\mathbf 1[(A+I)^9>0]$ (green dashed) is the distance-bounded reference.
+The held-out model collapses to $0$ once one clique exceeds $\sim6$--$7$ nodes; with the structure in
+training the same $L=2$ model carries the single bridge at \emph{every} clique size, sitting on the
+matrix-power oracle. Since every cross pair is at distance $\le 3$ regardless of $c$, the collapse was
+a \emph{data gap}, not an architectural capacity limit.}
+\label{fig:capacity}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{llcccc}
+\toprule
+ & & \multicolumn{2}{c}{held out (baseline of 5.2)} & \multicolumn{2}{c}{bridged in training (5.6)} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+$n$ & seed & cross block & discrim. & cross block & discrim. \\
+\midrule
+\multicolumn{6}{l}{\emph{$n=20$, clique size $c=10$ (fills the canvas)}} \\
+20 & 1000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+20 & 2000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+20 & 3000 & 0.01 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+20 & 4000 & 0.01 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+\multicolumn{6}{l}{\emph{$n=40$, clique size $c=20$ (fills the canvas)}} \\
+40 & 1000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+40 & 2000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+40 & 3000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+40 & 4000 & 0.00 & 0.50 & \textbf{1.00} & \textbf{1.00} \\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the base connectivity transformer --- RoBERTa-faithful trunk, \emph{linear}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$), emitting the full $n\times n$ matrix
+$\hat R$. \emph{Training set:} for ``held out'', the nine-family mixed stream \emph{without} bridged
+cliques (the base model of Section~\ref{sec:res-base}, eval-only); for ``bridged in training'', the
+same stream \emph{with} bridged/split cliques added at a random clique size (\texttt{-{}-include\_bridged}).
+Four seeds each at $n=20$ and $n=40$, $10^6$ steps. \emph{Test set:} bridged and split cliques at the
+full clique size ($2{,}000$ graphs each). \emph{Metric:} cross-block pair accuracy on the bridged
+graph (fraction of A$\leftrightarrow$B pairs correctly called connected) and bridged-vs-split
+discrimination accuracy; per seed. Across all eight retrained models the cross block and the
+discrimination jump from collapsed/chance to a perfect $1.00$, at the very clique sizes where the
+held-out model was stuck.}
+\label{tab:capacity}
+\end{table}
+
+\paragraph{What this does, and does not, settle.} It settles the open caveat of the whole report:
+the node budget of Sections~\ref{sec:res-base} and~\ref{sec:res-sim} is a \emph{learned heuristic},
+not a hard property of the $L=2$ trunk. The model defaults to a stuck, breadth-first ball on
+dense-clique-plus-bridge graphs only because that structure never appears in the ordinary mixed
+stream; the moment the data demand it, the same architecture propagates the bridge across a clique of
+$20$ nodes without trouble. This is consistent with --- and reinforces --- the picture from
+Section~\ref{sec:res-sim}, where merely \emph{changing the read-out} already shifted the budget
+(knee $c\approx7\to11$--$12$ at $n=40$): the budget is malleable along two independent levers,
+the output map and the training distribution, which is exactly what one expects of a \emph{soft}
+data/architecture artefact and \emph{not} of a hard wall.
+
+What it does \emph{not} do is move the distance-bounded capacity itself. Every target here sits at
+distance $\le 3$, so this experiment only shows that the trunk can be \emph{taught} a
+\emph{within-capacity} skill it had skipped; it says nothing about whether it could ever cross
+\emph{beyond} $3^L=9$ hops, which the depth sweep of Section~\ref{sec:res-depth} (an $L\in\{1,3\}$
+version of the same probe) is meant to test by asking whether the knee tracks $3^L$.
+The honest summary is therefore the one the matrix-power hypothesis predicts: the architecture's real
+ceiling is the distance-$3^L$ wall of Reports~III--IV; the bounded-traversal ``node budget'' that
+looked like a competing, second limit is not structural at all --- it dissolves under a different
+read-out and under the right data, leaving distance-bounded matrix powering as the mechanism the
+$L=2$ model is actually built around.
+
+\subsection{A depth sweep: is the node budget the architectural capacity? (forthcoming)}
+\label{sec:res-depth}
+% ============================ STUB FOR THE NEXT CHAT ============================
+% STATUS (2026-06-20): data PARTIAL. brdepth array (scripts/train_bridged_depth_sweep.sbatch):
+%   task->RUN mapping (N P L seed): 0:n20 L1 s1000 | 1:n20 L1 s2000 | 2:n20 L3 s1000 |
+%   3:n20 L3 s2000 | 4:n40 L1 s1000 | 5:n40 L1 s2000 | 6:n40 L3 s1000 | 7:n40 L3 s2000.
+%   COMPLETED: 0-5 (all n20 L1/L3, and n40 L1). STILL RUNNING at handoff: 533483_6, 533483_7
+%   (n40 L3, the slow ones). -> WAIT for them, or write the n20-complete + n40-L1 read and
+%   add n40 L3 when it lands. Do NOT stage a partial bridged_cliques_depth/ before checking
+%   (error 43: eval_bridged_cliques skips missing checkpoints silently; count the JSONs).
+% SOURCE: train_families_n20.py --n_layers {1,3} (L=2 = the EXISTING base, reuse
+%   runs/report5/bridged_cliques/n{N}_mixed_seed* from sec 5.2). bridged HELD OUT (same as L=2).
+%   Checkpoints: runs/report5/depth_sweep/n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*;
+%   auto-eval -> runs/report5/bridged_cliques_depth/n{N}_L{L}_seed{S}/bridged_cliques.json.
+% WHAT IT TESTS: for the HELD-OUT model, does the clique-size knee (the ~6-7 node budget of
+%   sec 5.2 at L=2) MOVE with depth L? Capacities: 3^1=3, 3^2=9, 3^3=27.
+%   - knee grows with L (tracks 3^L) -> the node budget IS the architectural matrix-power
+%     capacity expressed in node terms; the sec-5.2 budget and the distance-9 wall are the
+%     same limit in two geometries. Strong, clean tie-in for the verdict.
+%   - knee stays ~6-7 at every L -> the budget is NOT 3^L (tied to something else, e.g. typical
+%     training-graph node count); a surprise worth reporting honestly.
+% CONFOUND TO HANDLE (do not miss): at L=1 the matrix-power CAPACITY is exactly 3 hops, and the
+%   bridge cross pairs sit at distance <=3 -- so an L=1 model may lose the cross block for a
+%   DISTANCE reason (target at the very edge of reach), not a node-budget reason. Read the L=1
+%   curve against BOTH oracles and say so; the clean budget-scaling read is L=2 vs L=3.
+% HOW TO PLOT: extend plot_bridged_cliques.py with load_all_depth (regex n(\d+)_L(\d+)_seed(\d+)
+%   -> key (n, L)) + a plot_depth_knee overlaying the model cross-acc vs clique-size for L=1,2,3
+%   (reuse bridged_cliques/ for L=2) per n, with the matrix-power oracle. New figure
+%   base_bridged_depth_knee.png. Mirror the existing plot_trained_vs_heldout / --depth_root wiring.
+% CAPTION (rule 21): Model = base RoBERTa linear, L in {1,2,3}, single head, d=512, full R-hat;
+%   trained on the 9-family mixed stream (bridged HELD OUT), seeds 1000/2000 (L1/L3) + the 8/4
+%   seeds of sec 5.2 at L=2, n as labelled. Test = bridged cliques across the clique-size sweep.
+%   Metric = cross-block pair accuracy vs clique size, per L, mean over seeds, vs matrix-power.
+% READ THEN: fold one sentence into the sec-5.6 "what it does not settle" paragraph and into the
+%   verdict (sec 6) -- whether the budget is or is not the 3^L capacity.
+\emph{[Results pending --- the $L\in\{1,3\}$ retrains. With the bridged cliques held out exactly as
+for the $L=2$ base of Section~\ref{sec:res-base}, re-run the bridged probe at each depth and overlay
+the clique-size curves for $L=1,2,3$. If the knee grows with $L$ (roughly $3^L$), the node budget of
+Section~\ref{sec:res-base} is the architectural matrix-power capacity in node terms --- the same
+limit as the distance-$9$ wall; if it stays at $\sim6$--$7$ regardless of $L$, the budget is not the
+$3^L$ capacity. Mind the $L=1$ distance confound (cross pairs sit at distance $\le3$, exactly $L=1$'s
+reach), so read $L=2$ vs $L=3$ as the clean budget-scaling comparison.]}
 
 \section{Verdict: what is the model computing?}
 \label{sec:verdict}
-% WRITE THIS LAST, after the capstone + Exp 3 (+ Exp 2). Synthesise:
+% WRITE THIS LAST, after the capstone + Exp 3 + Exp 2 (sec 5.6). Synthesise:
 %  - DFS rejected ON THE BRIDGED CLIQUES (5.2: cross-block falls with c, DFS oracle rises;
-%    zero asymmetry). NATURAL-graph DFS check pending (oracle_families_dfs, sec 5.4) -- the
-%    barbell is the only natural family with the signature, so confirm BFS-not-DFS there
-%    before finalising. Do NOT write the verdict until oracle_families_dfs lands.
+%    zero asymmetry) AND on the one natural graph that reproduces them: the DFS-inclusive
+%    capstone re-run has LANDED (oracle_families_dfs, sec 5.4) -- on the n40 barbell, the only
+%    natural setting with discriminating power, the model follows bounded-BFS (0.61-0.74),
+%    not bounded-DFS (0.26-0.37); n20 too weak to call, dense single cliques give zero
+%    BFS-DFS disagreement. So DFS is no longer the open blocker. The remaining gate for sec 6
+%    is Exp 2 / sec 5.6 (capacity vs data prior), which is the LAST thing to land.
 %  - Not pure matrix power either (5.2: collapse at an absolute node budget ~6-7, while
 %    distance stays <=3).
 %  - Best reading: a parallel, fixed-depth neighbourhood aggregation (matrix-power family)
@@ -1298,6 +1490,63 @@ moving with $L$ $=$ the $3^L$ capacity.]}
 %    "capacity" vs "data prior" the evidence supports.
 %  - Future work (NOT done here): mechanistic probe (attention_maps/embeddings -- turns
 %    "resembles" into "computes"); clique density at fixed node count (Exp 5).
-\emph{[To be written once Sections~\ref{sec:res-capstone}--\ref{sec:res-capacity} land.]}
+The question we set out with (Section~\ref{sec:question}) was binary: does the $L=2$ transformer
+solve connectivity by \emph{matrix powering} --- a parallel, distance-bounded aggregation that
+reaches $3^L$ hops at once --- or by a \emph{bounded traversal} (a DFS or BFS that visits a fixed
+number of nodes from a start and then stops)? The two predict opposite things on graphs that are
+\emph{short but wide}, and the bridged cliques were built precisely to pull them apart. We can now
+give an answer, with the residual uncertainty stated honestly.
+
+\paragraph{Depth-first search is rejected, twice over.} On the constructed bridged cliques
+(Section~\ref{sec:res-base}) the model's cross block \emph{falls} from $1$ to $0$ as the cliques
+grow, while the bounded-DFS oracle --- which dives across the bridge and reaches deeper as its budget
+grows --- \emph{rises}; and a single-start DFS would leave a directional fingerprint
+($\hat R_{ij}\neq\hat R_{ji}$) that the model simply does not have (disagreement rate $\approx0$,
+because a transformer emits all of $\hat R$ in parallel). On the one \emph{natural} graph that
+reproduces the bridged-clique structure --- the held-out barbell --- the capstone with all three
+oracles (Section~\ref{sec:res-capstone}) finds the model following bounded-BFS ($0.61$--$0.74$ at
+$n=40$), not bounded-DFS, on the entries where the two traversals disagree. DFS is out on both the
+constructed and the natural graph; we never need it again.
+
+\paragraph{Not a literal matrix-power machine, but the deviation is not a second capacity.} Taken at
+face value, Section~\ref{sec:res-base} also rules out \emph{naive} matrix powering: the model loses
+the cross block at an absolute node budget of $\sim6$--$7$, even though the bridge sits at distance
+$\le3$ at every clique size, where matrix powering would never fail. That looked, at first, like a
+\emph{second} hard limit living next to the distance-$3^L$ wall --- a visit-bounded ``node budget.''
+The last two experiments show it is not. Changing only the output map shifts the budget
+(Section~\ref{sec:res-sim}: knee $c\approx7\to11$--$12$ at $n=40$ under the similarity read-out), and
+adding the structure to training removes it entirely (Section~\ref{sec:res-capacity}: the same $L=2$
+model then propagates the bridge across a clique of $20$, on the matrix-power oracle, every seed).
+A limit that moves with the read-out and dissolves with the data is a \emph{learned heuristic}, not
+an architectural capacity. The model defaults to a stuck breadth-first ball on dense-clique-plus-bridge
+inputs only because nothing in the ordinary training stream ever rewarded carrying one edge across a
+dense block --- a \emph{data prior}, not a structural bottleneck.
+
+\paragraph{Best reading: distance-bounded matrix powering, with a removable data-prior shortcut.} The
+evidence converges on a single picture. The architecture's genuine ceiling is the distance-$3^L=9$
+wall of Reports~III--IV --- a parallel, fixed-depth neighbourhood aggregation, the matrix-power
+family. The bounded-traversal signature that the bridged cliques exposed is real but \emph{soft}: it
+is the shortcut the model falls back on off-distribution, and it disappears under either of two
+independent levers. Two further results point the same way. Denser training makes the model converge
+\emph{faster}, not slower (Section~\ref{sec:res-density}), the opposite of what any genuinely
+visit-bounded traversal would predict (``more nodes to walk past is harder''). And across the twelve
+natural families (Section~\ref{sec:res-capstone}) the model tracks matrix powering wherever the test
+has power to tell; the bounded-traversal signature is visible \emph{only} on graphs purpose-built to
+expose it (the constructed bridged cliques and the barbell), and nowhere it is not. We therefore read
+the model as \emph{distance-bounded matrix powering} --- not a bounded DFS, not a bounded BFS --- with
+the apparent ``node budget'' being a data-induced heuristic rather than a competing mechanism.
+
+\paragraph{What we have not shown.} The honest caveats are two. First, all of our evidence is
+\emph{behavioural}: the model's answers \emph{resemble} matrix powering, but we have not opened the
+trunk to confirm it \emph{computes} powers of $A+I$ --- a mechanistic probe of the attention maps and
+the per-layer embeddings (the geometry sketched in Reports~III--IV) is the obvious next step, and
+would turn ``resembles'' into ``computes.'' Second, the capacity-vs-data-prior test
+(Section~\ref{sec:res-capacity}) only taught a \emph{within-capacity} skill --- every bridge sat at
+distance $\le3$ --- so it cannot, on its own, say whether training could push the model \emph{past}
+$3^L$; the depth sweep of Section~\ref{sec:res-depth} ($L\in\{1,3\}$ on the same probe) is the
+clean test of whether the knee tracks $3^L$. Neither caveat changes the verdict on the prof's
+question. The transformer learns the \emph{algorithmic}, parallel, distance-bounded solution, not a
+sequential bounded traversal --- and what once looked like a traversal-style node budget turns out to
+be a removable artefact of the training data, not the way the model computes.
 
 \end{document}

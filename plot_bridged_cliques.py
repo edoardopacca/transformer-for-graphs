@@ -268,12 +268,84 @@ def plot_similarity_vs_linear(lin_root, sim_root, out):
     fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
 
 
+TRAINED_TAG_RE = re.compile(r"n(\d+)_seed(\d+)")
+
+
+def load_all_trained(root):
+    """Loader for the TRAIN-ON-BRIDGED checkpoints (Section 5.6): bridged+split were
+    ADDED to the mixed stream (random clique size), so the tags carry no train-set token
+    (n{N}_seed{S}). Returned under the key (n, 'trained') to sit next to the held-out
+    mixed baseline (n, 'mixed') from load_all."""
+    groups = defaultdict(list)
+    for jf in sorted(Path(root).glob("*/bridged_cliques.json")):
+        m = TRAINED_TAG_RE.fullmatch(jf.parent.name)
+        if not m:
+            continue
+        n, seed = int(m.group(1)), int(m.group(2))
+        groups[(n, "trained")].append((seed, json.loads(jf.read_text())))
+    return groups
+
+
+def plot_trained_vs_heldout(lin_root, trained_root, out):
+    """Report figure base_bridged_trained_knee.png (Section 5.6, the capacity-vs-data
+    test): the MIXED model's cross-block accuracy vs clique size, HELD-OUT vs
+    TRAINED-ON-BRIDGED overlaid, one panel per n. The held-out baseline (Section 5.2)
+    never saw a clique+bridge and collapses to 0 once the near clique exceeds ~6-7 nodes.
+    If the same L=2 architecture, with bridged cliques in its training stream, instead
+    propagates the single bridge at EVERY clique size (cross stays at 1, flat like the
+    matrix-power oracle), then the Section 5.2 collapse was a DATA gap, not a hard
+    capacity wall -- the bridge is always <=3 hops, well within the 3^L=9 capacity."""
+    held = load_all(lin_root)            # (n, 'mixed') held-out baseline
+    trn = load_all_trained(trained_root)  # (n, 'trained')
+    ns = sorted({n for (n, _) in trn})
+    fig, axes = plt.subplots(1, len(ns), figsize=(6.0 * len(ns), 4.7), squeeze=False)
+    for ci, n in enumerate(ns):
+        ax = axes[0][ci]
+        tr = trn.get((n, "trained")); hr = held.get((n, "mixed"))
+        if not tr:
+            ax.set_visible(False); continue
+        cs = tr[0][1]["clique_size_sweep"]["clique_sizes"]
+        # trained-on-bridged model
+        mean_t, _, At = _mean_curve(tr, ["clique_size_sweep", "model_cross_acc"])
+        for row in At:
+            ax.plot(cs, row, color="tab:olive", alpha=0.20, lw=1)
+        ax.plot(cs, mean_t, color="tab:olive", lw=2.6, marker="D", ms=4,
+                label=f"trained on bridged ({len(tr)} seeds)")
+        # held-out baseline (Section 5.2)
+        if hr:
+            cs_h = hr[0][1]["clique_size_sweep"]["clique_sizes"]
+            mean_h, _, Ah = _mean_curve(hr, ["clique_size_sweep", "model_cross_acc"])
+            for row in Ah:
+                ax.plot(cs_h, row, color="tab:blue", alpha=0.18, lw=1)
+            ax.plot(cs_h, mean_h, color="tab:blue", lw=2.6, marker="o", ms=4,
+                    label=f"held out, baseline of 5.2 ({len(hr)} seeds)")
+        mp, _, _ = _mean_curve(tr, ["clique_size_sweep", "oracle_mp_cross_acc"])
+        ax.plot(cs, mp, color="tab:green", lw=2, ls="--",
+                label="matrix-power oracle (distance-bounded)")
+        ax.axhline(0.5, color="k", lw=0.8, ls=":")
+        ax.set_ylim(-0.02, 1.02); ax.grid(alpha=0.3)
+        ax.set_xlabel("clique size c (each clique has c nodes)")
+        if ci == 0:
+            ax.set_ylabel("cross-block accuracy on bridged cliques")
+        ax.set_title(f"n={n}, mixed-trained, linear read-out", fontsize=10)
+        if ci == 0:
+            ax.legend(fontsize=8, loc="center left")
+    fig.suptitle("Capacity or data gap? Cross-block collapse vs clique size, bridged cliques HELD OUT "
+                 "(Section 5.2)\nvs ADDED to the training stream. With the structure in training the same "
+                 "L=2 model carries the bridge at every c", fontsize=11)
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
+    f = out / "base_bridged_trained_knee.png"
+    fig.savefig(f, dpi=150); plt.close(fig); print("wrote", f)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="runs/report5/bridged_cliques")
     ap.add_argument("--output_dir", default="runs/report5/report5_figs")
     ap.add_argument("--similarity_root", default="runs/report5/bridged_similarity",
                     help="if present, also draw the linear-vs-similarity knee figure (Section 5.5)")
+    ap.add_argument("--trained_root", default="runs/report5/bridged_cliques_trained",
+                    help="if present, also draw the held-out-vs-trained knee figure (Section 5.6)")
     args = ap.parse_args()
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
     groups = load_all(args.root)
@@ -291,6 +363,12 @@ def main():
             print("similarity conditions:",
                   {f"n{n}_{s}": len(v) for (n, s), v in sim_groups.items()})
             plot_similarity_vs_linear(args.root, args.similarity_root, out)  # report figure 5.5
+    if args.trained_root and Path(args.trained_root).exists():
+        trn_groups = load_all_trained(args.trained_root)
+        if trn_groups:
+            print("trained-on-bridged conditions:",
+                  {f"n{n}_{s}": len(v) for (n, s), v in trn_groups.items()})
+            plot_trained_vs_heldout(args.root, args.trained_root, out)  # report figure 5.6
 
 
 if __name__ == "__main__":
