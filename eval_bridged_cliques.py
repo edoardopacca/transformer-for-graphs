@@ -38,8 +38,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from functools import partial
+
 from data import (add_self_loops, compute_connectivity_matrix,
-                  generate_bridged_cliques_graph, generate_split_cliques_graph)
+                  generate_bridged_cliques_graph, generate_split_cliques_graph,
+                  generate_bridged_blocks_graph)
 from dfs_oracle import (matrix_power_connectivity, bounded_bfs_connectivity,
                         bounded_dfs_connectivity)
 from eval_families import load_model, predict
@@ -51,10 +54,26 @@ def _device():
     return torch.device("cpu")
 
 
-def build(label, n, c, size, seed):
-    """Return xs (with self-loops), ys (true R), roles (0=cliqueA,1=cliqueB,2=pad),
+def _gens(family):
+    """Return (bridged_gen, split_gen) for the chosen held-out OOD family.
+    Both take the signature gen(n, rng=..., clique_size=c). 'cliques' is the
+    Report-V core construction (two complete cliques +/- one bridge); 'blocks' is
+    the held-out OOD analogue (two dense ER blocks +/- one bridge), same
+    propagate-one-bridge-across-a-dense-region-of-c-nodes challenge, different
+    internal structure."""
+    if family == "cliques":
+        return generate_bridged_cliques_graph, generate_split_cliques_graph
+    if family == "blocks":
+        return (partial(generate_bridged_blocks_graph, bridged=True),
+                partial(generate_bridged_blocks_graph, bridged=False))
+    raise ValueError(f"unknown family {family!r}")
+
+
+def build(label, n, c, size, seed, family="cliques"):
+    """Return xs (with self-loops), ys (true R), roles (0=blockA,1=blockB,2=pad),
     and the raw no-loop adjacencies (for the oracles). label in {bridged, split}."""
-    gen = generate_bridged_cliques_graph if label == "bridged" else generate_split_cliques_graph
+    gen_b, gen_s = _gens(family)
+    gen = gen_b if label == "bridged" else gen_s
     rng = np.random.default_rng(seed)
     role0 = np.array([0] * c + [1] * c + [2] * (n - 2 * c), dtype=np.int64)
     xs = np.empty((size, n, n), np.float32)
@@ -62,7 +81,7 @@ def build(label, n, c, size, seed):
     adj = np.empty((size, n, n), np.float32)
     roles = np.empty((size, n), np.int64)
     for i in range(size):
-        a = gen(n, clique_size=c)
+        a = gen(n, rng=rng, clique_size=c)
         p = rng.permutation(n)
         a = a[np.ix_(p, p)]
         adj[i] = a
@@ -109,6 +128,9 @@ def main():
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--sweep_step", type=int, default=1,
                     help="clique-size sweep granularity (c = 2,2+step,...,n//2)")
+    ap.add_argument("--family", default="cliques", choices=["cliques", "blocks"],
+                    help="'cliques' (core construction) or 'blocks' (held-out OOD: "
+                         "dense ER blocks +/- one bridge)")
     args = ap.parse_args()
 
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
@@ -118,14 +140,14 @@ def main():
     print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} L={L} device={dev}")
 
     res = {"checkpoint": str(args.checkpoint), "arch": arch, "readout": readout,
-           "n": n, "n_layers": L, "n_graphs": args.n_graphs}
+           "n": n, "n_layers": L, "n_graphs": args.n_graphs, "family": args.family}
 
     # ---- 1+2: main families at full size c=n//2 (no padding) -------------------
     c_full = n // 2
     main = {}
     preds_main = {}
     for label in ("bridged", "split"):
-        xs, ys, roles, adj = build(label, n, c_full, args.n_graphs, args.seed)
+        xs, ys, roles, adj = build(label, n, c_full, args.n_graphs, args.seed, args.family)
         pred = predict(model, xs, dev)
         preds_main[label] = (pred, ys, roles, adj)
         wA, wB, cross, off = block_masks(roles, n)
@@ -175,8 +197,8 @@ def main():
              "oracle_dfs_cross_acc": [], "oracle_bounded_budget": []}
     size_s = max(400, args.n_graphs // 4)
     for c in cs:
-        xb, yb, rb, ab = build("bridged", n, c, size_s, args.seed + c)
-        xs2, ys2, rs2, as2 = build("split", n, c, size_s, args.seed + 1000 + c)
+        xb, yb, rb, ab = build("bridged", n, c, size_s, args.seed + c, args.family)
+        xs2, ys2, rs2, as2 = build("split", n, c, size_s, args.seed + 1000 + c, args.family)
         pb = predict(model, xb, dev)
         ps = predict(model, xs2, dev)
         _, _, crossb, _ = block_masks(rb, n)

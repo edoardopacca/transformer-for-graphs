@@ -76,6 +76,45 @@ def generate_split_cliques_graph(n: int, rng: np.random.Generator | None = None,
     return adj
 
 
+def generate_bridged_blocks_graph(n: int, rng: np.random.Generator | None = None,
+                                  clique_size: int | None = None,
+                                  bridged: bool = True, p_in: float = 0.6) -> np.ndarray:
+    """Two internally-DENSE ER blocks of size c joined by a SINGLE bridge edge
+    (``bridged=True`` -> one component) or not (``bridged=False`` -> two components).
+
+    The HELD-OUT OOD analogue of the bridged cliques (Report V): the SAME challenge
+    -- carry one bridge edge across a dense region of c nodes -- but each region is a
+    dense ER block, NOT a complete clique, so a model that merely memorised the clique
+    family cannot match by pattern. Each block is built as a random spanning path over
+    its c nodes (guarantees connectivity) plus extra edges at probability ``p_in``; we
+    keep p_in HIGH so the within-block distance stays ~2 and the cross-block distance
+    stays well within the matrix-power capacity 3^L=9 (so the test isolates
+    propagation, not distance).
+
+    ``clique_size`` c: each block has c nodes (2c <= n), the rest isolated padding;
+    blocks sit at [0,c) and [c,2c) and the bridge joins node c-1 to node c. No
+    self-loops; node order NOT permuted (permute at the call site). ``rng`` is REQUIRED
+    (the blocks are random); a default generator is created if omitted."""
+    if rng is None:
+        rng = np.random.default_rng()
+    c = n // 2 if clique_size is None else max(2, min(int(clique_size), n // 2))
+    adj = np.zeros((n, n), dtype=np.float32)
+    for base in (0, c):
+        idx = np.arange(base, base + c)
+        order = rng.permutation(idx)
+        for i in range(c - 1):                       # spanning path -> connected
+            u, v = int(order[i]), int(order[i + 1])
+            adj[u, v] = adj[v, u] = 1.0
+        for ii in range(c):                          # densify
+            for jj in range(ii + 1, c):
+                u, v = int(idx[ii]), int(idx[jj])
+                if adj[u, v] == 0.0 and rng.random() < p_in:
+                    adj[u, v] = adj[v, u] = 1.0
+    if bridged:
+        adj[c - 1, c] = adj[c, c - 1] = 1.0          # single bridge edge
+    return adj
+
+
 def generate_one_chain_graph(n: int) -> np.ndarray:
     """Single path (chain) over all n nodes: 0-1-2-...-(n-1). One connected
     component. Used as the negative ("1 chain") class in the components task."""
