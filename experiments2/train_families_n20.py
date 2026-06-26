@@ -161,8 +161,20 @@ def main():
     args = ap.parse_args()
     n = args.n_nodes; p = args.p
 
-    fam_tag = "mixed" if args.families == "mixed" else "er"
-    families = (MIXED_FAMILIES if args.families == "mixed" else ["er"])
+    # "mixed" -> the 9-family stream; "er" -> ER only; otherwise a comma-separated list
+    # of explicit family names (Report VI data principle: one named distribution per run,
+    # e.g. --families path_union). The run-name tag is the list joined by '+'.
+    if args.families == "mixed":
+        families = MIXED_FAMILIES; fam_tag = "mixed"
+    elif args.families == "er":
+        families = ["er"]; fam_tag = "er"
+    else:
+        families = [f.strip() for f in args.families.split(",") if f.strip()]
+        unknown = [f for f in families if f not in (MIXED_FAMILIES + ["bridged", "split"])]
+        if unknown:
+            raise ValueError(f"unknown family/families {unknown}; known: "
+                             f"{MIXED_FAMILIES + ['bridged', 'split']}")
+        fam_tag = "+".join(families)
     if args.include_bridged:
         families = families + ["bridged", "split"]
         fam_tag = fam_tag + "br"

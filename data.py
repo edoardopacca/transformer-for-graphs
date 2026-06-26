@@ -172,6 +172,84 @@ def generate_parallel_paths_graph(n: int, n_paths: int, path_len: int) -> np.nda
     return adj
 
 
+def generate_multipath_graph(n: int, n_full: int, path_len: int,
+                             rng: np.random.Generator, n_trunc: int = 0,
+                             term_deg: int = 4, trunc_len: int | None = None,
+                             fill: bool = True):
+    """Report VI multipath family (the confound-free parallel-paths construction of
+    Report IV, generalised + carrying its own structure for per-path analysis, and
+    supporting TRUNCATED dead-end routes for Thread A3).
+
+    Two terminals ``s=0``, ``t=1`` are joined by ``n_full`` internally-disjoint paths
+    of ``path_len`` edges, so ``dist(s,t)=path_len`` for any ``n_full`` while the
+    effective resistance is ``path_len/n_full``. Optionally ``n_trunc`` DEAD-END paths
+    of ``trunc_len`` edges hang off ``s`` only (they never reach ``t``): these are the
+    truncated routes. Each terminal is padded with leaf nodes to keep its degree near
+    ``term_deg`` (so a terminal does not become a higher-degree hub as the number of
+    routes grows), and the remaining canvas is wired into one sparse filler path (a
+    separate component) so the mean degree stays ~2 like the sparse training graphs.
+
+    ``s`` and ``t`` are in the same component iff ``n_full >= 1``. Returns
+    ``(adj_no_loops, meta)`` on UNPERMUTED indices (permute with
+    :func:`permute_with_meta`), or ``None`` if the construction does not fit in ``n``.
+    ``meta`` carries ``s, t, full_paths, trunc_paths, leaves, filler, n_full, n_trunc,
+    path_len`` (every path is the list of its INTERNAL node indices)."""
+    s, t = 0, 1
+    if trunc_len is None:
+        trunc_len = max(1, path_len - 1)
+    leaves_s = max(0, term_deg - n_full - n_trunc)
+    leaves_t = max(0, term_deg - n_full)
+    need = (2 + n_full * (path_len - 1) + n_trunc * trunc_len + leaves_s + leaves_t)
+    if need > n:
+        return None
+    adj = np.zeros((n, n), dtype=np.float32)
+    cur = 2
+    full_paths: list[list[int]] = []
+    trunc_paths: list[list[int]] = []
+    for _ in range(n_full):
+        prev = s; nodes: list[int] = []
+        for _ in range(path_len - 1):
+            adj[prev, cur] = adj[cur, prev] = 1.0
+            nodes.append(cur); prev = cur; cur += 1
+        adj[prev, t] = adj[t, prev] = 1.0
+        full_paths.append(nodes)
+    for _ in range(n_trunc):
+        prev = s; nodes = []
+        for _ in range(trunc_len):
+            adj[prev, cur] = adj[cur, prev] = 1.0
+            nodes.append(cur); prev = cur; cur += 1
+        trunc_paths.append(nodes)            # dead-end: no edge to t
+    leaves: list[int] = []
+    for _ in range(leaves_s):
+        adj[s, cur] = adj[cur, s] = 1.0; leaves.append(cur); cur += 1
+    for _ in range(leaves_t):
+        adj[t, cur] = adj[cur, t] = 1.0; leaves.append(cur); cur += 1
+    filler = list(range(cur, n))
+    if fill:
+        for i in range(len(filler) - 1):
+            adj[filler[i], filler[i + 1]] = adj[filler[i + 1], filler[i]] = 1.0
+    meta = {"s": s, "t": t, "full_paths": full_paths, "trunc_paths": trunc_paths,
+            "leaves": leaves, "filler": filler, "n_full": n_full, "n_trunc": n_trunc,
+            "path_len": path_len}
+    return adj, meta
+
+
+def permute_with_meta(adj: np.ndarray, meta: dict, rng: np.random.Generator):
+    """Apply a random node permutation to a multipath graph and remap its meta
+    indices, so the terminals/paths can still be located after shuffling."""
+    n = adj.shape[0]
+    p = rng.permutation(n); inv = np.argsort(p)
+    a2 = adj[np.ix_(p, p)]
+    rm = lambda xs: [int(inv[x]) for x in xs]
+    m2 = {"s": int(inv[meta["s"]]), "t": int(inv[meta["t"]]),
+          "full_paths": [rm(pp) for pp in meta["full_paths"]],
+          "trunc_paths": [rm(pp) for pp in meta["trunc_paths"]],
+          "leaves": rm(meta["leaves"]), "filler": rm(meta["filler"]),
+          "n_full": meta["n_full"], "n_trunc": meta["n_trunc"],
+          "path_len": meta["path_len"]}
+    return a2, m2
+
+
 def generate_chain_plus_graph(n: int, rng: np.random.Generator) -> np.ndarray:
     """A long chain plus a small separate component. Designed to expose the 3^L wall
     even at small n: the long path gives within-component distances well past 9, while

@@ -4,16 +4,28 @@ Documento di riferimento per chiunque (incluso Claude in una nuova chat) riprend
 questo progetto. Leggere **tutto** prima di agire.
 
 > **⚠️ REGOLA DI LETTURA NON NEGOZIABILE (prima di toccare qualsiasi cosa).** Leggere
-> **attentamente OGNI riga** di questo `istruzioni.md` e **OGNI riga dei 5 report** dai
-> sorgenti `.tex` (`report/2..5/*.tex`; il report 1 è solo PDF). In particolare il
-> **Report 5** (`report/5/transformer_for_graphs_5.tex`) va **riletto 4 VOLTE riga per
+> **attentamente OGNI riga** di questo `istruzioni.md` e **OGNI riga dei 6 report** dai
+> sorgenti `.tex` (`report/2..6/*.tex`; il report 1 è solo PDF). In particolare il
+> **Report 6** (`report/6/transformer_for_graphs_6.tex`) va **riletto 4 VOLTE riga per
 > riga** prima di scriverci dentro: è lungo, denso, e gli errori più gravi di questa sessione
-> sono nati dal **non aver letto tutto** (vedi errore 52: analizzato solo il barbell e lasciato
-> figura/tabella incomplete perché non si era ragionato su cosa l'esperimento misurava su
-> *tutte* le famiglie). Non saltare righe perché "sembrano un dettaglio": le caption, i `%`
+> sono nati dal **non aver letto tutto** . Non saltare righe perché "sembrano un dettaglio": le caption, i `%`
 > commento negli stub, e le righe-errore qui sotto contengono i vincoli che fanno fallire chi
 > non li legge. Non rispondere/agire da una vista parziale di un file: se un `Read` è troncato,
 > continuare fino in fondo.
+
+---
+
+> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Il **Report 5 è CONSEGNATO** (mostrato alla prof) e
+> **congelato** (come 1–4): non si tocca più, salvo richiesta esplicita. **Si inizia ora il
+> REPORT 6** (`report/6/transformer_for_graphs_6.tex`, compilare da `report/6/`). Tema: **simulare
+> una "path di ragionamento" — quali dati servono per imparare un certo ragionamento; sequenzialità
+> vs parallelismo**. È il **report conclusivo**: **pochi esperimenti, puntuali, per un paper** (non
+> più tanti esperimenti diversi). Indicazioni della prof, piano, tesi e mindset in **§13** (leggere
+> PRIMA di agire). **Si torna a lanciare esperimenti** → il setup HPC (§6) è di nuovo TASK, non solo
+> riferimento. Vincolo NUOVO non negoziabile: **niente "mixed" random in training** — ogni
+> esperimento si allena su UNA distribuzione esplicita e sensata (ER, cliques, bridged cliques,
+> multipath, ...). Restano validi tutti gli **errori §4** (in particolare caption 21 e 55–60) e
+> Claude **NON committa** (consegna i comandi git). Stato sintetico in **§11**.
 
 ---
 
@@ -71,22 +83,28 @@ peggiora con la clique-size. Quattro misure: (1) discriminazione delle label; (2
 within-A/within-B/cross (dove si ferma); (3) **sweep clique-size** (cross-acc piatto=matrix-power,
 in discesa=DFS); (4) **confronto con oracoli** (matrix-power + bounded-BFS/DFS in `dfs_oracle.py`).
 Più: classificatore binario dedicato (accuracy-by-clique-size), e **densità in ottimizzazione**
-(ER a varie p: denso aiuta o rallenta il training?). **STATO al 2026-06-20 (7a sessione): §5.1–5.5 analizzate e SCRITTE (26 pp.), compila pulito da
-`report/5/`.** §5.1–5.4: affinamento chiave = TRE oracoli MP/DFS/BFS (errore 45), esito = il modello è
-una traversata visit-bounded (MP fino a budget ~6–7 nodi, poi BFS-bloccato), DFS rifiutato.
-§5.5 (similarity-budget, 6a sessione): il read-out di similarità SPOSTA il budget-nodi (knee n40 mixed da
-c≈7 lineare a c≈11–12 similarity ≈ il doubling previsto = stesso meet-in-the-middle che raddoppia il reach in
-Report IV → budget-nodi e reach-distanza = stessa capacità in due geometrie); a n20 invariato; ER = confound.
-**§5.4 chiusa del tutto (7a sessione): il capstone DFS-incluso (`oracle_families_dfs/`) è stato ANALIZZATO su
-TUTTE e 12 le famiglie (non solo barbell): pooled, ai budget discriminanti il modello segue matrix-power su
-SIA BFS (≤0.05) SIA DFS (≤0.06) → "non è una traversata bounded" vale per ENTRAMBE; il barbell n40 è l'unica
-firma bounded e lì il contrasto DIRETTO BFS-vs-DFS dà BFS 0.61–0.74, non DFS → DFS rifiutato anche sul grafo
-naturale. Figura `oracle_families_follow.png` ora a 3 curve (MP/BFS/DFS), `tab:capstone` con blocco follows-DFS.
-§5.2 portata a 8 seed n20-mixed (`broldsd`) + frase xcheck.** **STATO al 2026-06-20 (8a sessione): §5.6 (train-on-bridged
-`trbr`) + §6 VERDETTO SCRITTI → REPORT 5 COMPLETO (30 pp.). §5.6: il crollo cross-block di §5.2 era un BUCO DI DATI,
-non un muro duro (col bridged nello stream il modello propaga il ponte a OGNI clique-size, c≤20) → verdetto =
-matrix-powering distance-bounded, NON traversata bounded; DFS morto. PROSSIMO = solo il BONUS opzionale depth-sweep §5.7
-(`sec:res-depth`, stub pronto; dati 6/8, n40-L3 in coda). Vedi §11 "Stato Report 5" per il dettaglio.**
+(ER a varie p: denso aiuta o rallenta il training?). **Stato: Report 5 COMPLETO e poi ACCORCIATO
+(31→26 pp.), compila pulito da `report/5/`.** Esito (= il verdetto §6): il modello è
+**matrix-powering distance-bounded** (soffitto = muro-distanza 3^L=9), NON una traversata bounded;
+il DFS è rifiutato (sui bridged costruiti e sul barbell naturale n40); il "node budget" ~6–7 nodi
+visto sui bridged è un'**euristica soft/data-prior** (si sposta col read-out di similarità, sparisce
+mettendo i bridged nello stream, NON cresce con la profondità) e non una seconda capacità. Report 5
+CONSEGNATO e congelato.
+
+**Report 6** (`report/6/transformer_for_graphs_6.tex`, compilare da `report/6/`): dopo aver mostrato
+il Report 5 alla prof, ci si **specializza su "simulare una path di ragionamento"** — capire **quali
+dati servono per imparare una certo path di ragionamento (proprio guardando la logica, tipo vedere delle cliques come dei se e solo se, e nei bridged cliques il modello deve trovare quale nodo del blocco ci porta alla nuova cliques tramite il ponte)**, lungo i due assi che l'architettura rende
+concreti: **parallelismo** (più cammini fra due estremi `a,b`) e **struttura iterata/ripetuta** (una
+catena di link decisi localmente). È il **report conclusivo**: pochi esperimenti puntuali per un
+paper. Filoni: (A) **multipath** = i grafi del §4.4 del Report 4 (k cammini disgiunti `a→b` a
+distanza fissa `ℓ`), rifatti per bene (multi-seed, celle informative) — più cammini aiutano anche
+senza averli mai visti in training; quanti samples per impararne la connettività; i **multipath
+troncati** confondono. (B) **two-chains asimmetriche**: capire perché nel Report 4 una split (4,36)
+risultava più facile di (17,23). (C) **bridged cliques iterate**: train su una bridge singola, test
+su clique-ponte-clique-ponte-…; ponti con **più di un edge** (purché distanza ≤9); blocchi ER densi
+(p≈0.6) al posto delle cricche. (D) **alberi** (esplorativo). Vincolo dati: **niente mixed random**,
+una distribuzione esplicita per esperimento. **Tesi, mindset e indicazioni dettagliate della prof in
+§13.**
 
 ---
 
@@ -430,6 +448,47 @@ matrix-powering distance-bounded, NON traversata bounded; DFS morto. PROSSIMO = 
     densa (2cliques, clique_blocks) hanno `disagree_frac_bfs_dfs=0` (BFS e DFS coincidono su una palla densa) →
     **non separano** e non vanno lette come evidenza. Il barbell è l'unica famiglia naturale con massa BFS-DFS
     utile, e solo a **n40** (a n20 il canvas è troppo piccolo).
+55. **⚠️ LA CAPTION NON RIFÀ L'ANALISI DEL CORPO (lezione 10a sessione, raffina regola 21).** Ogni
+    didascalia deve contenere **SOLO** Model + Training set + Test set + Metric, più le **legende** strettamente
+    necessarie a leggere figura/tabella (cosa marca il **grassetto**, i **colori** delle curve, la linea
+    *dashed/dotted*, il `×`, i footnote-dato `†`/`*`). **Zero interpretazione**: niente "il modello crolla / segue
+    BFS / denser=faster / non è un muro" nelle caption. Regola operativa: per OGNI caption, l'analisi che togli
+    **deve già stare nel testo che annuncia** quella figura/tabella; se non c'è, **aggiungila in UNA frase al
+    corpo** (non lasciarla solo in caption). Nel Report 5 era già tutta nel corpo tranne la *discrimination=0.50*
+    del mixed in §5.2, aggiunta al corpo. Risultato: doppia-analisi rimossa, ~2 pagine in meno.
+56. **NESSUN riferimento a CODICE/FILE/PATH/FLAG nel testo renderizzato del report.** La prof non legge il
+    codice. Via dal PDF: nomi di funzioni/generatori (`generate_*`), classi (`GraphBinaryClassifier`), script
+    (`*.py`/`*.sbatch`), path di output (`runs/...`), field json (`disagree_frac`), flag (`--include_bridged`),
+    fam-tag (`mixedbr`). Vanno tenuti nei **commenti `%`** del `.tex` (invisibili) o in queste istruzioni (§5).
+    UNICA eccezione: i path in `\includegraphics`/`\figorbox` (necessari). Sostituisci il nome con la descrizione
+    concettuale (es. "un classificatore binario: stesso trunk, mean-pool + 1 logit").
+57. **NIENTE 'advisor'/attribuzioni personali, NIENTE storia/sequenza degli esperimenti.** (a) Non scrivere
+    "suggested by the advisor / the advisor's question" → usa "this report asks / the question we investigate".
+    (b) Non rivelare che un esperimento è stato fatto in due tempi: "we re-ran the capstone with the DFS oracle
+    **added**", "originally we did only BFS" → presentalo come **un solo esperimento** ("we test against both
+    traversals"). Al lettore non importa l'ordine cronologico; importa il disegno finale. (NB: i "re-run" che sono
+    esperimenti **diversi** — es. classificatore n40, depth-sweep — restano legittimi.)
+58. **La sezione "piano/esperimenti" è un RIASSUNTO TEMATICO con il verdetto in vista, non un elenco.** Non fare
+    un elenco arido (3.1/3.2/3.3) che poi **duplica** l'intro dei Results ("we report, in order..."). Tieni: (i) il
+    setup comune (modello), (ii) la **costruzione core** (qui: bridged vs split cliques) in un paragrafo, (iii) una
+    **roadmap "in hindsight"** raggruppata per **macro-aree tematiche**, con i `\ref` alle sezioni. UNA sola
+    roadmap (accorcia l'intro dei Results a una riga). Le definizioni che servivano a più sezioni (es. i 3 oracoli)
+    si mettono UNA volta dove si introducono i meccanismi, non ripetute in una sotto-sezione "reference algorithms".
+59. **Chiarezza locale: titoli-paragrafo PIANI (non enigmatici), simboli DEFINITI alla prima occorrenza anche in
+    caption, e sweep discreti con XTICK ESPLICITI.** (a) Evita titoli gergali ("the cutoff is an absolute node
+    budget, not a fraction of the graph") → fattuali ("the breaking point is the same clique size at n20 and
+    n40"). (b) Se una caption usa `c`/`c^2`, scrivi cos'è `c` lì (es. "con `c` la clique size: `c` nodi per lato,
+    quindi `c×c` coppie cross"). (c) **matplotlib su sweep di pochi valori discreti** (es. 5 densità
+    {0.05,0.08,0.12,0.16,0.22}): `ax.set_xticks(valori)` + label esatte, NON la griglia continua auto a 0.025
+    (estende errori 17/30). Posizioni numeriche vere (fedeli alla spaziatura) ticchettando solo i valori reali.
+    Helper `style_p_axis` in `plot_density_sweep.py`.
+60. **La firma di ASIMMETRIA DFS è un lever SECONDARIO/debole — non venderla come prova forte.** L'asimmetria
+    dell'oracolo DFS è intrinseca ("raggiungibile da i entro budget b" non è simmetrica). È evidenza *genuina* solo
+    perché il read-out **lineare** del RoBERTa **non è simmetrizzato** (`model.py:349`, errore 36) → un `R̂_ij≠R̂_ji`
+    era architetturalmente POSSIBILE e il modello non lo mostra (disagreement≈0). MA un transformer parallelo è
+    comunque predisposto a output simmetrico, quindi "zero asimmetria" sorprende poco: il **discriminatore FORTE è
+    il TREND** clique-size (DFS-oracle SALE, modello SCENDE = opposto), l'asimmetria solo conferma. Se la prof
+    chiede "perché l'asimmetria?": è la firma di un algoritmo sequenziale single-start; il transformer non ce l'ha.
 
 ---
 
@@ -555,10 +614,32 @@ matrix-powering distance-bounded, NON traversata bounded; DFS morto. PROSSIMO = 
 
 ## 6. Setup HPC
 
-- Partizioni GPU H200: `gpuh200` (cap 24h), `long_gpuh200` (cap 72h),
+> **🟦 AGGIORNAMENTO SLURM (2026-06-23, mail HPC "new partition configuration").** Lo
+> scheduler è stato riconfigurato per favorire i job corti (82% dei job finisce <1h). Per
+> OGNI famiglia di nodi ora ci sono 5 fasce, da **alta a bassa priorità per i job brevi**:
+> - **`short_*`** (cap **1h10**, PRIORITÀ ALTA): `short_gpuh200` (8 nodi gnode09–16),
+>   `short_gpunew` (4 nodi gnode05–08), `short_cpu`. **Usa QUESTE per gli eval-only**
+>   (bridged eval ~1–3 min/ckpt, reeval ~17 ckpt ~25 min, plot-regen): partono subito.
+> - **`medium_*`** (cap **6h10**): `medium_gpuh200` (8 nodi), `medium_gpunew` (4 nodi),
+>   `medium_cpu`. Per i training **n20** (~1h40, non entra nei short).
+> - **`gpunew`/`gpuh200`** (cap ridotto a **1 giorno**, era 24h/non-cap): `gpuh200` 6 nodi
+>   (gnode13–16 + …), `gpunew` 4 nodi (gnode05–08). Per i training **n40** (~6–8h, sfora i 6h).
+> - **`long_gpunew`/`long_gpuh200`** (cap **3 giorni**, era 72h): 2 nodi ciascuno
+>   (`long_gpuh200` gnode15–16, `long_gpunew` gnode05–06). Quasi mai serve (errore 18).
+> - **`debug_*`** (15 min, serve `--qos=debug`).
+>
+> **REGOLE pratiche:** (a) eval-only → `short_gpuh200` (più nodi → parte prima) o
+> `short_gpunew`, con `--time=01:00:00`. (b) n20 training → `medium_*`. (c) n40 training →
+> `gpunew`/`gpuh200` (1 giorno). (d) Spostare un job PD senza scancel:
+> `scontrol update JobId=<id> Partition=short_gpuh200 TimeLimit=01:00:00` (ridurre il time è
+> permesso, aumentarlo NO). (e) Resta vietata la **multi-partizione** (errore 12): UNA sola.
+> NB: il job `brblocks` (eval bridged-blocks, §11 esperimento OOD) è eval-only → short.
+
+- Partizioni GPU H200: `gpuh200`, `long_gpuh200`,
   `debug_gpuh200` (15 min, serve `--qos=debug`). H100: `gpunew`/`long_gpunew`/
   `debug_gpunew`. **`gpuh200` e `long_gpuh200` condividono gli stessi nodi fisici**
-  (gnode09–16); H100 sono un pool separato (gnode05–07 circa).
+  (gnode09–16); H100 sono un pool separato (gnode05–08). (Cap aggiornati nel blocco
+  AGGIORNAMENTO sopra: gpuh200/gpunew = 1 giorno, long = 3 giorni.)
 - **Cap per-utente `QOSMaxGRESPerUser = 4 GPU` contemporanee** (verosimilmente
   *globale* sulla QOS `normal`). Quindi al massimo 4 job in R insieme; gli array
   più grandi accodano (`Resources`/`Priority`/`QOSMaxGRESPerUser`).
@@ -685,349 +766,204 @@ grafo a meno di permutazione → viste ~10⁸ volte ripermutate. ER trainato: a 
 
 ---
 
-## 11. Stato attuale (aggiornare quando cambia)
+## 11. Stato attuale e compito corrente
 
-- **Parte I (repro n=20)**: completa, 8 seed/condizione (minimal + RoBERTa).
-  Conclusione: data lever non aiuta, seed-dominato. Figure: `fig1_reproduction`,
-  `seed_examples` (restricted vs unrestricted per seed), tabella per-seed.
-- **Parte II**: cicli, diagnostica 2chain (+exp2), conteggio componenti, e
-  **reach depth sweep** (L=1→d\*=3, L=2→9, L=3/4→63): muro = `3^L`, sale con la
-  profondità; figura `reach_by_distance.png`. L=2 confermato saturo (loss ~0.13,
-  1M step).
-- **Esperimento A (embedding geometry)**: fatto; segnale qualitativo (il modello
-  codifica un "righello di distanza", non un'etichetta di componente); la metrica
-  per-distanza grezza è rumorosa (read-out lineare ≠ distanza embedding).
-- **Esperimento B (Laplaciano/similarità, n=64)**: fatto. Il read-out di
-  similarità (λ=0) aiuta il reach; la loss Laplaciana a λ=1 collassa il modello
-  ("tutto connesso"). → motivò il filone Report 4 con λ piccolo + warmup.
+**Report 1–5 CONGELATI (consegnati).** Il Report 5 è stato mostrato alla prof ed è chiuso: non si
+tocca più, salvo richiesta esplicita. Esito Report 5 (= verdetto §6, qui per riferimento): il
+transformer L=2 risolve la connettività con **matrix-powering distance-bounded** (muro a 3^L=9), NON
+una traversata bounded; DFS rifiutato; il "node budget" ~6–7 sui bridged è un'**euristica
+soft/data-prior** (si sposta col read-out, sparisce coi bridged in training con transfer a blocchi
+held-out, NON cresce con la profondità). Dettagli nel `.tex` e in §1.
 
-**Stato Report 4 (al 2026-06-13): RISCRITTO E COMPLETO, 23 pagine, 3 thread + takeaway.**
-Tutto multi-seed (n20 = 8 seed, n40 = 4 seed); solo depth-sweep e i checkpoint reach
-n64 restano single-seed. Compila pulito da `report/4/`. Struttura:
+**>>> COMPITO CORRENTE: REPORT 6** (`report/6/transformer_for_graphs_6.tex`, compilare da
+`report/6/`). Tema: **"simulare una path di ragionamento" — quali dati servono per imparare un
+ragionamento; sequenzialità vs parallelismo.** È il **report conclusivo**: **pochi esperimenti,
+puntuali, vendibili in un paper.** **Indicazioni complete della prof + piano + tesi + mindset in
+§13** (leggerlo PRIMA di agire). Stato: lo **scheletro del `.tex` è abbozzato** (intro + framing +
+piano esperimenti + sezioni-stub con commenti `%`); **NESSUN dato ancora raccolto**. Si torna a
+**lanciare esperimenti via HPC** (§6 è di nuovo task). Vincolo nuovo: **niente mixed random in
+training** (§13). Workflow per esperimento: progetta la distribuzione di training pulita → lancia via
+`sbatch` → pulla json/png → analizza → scrivi la sezione (caption con MODELLO+TRAINING+TEST+METRICA,
+errori §4) → **consegna i comandi git** (Claude NON committa). UN esperimento per chat.
 
-- **Thread 1 — "what makes a graph hard: diameter and density".** Due assi
-  SEPARABILI: (1) distanza-vs-capacità (muro `3^L=9`, fig `acc_vs_distance.png`);
-  (2) densità-vs-training (grafi più densi del training falliscono, fig
-  `acc_vs_density.png`). Lo **spectral gap NON è un terzo asse separabile** sui grafi
-  naturali: corr(diametro, log-gap) = −0.92 (fig `diam_gap_collinear.png`, scatter
-  colorato per famiglia). + pannello famiglie (`tab:fam`, 8 seed) con onestà sulla
-  bimodalità per-seed. + tabelle **per-seed reach-by-distance** (chain_plus, 1chain,
-  path_union; n20+n40; ER vs mixed) e **per-graph-diameter** (path_union, er).
-- **Thread 2 — "the spectral gap: does a bottleneck add difficulty?".** barbell
-  (bottleneck a d=3 dentro capacità, `tab:bar_n40/n20`); barbell_var presentato
-  **per diametro** (è densità+ponte, NON gap — vedi errore 22); expander_var
-  (confound densità, errore 23); e il **probe parallel_paths CONFOUND-FREE** (errore
-  24, `eval_parallel_paths_clean.py`): risultato POSITIVO — oltre la capacità più
-  route (resistenza più bassa) → connessione confermata (`tab:ppclean`,
-  `parallel_paths_clean.png`). Conclusione: il bottleneck È isolabile con un probe
-  costruito, ma collineare col diametro sui grafi naturali.
-- **Thread 3 — "the read-out".** similarity raddoppia il reach (`tab:simlin_n40/n20`
-  per-seed solo famiglie interessanti, + `tab:chainplus_n40` + `fig:chainplus_n40` +
-  depth-sweep `tab:depthsim`); loss Laplaciana **con formula** (`tab:lambda`); reach
-  vs cut (`tab:reachcut`); near-miss cut (`eval_near_miss_cut.py`, `fig:nearmiss`);
-  degree heuristic (`tab:degree`, 5 arm incl. loss, n20). Near-miss e degree heuristic
-  sono **sottosezioni di Thread 3** (NON sezioni a sé — l'utente le voleva omogenee).
+**Riuso da Report 4/5 (punti di partenza del Report 6):** Thread A (multipath) parte da
+`eval_parallel_paths_clean.py` + `generate_parallel_paths_graph(n, n_paths, path_len)` (Report 4
+§4.4); Thread C (bridged iterate) da `generate_bridged_cliques_graph`/`generate_split_cliques_graph`
++ `eval_bridged_cliques.py` e dai "bridged dense blocks" del Report 5 §5.6 (blocchi ER densi p≈0.6 +
+ponte). Training puliti via `train_families_n20.py` (`--families`, `--n_nodes`, `--p`,
+`--include_bridged`, `--n_layers`), **ma con UNA famiglia/distribuzione esplicita per run, non il
+mixed**. Per i nomi-cartella e i path-output vedi §5.
 
-**Deliverable nuovi fatti questa sessione (script + risultati in repo):**
-- `eval_difficulty_map.py` (la mappa di difficoltà; bug `offdiag.reshape` fixato →
-  errore #20 nel codice: usare `offdiag.sum()`). Figure aggregate poi rifatte più
-  chiare: `runs/report4/report4_figs/acc_vs_distance.png`, `acc_vs_density.png`,
-  `diam_gap_collinear.png`. (Le vecchie `runs/report4/difficulty_map/map_combined.png` e
-  `partial_dependence.png` esistono ma sono superate.)
-- `eval_near_miss_cut.py` + `scripts/near_miss_cut.sbatch` (test del cut).
-- `eval_parallel_paths_clean.py` + `scripts/parallel_paths_clean.sbatch` (probe gap
-  confound-free; girato, risultato positivo).
-- Figure report in `runs/report4/report4_figs/`.
+**Idee future già citate (NON ora):** probe meccanicistico (`attention_maps`/`embeddings`) per
+trasformare "somiglia a MP" in "calcola A^{3^L}".
 
-**Stato job HPC: niente in coda/running.** Tutti i job completati (fam20 8 seed,
-fam40 4 seed, diffmap, near_miss_cut, ppclean).
+---
 
-**Possibili follow-up (non urgenti):** depth-sweep a **n>64** per separare i read-out
-a L=3 (a n=64 sia linear che similarity saturano tutto il range, non si distinguono).
+## 12. Riferimento: regole per accorciare il Report 5 (pass principale FATTO)
 
-**>>> AGGIORNAMENTO 8a sessione (2026-06-20): §5.6 (train-on-bridged, il DECISIVO) ANALIZZATA e SCRITTA + §6
-VERDETTO SCRITTO → IL REPORT 5 È COMPLETO (30 pp., compila pulito da `report/5/`).** §5.6 (`sec:res-capacity`):
-i `runs/report5/bridged_cliques_trained/` (8 seed: n20×4 c≤10, n40×4 c≤20) mostrano che, col bridged+split AGGIUNTO
-allo stream mixed (`--include_bridged`, fam_tag `mixedbr`), il cross-block è **1.00 a OGNI clique-size** (piatto
-sull'oracolo matrix-power, knee SPARITO), disc=1.00, split-exact=1.00 (NON over-connette), asimmetria≈0 — vs il
-baseline held-out §5.2 che crolla a 0 oltre c≈6–7. **ESITO: il "node budget" di §5.2 era un BUCO DI DATI, non un
-muro di capacità duro** (il ponte è SEMPRE a distanza ≤3 = dentro capacità 3^L=9 a ogni c → l'architettura L=2 ne è
-capace, mancava solo nei dati). Caveat onesto scritto: NON sposta il muro-distanza 3^L (skill within-capacity); il
-depth-sweep `brdepth` (L1/L3, ancora in coda) è il test del knee∝3^L. Connesso a §5.5 (il read-out muove il budget):
-budget malleabile su 2 leve ⇒ artefatto soft, non secondo limite ⇒ inclina verso matrix-power. Figura
-`base_bridged_trained_knee.png` (held-out vs trained, 2 pannelli n20/n40) da `plot_bridged_cliques.py`
-ESTESO (`load_all_trained` + `plot_trained_vs_heldout`, regex `n{N}_seed{S}`, `--trained_root`). §6 (`sec:verdict`):
-sintesi — DFS rifiutato 2 volte (§5.2 costruiti + §5.4 barbell naturale); non matrix-power LETTERALE (budget ~6–7 a
-distanza ≤3) MA il budget è rimovibile (§5.5 read-out + §5.6 dati) = euristica data-prior, non capacità; density §5.3
-(denso=più veloce) e capstone §5.4 (MP dove il test ha potere) confermano ⇒ **verdetto = matrix-powering
-distance-bounded, NON traversata bounded**; caveat: evidenza comportamentale (serve probe meccanicistico) + §5.6 testa
-solo within-capacity. **Consegnati i comandi git all'utente** (Claude non committa): `report/5/transformer_for_graphs_5.{tex,pdf}`,
-`plot_bridged_cliques.py`, `runs/report5/report5_figs/base_bridged_trained_knee.png` (+ i png rigenerati identici). <<<**
+Il pass di accorciamento §1–§6 è **FATTO** (31→26 pp.): prosa di contorno tagliata, tutte le
+tabelle/figure e i numeri tenuti, caption complete, §3 "piano" accorpato (rimossa la sotto-sezione
+§3.2 senza risultati propri), §5.7 era già il template del taglio. Queste regole restano qui per i
+prossimi tagli, se l'utente ne chiede ancora:
 
-**>>> AGGIORNAMENTO 7a sessione (2026-06-20): §5.4 chiusa COMPLETAMENTE col DFS-su-tutte-le-famiglie + §5.2 a
-8 seed. Il `.tex` è a 26 pp., compila pulito. RESTA SOLO §5.6 (dati pronti) + §6 verdetto (ora SBLOCCATO).** Cosa
-fatto: (1) **§5.4 — capstone DFS-incluso ANALIZZATO su TUTTE e 12 le famiglie** (non solo barbell, errore 52):
-pooled, ai budget discriminanti il modello segue matrix-power su SIA BFS (≤0.05) SIA DFS (≤0.06) → "non è una
-traversata bounded" vale per ENTRAMBE; il **barbell n40** è l'unica firma bounded naturale e il contrasto DIRETTO
-BFS-vs-DFS lì dà **BFS 0.61–0.74, non DFS** (n20 troppo debole, ≈0.54; 2cliques/clique_blocks danno 0 disaccordo
-BFS-DFS). `plot_oracle_families.py` ora legge `oracle_families_dfs/` e disegna la **3a curva follows-DFS**
-(figura `oracle_families_follow.png` a 3 curve MP/BFS/DFS); `tab:capstone` ha il blocco **follows-DFS**; testo+caption
-§5.4 riscritti per coprire entrambe le traversate (errori 52–54). (2) **§5.2 a 8 seed n20-mixed** (`broldsd`,
-seeds 5000–8000 poolati ri-girando `plot_bridged_cliques.py`): numeri invariati (knee c≈6–7, cross≈0; c=6 0.95→0.94),
-tabelle/caption aggiornate a 8 seed, + 1 frase **xcheck** (retrain `bridged_cliques_xcheck/` riproduce gli originali
-a 2 decimali). §5.5 linear-n20 etichettato a 8 seed per coerenza con la figura rigenerata. **Consegnati i comandi
-git all'utente** (Claude non committa): `plot_oracle_families.py`, `plot_bridged_cliques.py`,
-`report/5/transformer_for_graphs_5.{tex,pdf}`, figure in `runs/report5/report5_figs/`. <<<**
+1. Esperimento non-interessante/non andato → NON nei Results: una riga in un caveat. Se un
+   esperimento esce, esce col suo risultato; non si tiene un esperimento amputandone il risultato.
+2. Paragrafi da mezza pagina che spiegano UN concetto → 2–3 righe. Dire il concetto UNA volta;
+   niente "this is the natural objection…", niente ri-spiegoni.
+3. Spiegare semplice (cosa è una "coppia", il "cross block", perché conta) MA conciso.
+4. **I RISULTATI non si tagliano MAI** — numeri chiave in grassetto/tabella + una frase di "cosa
+   significa". Si taglia solo la prosa di contorno.
+5. Tenere ogni tabella/figura interessante (NON quelle tutte-1.00 o tutte-0) e le caption complete
+   MODELLO+TRAINING+TEST+METRICA (regola 21 — accorciabili, NON svuotabili).
+6. Onestà intatta: i caveat veri (confound ER, seed-lottery, evidenza comportamentale) restano in
+   forma compatta.
+7. Dopo ogni sezione: ricompila da `report/5/` (2 passate), 0 reference indefinite, consegna i
+   comandi git all'utente.
 
-**Stato Report 5 (aggiornato 2026-06-20, 5a sessione, vedi 7a sopra per il delta): §5.1, §5.2, §5.3 E §5.4 (CAPSTONE)
-analizzati e SCRITTI. Il `.tex` arriva a 22 pagine (ORA 26), compila pulito da `report/5/`.** Restano: §5.5 similarity-budget
-(SCRITTA in 6a sessione), §5.6 capacità-vs-prior-dati (dati ORA PRONTI in `runs/report5/bridged_cliques_trained/`,
-era "job trbr in corso"), §6 verdetto (per ultimo, ora sbloccato lato DFS). §5.1: setup due regimi + `tab:clf_early`/`tab:clf_early_n40`
-+ `fig:clf`/`fig:clf_n40` + `fig:clf_loss` + caveat (errori 39–42). §5.2: per-blocco `tab:base_blocks`, sweep
-`tab:base_sweep`+`fig:base_sweep`, oracle-follow `fig:base_oracle`, confound ER `tab:base_er`. §5.3:
-`tab:dens_conv`/`tab:dens_ood` + `fig:dens_conv`/`fig:dens_ood`. §5.4 (NUOVA, errori 46–49): `fig:capstone`
-(`oracle_families_follow.png`) + `tab:capstone` — esito: modello = matrix-power sui grafi naturali, firma BFS
-solo su barbell (vedi errore 48).
+**Possibile passo successivo (a richiesta utente):** riordinare le sezioni del Report 5.
 
-**AGGIORNAMENTO 5a sessione (2026-06-20): §5.4 capstone CHIUSA + push del "dimenticato".** I 3 job leggeri
-sono FINITI e pullati: `533393` (oraclefam → `runs/report5/oracle_families/`, 16 json), `533476` (brsim →
-`runs/report5/bridged_similarity/`, 24 json, PRONTO per §5.5), `532846` (bridged eval re-run, ridondante con
-§5.2). §5.4 scritta e committata (tex/pdf + `plot_oracle_families.py` fixato + `oracle_families_follow.png`).
-Pushate anche le figure §5.1–5.3 + i 3 plot-script (erano non committati da sessioni vecchie, errore 50) e la
-revisione editoriale del Report IV `.tex`. **Job ANCORA in corso (NON analizzare/pushare finché non finiscono
-TUTTI):** `trbr` train-on-bridged §5.6 (533479_0-3 RUNNING su 8 seed, 533480_4-7 PD), `brdepth` depth-sweep
-§5.6-bonus (533482/483 PD), `broldsd` +4 seed §5.2 (533484 PD).
+---
 
-**AGGIORNAMENTO 4a sessione (2026-06-19): scoperto che i `.pt` NON erano cancellati (errore 34 corretto)
-+ progettati e creati gli script per gli esperimenti CONCLUSIVI + messi i PLACEHOLDER nel `.tex`.** Il
-report 5 ora ha, dopo §5.3, gli stub: §5.4 capstone (`sec:res-capstone`), §5.5 similarity-budget
-(`sec:res-sim`), §5.6 capacità-vs-prior-dati (`sec:res-capacity`), §6 verdetto (`sec:verdict`). Ogni stub
-ha nei commenti `%` del `.tex`: script che lo produce, path di output, predizione/cosa-guardare, e i campi
-caption (regola 21). **La prossima chat: UN esperimento, riempi lo stub corrispondente.** Nuovi script
-(eval-only quelli leggeri): `scripts/eval_bridged_similarity.sbatch` (Exp 3, sui pesi similarity esistenti
-`runs/families_n{20,40}/...similarity...`), `scripts/eval_bridged_oldseeds.sbatch` (+4 seed n20-mixed 5000-8000
-nel pool §5.2 + cross-check `bridged_cliques_xcheck/`), `scripts/train_bridged_in_stream.sbatch` (Exp 2,
-train-on-bridged: `--include_bridged`, decisivo capacità-vs-dati), `scripts/train_bridged_depth_sweep.sbatch`
-(Exp 1 bonus, `--n_layers` 1/3). Modifica retrocompatibile a `train_families_n20.py`: aggiunti `--n_layers`
-(default 2) e `--include_bridged` (famiglie `bridged`+`split` con clique-size random; fam_tag→`mixedbr`;
-run-name prende `_L{L}` se L≠2).
+## 13. Report 6 — "path di ragionamento": indicazioni della prof, piano, tesi, mindset
 
-**LEARNING-CHIAVE 3a sessione (errore 45): TRE oracoli DISTINTI (matrix-power vs bounded-DFS vs
-bounded-BFS), non due.** L'utente ha fatto notare che il report mischiava "DFS" e "BFS troncato". Ora ogni
-esperimento è letto vs tutti e tre, in modo coerente. §2.4 ridefinita (titolo "Reference algorithms: matrix
-power, bounded DFS, and bounded BFS"; tolto il paragrafo "A subtlety... recorded for honesty", ora
-"Depth-first dives, breadth-first gets stuck"). §5.2 è il test che SEPARA i tre: il DFS oracle SALE con c
-(si tuffa), il modello SCENDE → **DFS RIFIUTATO** (per trend + zero asimmetria); il modello = MP-fino-a-budget-
-~6-7-nodi-poi-BFS-bloccato. **Da §5.2 in poi si porta avanti solo matrix-power vs bounded-BFS.** §5.3 NON
-separa DFS da BFS (entrambi visit-bounded → "denso rallenta"): separa MP dalla famiglia visit-bounded.
-Figure base rifatte a 3 oracoli (`plot_bridged_cliques.py` → `plot_combined_cross_sweep`/`_oracle_follow`).
+> Blocco aggiunto dopo che l'utente ha mostrato il Report 5 alla prof. **Resta valido per OGNI nuova
+> chat sul Report 6.** Sono le indicazioni della prof (tradotte e ripulite) più il piano operativo.
+> Lo scheletro `.tex` è già in `report/6/transformer_for_graphs_6.tex`.
 
-**>>> WORKFLOW PER LE PROSSIME CHAT: UN esperimento per chat. Leggere PRIMA, RIGA PER RIGA, TUTTO
-`istruzioni.md` + TUTTI i 5 report dai `.tex` — e **rileggere il Report 5 (`report/5/transformer_for_graphs_5.tex`)
-4 VOLTE riga per riga** (vedi regola di lettura in cima al file): la maggior parte degli errori nasce dal non aver
-letto tutto. POI analizzare l'esperimento assegnato dai json già in `runs/report5/`, **coprendo TUTTE le
-famiglie/condizioni che l'esperimento misura, non solo il caso interessante** (errore 52), scrivere la sotto-sezione
-nei Results (caption complete — regola 21; tabella+figura per ogni claim — regola 20), e CONSEGNARE i comandi git
-all'utente (Claude non committa). Non rifare i job: i dati ci sono già. <<<**
+### 13.1 Indicazioni della prof (tradotte e ripulite)
+Il tema su cui specializzarci è principalmente **simulare una "path di ragionamento"** e **capire
+quali dati servono per imparare un certo ragionamento** → i concetti di **sequenzialità e
+parallelismo**.
 
-**>>> PIANO PER CHIUDERE IL REPORT — AGGIORNATO 8a sessione: §5.4/§5.5/§5.6/§6 e old-seed sono TUTTI FATTI E
-SCRITTI. IL REPORT 5 È COMPLETO (30 pp.). RESTA SOLO un BONUS OPZIONALE: il depth-sweep §5.7 (`sec:res-depth`),
-stub già pronto nel `.tex` con scaffolding completo nei `%` → vedi la voce "Exp 1 — depth-sweep" nella mappa sotto
-(dati 6/8 pronti, n40-L3 in coda). La cronologia 1–4 qui sotto è storica. NB: se il depth-sweep non viene mai scritto,
-il report resta comunque completo (il muro 3^L è già stabilito nei Report III–IV; §5.7 lo aggancia causalmente al
-node-budget, ma non è un gate).**
+- **L'esperimento §4.4 del Report 4 (parallel paths) è piaciuto molto.** A diametro/distanza
+  fissata, con due estremi `(a,b)`, se ci sono **più cammini** da `a` a `b` il modello impara
+  meglio: forte per mostrare *come* un transformer impara i ragionamenti. **MA era fatto male**: un
+  solo seed, dati poco sensati (alcune celle saturavano a 1.0). Va **rifatto multi-seed** e prima va
+  **analizzato** quali combinazioni (numero di cammini `k`, lunghezza `ℓ`) sono davvero informative
+  → poi decidere che esperimenti hanno senso. Chiamiamo **multipath** questi grafi (più cammini
+  `a→b`).
+- **Sample efficiency del multipath:** quanti samples di multipath servono per imparare
+  **esattamente** la connettività — forse del solo pair `(a,b)`, forse dell'intera matrice (magari
+  **entrambi**, da decidere dai dati).
+- **Interessante anche il setting "mai visto in training":** come nel Report 4, allenare con **solo
+  ER** (mai multipath in training) e valutare sul multipath.
+- **Multipath troncati:** se nel training metto anche multipath **troncati** (un cammino tagliato
+  che NON raggiunge `b`), questi **confondono** il training? (tesi: sì, va peggio).
+- **Two-chains asimmetriche:** nel Report 4 risultava che due catene di lunghezza **(4, 36)** erano
+  **più facili** di **(17, 23)**. Vanno **analizzati quei dati** e capito **perché**, con la lente
+  "testare/simulare una path di ragionamento".
+- **Bridged cliques iterate:** train con bridged cliques (come Report 5), test su
+  **clique–ponte–clique–ponte–clique–…**. Piaceva perché simula un gruppo di "se e solo se": il
+  modello deve trovare **qual è il nodo che passa al ponte** e quindi la clique successiva — un
+  **passaggio forzato** ripetuto. Da fare per simmetria con **un solo edge**, ma per il nostro
+  ragionamento ha senso anche con **più di un edge** nel ponte, **purché non si superi il diametro
+  9**. Provare anche i grafi dell'ultimo esperimento del Report 5 (§5.6 "bridged dense blocks"): due
+  **blocchi** di catene connesse con, tra i nodi interni al blocco, un edge a **p≈0.6** (una sorta
+  di blocchi ER) + edge di ponte → vedere se più facile o più difficile.
+- **Alberi:** provare qualche esperimento con grafi ad **albero**.
+- **⚠️ Il mixed training NON è chiaro: non usarlo così randomico.** Non si possono scrivere paper
+  mettendo grafi random in training. Deve essere **chiaro e sensato**: usare **ER**, oppure
+  **cliques**, oppure **bridged cliques** (a seconda dell'esperimento), oppure **random graphs**, o
+  altro — anche **più grafi insieme**, basta che la distribuzione sia esplicita e motivata.
 
-1. **§5.4 CAPSTONE oracle-vs-famiglie** (`sec:res-capstone`). ✅ **FATTO e SCRITTO** (5a sessione, vedi
-   errori 46–49). Job `533393` finito, json in `runs/report5/oracle_families/` (16). Figura ufficiale
-   `oracle_families_follow.png` da `plot_oracle_families.py` (fixato, errore 49). Esito in errore 48.
+### 13.2 Principio sui dati di training (NUOVO, non negoziabile)
+Ogni esperimento si allena su **UNA distribuzione esplicitamente nominata** (ER, cliques, bridged
+cliques, multipath, alberi, o una combinazione di poche **dichiarata e motivata**). **NON** usare di
+default il "mixed" uniforme-su-9-famiglie dei Report III–V. Se si riusa un numero di un report
+precedente che veniva dal mixed, dirlo e trattarlo da baseline, non da condizione pulita. Tecnicamente
+`train_families_n20.py` resta lo strumento, ma lanciato con `--families <UNA>` (o una combinazione
+esplicita), **mai** col mixing opaco.
 
-2. **§5.5 SIMILARITY-budget** (`sec:res-sim`) — **QUESTO È IL PROSSIMO.** Dati GIÀ pullati: `533476` (brsim)
-   FINITO → `runs/report5/bridged_similarity/<tag>/bridged_cliques.json`, **24 json** (tag
-   `n{20,40}_{mixed,er}_sim_seed{S}`: n20 8 seed mixed+8 er, n40 4 seed mixed+4 er). Sono l'output di
-   `eval_bridged_cliques.py` sui pesi SIMILARITY (`runs/families_n{20,40}/...similarity...`), stesso formato
-   dei json linear di §5.2 (`runs/report5/bridged_cliques/`). **DA FARE nella nuova chat:** (a) **estendere
-   `plot_bridged_cliques.py`** perché legga anche `bridged_similarity/` (oggi è cablato su `bridged_cliques/`;
-   il readout è auto-rilevato nel json — campo `readout`); (b) confrontare il **knee del cross-block-vs-clique-size**
-   col baseline LINEAR di §5.2 (lì knee a c≈6–7, crollo 1→0). PREDIZIONE: knee ~6–7 → ~13–14 ⇒ il budget-nodi
-   = capacità-di-distanza (il similarity raddoppia il reach a 2·3^L in Report IV ⇒ aggancio causale forte);
-   knee INVARIATO ⇒ budget-nodi e reach-distanza sono meccanismi DIVERSI (comunque informativo). Leggere SOLO
-   il **mixed** come test pulito (cricche dense in-distribution); ER = cross-check confuso (errore 42). Caption
-   regola 21. Riempire lo stub `sec:res-sim`. (Errore 43: conta i 24 json / controlla skip prima di fidarti.)
+### 13.3 Mindset
+- È tra i **report conclusivi**: si cerca di arrivare alla conclusione, si vogliono **risultati spendibili/vendibili
+  in un paper**. **Pochi esperimenti, puntuali**, ciascuno a sostegno di **una tesi precisa** — NON
+  tanti esperimenti diversi come nei report passati.
+- Onestà intatta (preferenze §3): risultati negativi puliti meglio di positivi sporchi; segnalare
+  confound (ER/densità-OOD, seed-lottery), evidenza **comportamentale**.
 
-3. **§5.6 CAPACITÀ-vs-PRIOR-DATI** (`sec:res-capacity`). Lancia `scripts/train_bridged_in_stream.sbatch`
-   (Exp 2, `--array=0-3%4` n40 prima, poi `4-7%4` n20; ~12h/job) e — opzionale — `train_bridged_depth_sweep.sbatch`
-   (Exp 1, n20 L1/L3 economico). Auto-evalutano bridged → `runs/report5/bridged_cliques_trained/` e
-   `runs/report5/bridged_cliques_depth/`. Lettura: cross-block crolla LO STESSO con c ⇒ capacità dura;
-   impara a propagare ⇒ buco di dati. Knee che si sposta con L ⇒ è la capacità 3^L.
+### 13.4 Tesi da sostenere (lo spine del report)
+1. **Più cammini paralleli aiutano** a risolvere la connessione, **anche senza averli mai visti in
+   training**; e c'è un **costo in samples** misurabile quando invece i multipath sono in training.
+2. **I cammini troncati nel training peggiorano** (confondono la skill di connessione).
+3. **Non gestire i bridged cliques è "mai visto", non "troppo difficile":** è un buco OOD (come un
+   ER troppo denso), non una difficoltà intrinseca — coerente col Report 5 §5.6 (coi bridged in
+   training il modello li gestisce). Da spingere a versioni ripetute/variate.
+4. **Un ponte imparato compone:** un modello che impara **una** bridged clique sa gestirla anche
+   **ripetuta** (catene) e con **blocchi diversi** (es. ER densi), purché entro la capacità (≤9).
+   *(Tutte da TESTARE — ipotesi, non ancora risultati.)*
 
-   **PIÙ (gratis, da fare quando torna comodo):** `scripts/eval_bridged_oldseeds.sbatch` (eval-only) →
-   +4 seed n20-mixed (5000-8000) nel pool `runs/report5/bridged_cliques/` (rigenera la figura/tabella §5.2 a
-   8 seed) + `runs/report5/bridged_cliques_xcheck/` (consistenza retrain vs originali, 1 frase in §5.2).
+### 13.5 Piano esperimenti (gruppi → vedi le sezioni-stub nel `.tex`)
+- **Thread A — Parallelismo (multipath).** A.1 rifare il probe del Report 4 §4.4 multi-seed, prima
+  mappando le celle `(k,ℓ)` informative; train **ER puro** (mai multipath), eval su multipath. A.2
+  sample-cost: multipath **in** training, sweep del budget, quanti samples per connettività esatta
+  (pair `(a,b)` e/o matrice intera). A.3 multipath **troncati** mescolati in training → peggiora?
+- **Thread B — Two-chains asimmetriche.** Analizzare i dati del Report 4 ((4,36) vs (17,23)), poi un
+  esperimento controllato; lettura "path di ragionamento".
+- **Thread C — Bridged cliques iterate.** C.1 train su bridge singola (pulita, stile §5.6) → test su
+  catene clique–ponte–clique–…; C.2 ponti **>1 edge** (distanza ≤9) e **blocchi ER densi** (p≈0.6)
+  invece delle cricche.
+- **Thread D — Alberi** (esplorativo, breve salvo risultato chiaro).
+- **Verdetto** (scrivere per ultimo): per ciascuna tesi, se l'evidenza la sostiene.
 
-4. **§6 VERDETTO** (`sec:verdict`). Da scrivere PER ULTIMO, dopo §5.6. **ORA SBLOCCATO lato DFS** (il capstone
-   DFS-incluso è chiuso, 7a sessione: DFS rifiutato anche sul barbell naturale n40) → **l'UNICO gate residuo è
-   §5.6** (train-on-bridged: capacità dura o buco di dati?). Sintesi: non-DFS, non-MP-puro, visit-bounded (MP fino
-   a budget ~6-7 nodi, poi BFS-bloccato); densità (§5.3) punta verso MP; future work = probe meccanicistico +
-   densità-clique a node-count fisso. Lo stub `sec:verdict` nel `.tex` ha già la scaletta aggiornata nei `%`
-   (DFS landed, manca solo §5.6). <<<**
+### 13.6 Note tecniche da non dimenticare
+- **multipath** = `generate_parallel_paths_graph(n, n_paths=k, path_len=ℓ)`: 2 terminali + `k`
+  cammini disgiunti, distanza fissa `ℓ`, resistenza `ℓ/k`. **multipath troncato** = alcuni cammini
+  sono vicoli ciechi che non arrivano a `b` (da implementare/variante del generatore).
+- Per il Thread C tenere SEMPRE le distanze cross **≤ 9** (entro capacità 3^L), così il fallimento
+  eventuale è "non visto"/propagazione, NON il muro-distanza.
+- Riusare gli eval esistenti dove possibile: `eval_parallel_paths_clean.py`,
+  `eval_bridged_cliques.py`; estendere i plot-script (`plot_bridged_cliques.py`,
+  `analyze_parallel_paths.py`) e mettere gli output nel bucket nuovo `runs/report6/...`.
+- Valgono tutte le regole §4 (caption 21, no-codice 56, no-advisor/no-storia 57, ≤/≥ unicode nei
+  titoli matplotlib, xtick espliciti 59) e le regole di scrittura/accorciamento §12.
 
-**Mappa per-esperimento** (✅ fatto&scritto · 🟢 dati pronti, DA analizzare · 🔵 job HPC in coda, dati NON
-ancora pullati · ⏳ in attesa/opzionale):
+### 13.7 Thread A — IMPLEMENTATO (11a sessione, 2026-06-26). Codice + come lanciarlo su HPC.
+**Generatori condivisi** (in `data.py`, riusati da train ed eval — niente duplicazione):
+`generate_multipath_graph(n, n_full, path_len, rng, n_trunc=0, term_deg=4, trunc_len=None)` → 2
+terminali `s,t` + `n_full` route piene (distanza fissa `ℓ`) + opzionali `n_trunc` route **dead-end**
+(non arrivano a `t`, per A3) + foglie di padding a grado fisso + filler path sparso; ritorna
+`(adj, meta)` con la struttura per-route (per l'analisi del meccanismo) o `None` se non ci sta.
+`permute_with_meta(adj, meta, rng)` permuta e rimappa gli indici. `s,t` connessi sse `n_full≥1`.
+Fattibilità: `need = 2 + n_full·(ℓ−1) + n_trunc·trunc_len + 2·max(0,term_deg−n_full)` (e simmetrico
+per i trunc) `≤ n`.
 
-- ✅ **Classificatore** (`runs/report5/bridged_clf/`, 22 run: n20 ×10, n40 ×12). ANALIZZATO e
-  SCRITTO (§5.1). Esito: accuracy finale **piatta a 1.0** fino a c=10 (n20) e c=20 (n40) → smonta
-  il DFS forte; l'ordinamento DFS è solo nel transitorio (clique grandi imparate per ultime; loss∝
-  densità). Discriminatore **debole** (errore 39). Plot: `plot_bridged_classifier.py`.
+**Script (tutti nuovi salvo dove detto):**
+- `eval_multipath.py` (A1, eval-only): sweep `(k,ℓ)`, per cella riporta **pair (s,t)** + matrice
+  (exact/pairwise/active) + **meccanismo** (`n_intact_hist` = quante route piene risolte → single
+  path vs multipath). Metrica primaria = pair; matrice sempre per contesto. Output
+  `runs/report6/multipath/<tag>/multipath.json`.
+- `experiments2/train_multipath.py` (A2/A3): stream multipath puro (`--trunc_frac 0`) o con frazione
+  troncata (`--trunc_frac f`); logga su val pulito **pair (s,t) E matrice** vs step + `steps_to`.
+  Output `runs/report6/multipath_train/n{N}_k{K}_ell{ELL}_{clean|trunc f}_.../history.json`.
+- `experiments2/train_families_n20.py`: **esteso** per accettare una **singola famiglia esplicita**
+  via `--families path_union` (oltre a `er`/`mixed`); usato per i training puliti A1. DataLoader reso
+  robusto a `num_workers 0` (debug locale, err. 37).
+- `plot_multipath.py` (locale, no-GPU): aggrega i json A1 per seed → curve rescue + figura meccanismo
+  in `runs/report6/report6_figs/`.
+- sbatch: `scripts/r6_a1_train.sbatch` (24 task: ER n10/n64 + path_union n10/20/40/64, 4 seed,
+  auto-eval), `scripts/r6_a1_eval.sbatch` (eval-only, riusa ER n20/n40 esistenti + valuta i nuovi +
+  mixed di riferimento; trova i `.pt` provando più path, err. 34), `scripts/r6_a2_samples.sbatch`
+  (40 task), `scripts/r6_a3_truncated.sbatch` (16 task; baseline = i run trunc=0 di A2).
+- **A1 distribuzioni**: **ER** (riuso n20=`repro_paper_n20_roberta` 8 seed, n40=`families_n40` 4 seed;
+  nuovi n10 p=0.20, n64 p=0.03) + **path_union** (tutte le taglie, nuovo). L'effetto rescue (k≥2,
+  ℓ>9) è fattibile **a n40 (k≤2–3) e pulito a n64 (k≤4)**; n10/n20 sono controlli within-capacity.
 
-- ✅ **Base-model bridged eval** (`runs/report5/bridged_cliques/`, 16 json). ANALIZZATO e SCRITTO
-  (§5.2) — **il test decisivo, ed è quello che SEPARA i 3 oracoli**. Esito (sul MIXED, il test pulito):
-  within-A=within-B=1.00 e split exact=1.00 (le cricche dense NON sono il problema), ma il
-  **cross-block crolla con la clique-size** (piatto a 1.0 fino a c≈6, →0 oltre). **Confronto a 3 vie
-  (rifatto questa sessione, errore 45):** MP oracle piatto a 1.0 (distanza ≤3 a ogni c); **DFS oracle
-  SALE** con c (0.19→0.62 n20, →0.69 n40: si tuffa e attraversa il ponte → con budget più grande va più
-  in profondità); **BFS oracle resta ~0** (bloccato nella clique vicina). Il **modello SCENDE** (1→0) →
-  trend OPPOSTO al DFS, uguale al BFS → **DFS rifiutato** (1) per il trend e (2) per ZERO asimmetria
-  (DFS single-start la predirebbe; il transformer emette R̂ in parallelo). Lettura precisa: **matrix
-  power fino a un budget di ~6–7 nodi, poi traversata-BFS bloccata** (visit-bounded; NON "modello=BFS
-  quasi esatto" — a c piccolo il modello è genuinamente MP, non BFS: correzione onesta del testo
-  precedente). Budget assoluto (~6–7 uguale a n20 e n40) → visit-bounded, non distanza. Oracle-follow:
-  sui cross dove MP e BFS DISACCORDANO il modello segue BFS (99.6% n20, 100% n40), MP 0.4%/0%. ER =
-  cross-check confuso (errore 42, `tab:base_er`). Coerente col classificatore. **D'ora in poi si porta
-  avanti solo MP-vs-BFS (DFS scartato in §5.2).** Plot: `plot_bridged_cliques.py` (ora con funzioni
-  `plot_combined_cross_sweep` a 3 oracoli + `plot_combined_oracle_follow`) → `base_bridged_cross_sweep.png`
-  (2×2, 3 oracoli)/`base_bridged_oracle_follow.png`.
-
-- ✅ **Density sweep** (`runs/report5/density_sweep/p{05,08,12,16,22}/`, 20 run: n20 ER linear × 4
-  seed per p). ANALIZZATO e SCRITTO (§5.3). Esito: **denso = più veloce e più affidabile** (steps→0.99
-  da ~10⁵ a p=0.05 a ~5k a p≥0.16; seed-lottery sparito a p≥0.12) → direzione **matrix-power**, contro
-  la forma forte di **QUALSIASI traversata visit-bounded** ("denso rallenta il training" — sia DFS che
-  BFS lo prevedono; questo esp. NON separa DFS da BFS, separa MP dalla famiglia visit-bounded). CAVEAT ONESTO (errore 38): in ER più denso =
-  distanze più corte = target quasi all-ones → a p≥0.16 il task è banale; l'ER **non isola** l'asse
-  "più nodi da attraversare a distanza fissa" (lì densità e distanza si muovono opposte) — quell'asse lo
-  isolano solo le bridged-clique (§5.1/§5.2), dove il costo di traversata RIAPPARE → i due risultati
-  sono coerenti. Secondo dato interessante: l'**OOD transfer è non-monotono, picco a p=0.12** (sotto
-  soglia connettività ~0.15) e lì meno seed-dipendente; troppo sparso = lottery, troppo denso = niente
-  reach a lunga distanza. Tabelle `tab:dens_conv`/`tab:dens_ood` (per-seed), figure
-  `density_convergence.png` (traiettorie + steps-to-0.99 + final, 3 pannelli) e `density_ood.png`
-  (per-seed). Plot: `plot_density_sweep.py` (riscritto). Aperta: density a **n40**?
-
-- ✅ **Capstone: oracle-vs-famiglie** (job HPC **533393** `oraclefam` FINITO; `runs/report5/oracle_families/`,
-  **16 json**). ANALIZZATO e SCRITTO (§5.4, errori 46–49). Test **matrix-power-vs-bounded-BFS** su TUTTE le
-  famiglie naturali (n20/n40, ER/mixed). Metrica = sui pair dove MP≠BFS, `follows_bfs`/`follows_mp` vs budget
-  (`eval_oracle_agreement_families.py`; aggreg. `plot_oracle_families.py` FIXATO errore 49 →
-  `oracle_families_follow.png`). **Esito (errore 48):** sul mixed, a b piccolo/discriminante il modello segue
-  **matrix-power 0.95–0.98** (follows-BFS ≤0.05); il BFS-following sale solo ad alto budget = recupero oltre il
-  muro (errore 47 = trappola), NON visit-bounded. La firma §5.2 **non si estende** ai grafi naturali (cieco:
-  distanza≈nodi); UNICA eccezione il **barbell** (held-out, ponte+cricche dense → inclina BFS, n40 0.29→0.49).
-  ER = confuso. Conclusione: il capstone **localizza** la firma (solo su grafi costruiti), non la estende.
-  **ADDENDUM 6a sessione (errore 50): DFS NON dato per morto** → capstone RIESEGUITO con anche l'oracolo DFS
-  (`scripts/oracle_agreement_families_dfs.sbatch` → `runs/report5/oracle_families_dfs/`).
-  **✅ ANALIZZATO e SCRITTO (7a sessione, errori 52–54).** Il DFS è stato letto su **TUTTE e 12 le famiglie**, non
-  solo barbell (errore 52): pooled, ai budget discriminanti il modello segue **matrix-power su SIA BFS (≤0.05) SIA
-  DFS (≤0.06)** → "non è bounded" vale per entrambe le traversate; al budget grande entrambe salgono = recupero
-  oltre-muro (errore 47/54). Il contrasto DIRETTO `model_follows_{bfs,dfs}_on_bfsdfs` (sulle coppie dove BFS e DFS
-  fra loro disaccordano) separa le due **solo sul barbell n40** (→ **BFS 0.61–0.74, non DFS**; n20 ≈0.54 troppo
-  debole; 2cliques/clique_blocks = 0 disaccordo BFS-DFS). `plot_oracle_families.py` ora legge `oracle_families_dfs/`
-  (verificato identico a `oracle_families/` su MP/BFS) e disegna la **3a curva follows-DFS** →
-  `oracle_families_follow.png` a 3 curve; `tab:capstone` esteso col blocco follows-DFS; testo/caption §5.4 riscritti
-  (la frase "still in the queue" è stata SOSTITUITA col risultato). **§6 ora sbloccato lato DFS.**
-
-- ✅ **Exp 3 — similarity-budget** (§5.5, `sec:res-sim`). ANALIZZATO e SCRITTO (6a sessione). Job `533476`
-  (brsim), **24 json** in `runs/report5/bridged_similarity/<tag>/` (tag `n{20,40}_{mixed,er}_sim_seed{S}`: n20
-  8+8, n40 4+4). `plot_bridged_cliques.py` ESTESO (`load_all_sim` + `plot_similarity_vs_linear` → figura
-  `base_bridged_similarity_knee.png`; regex `_sim` separata, non tocca le figure §5.2). **Esito (sul MIXED, il
-  test pulito):** il similarity NON rimuove il muro — a clique-size pieno il cross-block crolla a 0.00 ESATTO
-  ogni seed (within=1.00, split-exact=1.00, disc=0.50, asym=0.000), come il lineare — ma **SPOSTA il budget**:
-  knee **n40 da c≈7 (lin) a c≈11–12 (sim)**, +4/5 nodi, ≈ il doubling previsto. Stesso meet-in-the-middle che
-  raddoppia il reach 3^L→2·3^L (Report IV): il read-out *one-sided* (lin: j nel ball di i) vs *two-sided* (sim:
-  ball di i ∩ ball di j) → ogni nodo deve raggiungere solo il ponte → budget-nodi ~×2. ⇒ **budget-nodi (§5.2) e
-  reach-distanza (Report IV) = STESSA capacità, due geometrie**, e poiché un read-out di OUTPUT la allarga, il
-  limite vive in *quanto lontano aggrega il trunk* = matrix-power-con-budget, NON uno step-count di traversata
-  sequenziale (un output map non lo toccherebbe). **Caveat onesti:** il knee si muove pulito SOLO a n40 (a n20
-  c≤10 riempie il canvas, budget ~12–14 non esercitabile → knee invariato ~6–7, anzi crollo più netto); shift
-  ~×1.5 non esatto ×2 (anche a n40 c→20 riempie il canvas). **ER = confound:** cross=1.00 PIATTO a ogni c ma per
-  il motivo SBAGLIATO (over-connect tutto il denso → chiama connesse anche le split → split-exact=0.00,
-  disc=0.50). Tabelle `tab:sim_sweep` (knee lin-vs-sim per-c) + `tab:sim_blocks` (per-blocco a c pieno),
-  figura `fig:simknee`. Compila pulito (25 pp.).
-
-- 🟢 **Exp 2 — train-on-bridged** (§5.6, stub `sec:res-capacity`; il test DECISIVO capacità-vs-prior-dati).
-  **>>> QUESTO È IL PROSSIMO ESPERIMENTO DA ANALIZZARE (la chat che riceve questo handoff fa SOLO questo). <<<**
-  **TUTTI gli 8 seed FINITI** — `trbr` 533479_0-3 + 533480_4-7 COMPLETED. **DATI PRONTI** (già in repo).
-  Output eval in `runs/report5/bridged_cliques_trained/n{N}_seed{S}`.
-  Script `scripts/train_bridged_in_stream.sbatch` (training ~12h/job; `--array=0-3%4` n40 prima, `4-7%4` n20).
-  Usa `train_families_n20.py --include_bridged` (famiglie `bridged`+`split` random-c nello stream; fam_tag
-  `mixedbr`). Checkpoint `runs/report5/train_bridged_in_stream/n{N}_mixedbr_roberta_linear_lam0_seed*`; auto-eval
-  bridged → `runs/report5/bridged_cliques_trained/n{N}_seed{S}`. Lettura: cross-block crolla LO STESSO con c ⇒
-  capacità dura a L=2; impara a propagare a ogni c ⇒ era buco di dati (rivedere il verdetto). (Non lanciato.)
-
-- 🟢 **Exp 1 — depth-sweep su bridged** (BONUS elegante; ORA È L'UNICO ESPERIMENTO RIMASTO → stub `sec:res-depth`
-  §5.7 PRONTO nel `.tex` con tutto lo scaffolding nei `%`). **DATI PARZIALI al 2026-06-20 (8a sessione): 6/8 task
-  COMPLETED, 2 ANCORA RUNNING** (`brdepth` 533483_6, 533483_7 = n40 L3 su gnode05/06). Mapping array (N P L seed):
-  0:n20-L1-s1000, 1:n20-L1-s2000, 2:n20-L3-s1000, 3:n20-L3-s2000, 4:n40-L1-s1000, 5:n40-L1-s2000, 6:n40-L3-s1000,
-  7:n40-L3-s2000 → **FINITI: tutto n20 (L1+L3) e n40-L1; MANCA solo n40-L3 (task 6,7)**. Script
-  `scripts/train_bridged_depth_sweep.sbatch` (`train_families_n20.py --n_layers` 1/3; mixed, bridged HELD-OUT;
-  **L=2 = base esistente, riusa `runs/report5/bridged_cliques/n{N}_mixed_seed*` di §5.2**). Checkpoint
-  `runs/report5/depth_sweep/n{N}_mixed_roberta_linear_lam0_L{1,3}_seed*`; auto-eval → `runs/report5/bridged_cliques_depth/n{N}_L{L}_seed{S}/`.
-  **PROSSIMA CHAT — riempire `sec:res-depth`:** (1) aspettare task 6/7 (o scrivere n20+n40-L1 e aggiungere n40-L3
-  quando atterra; contare i json, errore 43); (2) estendere `plot_bridged_cliques.py` con `load_all_depth` (regex
-  `n(\d+)_L(\d+)_seed(\d+)` → chiave `(n,L)`) + `plot_depth_knee` che sovrappone model-cross-acc-vs-clique-size per
-  L=1,2,3 per n (L=2 da `bridged_cliques/`), con oracolo MP → figura `base_bridged_depth_knee.png`; specchiare il
-  wiring `plot_trained_vs_heldout`/`--trained_root`. Predizione: **knee cresce con L (≈3^L) ⇒ il node-budget di §5.2 È
-  la capacità matrix-power in nodi (= muro distanza-9, due geometrie); knee fermo ~6–7 a ogni L ⇒ NON è 3^L** (sorpresa
-  da riportare onestamente). **CONFOUND da NON mancare:** a L=1 la capacità MP è esattamente 3 hop e il cross è a
-  distanza ≤3 → l'L=1 può perdere il cross per la DISTANZA, non per il budget; leggere L=2-vs-L=3 come confronto pulito.
-  Poi piegare 1 frase in §5.6 ("what it does not settle") e nel §6 verdetto.
-
-- ✅ **Old-seed bridged eval** (GRATIS, eval-only). **ANALIZZATO e FOLDATO in §5.2 (7a sessione).** `broldsd`
-  533484. (a) `runs/report5/bridged_cliques/n20_mixed_seed{5000..8000}` → **+4 seed nel pool §5.2** (ri-girato
-  `plot_bridged_cliques.py`, auto-poola per seed): numeri invariati (knee c≈6–7, cross≈0; c=6 0.95→0.94), tabelle
-  `tab:base_blocks`/`tab:base_sweep` + caption a **8 seed**, oracle-follow 99.6%→99.4%. (b)
-  `runs/report5/bridged_cliques_xcheck/` → retrain riproduce gli originali a **2 decimali** ogni seed → **1 frase
-  xcheck** aggiunta al §5.2 setup. NB: la figura §5.5 ora mostra linear-n20 a 8 seed → etichette `tab:sim_sweep`
-  linear-n20 e caption `fig:simknee` aggiornate (numeri linear invariati).
-
-- ⏳ **(opzionale) Re-read del barbell a livello blocco** (dati Report 4, `runs/report4/`): la §3.2
-  del `.tex` prevede di ri-aprire il barbell (ponte-path) a livello per-blocco per cercare la stessa
-  asimmetria, senza nuovi run. Solo analisi.
-
-- ⏳ **Base-model training** (`base_n20/`, `base_n40/`): servono soprattutto come pesi per la bridged
-  eval; di per sé poco interessanti (convergenza in-dist). Bassa priorità.
-
-- ⏳ **Verdetto finale matrix-power vs bounded-BFS** (§6, stub `sec:verdict`; DFS scartato in §5.2 E §5.4 —
-  costruiti E barbell naturale): sintesi conclusiva, da scrivere PER ULTIMO, DOPO §5.6 (gli altri sono FATTI). Le fila già tirate: classificatore (capacità piatta a 1.0, costo solo in
-  ottimizzazione → smonta la forma forte della traversata) + base-model bridged (cross crolla con
-  clique-size a budget assoluto ~6–7 nodi → traversata visit-bounded NON matrix-powering; DFS rifiutato
-  **sui bridged COSTRUITI**, modello = MP-fino-a-budget-poi-BFS) + density (denso = più veloce in training →
-  direzione MP, ma ER conflà densità e distanza, non isola l'asse visit-bounded) + **capstone (§5.4, FATTO): la
-  firma BFS NON regge su tutte le famiglie naturali — il modello è MP dove il test ha potere, BFS solo sui grafi
-  costruiti (barbell). Localizza, non estende.** + **capstone-DFS (§5.4, 7a sessione, FATTO): su tutte le 12
-  famiglie il modello segue MP su SIA BFS SIA DFS (≤0.06); DFS rifiutato anche sul barbell naturale n40 (BFS
-  0.61–0.74) → DFS morto sia sui costruiti sia sul naturale.** + §5.5 (FATTO: il budget-nodi raddoppia col
-  read-out = stessa capacità del reach-distanza). **Manca SOLO §5.6** (capacità dura o buco di dati?). Scrivere
-  §6 SOLO dopo §5.6.
-
-**Job HPC (aggiornato 2026-06-20, 8a sessione, `squeue`/`sacct`):**
-- ✅ COMPLETED, pullati e SCRITTI: `533393` oraclefam (§5.4), `533476` brsim (§5.5), `533651` oraclefamdfs
-  (§5.4 DFS), `533484` broldsd (§5.2 8-seed), `532846` bridged (re-run §5.2, ridondante), **`533479_0-3` +
-  `533480_4-7` trbr (§5.6 train-on-bridged, SCRITTO 8a sessione)**, + i vecchi (clf, density, base20/40).
-- 🟢 **COMPLETED — il PROSSIMO da analizzare (riempie `sec:res-depth` §5.7):** `brdepth` depth-sweep —
-  task 0-5 COMPLETED (tutto n20 L1/L3 + n40-L1) → `runs/report5/depth_sweep/` + `bridged_cliques_depth/`.
-- 🟡 **ANCORA RUNNING — non stagiare la dir finché non finisce:** `brdepth` `533483_6` e `533483_7` (n40 L3,
-  gnode05/06) → la parte n40-L3 di `bridged_cliques_depth/` è PARZIALE. Quando finiscono: pullare e completare §5.7.
-- **PUSH (su HPC) SCOPED solo le dir dei job FINITI** (NON `runs/report5` intero, o stagi i parziali di
-  `brdepth`): `git add runs/report5/bridged_cliques_trained runs/report5/train_bridged_in_stream
-  runs/report5/oracle_families_dfs runs/report5/bridged_cliques runs/report5/bridged_cliques_xcheck`, poi
-  `git status` per VERIFICARE che NIENTE di `depth_sweep/`/`bridged_cliques_depth/` sia staged, poi commit+push.
-  In locale `git pull` poi i plot/analisi. (Ordine: prima pusha §5.5 dal Mac, poi pull+push da HPC — errore
-  "divergent branches" se entrambi i lati hanno commit non sincronizzati.)
-  Comando per stampare la tabella RUNS di un array sbatch SENZA lanciarlo: `bash scripts/<nome>.sbatch`.
-- Domanda aperta: density anche a **n40**?
-
-- **Workflow git ricorrente**: a fine job su HPC `git add runs/... && commit &&
-  push`; in locale `git pull` poi generare le figure. NON lanciare `plot_families.py`
-  prima del pull (vedi errore 14).
+**Sequenza HPC (in ordine):**
+1. push da locale (l'utente): `git add ...; git commit; git push`.
+2. su HPC: `git pull`.
+3. A1 training a blocchi (rispetta cap 4 GPU `%4`, partizioni per taglia):
+   `sbatch --array=0 scripts/r6_a1_train.sbatch` (stampa la tabella), poi
+   `sbatch -p medium_gpuh200 --time=02:00:00 --array=0-7%4 scripts/r6_a1_train.sbatch` (n10),
+   `... --time=04:00:00 --array=8-11%4` (n20 pu), `-p gpunew --time=12:00:00 --array=12-15%4` (n40 pu),
+   `-p gpunew --time=14:00:00 --array=16-23%4` (n64). Ogni run auto-evala.
+4. A1 eval-only (riuso n20/n40 + mixed ref): `sbatch scripts/r6_a1_eval.sbatch` (short, ~1h).
+5. A2: `sbatch --array=0 ...` (tabella) poi `sbatch --array=0-39%4 scripts/r6_a2_samples.sbatch`.
+6. A3: `sbatch --array=0-15%4 scripts/r6_a3_truncated.sbatch`.
+7. a fine job: su HPC committa `runs/report6/**/*.json *.png out/*.out` e push; in locale `git pull`,
+   poi `python plot_multipath.py` (A1) per le figure. **Controlla il conteggio dei json** (gli eval
+   saltano in silenzio i ckpt mancanti, err. 43).
 
 ---
 
 *Per aggiungere questo file a git (lo fa l'utente):*
-`git add istruzioni.md && git commit -m "Add project handoff instructions" && git push origin main`
+`git add istruzioni.md && git commit -m "Update project handoff instructions" && git push origin main`

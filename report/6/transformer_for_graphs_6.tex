@@ -1,0 +1,343 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em
+
+% Figures live in the repo's runs/ directory; this file sits in report/6/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part VI: Learning to Reason --- Which Data Teaches a Connectivity Path?}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% =====================================================================
+% DRAFT / SKELETON (2026-06-26). No data collected yet. This file lays out
+% the framing and the planned experiments for Report VI. Each results
+% subsection is a STUB: the % comments record (a) the question, (b) the
+% prediction / which thesis it supports, (c) the clean training distribution
+% to use, (d) the caption fields required by rule 21. Replace the italic
+% "[To run --- data pending]" lines with real tables/figures once the runs
+% are in. ONE experiment per chat.
+%
+% Design rules carried over from istruzioni.md (esp. errors 21, 55-60):
+%  - every caption states MODEL + TRAINING SET + TEST SET + METRIC, no analysis;
+%  - no code/file/path/flag names in the rendered text;
+%  - no 'advisor' attributions, no chronological "we re-ran" story;
+%  - NEW for Report VI: NO opaque random "mixed" training stream. Every
+%    experiment trains on a single, explicitly named and sensible
+%    distribution (ER, cliques, bridged cliques, multipath, ...), or a
+%    clearly stated combination. See istruzioni.md sec 13.
+% =====================================================================
+
+\begin{abstract}
+\noindent \emph{(Provisional.)} The first five reports asked \emph{what} algorithm the standard
+connectivity transformer ends up computing (a parallel, distance-bounded matrix powering, not a
+sequential traversal; Report~V). This report turns the question around and asks \emph{how it learns
+to reason}: which training data let an $L=2$ model acquire a connectivity ``path'' it was never
+shown, and where instead the limit is simply not having seen the structure. We organise the study
+around two ideas the architecture makes concrete --- \textbf{parallelism} (several routes between
+two endpoints) and \textbf{repeated/iterated structure} (a chain of locally-decided links) --- and
+around one methodological commitment: every experiment trains on a single, clearly named
+distribution, never an opaque random mixture. This is the concluding report of the series, so we
+keep the experiment count small and each one pointed at a single claim.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{What Reports I--V established}
+\label{sec:recap}
+
+We treat the following as established (each multi-seed, documented in Reports~I--V); the new study
+must stay consistent with them.
+
+\begin{itemize}\setlength\itemsep{0.2em}
+  \item \textbf{The data lever does not help the standard transformer generalise}, and whether a
+        run finds the generalising solution is \textbf{seed-dominated}; the diameter filter only
+        speeds up convergence (Reports~II--III).
+  \item \textbf{There is a sharp, architectural distance wall at $\approx 3^L$ ($=9$ at $L=2$)},
+        which moves with depth in a causal sweep and appears even on families seen $\sim 10^8$
+        times in training --- steering the data cannot move it (Reports~III--IV).
+  \item \textbf{Difficulty has two separable axes}: distance-vs-capacity and
+        density-vs-training; the spectral gap is not a third axis on natural graphs (collinear with
+        the diameter), though a purpose-built probe can isolate a bottleneck (Report~IV).
+  \item \textbf{A similarity read-out doubles the reach to $2\cdot 3^L$} (a meet-in-the-middle of
+        two $3^L$-hop neighbourhoods) but cannot cross a bottleneck (Report~IV).
+  \item \textbf{The model computes distance-bounded matrix powering, not a bounded traversal}
+        (DFS rejected; Report~V). The bridged-clique ``node budget'' ($\sim6$--$7$) that looked
+        like a second capacity is a \textbf{soft, learned shortcut}: it moves with the read-out,
+        \emph{dissolves once the structure is in training} (and the learned skill then transfers to
+        an unseen bridge), and does not grow with depth.
+\end{itemize}
+
+\subsection{The new question: how does it learn a reasoning path, and from what data?}
+\label{sec:question}
+
+Report~V settled \emph{which} computation the model runs. The two facts that make this report
+possible are the last one above: putting a structure in training can teach a \emph{within-capacity}
+propagation skill the model otherwise skips, and that skill can \emph{transfer} to structures it
+never saw. So the limiting factor for a given ``reasoning path'' (propagate a connection along a
+particular shape) is often not the architecture but \emph{which data the model was trained on}.
+This report asks that directly, through two lenses the transformer makes concrete:
+
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{Parallelism.} A transformer resolves every pair at once. Report~IV's
+        confound-free probe already hinted that, beyond the capacity, \emph{several} parallel
+        routes between two endpoints make a connection the model could not confirm over a single
+        route. If real and robust, this is a clean statement about \emph{how} the model reasons:
+        redundant evidence (more routes) is easier than a single thin thread, even at fixed
+        distance. Report~IV measured this on one seed and on data partly saturated to $1.0$; here we
+        redo it properly.
+  \item \textbf{Iterated/repeated structure.} Report~V showed the model can be taught the
+        single-bridge ``two cliques are one component iff the bridge is there'' decision. A natural
+        next step is whether that local decision \emph{chains}: a sequence
+        clique--bridge--clique--bridge--$\dots$ asks the model to find, at each stage, the node that
+        carries the link to the next block --- a forced hand-off, repeated. This probes whether a
+        learned local rule composes into a longer path of reasoning.
+\end{itemize}
+
+\subsection{The claims this report argues}
+\label{sec:claims}
+
+We keep the experiment set small and each one aimed at one claim. The intended spine:
+
+\begin{enumerate}\setlength\itemsep{0.15em}
+  \item \textbf{More parallel routes help} the model resolve a connection, \emph{even when it never
+        saw such multi-route graphs in training} (parallelism aids the reasoning); and there is a
+        measurable \textbf{sample cost} to learning it when the graphs \emph{are} shown.
+  \item \textbf{Truncated routes in training hurt}: mixing in dead-end paths (a route that does not
+        reach the far endpoint) confuses the connection skill rather than helping it.
+  \item \textbf{Failing to handle the bridged cliques is ``never seen'', not ``too hard''}: like a
+        too-dense ER graph it is an out-of-distribution gap, not an intrinsic difficulty --- shown
+        by the fact that once the structure is in training the model handles it (Report~V), and we
+        push this to repeated/varied versions.
+  \item \textbf{A learned single bridge composes}: a model that learns one bridged clique can handle
+        it \emph{repeated} (chains of bridged cliques) and with \emph{different block types} (e.g.\
+        dense ER blocks instead of complete cliques), as long as the construction stays within the
+        distance capacity ($\le 9$). \emph{(To be tested --- this is a hypothesis, not yet a
+        result.)}
+\end{enumerate}
+
+\section{Setup and the data principle}
+\label{sec:setup}
+
+\paragraph{Model.} Unless noted we use the same base model as Reports~III--V: the RoBERTa-faithful
+standard transformer with the linear read-out, $L=2$, single head, $d_{\mathrm{model}}=512$,
+normalised-ReLU attention, trained online at $n=20$ (and $n=40$ where the canvas needs to be
+larger) for $10^6$ steps. The input is the self-loop-augmented adjacency matrix $A$; the target is
+the connectivity matrix $R$. Metrics are the usual exact-match, pairwise, and per-distance/per-pair
+accuracies, plus, where relevant, the accuracy on a \emph{single designated pair} (the two
+endpoints of a multi-route graph).
+
+\paragraph{The data principle (new in this report).} Every experiment trains on a \emph{single,
+explicitly named} graph distribution --- pure ER, cliques, bridged cliques, the multi-route
+``multipath'' family, or a clearly stated and motivated combination of a few of them. We do
+\emph{not} use the opaque uniform-over-nine-families ``mixed'' stream of Reports~III--V as a default
+training set: a result is only worth reporting if the training distribution is simple enough to
+state in one sentence and motivate. Where an earlier report's number came from the mixed stream and
+we reuse it, we say so and treat it as a baseline, not as the clean training condition.
+
+\paragraph{The two core families.}
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{Multipath} (the parallel family, from Report~IV): two terminals $a,b$ joined by $k$
+        internally-disjoint paths each of length $\ell$, so the distance $\mathrm{dist}(a,b)=\ell$
+        is fixed and only the number of routes $k$ varies (the effective resistance is $\ell/k$).
+        The terminals are padded to a fixed degree and the rest of the canvas is filled sparsely, so
+        $k$ is the only thing that changes. A \textbf{truncated} multipath replaces some routes with
+        dead ends that do not reach $b$.
+  \item \textbf{Bridged cliques} (the iterated family, from Report~V): two cliques (or two
+        internally-dense blocks) of size $c$ joined by a single bridge edge --- one component. We
+        extend it two ways here: a \textbf{chain} of cliques joined by successive bridges
+        (clique--bridge--clique--$\dots$), and \textbf{thicker bridges} (more than one edge), keeping
+        every cross distance $\le 9$ so the target is always within the matrix-power capacity.
+\end{itemize}
+
+\section{Plan of experiments}
+\label{sec:plan}
+
+The experiments fall into three threads, plus a short exploratory one.
+
+\paragraph{Thread A --- Parallelism: the multipath family.} Redo Report~IV's parallel-route probe
+properly (multi-seed, and only on the route/length cells that are actually informative), then ask
+how many multipath graphs it takes to \emph{learn} the family, and whether truncated routes in
+training hurt.
+
+\paragraph{Thread B --- Asymmetric two-chains.} Explain a specific puzzle from Report~IV: a graph
+split into two paths of very unequal length (e.g.\ $4$ and $36$) appeared \emph{easier} than a more
+balanced split (e.g.\ $17$ and $23$). We analyse the existing data and run a controlled experiment,
+reading it as a statement about how the model reasons along a path.
+
+\paragraph{Thread C --- Iterated structure: chained and thickened bridged cliques.} Train on a clean
+single-bridge family and test on repeated bridges (chains of cliques) and on thicker bridges and
+different block types (dense ER blocks), to see whether a learned local link composes.
+
+\paragraph{Thread D --- Trees (exploratory).} A short look at tree-structured graphs as another
+reasoning-path shape.
+
+\section{Results}
+\label{sec:results}
+
+\emph{(All subsections below are stubs: the runs are planned, not yet collected.)}
+
+\subsection{Thread A.1 --- Parallel routes help, even unseen in training}
+\label{sec:res-multipath-clean}
+% SOURCE (eval-only): eval_multipath.py via scripts/r6_a1_eval.sbatch. Output:
+%   runs/report6/multipath/n{N}_{dist}_seed{S}/multipath.json. Aggregate+plot locally with
+%   plot_multipath.py -> runs/report6/report6_figs/multipath_{rescue,mechanism}_*.png.
+% TRAININGS (clean single distributions; scripts/r6_a1_train.sbatch):
+%   - ER: the prof's "never saw any path structure" framing. n20/n40 REUSE existing ER linear
+%     checkpoints (repro_paper_n20_roberta 8 seeds; families_n40 4 seeds); n10/n64 trained fresh.
+%   - path_union: sees SINGLE-path reach (sharp 3^L wall, k=1 fails beyond 9) but NEVER parallel
+%     routes -> the clean rescue test. All sizes (n10/n20/n40/n64) trained fresh, 4 seeds.
+%   - mixed: Report-IV reference only (NOT a clean condition; eval'd for comparison).
+% SIZES n10/n20/n40/n64. FEASIBILITY need=2+k(ell-1)+2max(0,term_deg-k)<=n: the rescue (k>=2,
+%   ell>9) needs room for >=2 long routes -> visible at n40 (k<=2-3) and CLEANLY at n64 (k<=4,
+%   ell<=15); n10/n20 are within-capacity controls (k does not matter there). Report IV's clean
+%   rescue (mixed n40) was: beyond cap k=1 ~0.55, k=2 ~0.93, k=3 ~1.00 at fixed distance.
+% PRIMARY METRIC = the (a,b)=(s,t) PAIR accuracy (the graph IS the reasoning path; only the pair
+%   matters). ALWAYS contextualise with the whole-matrix exact/pairwise (a correct pair with a
+%   wrong matrix is itself a finding -- e.g. the pair is right because ONE route is fully resolved
+%   while the others are wrong: it sees them connected via a SINGLE path). The per-route MECHANISM
+%   (n_intact_hist: how many of the k routes are fully resolved) decides single-path vs genuine
+%   multipath -- the heart of the analysis.
+% CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), {ER, path_union}-trained,
+%   4 seeds (8 for n20 ER), n in {10,20,40,64}. Test = multipath, fixed distance ell, k routes,
+%   >=400 graphs/cell. Metric = (s,t)-pair accuracy (+ whole-matrix exact), mean over seeds.
+\paragraph{Question.} At a fixed endpoint distance, does adding parallel routes between $a$ and $b$
+make the connection easier to resolve --- and does it, even for a model that never saw a multi-route
+graph in training (pure ER)?
+
+\emph{[To run --- data pending. Report~IV's single-seed version found that, beyond the capacity, one
+route fails ($\approx0.55$) while two or three succeed; this redo establishes whether that holds
+across seeds and identifies which route/length cells are informative rather than saturated.]}
+
+\subsection{Thread A.2 --- The sample cost of learning the multipath connectivity}
+\label{sec:res-multipath-samples}
+% SOURCE: experiments2/train_multipath.py (trunc_frac=0) via scripts/r6_a2_samples.sbatch.
+%   Output: runs/report6/multipath_train/n{N}_k{K}_ell{ELL}_clean_.../history.json with
+%   val_pair_acc + val_exact vs step and steps_to{pair,exact}@{0.9,0.99,0.999} (samples=steps*1000).
+% TRAINING: pure multipath stream (clean), one named distribution per run. Grid generalises over
+%   n in {20,40,64}, routes k in {1..4}, length ell in {5,7,9,11,13}; 300k steps, eval every 2k,
+%   4 seeds. Val = held-out clean multipath (same k,ell).
+% PREDICTION (thesis 1, 2nd half): a measurable sample cost; does more routes (k) lower it, and
+%   does longer ell (beyond capacity) raise it / cap the matrix? Read pair vs whole-matrix
+%   separately -- the pair may be learned long before the matrix.
+% CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), multipath(k,ell)-trained,
+%   4 seeds, n as labelled. Test = held-out clean multipath. Metric = steps (samples) to reach
+%   the (s,t)-pair / whole-matrix exact threshold, mean over seeds.
+\paragraph{Question.} When multipath graphs \emph{are} in training, how many does it take to learn
+the connectivity exactly --- for the single $(a,b)$ pair, and for the whole matrix?
+
+\emph{[To run --- data pending.]}
+
+\subsection{Thread A.3 --- Truncated routes in training confuse the model}
+\label{sec:res-multipath-truncated}
+% SOURCE: experiments2/train_multipath.py (trunc_frac>0) via scripts/r6_a3_truncated.sbatch.
+%   Output: runs/report6/multipath_train/n{N}_k{K}_ell{ELL}_trunc{f}_.../history.json (same dir
+%   as A.2, so the clean trunc=0 baseline sits beside the truncated curves for plotting).
+% TRAINING: a fraction f of training graphs are TRUNCATED -- n_full in {0..k-1} full routes + the
+%   rest dead ends one hop short of t (labels correct; s-t connected iff n_full>=1). Eval on the
+%   SAME clean multipath val as A.2. Configs n40 (k3,ell7) and (k2,ell9); f in {0.3,0.6}; baseline
+%   f=0 is the matching A.2 run; 4 seeds.
+% PREDICTION (thesis 2): truncated routes slow / degrade clean-multipath learning (the model must
+%   verify a route completes, not just that one leaves a). Read pair AND matrix vs f.
+% CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), trained on multipath with a
+%   fraction f of truncated routes, 4 seeds, n40. Test = clean held-out multipath (same k,ell).
+%   Metric = (s,t)-pair / whole-matrix accuracy (and steps-to-threshold) vs f, mean over seeds.
+\paragraph{Question.} If some training routes are dead ends (truncated), does that degrade what the
+model learns about the genuine routes?
+
+\emph{[To run --- data pending.]}
+
+\subsection{Thread B --- Why an unbalanced two-chain split is easier}
+\label{sec:res-asym-chains}
+% ANALYSE the existing Report IV per-distance / per-seed two-chain data first (e.g. a 4+36 split
+% vs a 17+23 split at n=40), then a controlled run. FRAMING: reasoning along a path -- a long path
+% next to a very short one may be effectively a single long reach, whereas two medium paths put two
+% capacity-boundary reaches in the same graph. Read from the data, do not assume the mechanism.
+% CAPTION (rule 21): Model = base RoBERTa linear (L=2, 1 head, d512), [training set as run], N seeds.
+%   Test = two-chain graphs at the chosen length splits, #graphs. Metric = exact-match / per-pair
+%   accuracy by split, mean over seeds.
+\paragraph{Question.} Report~IV suggested that splitting $n$ nodes into two paths of very unequal
+length is \emph{easier} than a balanced split. Why, and what does it say about how the model reasons
+along a path?
+
+\emph{[To analyse the existing data, then run --- pending.]}
+
+\subsection{Thread C.1 --- Chained bridged cliques: does a learned bridge compose?}
+\label{sec:res-chain-cliques}
+% TRAINING: a single bridged-clique family (clean, as in Report V sec 5.6, bridged in stream).
+% TEST: chains clique-bridge-clique-bridge-... (repeated forced hand-offs), within distance <= 9.
+% PREDICTION (thesis 4): if the single bridge is learned, the chained version is handled too (the
+% local "iff + find the bridge node" rule composes). FAILURE would mean the skill is shape-specific.
+% CAPTION (rule 21): Model = base RoBERTa linear, trained on single bridged cliques, N seeds.
+%   Test = chained bridged cliques (#cliques in the chain), #graphs. Metric = cross-block / exact-match
+%   by number of links in the chain, mean over seeds.
+\paragraph{Question.} A single bridged clique is a learnable ``iff'' decision (Report~V). Does it
+\emph{chain} --- can the model carry the link across clique--bridge--clique--$\dots$, finding at each
+stage the node that hands off to the next block?
+
+\emph{[To run --- data pending.]}
+
+\subsection{Thread C.2 --- Thicker bridges and different blocks}
+\label{sec:res-thick-bridges}
+% VARIANTS, all kept within distance <= 9: (i) bridges with MORE THAN ONE edge (does redundancy in
+% the bridge make it easier? ties to Thread A parallelism); (ii) BLOCKS that are dense ER blocks
+% (internal edge prob ~0.6) joined by a bridge, instead of complete cliques (the held-out "bridged
+% dense blocks" of Report V sec 5.6) -- easier or harder than cliques? PREDICTION (thesis 3-4):
+% within capacity these are learnable; thicker bridges may be easier (more routes), ER blocks
+% comparable once the block density is in-distribution.
+% CAPTION (rule 21): Model = base RoBERTa linear, [training set as run], N seeds.
+%   Test = bridged cliques with bridge thickness t / dense ER blocks, sweep size c, #graphs.
+%   Metric = cross-block pair accuracy vs size, by bridge thickness / block type, mean over seeds.
+\paragraph{Question.} Does a thicker bridge (more than one edge) make the hand-off easier, and do
+dense ER blocks behave like complete cliques --- all kept within the distance capacity?
+
+\emph{[To run --- data pending.]}
+
+\subsection{Thread D --- Trees (exploratory)}
+\label{sec:res-trees}
+% A short exploration of tree-structured graphs as another reasoning-path shape. Scope TBD;
+% likely a single clean tree family. Keep brief unless it yields a clear result.
+\paragraph{Question.} How does the model handle tree-structured connectivity, as a third
+reasoning-path shape beside parallel routes and chained bridges?
+
+\emph{[Exploratory --- scope and runs pending.]}
+
+\section{Verdict (to write last)}
+\label{sec:verdict}
+% Synthesise around the claims of sec 1.3: parallelism helps (and unseen-in-training);
+% truncated routes hurt; bridged-clique failure is "unseen" not "hard"; a learned bridge composes.
+% Tie back to Report V (distance-bounded matrix powering; the node budget is a removable data prior).
+% State clearly, for each claim, whether the evidence supports it. Keep honesty: behavioural
+% evidence, the seed lottery, the ER/density confounds.
+\emph{[To write last, once Threads A--C are in.]}
+
+\end{document}
