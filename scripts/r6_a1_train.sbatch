@@ -16,8 +16,9 @@
 # Base model = RoBERTa-faithful, linear read-out, L=2, single head, d512 (Reports III--V).
 #
 # Each array task = ONE (distribution, n, seed). Launch size-blocks separately so the SLURM
-# --time/partition fit (err. 18: don't inflate --time). Print the table first:
-#   sbatch --array=0 scripts/r6_a1_train.sbatch            # (then read the .out for indices)
+# --time/partition fit (err. 18: don't inflate --time). The index ranges are listed below; to
+# print the full RUNS table run WITHOUT --array (NOT --array=0, which RUNS task 0):
+#   sbatch scripts/r6_a1_train.sbatch                      # prints the table and exits
 # Then, respecting the 4-GPU cap (%4):
 #   sbatch -p medium_gpuh200 --time=02:00:00 --array=0-7%4   scripts/r6_a1_train.sbatch  # n10 (fast)
 #   sbatch -p medium_gpuh200 --time=04:00:00 --array=8-11%4  scripts/r6_a1_train.sbatch  # n20 pathunion

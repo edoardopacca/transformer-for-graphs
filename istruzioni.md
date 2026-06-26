@@ -952,11 +952,18 @@ per i trunc) `≤ n`.
 1. push da locale (l'utente): `git add ...; git commit; git push`.
 2. su HPC: `git pull`.
 3. A1 training a blocchi (rispetta cap 4 GPU `%4`, partizioni per taglia):
-   `sbatch --array=0 scripts/r6_a1_train.sbatch` (stampa la tabella), poi
+   `sbatch scripts/r6_a1_train.sbatch` (SENZA `--array` → stampa la tabella ed esce; **NON**
+   `--array=0`, che esegue il task 0!), poi
    `sbatch -p medium_gpuh200 --time=02:00:00 --array=0-7%4 scripts/r6_a1_train.sbatch` (n10),
    `... --time=04:00:00 --array=8-11%4` (n20 pu), `-p gpunew --time=12:00:00 --array=12-15%4` (n40 pu),
-   `-p gpunew --time=14:00:00 --array=16-23%4` (n64). Ogni run auto-evala.
-4. A1 eval-only (riuso n20/n40 + mixed ref): `sbatch scripts/r6_a1_eval.sbatch` (short, ~1h).
+   `-p gpunew --time=14:00:00 --array=16-23%4` (n64). Ogni run auto-evala il proprio checkpoint.
+4. A1 eval-only. **Ordine-indipendente**: i ckpt ER/mixed riusati esistono già; i nuovi sono
+   auto-evalati dal training (punto 3). Per una passata FINALE completa e robusta (single source,
+   regge anche se un training muore prima dell'auto-eval) gateala sul training con **afterany**
+   (err. 44, non afterok): `sbatch --dependency=afterany:<JID_train1>:<JID_train2>:... scripts/r6_a1_eval.sbatch`.
+   Un run anticipato (`sbatch scripts/r6_a1_eval.sbatch`) è innocuo: dà subito i risultati riusati e
+   fa `-- skip` sui non ancora allenati. **Trappola lanci**: `--array=0` NON stampa la tabella (esegue
+   il task 0, duplicando un indice già in un blocco) — la tabella si stampa SENZA `--array`.
 5. A2: `sbatch --array=0 ...` (tabella) poi `sbatch --array=0-39%4 scripts/r6_a2_samples.sbatch`.
 6. A3: `sbatch --array=0-15%4 scripts/r6_a3_truncated.sbatch`.
 7. a fine job: su HPC committa `runs/report6/**/*.json *.png out/*.out` e push; in locale `git pull`,

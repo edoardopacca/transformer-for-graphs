@@ -19,7 +19,7 @@
 #
 # Configs (each has its trunc=0 baseline already in A2): n40 k3 ell7, n40 k2 ell9.
 # trunc_frac in {0.3, 0.6}; 4 seeds. 300k steps, eval every 2k.
-#   sbatch --array=0 scripts/r6_a3_truncated.sbatch        # table
+#   sbatch scripts/r6_a3_truncated.sbatch                  # prints the table and exits (no --array)
 #   sbatch --array=0-15%4 scripts/r6_a3_truncated.sbatch   # all
 
 mkdir -p out

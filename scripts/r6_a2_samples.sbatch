@@ -19,8 +19,9 @@
 #   - vary n at fixed (k=2, ell=7):    n = 20,40,64
 # 4 seeds each. 300k steps, eval every 2k. medium partition (each run < 6h).
 #
-# Print the table, then launch in blocks respecting the 4-GPU cap (%4):
-#   sbatch --array=0 scripts/r6_a2_samples.sbatch          # table
+# To print the table run WITHOUT --array (NOT --array=0, which RUNS task 0); then launch in
+# blocks respecting the 4-GPU cap (%4):
+#   sbatch scripts/r6_a2_samples.sbatch                    # prints the table and exits
 #   sbatch --array=0-39%4 scripts/r6_a2_samples.sbatch     # all (or subset the indices)
 
 mkdir -p out

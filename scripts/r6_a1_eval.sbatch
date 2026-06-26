@@ -19,7 +19,12 @@
 #   - path_union  : sees single-path reach but NEVER parallel routes -> the clean rescue test.
 #                   all sizes trained by r6_a1_train.sbatch.
 #   - mixed       : the Report-IV reference (NOT a clean condition; eval'd only for comparison).
-# Eval-only -> short partition. Re-runnable; safe to launch after the trainings land.
+# Eval-only -> short partition. Re-runnable and order-INDEPENDENT: the reused ER/mixed
+# checkpoints already exist (eval'd whenever this runs), and the freshly-trained ones are
+# auto-eval'd by r6_a1_train.sbatch itself, so coverage is complete either way. For one clean
+# COMPLETE final pass (single source of truth, robust to a training that died before its
+# auto-eval), gate a second run on the training arrays (afterany, not afterok -- err. 44):
+#   sbatch --dependency=afterany:<trainJobIdsColonSeparated> scripts/r6_a1_eval.sbatch
 
 mkdir -p out
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
