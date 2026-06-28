@@ -930,8 +930,10 @@ esplicita), **mai** col mixing opaco.
   Thread A (già implementato e lanciato): NON reimplementare.
 - Per il Thread C tenere SEMPRE le distanze cross **≤ 9** (entro capacità 3^L), così il fallimento
   eventuale è "non visto"/propagazione, NON il muro-distanza.
-- Riusare gli eval esistenti dove possibile (`eval_bridged_cliques.py` per il Thread C; per il Thread
-  A è già fatto, §13.7) e mettere gli output nel bucket `runs/report6/...`.
+- Riusare gli eval esistenti dove possibile (`eval_bridged_cliques.py` per il Thread C **solo per le
+  varianti a DUE blocchi**, es. ponte spesso e blocchi densi C.2; le **CATENE** C.1 a K blocchi
+  richiedono un eval NUOVO — vedi §13.9; per il Thread A è già fatto, §13.7) e mettere gli output nel
+  bucket `runs/report6/...`.
 - Valgono tutte le regole §4 (caption 21, no-codice 56, no-advisor/no-storia 57, ≤/≥ unicode nei
   titoli matplotlib, xtick espliciti 59) e le regole di scrittura/accorciamento §12.
 
@@ -1063,6 +1065,94 @@ no-GPU → `runs/report6/report6_figs/asym_chains_{exact,blocks,perdist}_*.png` 
 errore 43 → conta i json). **Da fare poi (chat analisi):** pull `runs/report6/asym_chains/` →
 `python plot_asym_chains.py` → scrivere §sec:res-asym-chains (caption regola 21, no-codice 56).
 Smoke-test locale fatto (generatore, metriche, remap permutazione, plot).
+
+### 13.9 Thread C — IMPLEMENTATO (12a sessione). Codice, run, lancio. (brief storico sotto.)
+**Stato: IMPLEMENTATO, NON ancora lanciato.** Codice scritto e smoke-testato in locale; manca
+solo `git push` + lancio HPC (sequenza sotto). **Tesi (§13.4 #3–4):** un ponte imparato **compone**.
+
+**Distribuzione di training (pulita, §13.2):** `--families bridged,split` (due cliques, clique-size
+random 2..n/2, ±1 ponte, 50/50) — la distribuzione MINIMA che contiene la decisione "iff il ponte
+c'è", positivo+negativo e nulla più → ogni successo su catene/ponti-spessi/blocchi-densi è
+COMPOSIZIONE, non diversità vista. **NON** riusa `mixedbr` (trappola #1). Base RoBERTa linear L2 d512.
+
+**File nuovi/estesi (smoke-test locale OK):**
+- `data.py`: aggiunto `bridge_width` a `generate_bridged_cliques_graph` e `generate_bridged_blocks_graph`
+  (w archi di ponte fra le due cliques, distanza cross ≤3). NUOVO `generate_clique_chain_graph(n,
+  clique_size, n_cliques, rng, bridge_width=1, block="clique"|"er", p_in=0.6, broken_link=None)` — K
+  blocchi in fila, K−1 ponti, 1 componente; `broken_link=l` droppa un ponte → 2 componenti (negativo
+  anti-"predici-tutto-connesso").
+- `eval_clique_chain.py` (NUOVO, eval-only, C.1): sweep (n_cliques, clique_size); `cross_by_gap[g]` =
+  acc cross fra blocchi a g ponti di distanza (il cuore: la connessione propaga o decade coi link?),
+  `per_link`, `exact`, `chain_block_exact`, **catena rotta** (cut-acc target 0 + discrimination
+  intatta/rotta), `max_dist`/`within_capacity` (calcola APSP, **salta** le celle con diametro >9 —
+  trappola #2). Output `runs/report6/clique_chain/<tag>/clique_chain.json`. Supporta `--block er` (blocchi
+  ER densi incatenati). Tag `n{N}_bridgedsplit_seed{S}`.
+- `eval_bridged_cliques.py`: aggiunto `--bridge_width` (passato a `_gens`/`build` via `partial` sul solo
+  generatore bridged; split non ha ponte) per il sweep clique-size per spessore-ponte (C.2).
+- `plot_clique_chain.py` (NUOVO, locale no-GPU): aggrega i json catena per seed → figura COMPOSIZIONE
+  (cross-acc vs #ponti, una linea per K), figura LUNGHEZZA (exact + end-to-end vs K), GUARD
+  (discrimination vs K), tabella per-cella. `--block er` legge `clique_chain_er/`. → `runs/report6/report6_figs/`.
+- `scripts/r6_c_train.sbatch` (parametrico N: 0-3 n20, 4-7 n40; tabella SENZA `--array`),
+  `scripts/r6_c_eval.sbatch` (eval-only `medium_gpuh200`: C.1 catena cliques + catena blocchi-ER +
+  C.2 ponti spessi bw∈{1,2,3} + blocchi densi bw1, su tutti i ckpt bridged+split).
+
+**Sequenza lancio HPC (ordine):** (1) locale: `git add ...; git commit; git push`. (2) HPC: `git pull`.
+(3) train: `sbatch scripts/r6_c_train.sbatch` (stampa tabella), poi
+`sbatch -p medium_gpuh200 --time=03:00:00 --array=0-3%4 scripts/r6_c_train.sbatch` (n20),
+`sbatch -p gpunew --time=12:00:00 --array=4-7%4 scripts/r6_c_train.sbatch` (n40). (4) eval gateato:
+`sbatch --dependency=afterany:<JID_n20>:<JID_n40> scripts/r6_c_eval.sbatch`. (5) a fine job: HPC committa
+`runs/report6/**/*.json *.png out/*.out` + push; locale `git pull` → `python plot_clique_chain.py`
+(e `--block er`) + le figure di `plot_bridged_cliques.py` per i ponti spessi. **Conta i json** (err. 43).
+**Da fare poi (chat analisi):** scrivere §sec:res-chain-cliques (C.1) e §sec:res-thick-bridges (C.2),
+caption regola 21, no-codice 56. Note: a n20 le catene cliques fattibili ≤cap arrivano a K=5 (c=4, diam 9);
+i blocchi ER incatenati superano spesso il cap (diam cresce >9) → molte celle saltate, è atteso.
+
+**Brief storico (com'era prima dell'implementazione):** un ponte imparato
+**compone** — un modello che impara UNA bridged clique pulita la gestisce **ripetuta** (catene
+clique–ponte–clique–…) e **variata** (ponti >1 edge, blocchi ER densi), **purché ogni distanza cross
+resti ≤9** (capacità 3^L). Stub `.tex` già pronti: §sec:res-chain-cliques (C.1), §sec:res-thick-bridges
+(C.2).
+
+**⚠️ TRAPPOLA #1 — principio dati (§13.2): NON riusare i checkpoint `mixedbr` del Report V §5.6**
+(`runs/report5/train_bridged_in_stream/n*_mixedbr_*`): sono **mixed+bridged**, violano §13.2. Allena
+**fresco** su una distribuzione bridged **pulita e nominata**: `experiments2/train_families_n20.py
+--families bridged,split` (il trainer accetta liste esplicite; `bridged`/`split` sono famiglie note →
+cartella `n{N}_bridged+split_roberta_linear_lam0_seed{S}` in `runs/report6/...`). Decisione di design
+da motivare (NON il mixed opaco): bridged+split puro, oppure + `path_union`/`2cliques` per dare
+reach-within-block e cut espliciti.
+
+**Cosa ESISTE e si riusa (NON reimplementare):**
+- `data.py`: `generate_bridged_cliques_graph`/`generate_split_cliques_graph` (2 cliques ± 1 edge);
+  **`generate_bridged_blocks_graph(n, rng, clique_size, bridged, p_in=0.6)` = i BLOCCHI ER DENSI di
+  C.2, GIÀ pronti**.
+- `eval_bridged_cliques.py --family {cliques,blocks}` (eval-only, n auto): discrimination, per-blocco
+  within-A/within-B/cross, asimmetria, **sweep clique-size vs oracoli MP/BFS/DFS**. **Gestisce SOLO la
+  struttura a DUE blocchi** (roles 0/1/pad). + `scripts/eval_bridged_blocks.sbatch` (template lancio).
+
+**Cosa MANCA (da creare):**
+- **C.1 generatore CATENA** `generate_clique_chain_graph(n, clique_size, n_cliques, bridge_width=1)`:
+  K cliques in fila, ogni coppia adiacente unita da un ponte (1+ edge), UN componente. NON esiste (il
+  bridged fa solo 2 cliques).
+- **C.1 eval NUOVO** `eval_clique_chain.py`: `eval_bridged_cliques.py` è cablato a 2 blocchi → NON vale
+  per K>2. Misurare **per-LINK** se la connessione propaga attraverso ciascun ponte (cross-block tra le
+  cliques i,i+1), + exact intera matrice, + sweep su n_cliques/clique_size; output
+  `runs/report6/clique_chain/<tag>/...`.
+- **C.2 ponte SPESSO**: nessun generatore supporta bridge_width>1 (il ponte è 1 edge hardcoded, riga
+  `# single bridge edge` in `generate_bridged_cliques_graph`/`generate_bridged_blocks_graph`).
+  Aggiungere il parametro a `generate_bridged_cliques_graph`/`generate_bridged_blocks_graph`
+  (più edge fra le due cliques, distanza cross sempre ≤3), poi riusare `eval_bridged_cliques.py` per il
+  sweep clique-size per bridge_width.
+
+**⚠️ TRAPPOLA #2 — la distanza ≤9 LIMITA la lunghezza catena (§13.6).** Con ponti a 1 edge la distanza
+fra due cliques adiacenti è ~2–3 hop, e end-to-end fra le cliques estreme cresce ~2 hop per clique
+aggiunta (≈ 2(K−1)+1) → entro 9 entrano solo ~K=4–5 cliques (dipende da clique_size e densità del
+blocco). Il generatore/eval **DEVE calcolare la distanza max esatta** (APSP) e scegliere le celle
+(clique_size, n_cliques) **fattibili** — esattamente come la feasibility del Thread A (§13.7). Se la
+distanza supera 9 il fallimento è il muro-distanza, NON la propagazione "mai vista" → snatura il test.
+
+**Pattern (come A/B):** distribuzione pulita, multi-seed, eval-only dove si può, output in
+`runs/report6/...`, lanci eval-only su **short partition**, plot locale no-GPU; caption regola 21,
+no-codice 56, ≤/≥ unicode e xtick espliciti (59).
 
 ---
 

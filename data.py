@@ -60,27 +60,34 @@ def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
 
 
 def generate_bridged_cliques_graph(n: int, rng: np.random.Generator | None = None,
-                                   clique_size: int | None = None) -> np.ndarray:
-    """Two cliques joined by a SINGLE bridge edge -> ONE connected component.
+                                   clique_size: int | None = None,
+                                   bridge_width: int = 1) -> np.ndarray:
+    """Two cliques joined by a bridge -> ONE connected component.
 
     The advisor's DFS probe (Report V). Differs from generate_split_cliques_graph
-    (two cliques, NO bridge -> two components) by EXACTLY one edge, and that edge
-    creates a connection at shortest-path distance <= 3 (clique A -> bridge -> bridge
+    (two cliques, NO bridge -> two components) by EXACTLY the bridge edges, and those
+    edges create a connection at shortest-path distance <= 3 (clique A -> bridge -> bridge
     -> clique B). So matrix powering (A^{3^L}, capacity 9) detects it trivially at
     any clique size, whereas a step/visit-bounded DFS must traverse a whole dense
     clique before reaching the far one and so fails once a clique exceeds its budget.
 
     ``clique_size`` c: each clique has c nodes (2c <= n); the remaining n-2c nodes
-    are isolated padding. Default c = n//2 (no padding). The bridge joins the last
-    node of clique A (index c-1) to the first node of clique B (index c). No
-    self-loops; node order NOT permuted (permute at the call site). ``rng`` is taken
-    for a uniform generator signature but unused (the graph is fixed given c)."""
+    are isolated padding. Default c = n//2 (no padding). ``bridge_width`` w (>=1, <= c):
+    the number of edges joining the two cliques (Report VI, Thread C.2: a THICKER
+    bridge = redundant hand-off routes, like Thread A's parallel paths, while the
+    cross distance stays <= 3 within the matrix-power capacity). w=1 is the Report-V
+    single bridge: clique A's last node (c-1) to clique B's first node (c). For w>1 we
+    add w disjoint edges (c-1-j, c+j) for j=0..w-1. No self-loops; node order NOT
+    permuted (permute at the call site). ``rng`` is taken for a uniform generator
+    signature but unused (the graph is fixed given c and w)."""
     c = n // 2 if clique_size is None else max(2, min(int(clique_size), n // 2))
+    w = max(1, min(int(bridge_width), c))
     adj = np.zeros((n, n), dtype=np.float32)
     for idx in (np.arange(0, c), np.arange(c, 2 * c)):
         adj[np.ix_(idx, idx)] = 1.0
     np.fill_diagonal(adj, 0.0)
-    adj[c - 1, c] = adj[c, c - 1] = 1.0      # single bridge edge
+    for j in range(w):                       # w bridge edges between clique A and B
+        adj[c - 1 - j, c + j] = adj[c + j, c - 1 - j] = 1.0
     return adj
 
 
@@ -100,7 +107,8 @@ def generate_split_cliques_graph(n: int, rng: np.random.Generator | None = None,
 
 def generate_bridged_blocks_graph(n: int, rng: np.random.Generator | None = None,
                                   clique_size: int | None = None,
-                                  bridged: bool = True, p_in: float = 0.6) -> np.ndarray:
+                                  bridged: bool = True, p_in: float = 0.6,
+                                  bridge_width: int = 1) -> np.ndarray:
     """Two internally-DENSE ER blocks of size c joined by a SINGLE bridge edge
     (``bridged=True`` -> one component) or not (``bridged=False`` -> two components).
 
@@ -114,12 +122,15 @@ def generate_bridged_blocks_graph(n: int, rng: np.random.Generator | None = None
     propagation, not distance).
 
     ``clique_size`` c: each block has c nodes (2c <= n), the rest isolated padding;
-    blocks sit at [0,c) and [c,2c) and the bridge joins node c-1 to node c. No
-    self-loops; node order NOT permuted (permute at the call site). ``rng`` is REQUIRED
-    (the blocks are random); a default generator is created if omitted."""
+    blocks sit at [0,c) and [c,2c). ``bridge_width`` w (>=1, <= c): the number of
+    bridge edges joining the two blocks (Report VI, Thread C.2 thick bridges); w=1 is
+    the single bridge of Report V (node c-1 to node c). No self-loops; node order NOT
+    permuted (permute at the call site). ``rng`` is REQUIRED (the blocks are random);
+    a default generator is created if omitted."""
     if rng is None:
         rng = np.random.default_rng()
     c = n // 2 if clique_size is None else max(2, min(int(clique_size), n // 2))
+    w = max(1, min(int(bridge_width), c))
     adj = np.zeros((n, n), dtype=np.float32)
     for base in (0, c):
         idx = np.arange(base, base + c)
@@ -133,7 +144,69 @@ def generate_bridged_blocks_graph(n: int, rng: np.random.Generator | None = None
                 if adj[u, v] == 0.0 and rng.random() < p_in:
                     adj[u, v] = adj[v, u] = 1.0
     if bridged:
-        adj[c - 1, c] = adj[c, c - 1] = 1.0          # single bridge edge
+        for j in range(w):                           # w bridge edges between blocks
+            adj[c - 1 - j, c + j] = adj[c + j, c - 1 - j] = 1.0
+    return adj
+
+
+def generate_clique_chain_graph(n: int, clique_size: int, n_cliques: int,
+                                rng: np.random.Generator | None = None,
+                                bridge_width: int = 1, block: str = "clique",
+                                p_in: float = 0.6,
+                                broken_link: int | None = None) -> np.ndarray:
+    """A CHAIN of dense blocks: ``n_cliques`` blocks of ``clique_size`` nodes in a row,
+    each adjacent pair joined by a bridge -> ONE connected component (Report VI, Thread
+    C.1: does a learned single bridge COMPOSE across repeated hand-offs?).
+
+    The iterated analogue of ``generate_bridged_cliques_graph``: instead of two cliques
+    and one bridge it is K cliques and K-1 bridges, so the model must find, at each
+    block, the node that carries the link to the next block -- a forced hand-off,
+    repeated. Block i occupies indices [i*c, (i+1)*c); the bridge between block i and
+    i+1 joins block i's last ``bridge_width`` nodes to block i+1's first ``bridge_width``
+    nodes (so the cross distance between adjacent blocks stays <= 3, inside the
+    matrix-power capacity 9 -- but the END-TO-END distance grows ~2 hops per added block,
+    so the caller MUST check the diameter stays <= 9; see eval feasibility).
+
+    ``block="clique"``: each block is a complete clique (intra distance 1). ``block="er"``:
+    each block is a dense ER block (random spanning path + extra edges at prob ``p_in``),
+    the held-out OOD analogue of Report V sec 5.6. ``broken_link`` l (optional): DROP the
+    bridge between block l and l+1 -> TWO components (blocks 0..l and l+1..K-1) -- the
+    negative used to check the model is really reading the bridges, not predicting
+    all-connected. The remaining n - K*c nodes are isolated padding. No self-loops; node
+    order NOT permuted (permute at the call site)."""
+    c, K = int(clique_size), int(n_cliques)
+    if c < 2 or K < 1:
+        raise ValueError(f"need clique_size>=2 and n_cliques>=1, got c={c}, K={K}")
+    if K * c > n:
+        raise ValueError(f"need K*c={K*c} <= n={n} for the chain to fit")
+    w = max(1, min(int(bridge_width), c))
+    if rng is None:
+        rng = np.random.default_rng()
+    adj = np.zeros((n, n), dtype=np.float32)
+    for i in range(K):                                # build the K blocks
+        idx = np.arange(i * c, (i + 1) * c)
+        if block == "clique":
+            adj[np.ix_(idx, idx)] = 1.0
+            np.fill_diagonal(adj[i * c:(i + 1) * c, i * c:(i + 1) * c], 0.0)
+        elif block == "er":
+            order = rng.permutation(idx)
+            for k in range(c - 1):                    # spanning path -> connected
+                u, v = int(order[k]), int(order[k + 1])
+                adj[u, v] = adj[v, u] = 1.0
+            for ii in range(c):                       # densify
+                for jj in range(ii + 1, c):
+                    u, v = int(idx[ii]), int(idx[jj])
+                    if adj[u, v] == 0.0 and rng.random() < p_in:
+                        adj[u, v] = adj[v, u] = 1.0
+        else:
+            raise ValueError(f"unknown block kind {block!r}")
+    for i in range(K - 1):                             # K-1 bridges
+        if broken_link is not None and i == int(broken_link):
+            continue                                   # drop this bridge -> two components
+        a_last = i * c + c - 1                          # last node of block i
+        b_first = (i + 1) * c                           # first node of block i+1
+        for j in range(w):
+            adj[a_last - j, b_first + j] = adj[b_first + j, a_last - j] = 1.0
     return adj
 
 
