@@ -26,6 +26,28 @@ def generate_two_chains_graph(n: int, k: int) -> np.ndarray:
     return adj
 
 
+def generate_split_chains_graph(n: int, short_len: int) -> np.ndarray:
+    """Two disjoint paths partitioning ALL n nodes into components of size
+    ``short_len`` and ``n - short_len`` -- an ASYMMETRIC two-chain (Report VI,
+    Thread B). With ``short_len = n//2`` this is the balanced ``two_chains`` of
+    Reports III--IV; a small ``short_len`` makes one trivial short path beside one
+    near-full-length path. Two connected components, NO isolated padding (every node
+    lies on a path), max within-component distance ``max(short_len, n-short_len) - 1``.
+    No self-loops; node order NOT permuted (permute at the call site).
+
+    The knob is the SPLIT, not the size: it lets us ask whether a graph that is one
+    long reach plus a trivial stub (e.g. 4+36 at n=40) is easier than two
+    capacity-boundary reaches (e.g. 17+23), holding n fixed -- the Report-IV puzzle."""
+    if not 1 <= short_len <= n - 1:
+        raise ValueError(f"split requires 1 <= short_len <= n-1, got {short_len} (n={n})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in ((0, short_len), (short_len, n)):     # two contiguous segments -> paths
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+    return adj
+
+
 def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     if n != 2 * k:
         raise ValueError(f"TwoCliques requires n == 2*k, got n={n}, k={k}")

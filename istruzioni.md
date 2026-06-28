@@ -15,17 +15,18 @@ questo progetto. Leggere **tutto** prima di agire.
 
 ---
 
-> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Il **Report 5 è CONSEGNATO** (mostrato alla prof) e
-> **congelato** (come 1–4): non si tocca più, salvo richiesta esplicita. **Si inizia ora il
-> REPORT 6** (`report/6/transformer_for_graphs_6.tex`, compilare da `report/6/`). Tema: **simulare
-> una "path di ragionamento" — quali dati servono per imparare un certo ragionamento; sequenzialità
-> vs parallelismo**. È il **report conclusivo**: **pochi esperimenti, puntuali, per un paper** (non
-> più tanti esperimenti diversi). Indicazioni della prof, piano, tesi e mindset in **§13** (leggere
-> PRIMA di agire). **Si torna a lanciare esperimenti** → il setup HPC (§6) è di nuovo TASK, non solo
-> riferimento. Vincolo NUOVO non negoziabile: **niente "mixed" random in training** — ogni
-> esperimento si allena su UNA distribuzione esplicita e sensata (ER, cliques, bridged cliques,
-> multipath, ...). Restano validi tutti gli **errori §4** (in particolare caption 21 e 55–60) e
-> Claude **NON committa** (consegna i comandi git). Stato sintetico in **§11**.
+> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Report 1–5 **CONGELATI** (consegnati). In corso il
+> **REPORT 6** (`report/6/transformer_for_graphs_6.tex`, da `report/6/`). Tema: **simulare una "path
+> di ragionamento" — quali dati servono per imparare un certo ragionamento; sequenzialità vs
+> parallelismo**. È il **report conclusivo**: **pochi esperimenti, puntuali, per un paper.** Piano +
+> tesi + mindset + indicazioni della prof in **§13** (leggere PRIMA di agire). **Stato al 2026-06-28:
+> Thread A IMPLEMENTATO e LANCIATO su HPC** — A1 e A2 finiti, A3 in corso; i risultati sono in
+> `runs/report6/` ma **non ancora pullati né analizzati né scritti**. Le due prossime chat:
+> **(1) analizzare il Thread A** (quando A3 finisce), **(2) creare il Thread B**. Dettaglio in **§11**
+> e nella mappa codice/run in **§13.7**. Vincolo NON negoziabile: **niente "mixed" random in
+> training** — UNA distribuzione esplicita e sensata per esperimento (ER, cliques, bridged cliques,
+> multipath, path_union…). Restano validi gli **errori §4** (caption 21, 55–60) e Claude **NON
+> committa** (consegna i comandi git).
 
 ---
 
@@ -779,12 +780,29 @@ held-out, NON cresce con la profondità). Dettagli nel `.tex` e in §1.
 `report/6/`). Tema: **"simulare una path di ragionamento" — quali dati servono per imparare un
 ragionamento; sequenzialità vs parallelismo.** È il **report conclusivo**: **pochi esperimenti,
 puntuali, vendibili in un paper.** **Indicazioni complete della prof + piano + tesi + mindset in
-§13** (leggerlo PRIMA di agire). Stato: lo **scheletro del `.tex` è abbozzato** (intro + framing +
-piano esperimenti + sezioni-stub con commenti `%`); **NESSUN dato ancora raccolto**. Si torna a
-**lanciare esperimenti via HPC** (§6 è di nuovo task). Vincolo nuovo: **niente mixed random in
-training** (§13). Workflow per esperimento: progetta la distribuzione di training pulita → lancia via
-`sbatch` → pulla json/png → analizza → scrivi la sezione (caption con MODELLO+TRAINING+TEST+METRICA,
-errori §4) → **consegna i comandi git** (Claude NON committa). UN esperimento per chat.
+§13** (leggerlo PRIMA di agire). Vincolo nuovo: **niente mixed random in training** (§13).
+
+**STATO al 2026-06-28 (fine 11a sessione).** Lo **scheletro del `.tex` è abbozzato** (intro + framing
++ piano + sezioni-stub `%`). Il **Thread A è IMPLEMENTATO e LANCIATO interamente su HPC** (codice e
+risultati in §13.7): **A1 finito** (training 24 run ER+path_union n10/20/40/64 + eval, json in
+`runs/report6/multipath/`), **A2 finito** (40 run, `runs/report6/multipath_train/`), **A3 lanciato**
+(troncati, in corso/coda). **NON ancora pullato in locale, NON ancora analizzato a fondo, NON ancora
+scritto nei Results.** **Thread B IMPLEMENTATO (eval-only, §13.8)** — non ancora lanciato/analizzato;
+Thread C/D non implementati.
+
+**PROSSIMI PASSI (chat separate, una cosa per chat):**
+1. **Analizzare il Thread A** quando A3 finisce: pull dei `runs/report6/` lato HPC → in locale
+   `python plot_multipath.py` + gli snippet di lettura rapida (§13.7) → capire quali tesi reggono
+   (rescue A1, sample-cost A2, troncati A3), togliere le celle saturate/non informative, poi scrivere
+   le sezioni Results A.1–A.3 (caption regola 21, errori §4).
+2. **Lanciare + analizzare il Thread B** (two-chains asimmetriche, §13.8, GIÀ implementato eval-only):
+   `sbatch scripts/r6_b_eval.sbatch` appena c'è spazio → pull `runs/report6/asym_chains/` →
+   `python plot_asym_chains.py` → scrivere §sec:res-asym-chains.
+3. **Creare gli esperimenti del Thread C** (bridged cliques iterate, §13.5): nuovo codice + sbatch,
+   stessa filosofia (distribuzione pulita, multi-seed, eval-only dove si può riusare).
+
+Workflow per ogni esperimento: distribuzione di training pulita → `sbatch` → pull json/png → analizza
+→ scrivi la sezione → **consegna i comandi git** (Claude NON committa). UN esperimento/tema per chat.
 
 **Riuso da Report 4/5 (punti di partenza del Report 6):** Thread A (multipath) parte da
 `eval_parallel_paths_clean.py` + `generate_parallel_paths_graph(n, n_paths, path_len)` (Report 4
@@ -906,18 +924,18 @@ esplicita), **mai** col mixing opaco.
 - **Verdetto** (scrivere per ultimo): per ciascuna tesi, se l'evidenza la sostiene.
 
 ### 13.6 Note tecniche da non dimenticare
-- **multipath** = `generate_parallel_paths_graph(n, n_paths=k, path_len=ℓ)`: 2 terminali + `k`
-  cammini disgiunti, distanza fissa `ℓ`, resistenza `ℓ/k`. **multipath troncato** = alcuni cammini
-  sono vicoli ciechi che non arrivano a `b` (da implementare/variante del generatore).
+- **multipath**: il generatore PULITO è ora `generate_multipath_graph(...)` in `data.py` (route
+  piene + dead-end troncate + padding + filler + struttura per-route); il vecchio
+  `generate_parallel_paths_graph` resta solo come riferimento Report 4. Vedi **§13.7** per tutto il
+  Thread A (già implementato e lanciato): NON reimplementare.
 - Per il Thread C tenere SEMPRE le distanze cross **≤ 9** (entro capacità 3^L), così il fallimento
   eventuale è "non visto"/propagazione, NON il muro-distanza.
-- Riusare gli eval esistenti dove possibile: `eval_parallel_paths_clean.py`,
-  `eval_bridged_cliques.py`; estendere i plot-script (`plot_bridged_cliques.py`,
-  `analyze_parallel_paths.py`) e mettere gli output nel bucket nuovo `runs/report6/...`.
+- Riusare gli eval esistenti dove possibile (`eval_bridged_cliques.py` per il Thread C; per il Thread
+  A è già fatto, §13.7) e mettere gli output nel bucket `runs/report6/...`.
 - Valgono tutte le regole §4 (caption 21, no-codice 56, no-advisor/no-storia 57, ≤/≥ unicode nei
   titoli matplotlib, xtick espliciti 59) e le regole di scrittura/accorciamento §12.
 
-### 13.7 Thread A — IMPLEMENTATO (11a sessione, 2026-06-26). Codice + come lanciarlo su HPC.
+### 13.7 Thread A — IMPLEMENTATO e LANCIATO (11a sessione, 2026-06-26/28). Codice, run, lezioni.
 **Generatori condivisi** (in `data.py`, riusati da train ed eval — niente duplicazione):
 `generate_multipath_graph(n, n_full, path_len, rng, n_trunc=0, term_deg=4, trunc_len=None)` → 2
 terminali `s,t` + `n_full` route piene (distanza fissa `ℓ`) + opzionali `n_trunc` route **dead-end**
@@ -964,11 +982,87 @@ per i trunc) `≤ n`.
    Un run anticipato (`sbatch scripts/r6_a1_eval.sbatch`) è innocuo: dà subito i risultati riusati e
    fa `-- skip` sui non ancora allenati. **Trappola lanci**: `--array=0` NON stampa la tabella (esegue
    il task 0, duplicando un indice già in un blocco) — la tabella si stampa SENZA `--array`.
-5. A2: `sbatch --array=0 ...` (tabella) poi `sbatch --array=0-39%4 scripts/r6_a2_samples.sbatch`.
-6. A3: `sbatch --array=0-15%4 scripts/r6_a3_truncated.sbatch`.
+5. A2: tabella SENZA `--array` (`sbatch scripts/r6_a2_samples.sbatch`), poi a blocchi
+   `sbatch --array=0-23%4 ...` e `--array=24-39%4 scripts/r6_a2_samples.sbatch` (cap submit ~30).
+6. A3: `sbatch --array=0-7%4` e `--array=8-15%4 scripts/r6_a3_truncated.sbatch`.
 7. a fine job: su HPC committa `runs/report6/**/*.json *.png out/*.out` e push; in locale `git pull`,
    poi `python plot_multipath.py` (A1) per le figure. **Controlla il conteggio dei json** (gli eval
    saltano in silenzio i ckpt mancanti, err. 43).
+
+**§4.4 → A1, l'analisi che ha guidato il design (NON ripeterla a vuoto).** Rileggendo i json del
+Report 4 §4.4 (`runs/report4/families_n40/*/parallel_paths_clean/`): l'effetto "più route salvano"
+(k=1 fallisce ~0.55, k=2 ~0.93, k=3 ~1.00) è netto **solo OLTRE capacità (ℓ>9) e solo sul modello
+MIXED**; su **ER puro k=1 NON falliva** (0.88–0.94 a ℓ=11–15) perché l'ER è OOD sui grafi-path,
+rumoroso e tende a **over-connettere** → la sua `pair_acc` non è segnale pulito. Inoltre la
+**fattibilità geometrica** impedisce a n20 di ospitare ≥2 route lunghe (2 path da ℓ=11 = 26 nodi
+>20): **il rescue è testabile solo a n40 (k≤2–3) e pulito a n64 (k≤4)**; n10/n20 restano controlli
+within-capacity. Per questo A1 usa **ER (richiesta prof) + path_union** (vede path singoli → muro
+netto a 9, ma MAI route parallele → il test pulito) e **n10/20/40/64**, con la metrica primaria sul
+**pair (a,b)** + matrice di contesto + meccanismo per-route.
+
+**STATO RUN (fine 11a sessione, 2026-06-28).** Tutto lanciato su HPC, coda quasi vuota.
+- **A1 COMPLETO**: training 0–23 tutti COMPLETED (ER n10 seed1000-4000, path_union n10/20/40/64;
+  ER n64), ognuno auto-evalato; eval anticipato (riuso ER n20=`repro_paper_n20_roberta` best.pt,
+  n40=`families_n40` last.pt — **path trovati, riuso OK**) + eval finale gateato `afterany` (n64
+  incluso). json in `runs/report6/multipath/n{N}_{er|pathunion|mixed}_seed{S}/multipath.json`.
+- **A2 COMPLETO**: 0–39 COMPLETED (k-sweep k1–4 @ n40 ℓ7; ℓ-sweep ℓ5/9/11/13 @ n40 k2; n-sweep
+  n20/n40/n64 k2 ℓ7). history in `runs/report6/multipath_train/n{N}_k{K}_ell{ELL}_clean_*/`.
+- **A3 LANCIATO** (troncati): 0–13 sottomessi (config `n40 k3 ℓ7` e `n40 k2 ℓ9`, trunc 0.3/0.6);
+  **mancano gli ultimi 2 task `--array=14-15`** (gli altri 2 seed di `n40 k2 ℓ9 trunc0.6`) — da
+  mandare appena c'è budget. history nello STESSO dir di A2 (tag `trunc{f}` accanto al `clean`).
+- **Da fare nella chat di analisi**: pull `runs/report6/` (commit lato HPC + `git pull` locale),
+  `python plot_multipath.py`, poi gli snippet di lettura rapida qui sotto.
+
+**Lezioni operative HPC (11a sessione, oltre §6/err. 11–12–18–44):**
+- **`--array=0` NON stampa la tabella RUNS**: esegue il task 0 (`SLURM_ARRAY_TASK_ID="0"` ≠ vuoto).
+  La tabella si stampa lanciando **senza** `--array`. (Capitato: un task 0 duplicato, poi scancel.)
+- **Due cap distinti**: `QOSMaxSubmitJobPerUserLimit` ≈ **30 task sottomessi** (queue+run; il `%N`
+  NON lo riduce) e `QOSMaxGRESPerUser` = **4 GPU concorrenti**. Riempire oltre i 4 in esecuzione non
+  accelera nulla, serve solo a tenere la coda primata. Manda array ≤ ~25–30 per volta.
+- **Pattern eval-after-train robusto**: l'auto-eval dentro ogni training copre i ckpt nuovi; un
+  `r6_a1_eval` gateato `--dependency=afterany:<JIDs>` è la passata finale autorevole (rilegge i
+  `last.pt` definitivi, regge a un training morto). Un eval anticipato è innocuo (`-- skip`).
+- Tempi reali misurati: A1 n40 path_union ~3h20/run (1M step), **n64 ~5h/run**, n10/n20 più veloci;
+  A2 n40 (300k step) **~50 min/run**.
+
+**Lettura rapida dei risultati (read-only, ok su login — è roba da `cat`):**
+- A1 (rescue + meccanismo): legge `runs/report6/multipath/*/multipath.json`, stampa per (n,dist) la
+  tabella `pair_acc` [riga=ℓ, col=k] marcando ℓ>9, e per le righe oltre-capacità un verdetto
+  `k1 -> best k` + se è "via 1 path" (mean_n_intact≈1) o "tutte le route". (Snippet completo dato in
+  chat; in alternativa `python plot_multipath.py` in locale dopo il pull.)
+- A2/A3 (sample-cost): legge `runs/report6/multipath_train/*/history.json`, stampa per config i
+  `steps_to{pair_0.99, exact_0.99}` (mediana sui seed; samples = step×1000) e la `pair` finale →
+  confronta k (più route = meno samples?), ℓ (oltre cap la matrice resta `—`), e clean-vs-trunc (A3).
+- **Caveat di lettura**: scarta le celle **saturate** (pair=1.0 ovunque anche a k=1 dentro capacità)
+  o **non informative**; la curva ER è il cross-check confuso (over-connessione), il test pulito è
+  **path_union**. Onestà §3/§12.
+
+### 13.8 Thread B — IMPLEMENTATO (eval-only). Two-chains asimmetriche.
+**Cosa fa.** Trasforma il puzzle del Report 4 (split (4,36) sembrava più facile di (17,23) a n40)
+in una **leva controllata**: sweep esplicito dello split `(a, n−a)` a `n` fisso, **eval-only sui
+checkpoint puliti già esistenti** (nessun retrain → parte appena c'è una GPU libera). Per ogni
+split misura, BY SPLIT (mai collassato in un numero, errore 19): `exact` (intera matrice),
+`reach_long`/`reach_short` (pairwise within componente lunga/corta), `cut` (cross, target 0),
+`long_block_exact`/`short_block_exact`/`cut_block_exact` (dove si rompe l'exact), e il
+**profilo per-distanza nella componente lunga** (muro≤9 → valle → recupero) — è ciò che spiega il
+meccanismo "un solo lungo reach vs due reach al confine di capacità". Lettura: NON assumere il
+meccanismo, leggilo dalle curve (es. la lunga quasi-piena recupera end-to-end → `long_block_exact`
+alto; due medie restano in valle → basso).
+**Distribuzioni (principio §13.2, una nominata per checkpoint):** **path_union** (clean, il read
+pulito; Thread A1 n20/40/64) + **ER** (mai visto cammini, cross-check; riuso n20
+`repro_paper_n20_roberta` 8 seed, n40 `families_n40` 4 seed, n64 da Thread A1) + **mixed** (baseline
+R4; `families_n{20,40}` 4 seed). NON serve nuovo training.
+**File nuovi:** `data.py::generate_split_chains_graph(n, short_len)` (due path che partizionano tutti
+gli n nodi in `short_len` e `n−short_len`, niente padding isolato; `short_len=n//2` = il 2chains
+bilanciato); `eval_asym_chains.py` (eval-only, sweep split, remap della permutazione → metriche
+vettoriali; output `runs/report6/asym_chains/<tag>/asym_chains.json`); `scripts/r6_b_eval.sbatch`
+(short partition, ~36 ckpt, pattern `find_ckpt`/`run` come r6_a1_eval); `plot_asym_chains.py` (locale,
+no-GPU → `runs/report6/report6_figs/asym_chains_{exact,blocks,perdist}_*.png` + tabella per-split).
+**Lancio:** `sbatch scripts/r6_b_eval.sbatch` (eval-only, niente `--array`). Se sfora il cap short
+(1h10), commenta il blocco n64 o una condizione e ri-sottometti (è additivo, salta i ckpt mancanti,
+errore 43 → conta i json). **Da fare poi (chat analisi):** pull `runs/report6/asym_chains/` →
+`python plot_asym_chains.py` → scrivere §sec:res-asym-chains (caption regola 21, no-codice 56).
+Smoke-test locale fatto (generatore, metriche, remap permutazione, plot).
 
 ---
 
