@@ -19,14 +19,34 @@ questo progetto. Leggere **tutto** prima di agire.
 > **REPORT 6** (`report/6/transformer_for_graphs_6.tex`, da `report/6/`). Tema: **simulare una "path
 > di ragionamento" — quali dati servono per imparare un certo ragionamento; sequenzialità vs
 > parallelismo**. È il **report conclusivo**: **pochi esperimenti, puntuali, per un paper.** Piano +
-> tesi + mindset + indicazioni della prof in **§13** (leggere PRIMA di agire). **Stato al 2026-06-28:
-> Thread A IMPLEMENTATO e LANCIATO su HPC** — A1 e A2 finiti, A3 in corso; i risultati sono in
-> `runs/report6/` ma **non ancora pullati né analizzati né scritti**. Le due prossime chat:
-> **(1) analizzare il Thread A** (quando A3 finisce), **(2) creare il Thread B**. Dettaglio in **§11**
-> e nella mappa codice/run in **§13.7**. Vincolo NON negoziabile: **niente "mixed" random in
+> tesi + mindset + indicazioni della prof in **§13** (leggere PRIMA di agire). **Stato al 2026-06-30
+> (fine 17a sessione):** ✅ **A (A1/A2/A3) ANALIZZATO e SCRITTO** nel `.tex` (§sec:res-multipath-clean/
+> -samples/-truncated + figure/tabelle; dettaglio e lezioni in **§13.7**); ✅ **B ANALIZZATO e SCRITTO**
+> (§sec:res-asym-chains: la sezione mostra SOLO i risultati, il *perché* dello split è una DOMANDA APERTA
+> — dettaglio in **§13.8**); ✅ **C ANALIZZATO e SCRITTO** (§sec:res-chain-cliques C.1 + §sec:res-thick-bridges
+> C.2: un ponte imparato compone SOLO DEBOLMENTE — regge 1 hand-off in più e ponti spessi, ma crolla su catene
+> lunghe (K≥4) e transferisce solo in parte a blocchi ER non visti; tesi 4 forte REFUTATA, debole OK; dettaglio
+> e numeri in **§13.9**); ⚪ **D (alberi)** non iniziato
+> (esplorativo). **Lavoro ancora aperto** (lo spartiranno chat diverse, senza ordine obbligato): eventuali nuovi
+> esperimenti (Thread D); eventuale analisi più a fondo di A/B (es. il meccanismo
+> di B); il **Verdetto §sec:verdict** (da scrivere per ultimo, ora che A–C sono tutti dentro). Mappa codice/run in **§13.7** (A),
+> **§13.8** (B), **§13.9** (C). Vincolo NON negoziabile: **niente "mixed" random in
 > training** — UNA distribuzione esplicita e sensata per esperimento (ER, cliques, bridged cliques,
 > multipath, path_union…). Restano validi gli **errori §4** (caption 21, 55–60) e Claude **NON
-> committa** (consegna i comandi git).
+> committa** (consegna i comandi git). **Claude PUÒ fare `git pull`** (non è commit/push): i risultati
+> HPC vanno committati lato HPC dall'utente, poi Claude pulla in locale.
+
+> **🟩 NOVITÀ 16a sessione (2026-06-30) — VARIANTE SIMILARITY READ-OUT (Threads A/B/C), LANCIATA.** Prima di
+> analizzare il Thread C (linear, lo fa un'altra chat), abbiamo creato il **gemello similarity** degli
+> esperimenti A/B/C: stessi run, **solo `--readout similarity`**, output in cartelle `*_sim` separate (non
+> tocca il filone linear). 7 nuovi sbatch `scripts/r6_{a1_train,a1_eval,a2_samples,a3_truncated,b_eval,
+> c_train,c_eval}_sim.sbatch` (pushati, commit `2d782eb`). **STATO LANCIO:** ✅ A1-sim train sottomesso
+> (job **551389** n10 [0-7], **551390** n20 pu [8-11], **551391** n40 pu [12-15], **551392** n64 [16-23],
+> tutti `%4`) + eval gateati **551400** (r6_a1_eval_sim, afterany su tutti e 4) e **551401** (r6_b_eval_sim,
+> afterany su 551390:551391:551392). ⚪ **NON ancora lanciati:** Onda 2 = **C-sim** (`r6_c_train_sim` +
+> `r6_c_eval_sim`); Onda 3 = **A2/A3-sim** (`r6_a2_samples_sim` + `r6_a3_truncated_sim`). Dettaglio completo,
+> mappa output e comandi residui in **§13.10**. È un **confronto similarity-vs-linear esplorativo**: NON c'è
+> ancora uno stub `.tex`; l'analisi (e se entra nel report) viene dopo.
 
 ---
 
@@ -782,27 +802,35 @@ ragionamento; sequenzialità vs parallelismo.** È il **report conclusivo**: **p
 puntuali, vendibili in un paper.** **Indicazioni complete della prof + piano + tesi + mindset in
 §13** (leggerlo PRIMA di agire). Vincolo nuovo: **niente mixed random in training** (§13).
 
-**STATO al 2026-06-28 (fine 11a sessione).** Lo **scheletro del `.tex` è abbozzato** (intro + framing
-+ piano + sezioni-stub `%`). Il **Thread A è IMPLEMENTATO e LANCIATO interamente su HPC** (codice e
-risultati in §13.7): **A1 finito** (training 24 run ER+path_union n10/20/40/64 + eval, json in
-`runs/report6/multipath/`), **A2 finito** (40 run, `runs/report6/multipath_train/`), **A3 lanciato**
-(troncati, in corso/coda). **NON ancora pullato in locale, NON ancora analizzato a fondo, NON ancora
-scritto nei Results.** **Thread B IMPLEMENTATO (eval-only, §13.8)** — non ancora lanciato/analizzato;
-Thread C/D non implementati.
+**STATO al 2026-06-30 (fine 15a sessione).** Intro + framing + piano + setup nel `.tex` scritti. Lo stato
+per thread (è una FOTOGRAFIA, non una to-do list: il lavoro aperto lo prenderanno chat diverse, senza
+ordine imposto):
+- **Thread A — FINITO, ANALIZZATO, SCRITTO** (§13.7 stato finale + lezioni). 44 `multipath.json` (A1) +
+  56 `history.json` (A2/A3) in locale. Sezioni `.tex`: §sec:res-multipath-clean (A.1), -samples (A.2),
+  -truncated (A.3). Figure in `runs/report6/report6_figs/`.
+- **Thread B — FINITO, ANALIZZATO, SCRITTO** (§13.8). 36 `asym_chains.json` in locale. §sec:res-asym-chains:
+  mostra SOLO i risultati (puzzle riprodotto: sbilanciato facile, bilanciato no; Fig exact-vs-split + 2 Tab
+  by-split clean & ER + Fig per-distanza). **Il *perché* dello split è una DOMANDA APERTA** — l'utente ha
+  scartato la "spiegazione" over-connect perché era una ri-descrizione, non una causa (§13.8).
+- **Thread C — esperimenti FINITI, risultati PUSHATI, NON ancora analizzati/scritti** (§13.9). 48 json su
+  origin/main in `runs/report6/{clique_chain,clique_chain_er,thick_bridges}/` (+ `c_train` history). Gli
+  stub §sec:res-chain-cliques (C.1) e §sec:res-thick-bridges (C.2) sono ANCORA VUOTI.
+- **Thread D (alberi)**: non implementato (esplorativo, §13.5).
+- **Variante SIMILARITY read-out (A/B/C)**: gemello con `--readout similarity`, **Onda 1 (A1-sim) GIÀ
+  LANCIATA** su HPC (job 551389–551392 train + 551400/551401 eval); Onda 2 (C-sim) e Onda 3 (A2/A3-sim) da
+  lanciare. Output in cartelle `*_sim`. Tutto in **§13.10** (esplorativo, no stub `.tex` ancora).
+- **Verdetto §sec:verdict**: da scrivere per ultimo, quando A–C sono tutti in.
 
-**PROSSIMI PASSI (chat separate, una cosa per chat):**
-1. **Analizzare il Thread A** quando A3 finisce: pull dei `runs/report6/` lato HPC → in locale
-   `python plot_multipath.py` + gli snippet di lettura rapida (§13.7) → capire quali tesi reggono
-   (rescue A1, sample-cost A2, troncati A3), togliere le celle saturate/non informative, poi scrivere
-   le sezioni Results A.1–A.3 (caption regola 21, errori §4).
-2. **Lanciare + analizzare il Thread B** (two-chains asimmetriche, §13.8, GIÀ implementato eval-only):
-   `sbatch scripts/r6_b_eval.sbatch` appena c'è spazio → pull `runs/report6/asym_chains/` →
-   `python plot_asym_chains.py` → scrivere §sec:res-asym-chains.
-3. **Creare gli esperimenti del Thread C** (bridged cliques iterate, §13.5): nuovo codice + sbatch,
-   stessa filosofia (distribuzione pulita, multi-seed, eval-only dove si può riusare).
+**Lavoro ancora aperto (NON un ordine, solo la lista delle cose che restano):** (a) pullare in locale i 48
+json di C e analizzarli/scriverli (mappa e strumenti in §13.9 — `plot_clique_chain.py`, figure di
+`plot_bridged_cliques.py`); (b) eventuali NUOVI esperimenti (Thread D alberi, o varianti nuove); (c)
+eventuale analisi più a fondo dei thread già fatti (es. il meccanismo aperto di B); (d) il Verdetto finale.
 
-Workflow per ogni esperimento: distribuzione di training pulita → `sbatch` → pull json/png → analizza
-→ scrivi la sezione → **consegna i comandi git** (Claude NON committa). UN esperimento/tema per chat.
+**Note git (la modalità, non un compito):** Claude NON committa/pusha, **PUÒ** `git pull`. I risultati HPC
+si committano lato HPC e si pullano in locale; il lavoro di scrittura `.tex`/figure si committa in locale sul
+Mac. I risultati di C (15a sessione) sono GIÀ stati pushati dall'utente. Il lavoro di scrittura di Thread B
+(15a sessione: `report/6/*.tex,*.pdf`, `plot_asym_chains.py`, `runs/report6/report6_figs/asym_chains_*.png`,
+`istruzioni.md`) potrebbe non essere ancora committato in locale → verificare con `git status` prima.
 
 **Riuso da Report 4/5 (punti di partenza del Report 6):** Thread A (multipath) parte da
 `eval_parallel_paths_clean.py` + `generate_parallel_paths_graph(n, n_paths, path_len)` (Report 4
@@ -1039,7 +1067,96 @@ netto a 9, ma MAI route parallele → il test pulito) e **n10/20/40/64**, con la
   o **non informative**; la curva ER è il cross-check confuso (over-connessione), il test pulito è
   **path_union**. Onestà §3/§12.
 
-### 13.8 Thread B — IMPLEMENTATO (eval-only). Two-chains asimmetriche.
+**STATO FINALE Thread A (13a sessione, 2026-06-29): ANALIZZATO e SCRITTO nel `.tex`.** Cosa è andato
+nel report (§sec:res-multipath-clean / -samples / -truncated) e cosa ho imparato:
+- **A.1 — più route salvano la connessione, anche mai viste in training (TESI 1, regge).** Due
+  condizioni PULITE: **path_union n40** (rescue monotono, tight sui 4 seed) e **ER n64** (la cornice
+  prof "mai visto path"; serve il canvas grande `n64` perché a `n40` l'ER over-connette e maschera il
+  fallimento). Oltre capacità: pair sale ~0.4→1.0 (n40 pu, k1→3) e ~0.1→1.0 (n64 er, k1→4). Tabella
+  `tab:a1rescue` (pair per (k,ℓ), beyond-cap in grassetto). Confound dichiarati: n40 ER over-connette;
+  **n64 path_union è NON-monotono** (k2<k1, k3 seed-bimodale) → route sottile in canvas grande è OOD;
+  riportato in tabella per-seed `tab:a1n64`. Solo il pair è salvato, la matrice intera resta ~0 (filler).
+- **MECCANISMO (cuore):** ogni capolinea fa crescere un **vicinato raggiungibile di profondità limitata**
+  (~3-4 nodi a k=1); più route **spingono la reach più lontano** lungo la route. NON è "incontro in
+  mezzo" — **scartato** dopo verifica (a ℓ=13 i vicinati NON si incontrano affatto, reach solo a 3-4).
+  Figure `a1_mechanism.png` (pair vs reach vs route-intatte) e `a1_profile.png` (conn→s/conn→t per
+  posizione, ℓ=9) + `a1_profile_far.png` (ℓ=13, k=1/2/3: a distanza maggiore servono più route).
+- **A.2 — sample cost (TESI 1 2a metà, riformulata onestamente).** Il **pair si impara subito** (>0.99
+  al primo checkpoint = 2M, `eval_every=2000` troppo grosso per separare k). Segnali puliti: (a)
+  **samples per la MATRICE calano con k** (20→8M a ℓ7) — più route = più nodi connessi + filler più
+  corto; (b) **collasso "predico tutto disconnesso"** quando la massa connessa è sottile (route corte):
+  letto sullo sweep di **ℓ a k=2** (tengono il pair 1/4→4/4 da ℓ5 a ℓ13). ⚠️ Il collasso lungo **k è
+  RUMOROSO** (colpisce k=2, risparmia k=1, con 4 seed) → NON vendere "più k = meno collassi". La metrica
+  whole-matrix è confondata dalla **lunghezza del filler** (cambia con k,ℓ) TRANNE a (k,ℓ) fisso (→
+  pulita per il confronto clean-vs-trunc di A.3). Tabella `tab:a2` con colonna **connected nodes** (=
+  dim. componente di s,t, **include le foglie di padding**: 1 route ℓ7 → 2+6+6=14). Figure `a2_routes.png`
+  e `a2_length.png` (small-multiples, **un colore per seed**).
+- **A.3 — i troncati confondono (TESI 2, regge ma modesto).** A (k,ℓ) fisso, mettere route dead-end nello
+  stream **rallenta/destabilizza** la matrice intera (k3ℓ7: 3/4 seed la risolvono ~15M nel clean → 2/4
+  col troncato; ~3× più lento al 60%), il pair resta imparabile. Solo tabella `tab:a3` (la figura
+  `a3_truncated.png` è stata TOLTA dal report su richiesta utente — il file resta su disco).
+
+**File NUOVI/usati (13a sessione):**
+- `plot_multipath_report.py` (NUOVO, locale no-GPU): figure curate del report A (rescue, mechanism,
+  profile near+far, routes, length). Sostituisce le figure generiche di `plot_multipath.py` (che
+  plottava celle sature + un pannello matrice inutile). I figure escono in `runs/report6/report6_figs/`.
+- `eval_multipath_profile.py` (NUOVO, eval-only): per (k,ℓ) dumpa conn→s/conn→t per posizione lungo la
+  route (overall + split pair-ok/no) → `runs/report6/multipath_profile/<tag>/profile.json`. Accetta più
+  `--ell` e `--k`. Girato in LOCALE su Mac MPS sui `.pt` n40 path_union scaricati (vedi lezione scp).
+
+**LEZIONI 13a sessione (oltre §4 errori):**
+- **Claude PUÒ fare `git pull`** (non è commit/push). I risultati HPC, una volta committati lato HPC
+  dall'utente, si pullano in locale (fast-forward; ha funzionato perché le modifiche locali non
+  committate erano disgiunte dai file in arrivo `runs/report6/`).
+- **Per diagnostici per-nodo servono i `.pt`** (non bastano i json aggregati): i checkpoint A1 sono su
+  HPC in `runs/report6/a1_train/n{N}_{er|path_union}_roberta_linear_lam0_seed{S}/last.pt`. Per girare
+  l'eval-profile li ho **`scp`-ati in locale** (`scp hpc:~/transformer-for-graphs/runs/report6/a1_train/
+  .../last.pt /tmp/...`, ~24MB l'uno) e fatti girare sul **Mac (MPS)**. `ssh hpc` funziona
+  **non-interattivo** (chiave/BatchMode), ma **MAI calcolo sul login node** (sono su `lnode01`) → scp +
+  Mac, oppure `sbatch`.
+- **⚠️ REGOLA `.pt` IN LOCALE (richiesta utente, 13a sessione): i checkpoint pesano tanto e NON li vuole
+  in locale.** Quando servono per un diagnostico, scaricarli **SOLO in `/tmp`** (mai dentro il repo /
+  `runs/...`, mai in cartelle persistenti), usarli, e **cancellarli appena finito** (`rm -rf /tmp/...`).
+  I `.pt` restano gitignored e vivono solo su HPC; in locale tieni solo i **json/png leggeri** (es. i
+  `profile.json` dei profili, ~4KB, bastano a rigenerare le figure senza GPU). Se una chat futura rifà un
+  diagnostico per-nodo: ri-`scp` in `/tmp`, usa, ricancella.
+- **PREFERENZE UTENTE confermate/raffinate (valgono per Thread B e oltre):** (a) **prosa SEMPLICE,
+  termini definiti alla prima occorrenza** — l'utente ha respinto duramente gergo come "meet-in-the-
+  middle", "redundancy", "rescue point", "connected mass", paragrafi densi → spiegare il meccanismo in
+  modo banale (regola 20). (b) **Figure per-seed con un COLORE DISTINTO per seed** (mai stesso colore per
+  i seed di una condizione → indistinguibili). (c) **Tabelle chiare su cosa è fissato/variato**, niente
+  3 sweep impacchettati in modo confuso; aggiungere colonne che rendono ESPLICITO il meccanismo (es.
+  "connected nodes"). (d) **Onestà**: scartare le cornici che non reggono (meet-in-the-middle) invece di
+  difenderle; dichiarare il rumore (collasso seed-dependent). (e) L'utente verifica i numeri (es. "perché
+  14 connected nodes?") → ogni numero in tabella deve poter essere giustificato e spiegato in caption.
+
+### 13.8 Thread B — ANALIZZATO e SCRITTO (14a sessione, 2026-06-29). Two-chains asimmetriche.
+**STATO FINALE (14a sessione):** ✅ ANALIZZATO e SCRITTO in §sec:res-asym-chains (prosa + Fig
+`asym_chains_exact_n40.png` (headline) + Tab `tab:basplit` (n40 clean by-split) + Fig
+`asym_chains_perdist_n40_pathunion.png` (meccanismo)). Report 6 compila pulito (≈13 pp.).
+**ESITO (la sezione è SOLO RISULTATI, nessuna spiegazione — n40 clean = path_union, 4 seed, TIGHT):**
+il puzzle si riproduce — split sbilanciato (4,36) exact≈1.0, bilanciato (17,23)/(20,20) exact=0; exact
+≈1 per a≤7, crolla a 0 da a≈8. Osservazione forte nel profilo per-distanza: sugli sbilanciati il modello
+marca connesse TUTTE le coppie nel lungo **fino a 35–38 hop**, sui bilanciati lo STESSO modello (stessi
+pesi) è perfetto ≤9 ed esatto 0 da 10 (il muro 3^L=9). Cioè connette coppie lontanissime nel lungo dello
+sbilanciato ma non nel bilanciato, a parità di n e pesi. Numeri per-split in tab (exact/reachL/cut/Lblock):
+reachL e Lblock alti per a≤7 e cadono da a=8; cut≈1 tranne a=8,9.
+**⚠️ NIENTE MECCANISMO (richiesta utente, 15a sessione).** Avevo scritto una "spiegazione" (il modello fa
+over-connect / "stessa massa = connesso indipendente dalla distanza" / evita di ragionare) → l'utente
+(giustamente) l'ha **bocciata: NON è una spiegazione, è solo una ri-descrizione del dato**. Al momento NON
+abbiamo un perché. La sezione ora **mostra i risultati e basta**, con una riga esplicita che il "perché"
+è lasciato a un'analisi successiva. **Il "perché lo split cambia il comportamento" è una DOMANDA APERTA
+per una chat futura dedicata** (l'utente la farà a parte). Non reintrodurre la storia over-connect senza
+una prova meccanicistica vera (probe su embedding/attention).
+**Cross-check (scritti, fattuali):** ER (mai visto cammini) stessa ordinazione ma più rumoroso, picco a
+a≈3–4 (0.72 a 4+36); **mixed (R4)
+= seed-lottery** a (4,36) (1 seed su 4 a 0.76, gli altri ≈0) → per questo il read primario è il clean,
+non il mixed. n64 stesso pattern ma seed più sparsi. n20 tutto entro capacità (distanze ≤9) → muro
+assente, quasi tutto risolto (coerente con R4).
+**Figure relabel (regola 56):** `plot_asym_chains.py` COND_LABEL ora "disjoint paths (clean)" (era
+"path_union"). **File toccati (per commit utente):** `report/6/transformer_for_graphs_6.{tex,pdf}`,
+`plot_asym_chains.py`, `runs/report6/report6_figs/asym_chains_*.png`, `istruzioni.md`.
+**(storico) STATO 2026-06-29 pre-analisi:** eval COMPLETED (job 547018), 36 json pullati.
 **Cosa fa.** Trasforma il puzzle del Report 4 (split (4,36) sembrava più facile di (17,23) a n40)
 in una **leva controllata**: sweep esplicito dello split `(a, n−a)` a `n` fisso, **eval-only sui
 checkpoint puliti già esistenti** (nessun retrain → parte appena c'è una GPU libera). Per ogni
@@ -1066,9 +1183,51 @@ errore 43 → conta i json). **Da fare poi (chat analisi):** pull `runs/report6/
 `python plot_asym_chains.py` → scrivere §sec:res-asym-chains (caption regola 21, no-codice 56).
 Smoke-test locale fatto (generatore, metriche, remap permutazione, plot).
 
-### 13.9 Thread C — IMPLEMENTATO (12a sessione). Codice, run, lancio. (brief storico sotto.)
-**Stato: IMPLEMENTATO, NON ancora lanciato.** Codice scritto e smoke-testato in locale; manca
-solo `git push` + lancio HPC (sequenza sotto). **Tesi (§13.4 #3–4):** un ponte imparato **compone**.
+### 13.9 Thread C — ANALIZZATO e SCRITTO (17a sessione, 2026-06-30). Codice, run, mappa, esito.
+**STATO FINALE (17a sessione):** ✅ ANALIZZATO e SCRITTO in §sec:res-chain-cliques (C.1) e
+§sec:res-thick-bridges (C.2). Report 6 compila pulito (18 pp, 0 ref indefinite, 0 overfull).
+**ESITO (la tesi 4 "un ponte imparato COMPONE" regge solo in forma DEBOLE):** il modello è trainato su una
+distribuzione minima e pulita — DUE cliques unite (o no) da UN ponte, clique-size random 50/50 (`--families
+bridged,split`, NON il mixed) → ogni successo su strutture diverse è composizione, non diversità vista.
+- **C.1 catene cricche (clique_chain):** K=2 (allenato) risolto a ogni size; ma AGGIUNGERE blocchi degrada in
+  fretta — K=3 exact 0.38, K=4 0.16, K=5 0.00 (n40, c=3). **Lettura-chiave (pulita):** la cross-acc è ~PIATTA
+  nel gap g (vicino e lontano falliscono insieme) ma il LIVELLO scende col numero di blocchi K → il limite è
+  la **quantità TOTALE di struttura** da attraversare, NON la distanza/numero ponti. Prova: il hand-off più
+  vicino (gap1, SEMPRE distanza 3) decade con K (1.0→0.86→0.53→0.44) benché la sua distanza non cambi.
+  within-block resta alto (legge i blocchi) → è under-connect (default "disconnesso" su catene lunghe mai
+  viste), non over-connect. Collassa prima per blocchi grandi (= node budget di Report V contato in nodi).
+- **C.1 catene blocchi ER densi (clique_chain_er):** stessa storia, prima (within-block dist ≈2 → cap a K più
+  piccolo) + costo di tipo-blocco (held out).
+- **C.2 ponti SPESSI (thick_bridges cliques bw1/2/3):** **NESSUN effetto** — la cricca singolo-ponte è già
+  risolta a ogni size (cross≈1.0, disc 1.0, simmetrico, asym 0.0), ponti ridondanti non aiutano né danneggiano.
+  Contrasto con Thread A: lì le route parallele salvavano una connessione OLTRE capacità; qui il ponte è ≤3 hop
+  (DENTRO capacità) → un edge basta, niente da salvare.
+- **C.2 blocchi ER (thick_bridges blocks bw1):** **transfer PARZIALE** — cross decade col size a floor ~0.62
+  (n40)/~0.76 (n20), disc→chance; a n40 c=20 il WITHIN-block crolla a ~0.55 in 3/4 seed (il blocco ER da 20
+  nodi è esso stesso OOD per un modello allenato solo su cricche) → la domanda-ponte è moot. L'asimmetria 0.36
+  è SINTOMO del within rumoroso, NON una firma sequenziale (errore 60). "Unseen, non too hard" → fixabile coi
+  dati (Report V §5.6).
+**File nuovi/toccati (per commit utente):** `report/6/transformer_for_graphs_6.{tex,pdf}` (C.1+C.2 scritte),
+`plot_thick_bridges.py` (NUOVO, locale no-GPU → `thick_bridges_n{20,40}.png`), figure rigenerate
+`runs/report6/report6_figs/{clique_chain,clique_chain_er}_{composition,length}_n{20,40}.png` (con `--clique_size 3`)
++ `thick_bridges_n{20,40}.png`, `istruzioni.md`. Figure nel `.tex`: `clique_chain_composition_n40.png` (C.1
+headline, c=3) e `thick_bridges_n40.png` (C.2). Tabelle: tab:c1chain (n40 c=3 K-decay), tab:c1chainer (ER),
+tab:c2 (full-size cliques bw1-3 vs ER blocks).
+**(storico) Stato pre-analisi 2026-06-30: train + eval COMPLETED, 48 json su origin/main, sezioni .tex vuote.** Train
+n20 4/4 (job 547043) + n40 4/4 (job 547044, ultimo seed finito 2026-06-30T05:53) → 8 ckpt
+`runs/report6/c_train/n{20,40}_bridged+split_*/last.pt` (gitignored, restano su HPC). Eval `547048`
+(`r6ceval`) COMPLETED 2026-06-30T09:19, **48 json pushati** (8 ckpt × 6 condizioni). Gli stub
+§sec:res-chain-cliques (C.1) e §sec:res-thick-bridges (C.2) sono ANCORA VUOTI → analisi+scrittura aperte.
+**Mappa risultati (48 json, tutti in `runs/report6/`):** C.1 catene cricche →
+`clique_chain/n{N}_bridgedsplit_seed{S}/clique_chain.json` (8); C.1 catene di blocchi ER densi →
+`clique_chain_er/.../clique_chain.json` (8); C.2 ponti spessi bw∈{1,2,3} →
+`thick_bridges/n{N}_cliques_bw{W}_seed{S}/bridged_cliques.json` (24); C.2 blocchi ER densi ponte singolo →
+`thick_bridges/n{N}_blocks_bw1_seed{S}/bridged_cliques.json` (8). N∈{20,40}, seed∈{1000..4000}. NB: nelle
+catene le celle con diametro >9 sono saltate apposta (trappola #2) → l'`out` ha ~112 skip di CELLA (non di
+checkpoint: i 48 json ci sono tutti). **Strumenti analisi (locale, no-GPU, dopo `git pull`):**
+`python plot_clique_chain.py` (+ `--block er` per le catene ER), figure di `plot_bridged_cliques.py` per i
+ponti spessi. **Tesi che il thread testa (§13.4 #3–4):** un ponte imparato **compone** (ipotesi, da
+verificare sui dati — non assumere l'esito).
 
 **Distribuzione di training (pulita, §13.2):** `--families bridged,split` (due cliques, clique-size
 random 2..n/2, ±1 ponte, 50/50) — la distribuzione MINIMA che contiene la decisione "iff il ponte
@@ -1153,6 +1312,71 @@ distanza supera 9 il fallimento è il muro-distanza, NON la propagazione "mai vi
 **Pattern (come A/B):** distribuzione pulita, multi-seed, eval-only dove si può, output in
 `runs/report6/...`, lanci eval-only su **short partition**, plot locale no-GPU; caption regola 21,
 no-codice 56, ≤/≥ unicode e xtick espliciti (59).
+
+### 13.10 Variante SIMILARITY READ-OUT dei Threads A/B/C (16a sessione, 2026-06-30). Codice, lancio, mappa.
+**Cosa è.** Il **gemello similarity** degli esperimenti A/B/C: identici ai linear ma con
+`--readout similarity` nel modello (read-out `R̂_ij = scale·cos(h_i,h_j)+bias` invece del lineare).
+Scopo: vedere **come vanno A/B/C cambiando solo la testa**. È un confronto similarity-vs-linear
+**esplorativo** — NON c'è ancora uno stub `.tex`; se/quando entra nel report lo decide l'analisi.
+**Perché interessa** (non è ripetizione): la similarity **raddoppia il reach a `2·3^L=18`** (Report IV §sec:readout)
+→ su **A** la soglia di rescue dovrebbe spostarsi; su **B** il bilanciato 20+20 (max dist within=19) cade
+**proprio sul muro raddoppiato** (a 18); su **C** il node-budget bridged si sposta (Report V §5.5: knee 7→11–12
+a n40) → le catene potrebbero **comporre più a lungo**.
+
+**Principio di non-collisione (importante).** Gli eval auto-rilevano il read-out dal checkpoint
+(`eval_families.load_model` legge la chiave `sim_scale` nello state_dict), quindi gli **stessi eval**
+valgono. I checkpoint similarity convivono coi linear nello **stesso** OUT_ROOT perché il run-name porta
+`_similarity_` (vs `_linear_`). Gli **output json degli eval** invece NON codificano il read-out nel tag →
+vanno in **cartelle `*_sim` separate** per non sovrascrivere i json linear.
+
+**7 nuovi sbatch** (in `scripts/`, gemelli 1:1 dei linear; pushati, commit `2d782eb`):
+- `r6_a1_train_sim.sbatch` (24 task, `--readout similarity`): ER n10/n64 + path_union n10/20/40/64, 4 seed;
+  auto-eval del proprio ckpt → `runs/report6/multipath_sim/`. ER n20/n40 NON allenati (riusati nell'eval).
+- `r6_a1_eval_sim.sbatch` (eval-only): eval_multipath sui ckpt similarity → `runs/report6/multipath_sim/`.
+  **Riusa i ckpt similarity di Report IV** (ESISTONO su HPC, verificato: ER n20 8 seed in
+  `runs/report4/families_n20/n20_er_roberta_similarity_lam0_seed{1000..8000}`, ER/mixed n40 4 seed in
+  `runs/report4/families_n40/...similarity...`; candidati anche al path non-bucketato `runs/families_n*`).
+- `r6_a2_samples_sim.sbatch` (40 train, `--readout similarity`) e `r6_a3_truncated_sim.sbatch` (16 train):
+  stessa OUT_ROOT `runs/report6/multipath_train/` (run-name porta `_similarity_` → niente collisione coi linear).
+- `r6_b_eval_sim.sbatch` (eval-only): eval_asym_chains sui ckpt similarity → `runs/report6/asym_chains_sim/`.
+  Riusa path_union-sim (da A1-sim) + ER/mixed-sim di Report IV; **dipende dai train A1-sim** (path_union + ER n64).
+- `r6_c_train_sim.sbatch` (8 train, `--readout similarity`, `--families bridged,split`) → ckpt
+  `runs/report6/c_train/n{N}_bridged+split_roberta_similarity_lam0_seed{S}/last.pt`.
+- `r6_c_eval_sim.sbatch` (eval-only): C.1 catene + C.2 ponti spessi/blocchi ER → cartelle `*_sim`:
+  `runs/report6/{clique_chain_sim,clique_chain_er_sim,thick_bridges_sim}/`.
+
+**Mappa output (tutto in `runs/report6/`):** A1-sim eval → `multipath_sim/n{N}_{er|pathunion|mixed}_seed{S}/multipath.json`;
+A2/A3-sim history → `multipath_train/n{N}_k{K}_ell{ELL}_{clean|trunc f}_roberta_similarity_*/history.json`;
+B-sim → `asym_chains_sim/<tag>/asym_chains.json`; C.1-sim → `clique_chain_sim/` + `clique_chain_er_sim/`;
+C.2-sim → `thick_bridges_sim/`. I `.pt` (gitignored) restano in `runs/report6/{a1_train,c_train}/...similarity...`.
+
+**STATO LANCIO (2026-06-30, 16a sessione).** ✅ **Onda 1 = A1-sim LANCIATA**: train job **551389** (n10 0-7,
+medium_gpuh200 2h), **551390** (n20 pu 8-11, medium 4h), **551391** (n40 pu 12-15, gpunew 12h), **551392**
+(n64 16-23, gpunew 14h), tutti `%4`; eval gateati **551400** (`r6_a1_eval_sim`, afterany:551389:551390:551391:551392)
+e **551401** (`r6_b_eval_sim`, afterany:551390:551391:551392), entrambi PD su short_gpuh200. ⚪ **NON ancora
+lanciati:** Onda 2 = **C-sim**, Onda 3 = **A2/A3-sim**.
+
+**Comandi residui per una nuova chat (HPC, dopo `git pull`; vincoli err. 11/18: ≤~30 task submit, 4 GPU run).**
+Onda 2 — Thread C-sim (8 train + eval gateato):
+```
+sbatch scripts/r6_c_train_sim.sbatch                                                  # stampa tabella, esce
+sbatch -p medium_gpuh200 --time=03:00:00 --array=0-3%4 scripts/r6_c_train_sim.sbatch   # n20
+sbatch -p gpunew         --time=12:00:00 --array=4-7%4 scripts/r6_c_train_sim.sbatch    # n40
+sbatch --dependency=afterany:<JID_C_n20>:<JID_C_n40> scripts/r6_c_eval_sim.sbatch
+```
+Onda 3 — A2/A3-sim (più pesante, a blocchi quando la coda si svuota):
+```
+sbatch scripts/r6_a2_samples_sim.sbatch                                  # tabella (40 task)
+sbatch --array=0-23%4  scripts/r6_a2_samples_sim.sbatch
+sbatch --array=24-39%4 scripts/r6_a2_samples_sim.sbatch
+sbatch scripts/r6_a3_truncated_sim.sbatch                                # tabella (16 task)
+sbatch --array=0-15%4  scripts/r6_a3_truncated_sim.sbatch
+```
+**A fine job:** HPC committa `runs/report6/**/*.json *.png out/*.out` + push; locale `git pull`. **Conta i json**
+(eval saltano in silenzio i ckpt mancanti, err. 43). **Analisi/plot:** gli script `plot_multipath_report.py`/
+`plot_asym_chains.py`/`plot_clique_chain.py` + le figure di `plot_bridged_cliques.py` vanno **puntati alle
+cartelle `*_sim`** (vanno estesi/parametrizzati: ora leggono i path linear). Confronto chiave da leggere:
+soglia rescue (A), muro raddoppiato a 18 (B), knee/composizione delle catene (C) — similarity vs linear.
 
 ---
 

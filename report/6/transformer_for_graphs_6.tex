@@ -234,9 +234,177 @@ reasoning-path shape.
 make the connection easier to resolve --- and does it, even for a model that never saw a multi-route
 graph in training (pure ER)?
 
-\emph{[To run --- data pending. Report~IV's single-seed version found that, beyond the capacity, one
-route fails ($\approx0.55$) while two or three succeed; this redo establishes whether that holds
-across seeds and identifies which route/length cells are informative rather than saturated.]}
+\paragraph{Result: more routes rescue the connection.} We test two trainings that never contain a
+parallel-route graph: one on \emph{disjoint single paths} (the model sees the sharp distance wall
+through long single paths, but no two terminals are ever joined by more than one route) at $n=40$,
+and one on \emph{sparse ER} (no path structure at all) at the larger $n=64$ canvas. In both, beyond
+the capacity a single route fails and adding parallel routes lifts the connection monotonically
+(Table~\ref{tab:a1rescue}, Figure~\ref{fig:a1rescue}). On the single-path training the
+beyond-capacity pair accuracy climbs from $\approx0.4$ at $k=1$ to $1.0$ by $k=3$, tight across all
+four seeds; on the ER training at $n=64$ it climbs from $\approx0.1$ to $1.0$ by $k=4$. Within the
+capacity ($\ell\le7$) a single route already suffices and $k$ does not matter, so those cells are
+saturated and omitted. This is the effective-resistance reading of Report~IV made clean and
+multi-seed: at a fixed distance, $k$ routes give $k$ length-$\ell$ walks, and a connection a single
+thin thread could not carry becomes confirmable.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccc}
+\toprule
+route length $\ell$ & $k{=}1$ & $k{=}2$ & $k{=}3$ & $k{=}4$\\
+\midrule
+\multicolumn{5}{l}{\emph{trained on disjoint single paths only, $n=40$}}\\
+$\ell=7$ (within capacity) & 0.81 & 1.00 & 1.00 & 1.00\\
+$\ell=9$  & 0.49 & \textbf{0.92} & \textbf{1.00} & \textbf{1.00}\\
+$\ell=11$ & 0.39 & \textbf{0.57} & \textbf{0.80} & --\\
+$\ell=13$ & 0.37 & \textbf{0.55} & \textbf{0.99} & --\\
+$\ell=15$ & 0.35 & \textbf{0.52} & -- & --\\
+$\ell=17$ & 0.35 & \textbf{0.54} & -- & --\\
+\midrule
+\multicolumn{5}{l}{\emph{trained on sparse ER only, $n=64$}}\\
+$\ell=7$ (within capacity) & 0.60 & 1.00 & 1.00 & 1.00\\
+$\ell=9$  & 0.05 & \textbf{0.27} & \textbf{0.87} & \textbf{1.00}\\
+$\ell=11$ & 0.11 & \textbf{0.26} & \textbf{0.74} & \textbf{0.99}\\
+$\ell=13$ & 0.12 & \textbf{0.27} & \textbf{0.77} & \textbf{1.00}\\
+$\ell=15$ & 0.10 & \textbf{0.27} & \textbf{0.78} & \textbf{1.00}\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer with the linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$). \emph{Training set:} a single clean distribution that never contains a
+parallel-route graph --- disjoint single paths at $n=40$ (top block) or sparse Erd\H{o}s--R\'enyi at
+$n=64$ (bottom block), four seeds each. \emph{Test set:} freshly sampled multipath graphs, $k$
+internally-disjoint routes of length $\ell$ between the two terminals, $400$ graphs per cell.
+\emph{Metric:} accuracy on the terminal $(s,t)$ pair (always connected), mean over the four seeds.
+$\ell>9$ is beyond the $3^L$ capacity; $k$ is the number of parallel routes (effective resistance
+$\ell/k$). \textbf{Bold} marks the beyond-capacity cells where extra routes raise the accuracy;
+``--'' does not fit in $n$.}
+\label{tab:a1rescue}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a1_rescue.png}{0.96}
+    \caption{Table~\ref{tab:a1rescue} as curves. \emph{Model/training/test as in
+    Table~\ref{tab:a1rescue}}; left = single-path training ($n=40$), right = sparse-ER training
+    ($n=64$). Each coloured line is one beyond-capacity route length $\ell$ (mean over the four
+    seeds, bold); thin lines of the same colour are the individual seeds. $x$-axis = number of
+    parallel routes $k$; $y$-axis = $(s,t)$-pair accuracy.}
+    \label{fig:a1rescue}
+\end{figure}
+
+\paragraph{How does the model decide the two terminals are connected?} When it correctly answers
+``$s$ and $t$ are connected'', it could be doing one of two things: (a) it has actually traced a
+whole route --- followed one path node by node from $s$ all the way to $t$ --- or (b) it has only
+half-seen several routes and added up the weak evidence. We can tell which, because the construction
+labels every route, so we can check what the model says about each node \emph{along} a route. Call a
+route \textbf{fully traced} if the model marks \emph{every} internal node of that route as connected
+to \emph{both} terminals (it has the complete path right). And for a single route measure the
+\textbf{fraction of its nodes linked to a terminal} ($1.0$ = the whole route is seen as reaching the
+endpoint, $0.5$ = only half).
+
+The answer is (b). Take the point where the second route turns failure into success: the model
+trained only on single paths, route length $\ell=9$ (where a single route already fails), going from
+one route ($k=1$) to two ($k=2$). The $(s,t)$ pair is judged connected in $92\%$ of graphs, yet in
+$82\%$ of them \emph{not one} route is fully traced. Per route, the model links only about half the
+nodes to a terminal with one route ($0.48$), rising to about three-quarters with two ($0.76$;
+Figure~\ref{fig:a1mech}). So the second route does not let the model trace a complete path --- it
+adds a second stream of \emph{partial} evidence, and the two weak streams together are enough to tip
+the verdict to ``connected''. Only with three or four routes does the model also trace the routes in
+full. More parallel routes help by piling up weak evidence, not by finally working out one clean
+path.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a1_mechanism.png}{0.62}
+    \caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+    $d_{\mathrm{model}}=512$), trained on disjoint single paths only, four seeds, $n=40$.
+    \emph{Test set:} multipath graphs at route length $\ell=9$ (a single route already fails there),
+    $400$ graphs per $k$. \emph{Metrics} (mean over seeds), vs the number of routes $k$: the fraction
+    of graphs where the model calls the $(s,t)$ pair connected; the average fraction of a route's
+    internal nodes the model links to a terminal; and the fraction of graphs in which every route is
+    \emph{fully traced} (all its internal nodes linked to both terminals).}
+    \label{fig:a1mech}
+\end{figure}
+
+\paragraph{What ``partial evidence'' looks like: a neighbourhood from each end.} The partial
+evidence has a clear spatial shape, and it is the same in every seed (Figure~\ref{fig:a1prof}). Walk
+along one route from $s$ to $t$ and ask, at each node, whether the model links it to $s$ and whether
+it links it to $t$. The model grows a \emph{reachable neighbourhood out from each terminal}: nodes
+near $s$ are linked to $s$ (the first two nodes in $\approx83\%$ of graphs) and nodes near $t$ are
+linked to $t$ (the last two in $\approx86\%$), each fading with distance. With a single route the
+reach from each terminal is short --- by distance $3$--$5$ it has dropped to $\approx0.3$--$0.5$ ---
+and the $(s,t)$ verdict is a coin flip ($\approx0.5$). A second route widens \emph{both}
+neighbourhoods (the node at distance $3$ jumps from $\approx0.45$ to $\approx0.88$ linked to $s$),
+pushing each terminal's reach further along the route, and the verdict flips to connected
+($\approx0.9$).
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a1_profile.png}{0.96}
+    \caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+    $d_{\mathrm{model}}=512$), trained on disjoint single paths only, four seeds, $n=40$.
+    \emph{Test set:} multipath graphs at route length $\ell=9$, $400$ graphs per $k$. \emph{Metric:}
+    for a node at distance $d=1,\dots,8$ from $s$ along a route, the fraction of graphs in which the
+    model links it to $s$ (blue) and to $t$ (red); bold = mean over seeds, thin = individual seeds.
+    Left $k=1$, right $k=2$; titles give the mean $(s,t)$-pair accuracy.}
+    \label{fig:a1prof}
+\end{figure}
+
+\paragraph{Does it hold at larger distance? Yes --- more routes push the reach farther.} How far
+each terminal reaches along the route grows with the number of routes. At route length $\ell=13$
+(Figure~\ref{fig:a1far}): with one route each terminal reaches only $\approx3$--$4$ nodes, so most of
+the route is left unreached and the pair is mostly wrong ($\approx0.35$); two routes extend the reach
+but it still does not cover the route ($\approx0.55$); three routes push each terminal's reach across
+the whole length and the pair is solved ($\approx1.0$). This matches the rescue table: a single route
+resolves up to $\approx8$ hops, so $\ell=7$ is fine and $\ell=9$ is borderline with one route,
+whereas $\ell=11,13$ need the extra route(s) to extend the reach. The distance the model can resolve
+scales with the number of parallel routes.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a1_profile_far.png}{0.96}
+    \caption{\emph{Model/training/metric as in Figure~\ref{fig:a1prof}}, at the longer route length
+    $\ell=13$ ($n=40$, single-path-trained, four seeds, $400$ graphs per cell). Panels: $k=1$, $2$,
+    $3$ routes. For a node at distance $d=1,\dots,12$ from $s$, the fraction of graphs in which the
+    model links it to $s$ (blue) and to $t$ (red); bold = mean over seeds, thin = individual seeds.
+    Titles give the mean $(s,t)$-pair accuracy.}
+    \label{fig:a1far}
+\end{figure}
+
+\paragraph{Where the rescue breaks down: the larger single-path canvas.} The clean rescue above is at
+$n=40$. Pushed to $n=64$, the single-path-trained model no longer rescues monotonically
+(Table~\ref{tab:a1n64}): a lone route fails ($\approx0.1$), \emph{two} routes are \emph{worse}
+(essentially $0$), three routes are a seed lottery (two seeds near $0.9$, two near $0.1$), and only
+four routes recover ($1.0$). The reason is out-of-distribution geometry, not the parallelism claim: a
+thin one- or two-route structure inside a large, mostly empty $n=64$ canvas looks nothing like the
+single-path training graphs (which fill the canvas), so the model defaults to ``disconnected'' until
+enough routes bundle into something dense enough to commit. We therefore lead the claim with the two
+clean conditions (single paths at $n=40$, ER at $n=64$) and flag this one as the confounded case.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccc}
+\toprule
+$(s,t)$-pair accuracy & seed 1 & seed 2 & seed 3 & seed 4\\
+\midrule
+$k=1$ route   & 0.06 & 0.15 & 0.16 & 0.12\\
+$k=2$ routes  & 0.00 & 0.00 & 0.00 & 0.02\\
+$k=3$ routes  & 0.76 & 0.23 & 0.93 & 0.07\\
+$k=4$ routes  & 1.00 & 1.00 & 1.00 & 1.00\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained on disjoint single paths only, $n=64$. \emph{Test set:} multipath
+graphs at route length $\ell=9$, $400$ graphs per cell. \emph{Metric:} accuracy on the $(s,t)$ pair,
+one column per training seed (not averaged, to show the non-monotonicity and the seed split at
+$k=3$).}
+\label{tab:a1n64}
+\end{table}
+
+\paragraph{Two further caveats, stated plainly.} (i) At $n=40$ the ER model does \emph{not} show the
+rescue --- a single route already scores $\approx0.9$ beyond the capacity --- because on the small
+canvas predicting ``connected'' is right often enough to mask the failure (its whole-matrix pairwise
+is only $\approx0.55$: it over-connects). This is why the clean ER test uses the larger $n=64$
+canvas, where over-connecting is wrong often enough that a single route properly fails. (ii)
+Throughout, only the targeted $(s,t)$ pair is rescued: the whole-matrix exact match stays $\approx0$
+beyond the capacity (the long sparse filler component still has unresolved far pairs). So this is
+``the model can now confirm \emph{this} connection'', not ``the model now solves the graph''.
 
 \subsection{Thread A.2 --- The sample cost of learning the multipath connectivity}
 \label{sec:res-multipath-samples}
@@ -255,7 +423,88 @@ across seeds and identifies which route/length cells are informative rather than
 \paragraph{Question.} When multipath graphs \emph{are} in training, how many does it take to learn
 the connectivity exactly --- for the single $(a,b)$ pair, and for the whole matrix?
 
-\emph{[To run --- data pending.]}
+\paragraph{Result.} Unlike Thread~A.1, here we train the model \emph{directly} on multipath graphs
+(a stream in which every graph has $k$ routes of length $\ell$), and watch two quantities as training
+proceeds: whether it gets the two terminals $(s,t)$ right, and whether it gets the \emph{entire}
+connectivity matrix right --- every pair of nodes, including the large disconnected filler that pads
+the canvas. The question is how many training graphs each one takes (Table~\ref{tab:a2}).
+
+\emph{The terminal pair is learned almost at once.} We check the model every $2$M training graphs; at
+the very first check the $(s,t)$ pair is already correct in over $99\%$ of validation graphs in
+nearly every run --- sooner than we can measure, and just as fast with one route as with four. So the
+number of routes $k$ does not change how quickly the pair is learned.
+
+\emph{More routes make the whole matrix cheaper to learn.} Getting every pair right (not just the
+terminals) takes far longer than the pair, and it gets cheaper the more routes there are: at $\ell=7$
+the whole matrix is solved in $\approx20$M graphs with one route, falling to $\approx8$M with four
+(Table~\ref{tab:a2}, top; Figure~\ref{fig:a2routes}). The reason is simply that more routes put more
+nodes into the connected bundle ($14\to26$) and leave a shorter disconnected filler, so there is more
+``connected'' signal to learn from. (The cost also grows with the canvas for the same reason in
+reverse --- a bigger, mostly empty graph dilutes the connected part: $\approx2$M graphs at $n=20$,
+$\approx95$M at $n=64$.)
+
+\emph{When too little is connected, training collapses to ``all disconnected''.} This is the clearest
+evidence for that mechanism. When the connected bundle is small --- short routes at $k=2$ --- the
+target matrix is almost all ``disconnected'', and the model can score a low loss with the degenerate
+shortcut of predicting \emph{everything} disconnected. Several seeds first solve the $(s,t)$ pair and
+then \textbf{collapse} onto that shortcut, losing even the pair they had: at $\ell=5$ ($14$ connected
+nodes) three of four seeds collapse, and the collapse disappears once the routes are long enough
+($\ell\ge11$, $\ge26$ nodes) that the connected part is too large to ignore (Table~\ref{tab:a2},
+bottom; Figure~\ref{fig:a2length}). One honest caveat: with only four seeds the collapse is noisy
+along the route count (it strikes $k=2$ but spares the smaller $k=1$), so we read it off the cleaner
+length sweep. Either way the lever is the same as the rescue in Thread~A.1, now acting during
+training: more connected structure does not make the connection faster to first reach --- it makes it
+harder to lose.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+ & connected nodes & samples to solve matrix & seeds that collapsed\\
+\midrule
+\multicolumn{4}{l}{\emph{more routes $k$ \quad(fixed $n=40$, route length $\ell=7$)}}\\
+$k=1$ route  & 14 & 20M & 0/4\\
+$k=2$ routes & 18 & 18M & 2/4\\
+$k=3$ routes & 22 & 15M & 0/4\\
+$k=4$ routes & 26 & \phantom{0}8M & 0/4\\
+\multicolumn{4}{l}{\emph{longer routes $\ell$ \quad(fixed $n=40$, $k=2$ routes)}}\\
+$\ell=5$  & 14 & -- & 3/4\\
+$\ell=7$  & 18 & 18M & 2/4\\
+$\ell=9$  & 22 & 32M & 2/4\\
+$\ell=11$ & 26 & 100M & 0/4\\
+$\ell=13$ & 30 & 42M & 0/4\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained from scratch on a pure multipath stream, four seeds each.
+\emph{Test set:} a held-out clean multipath set with the same setting ($2000$ graphs). ``connected
+nodes'' $=$ number of nodes in the component containing $s,t$: the two terminals, the $k(\ell-1)$
+internal route nodes, and the degree-padding leaves attached to the terminals (three per terminal at
+$k=1$, none at $k=4$, added to hold each terminal at degree $4$ so the degree does not reveal $k$);
+e.g.\ a single length-$7$ route gives $2+6+6=14$. It grows with both $k$ and $\ell$. ``samples to
+solve matrix'' $=$ median training graphs (millions) for the seeds that reach $0.99$ whole-matrix
+exact (``--'' $=$ none did); ``seeds that collapsed'' $=$ how many of the four ended below $0.99$ on
+the $(s,t)$ pair after first solving it. In the lower block the matrix samples also rise with $\ell$
+because longer routes put $s$ and $t$ physically farther apart (a distance effect, separate from the
+collapse); the collapse column is the relevant one there.}
+\label{tab:a2}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a2_routes.png}{0.98}
+    \caption{\emph{Model/training/test as in Table~\ref{tab:a2}}, $n=40$, $\ell=7$. Whole-matrix exact
+    match vs training samples (millions, log); one panel per route count $k$, \textbf{one colour per
+    seed} (four seeds). The panel titles give the connected-bundle size.}
+    \label{fig:a2routes}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/a2_length.png}{0.98}
+    \caption{\emph{Model/training/test as in Table~\ref{tab:a2}}, $n=40$, $k=2$. $(s,t)$-pair accuracy
+    vs training samples (millions, log); one panel per route length $\ell$, \textbf{one colour per
+    seed} (four seeds). Panel titles give the connected-bundle size.}
+    \label{fig:a2length}
+\end{figure}
 
 \subsection{Thread A.3 --- Truncated routes in training confuse the model}
 \label{sec:res-multipath-truncated}
@@ -274,9 +523,43 @@ the connectivity exactly --- for the single $(a,b)$ pair, and for the whole matr
 \paragraph{Question.} If some training routes are dead ends (truncated), does that degrade what the
 model learns about the genuine routes?
 
-\emph{[To run --- data pending.]}
+\paragraph{Result: dead ends slow and destabilise the full structure, while the bare pair survives.}
+Holding $(n,k,\ell)$ fixed --- so the graph and its filler are identical and the comparison is
+clean --- we replace a fraction $f$ of training graphs with truncated ones (some routes are dead
+ends one hop short of $t$; the pair is connected iff at least one full route remains). On the solid
+$k=3,\ell=7$ configuration the clean stream solves the whole matrix in three of four seeds by
+$\approx15$M samples; at $f=0.3$ only two of four solve it, and at $f=0.6$ the seeds that do solve
+take $\approx3\times$ longer (Table~\ref{tab:a3}). On the already-fragile
+$k=2,\ell=9$ configuration the matrix is rarely solved with or without truncation. In every case the
+$(s,t)$ pair itself stays learnable ($\ge0.99$ for the seeds that do not collapse): dead ends do not
+destroy the bare connection decision, they degrade learning of the \emph{full} connectivity. The
+mechanism reads directly off the construction --- with dead ends present, ``a route departs from
+$s$'' no longer implies ``$s$ reaches $t$'', so the model can no longer lean on that shortcut and
+must verify that a route actually completes, which is the slower, harder skill.
 
-\subsection{Thread B --- Why an unbalanced two-chain split is easier}
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccc}
+\toprule
+truncated fraction $f$ & pair (samples) & pair held & matrix (samples) & matrix solved\\
+\midrule
+\multicolumn{5}{l}{\emph{$n=40$, $k=3$, $\ell=7$ (clean baseline solid)}}\\
+$f=0$ (clean) & 3M & 4/4 & 15M & 3/4\\
+$f=0.3$       & 2M & 4/4 & 16M & 2/4\\
+$f=0.6$       & 3M & 4/4 & 49M & 2/4\\
+\multicolumn{5}{l}{\emph{$n=40$, $k=2$, $\ell=9$ (clean baseline already fragile)}}\\
+$f=0$ (clean) & 4M & 2/4 & 32M  & 1/4\\
+$f=0.3$       & 5M & 2/4 & 112M & 1/4\\
+$f=0.6$       & 5M & 4/4 & 95M  & 2/4\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained from scratch at $n=40$ on a multipath stream in which a fraction
+$f$ of graphs have truncated (dead-end) routes, four seeds each. \emph{Test set:} the \emph{same}
+held-out clean multipath set as Thread~A.2 (no dead ends), $2000$ graphs. \emph{Metric:} columns as
+in Table~\ref{tab:a2} (median samples to $0.99$; seeds out of four with final accuracy $\ge0.99$).}
+\label{tab:a3}
+\end{table}
+
+\subsection{Thread B --- Is an unbalanced two-chains split easier?}
 \label{sec:res-asym-chains}
 % ANALYSE the existing Report IV per-distance / per-seed two-chain data first (e.g. a 4+36 split
 % vs a 17+23 split at n=40), then a controlled run. FRAMING: reasoning along a path -- a long path
@@ -286,10 +569,125 @@ model learns about the genuine routes?
 %   Test = two-chain graphs at the chosen length splits, #graphs. Metric = exact-match / per-pair
 %   accuracy by split, mean over seeds.
 \paragraph{Question.} Report~IV suggested that splitting $n$ nodes into two paths of very unequal
-length is \emph{easier} than a balanced split. Why, and what does it say about how the model reasons
-along a path?
+length (e.g.\ $4{+}36$) is \emph{easier} than a balanced split (e.g.\ $17{+}23$). Does that hold up
+under a clean, controlled sweep of the split?
 
-\emph{[To analyse the existing data, then run --- pending.]}
+\paragraph{Setup.} We make the split an explicit knob. A \emph{two-chain} graph partitions all $n$
+nodes into two disjoint paths of sizes $a$ and $n-a$ (no isolated padding); $a=n/2$ is the balanced
+two-chain of Reports~III--IV, a small $a$ is one near-full-length path beside a trivial stub. We
+sweep $a$ from $1$ to $n/2$ and read three things \emph{separately} (never collapsed into one
+number): the whole-graph exact match; the \emph{long-component reach} (fraction of correctly
+predicted pairs \emph{inside} the long path, which should all read ``connected''); and the
+\emph{cut} (fraction of correct predictions \emph{across} the two paths, which should all read
+``disconnected''). This is eval-only on the existing $n=40$ checkpoints, trained on a single clean
+distribution of \emph{disjoint paths} --- each training graph is a union of $1$ to $4$ disjoint paths,
+chosen uniformly, that together cover all $n$ nodes (so about a quarter are a single full-length
+path) --- and, as cross-checks, on pure ER and on the Report-IV mixed stream.
+
+\paragraph{Result.} Yes, the puzzle reproduces cleanly (Figure~\ref{fig:basplit},
+Table~\ref{tab:basplit}). On the clean disjoint-paths model the exact match is $\approx1.0$ for a small
+short component ($a\le7$) and collapses to $0$ once the short component reaches about $8$ nodes: a
+$4{+}36$ split is solved in \emph{every} graph and every seed, while a balanced $20{+}20$ (or the
+$17{+}23$ of the puzzle) is solved in none. The split also changes how the long path is read by
+distance (Figure~\ref{fig:baperdist}): for the unbalanced splits the model marks \emph{every} pair
+inside the long path as connected, out to $35$--$38$ hops, whereas for the balanced splits the very
+same model is correct only up to distance $9$ and then exactly $0$ from distance $10$ on --- the
+$3^L=9$ capacity wall of Reports~III--IV. So at the same $n$ and with the same weights the model
+connects far-apart pairs inside the long path of an unbalanced graph but not inside a balanced one. We
+report this contrast as an observation: we do not yet have an account of \emph{why} the split changes
+the behaviour, and leave that to a later analysis.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/asym_chains_exact_n40.png}{0.78}
+    \caption{\emph{Model:} base standard transformer with the linear read-out ($L=2$, single head,
+    $d_{\mathrm{model}}=512$). \emph{Training set:} a single clean distribution of disjoint paths ---
+    unions of $1$–$4$ paths covering all $n$ nodes (blue, four seeds); cross-checks trained on pure
+    sparse ER (orange, four seeds) and on the
+    Report-IV uniform mixture (purple, four seeds). \emph{Test set:} freshly sampled two-chain graphs
+    splitting $n=40$ nodes into paths of size $a$ and $n-a$, $300$ graphs per split. \emph{Metric:}
+    whole-graph exact match, mean over seeds, vs the short-component size $a$ (so small $a$ =
+    unbalanced, $a=20$ = balanced). Dotted lines mark the two Report-IV reference splits ($a=4$ and
+    $a=17$).}
+    \label{fig:basplit}
+\end{figure}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+ & & \multicolumn{2}{c}{reach (within)} & & \multicolumn{2}{c}{fully correct}\\
+\cmidrule(lr){3-4}\cmidrule(lr){6-7}
+split $(a,\,n{-}a)$ & exact & long & short & cut & long & short\\
+\midrule
+$(1,39)$  & 1.00 & 1.00 & --   & 1.00 & 1.00 & 1.00\\
+$(4,36)$  & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00\\
+$(7,33)$  & 0.81 & 1.00 & 1.00 & 1.00 & 0.99 & 1.00\\
+$(8,32)$  & 0.00 & 0.99 & 1.00 & 0.93 & 0.17 & 1.00\\
+$(10,30)$ & 0.00 & 0.65 & 1.00 & 1.00 & 0.00 & 0.98\\
+$(17,23)$ & 0.00 & 0.64 & 0.79 & 1.00 & 0.00 & 0.00\\
+$(20,20)$ & 0.00 & 0.71 & 0.71 & 1.00 & 0.00 & 0.00\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained on a single clean distribution of disjoint paths (unions of $1$–$4$
+paths covering all $n$ nodes), four seeds, $n=40$. \emph{Test set:} two-chain graphs split
+$(a,\,n{-}a)$, $300$ graphs per split. \emph{Metrics} (mean over seeds): whole-graph exact match;
+\emph{reach} $=$ pairwise accuracy \emph{inside} the long / short path (target connected; ``--'' at
+$a=1$, where the short side is a single node with no internal pair); \emph{cut} $=$ pairwise accuracy
+\emph{across} the two paths (target disconnected); \emph{fully correct} $=$ fraction of graphs whose
+long / short path is entirely right. Reading down the rows: exact match is $\approx1$ only for
+$a\le7$; the long side is fully correct only for $a\le7$, while the short side stays fully correct
+until the two components are comparable ($a\ge17$); the cut is $\approx1$ throughout except at
+$a=8,9$.}
+\label{tab:basplit}
+\end{table}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+ & & \multicolumn{2}{c}{reach (within)} & & \multicolumn{2}{c}{fully correct}\\
+\cmidrule(lr){3-4}\cmidrule(lr){6-7}
+split $(a,\,n{-}a)$ & exact & long & short & cut & long & short\\
+\midrule
+$(1,39)$  & 0.11 & 0.96 & --   & 1.00 & 0.11 & 1.00\\
+$(4,36)$  & 0.72 & 1.00 & 1.00 & 1.00 & 0.89 & 1.00\\
+$(7,33)$  & 0.00 & 0.98 & 1.00 & 0.54 & 0.23 & 1.00\\
+$(8,32)$  & 0.00 & 0.94 & 1.00 & 0.56 & 0.07 & 1.00\\
+$(10,30)$ & 0.00 & 0.90 & 1.00 & 0.52 & 0.01 & 0.97\\
+$(17,23)$ & 0.00 & 0.94 & 0.98 & 0.19 & 0.17 & 0.28\\
+$(20,20)$ & 0.00 & 0.96 & 0.96 & 0.15 & 0.27 & 0.25\\
+\bottomrule\end{tabular}
+\caption{\emph{Model / test set / metrics exactly as in Table~\ref{tab:basplit}}, but the model is
+trained on pure sparse Erd\H{o}s--R\'enyi ($\mathrm{ER}(40,0.05)$, never any path structure), four
+seeds, $n=40$. The same ordering survives --- exact match is non-trivial only for the unbalanced
+splits --- but it is noisier and shifted: exact peaks at $(4,36)$ rather than $(1,39)$, and the
+across-component cut drops well below $1$ from $a=7$ on (it is $\approx1$ throughout for the clean
+model in Table~\ref{tab:basplit}).}
+\label{tab:basplit_er}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/asym_chains_perdist_n40_pathunion.png}{0.78}
+    \caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+    $d_{\mathrm{model}}=512$), trained on disjoint paths only, four seeds, $n=40$. \emph{Test set:}
+    two-chain graphs at four representative splits, $300$ graphs per split. \emph{Metric:} for a pair
+    at shortest-path distance $d$ \emph{inside the long path}, the fraction predicted connected (mean
+    over seeds). The two unbalanced splits ($1{+}39$, $4{+}36$) stay at $1.0$ at every distance; the
+    two balanced splits ($17{+}23$, $20{+}20$) are at $1.0$ up to the capacity (red dashed, $3^L=9$)
+    and exactly $0$ beyond. Same model and weights --- only the split differs.}
+    \label{fig:baperdist}
+\end{figure}
+
+\paragraph{The other trainings and the caveats.} A model trained on pure ER (never any path
+structure) shows the same ordering --- unbalanced easier, balanced impossible --- but noisier, with the
+advantage peaking at $a\approx3$--$4$ ($\approx0.7$ at $4{+}36$) rather than at $a=1$
+(Table~\ref{tab:basplit_er}). In the
+Report-IV mixed condition the unbalanced advantage is a \textbf{seed lottery}: at $4{+}36$ one of four
+seeds solves it ($0.76$) and the others fail ($\approx0$); we therefore take the clean disjoint-paths
+model as the primary read. At the larger $n=64$ canvas the same ordering holds but the seeds spread
+further. At $n=20$ every component is short enough that all within-component distances stay within $9$,
+and almost every split is solved --- consistent with Report~IV, where the two-chain wall only appeared
+at $n=40$.
 
 \subsection{Thread C.1 --- Chained bridged cliques: does a learned bridge compose?}
 \label{sec:res-chain-cliques}
@@ -304,7 +702,108 @@ along a path?
 \emph{chain} --- can the model carry the link across clique--bridge--clique--$\dots$, finding at each
 stage the node that hands off to the next block?
 
-\emph{[To run --- data pending.]}
+\paragraph{Setup.} We train the base model on a single, deliberately minimal distribution: two cliques
+of a randomly drawn size, joined by one bridge edge (one component) or not (two components), $50/50$.
+This is the smallest stream that contains the one-bridge decision and \emph{nothing else} --- no other
+graph family --- so any success on a longer chain is composition, not a structure the model was shown.
+We then test, eval-only, on \textbf{chains} of $K$ cliques of size $c$ in a row, each adjacent pair
+joined by one bridge (one component). The chain's end-to-end distance grows by about two hops per added
+block, so we keep every cell within the $3^L=9$ capacity (up to $K=5$ here) --- a failure is then a
+failure to \emph{compose}, not the distance wall. The reading, never collapsed into one number: the
+\emph{within-block reach} (are nodes inside one block called connected, the easy part); the
+\emph{cross-block accuracy at gap $g$} (are two blocks $g$ bridges apart called connected, $g=1$ the
+nearest hand-off at distance $3$, $g=K{-}1$ end-to-end); the \emph{whole-chain exact match}; and an
+intact-vs-broken \emph{discrimination} (we also drop one middle bridge to make two components, so a
+model that just predicts ``all connected'' cannot pass).
+
+\paragraph{Result: a learned bridge composes only weakly.} The two-block case the model was trained on
+is solved at every block size. But \emph{adding} blocks degrades the connection fast
+(Table~\ref{tab:c1chain}, Figure~\ref{fig:c1comp}): one extra bridge ($K=3$) already drops the
+whole-chain exact match to $0.38$, two ($K=4$) to $0.16$, and by three ($K=5$) the chain is essentially
+unresolved (exact $0.00$, end-to-end cross $0.28$). The intact-vs-broken discrimination falls the same
+way, from $1.00$ at $K=2$ to $0.43$ (below chance) at $K=5$ --- the failure is \emph{under}-connection:
+faced with a long chain it never saw, the model defaults to calling the far blocks disconnected, not to
+over-connecting. So the local ``find the bridge node and hand off'' rule does \emph{not} freely compose
+into a longer chain of forced hand-offs.
+
+\paragraph{It is the total amount of structure, not the distance.} Two facts pin the cause. First, the
+cross-block accuracy is roughly \emph{flat in the gap $g$} (Figure~\ref{fig:c1comp}): within a chain of
+a given length the near and the far blocks are about equally (in)correct --- the model is not losing the
+connection bridge-by-bridge as it travels, it is sitting at a level set by the \emph{whole} chain.
+Second, that level is set by the chain length: the \emph{nearest} hand-off, $g=1$, always at distance
+$3$ and trivial for the trained two-block graph ($1.00$), itself decays with $K$ ($0.86\to0.53\to0.44$
+at $K=3,4,5$), even though its distance never changes. So what limits composition is the total amount of
+structure the connection must be carried through, not the per-bridge distance --- the same soft
+``node budget'' Report~V found for a single bridge, now seen along a chain. It bites harder for larger
+blocks (at $K=4$ the nearest hand-off falls from $0.53$ at $c=3$ to $0.25$ at $c=8$; at $K=5$ the
+within-block reach itself slips from $0.78$ to $0.41$), consistent with a budget counted in nodes
+traversed. The within-block reach staying high while the cross blocks collapse confirms the model still
+\emph{reads} each block; it just cannot relay the connection across enough of them. The same ordering
+holds at $n=20$, only more compressed (the chains are shorter).
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lcccccc}
+\toprule
+$K$ & dist.\ & within reach & hand-off ($g{=}1$) & end-to-end & exact & discrim.\\
+\midrule
+$2$ (trained) & 3 & 1.00 & 1.00 & 1.00 & \textbf{1.00} & 1.00\\
+$3$ & 5 & 1.00 & 0.86 & 0.90 & \textbf{0.38} & 0.67\\
+$4$ & 7 & 0.92 & 0.53 & 0.55 & \textbf{0.16} & 0.51\\
+$5$ & 9 & 0.78 & 0.44 & 0.28 & \textbf{0.00} & 0.43\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer with the linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained on a single clean distribution --- two cliques of a random size joined
+by one bridge edge or not ($50/50$, one component vs.\ two) --- four seeds, $n=40$. \emph{Test set:}
+chains of $K$ complete cliques of size $c=3$ joined by successive single bridges (one component), every
+cell within the $3^L=9$ capacity, $400$ graphs per cell. \emph{Metrics} (mean over seeds): within-block
+reach $=$ pairwise accuracy inside one block (target connected); nearest hand-off $=$ cross accuracy on
+blocks one bridge apart (distance $3$, target connected); end-to-end cross $=$ cross accuracy on the two
+extreme blocks ($K{-}1$ bridges apart); whole-chain exact $=$ fraction of graphs with the whole matrix
+right; intact/broken discrimination $=$ fraction correctly told apart from a chain with one bridge
+removed. $K=2$ is the trained structure; $K\ge3$ is held out.}
+\label{tab:c1chain}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/clique_chain_composition_n40.png}{0.62}
+    \caption{\emph{Model/training as in Table~\ref{tab:c1chain}} (base linear transformer, trained on
+    single bridged/split cliques, four seeds, $n=40$). \emph{Test set:} clique chains of size $c=3$,
+    $400$ graphs per cell. \emph{Metric:} cross-block accuracy (mean over seeds) against the number of
+    bridges crossed (block gap $g$), one line per chain length $K$. Each line is roughly flat in $g$ ---
+    near and far blocks fail together --- while the level steps down with $K$: the connection is limited
+    by the whole chain, not by how far along it the pair sits.}
+    \label{fig:c1comp}
+\end{figure}
+
+\paragraph{Dense ER blocks chain the same way, only sooner.} Replacing the complete cliques with
+internally-dense ER blocks (a held-out block type --- the model trained only on cliques) gives the same
+picture with two shifts (Table~\ref{tab:c1chainer}). The within-block distance is now $\approx2$ rather
+than $1$, so the chains reach the $9$-hop capacity at a smaller $K$ (only $K=2,3$ are feasible at the
+larger block sizes), and there is an added block-type cost on top: even the two-block chain decays in the
+block size (whole-chain exact $0.83\to0.25$ from $c=3$ to $c=8$ at $n=40$), and the three-block chain is
+essentially gone by $c=8$. The composition limit is the same; the unfamiliar, denser block just spends
+more of the budget per block.
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{llccccc}
+\toprule
+$K$ & $c$ & dist.\ & within reach & hand-off ($g{=}1$) & end-to-end & exact\\
+\midrule
+$2$ & 3 & 5 & 0.97 & 0.97 & 0.97 & 0.83\\
+$2$ & 8 & 6 & 0.80 & 0.72 & 0.72 & 0.25\\
+$3$ & 3 & 8 & 0.94 & 0.75 & 0.74 & 0.26\\
+$3$ & 8 & 9 & 0.62 & 0.50 & 0.49 & 0.00\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:c1chain}} (base linear transformer, trained on single
+bridged/split \emph{cliques}, four seeds, $n=40$). \emph{Test set:} chains of $K$ \textbf{dense ER
+blocks} of size $c$ (each a random connected block, internal edge probability $\approx0.6$ --- a block
+type never seen in training), joined by successive single bridges, within the $9$-hop capacity, $400$
+graphs per cell. \emph{Metrics} as in Table~\ref{tab:c1chain}, mean over seeds. Same decay with chain
+length as the cliques, reached at smaller $K$ (the within-block distance is $\approx2$, not $1$) and with
+an added cost in the block size.}
+\label{tab:c1chainer}
+\end{table}
 
 \subsection{Thread C.2 --- Thicker bridges and different blocks}
 \label{sec:res-thick-bridges}
@@ -320,7 +819,83 @@ stage the node that hands off to the next block?
 \paragraph{Question.} Does a thicker bridge (more than one edge) make the hand-off easier, and do
 dense ER blocks behave like complete cliques --- all kept within the distance capacity?
 
-\emph{[To run --- data pending.]}
+\paragraph{Setup.} Same trained model as Thread~C.1 (two cliques, one bridge or none, random size). We
+test, eval-only, two held-out variations of the single bridged graph, both keeping the cross distance
+$\le3$ (inside capacity), sweeping the block size $c$: \emph{(i)} a \textbf{thicker bridge} of $w=1,2,3$
+edges joining the two cliques (redundant hand-off routes, the parallelism idea of Thread~A applied to a
+within-capacity bridge), and \emph{(ii)} two \textbf{dense ER blocks} joined by a single bridge (a
+different dense region, never seen --- the model trained only on complete cliques). We read the
+cross-block accuracy (is the bridge propagated across the block?), the bridged-vs-split discrimination,
+the within-block reach, and the directional disagreement $\hat R_{ij}\neq\hat R_{ji}$ on the cross block.
+
+\paragraph{A thicker bridge changes nothing --- there is nothing to rescue.} On complete cliques the
+model propagates the single bridge across a block of \emph{any} size (Figure~\ref{fig:c2}, blue;
+Table~\ref{tab:c2}): cross accuracy $\approx1.00$, discrimination $1.00$, perfectly symmetric, at every
+size and for every bridge width $1$, $2$, $3$ (the only departures are seed-specific wobbles at
+intermediate padded sizes, which vanish at the full canvas). Adding bridge edges neither helps nor hurts.
+This is the expected reading and a useful contrast with Thread~A: there, parallel routes \emph{rescued} a
+connection that a single route could not carry because the distance was \emph{beyond} capacity; here the
+bridge is at distance $\le3$, well within capacity, so a single edge already suffices and redundancy has
+nothing to add. Within capacity, more routes are not a lever.
+
+\paragraph{A different block type transfers only partially.} The dense ER block is harder
+(Figure~\ref{fig:c2}, red; Table~\ref{tab:c2}). The cross accuracy decays with the block size to a floor
+($\approx0.76$ at $n=20$, $\approx0.62$ at $n=40$) and the discrimination drifts toward chance. The
+reason is not a propagation-specific failure but plain block-type novelty: at $n=40$ and the largest
+block the \emph{within}-block reach itself falls to $\approx0.66$ (three of four seeds near $0.55$, one
+clean at $0.98$) --- the model trained only on complete cliques cannot even resolve a $20$-node dense ER
+block, so the bridge question is moot before it arises. (The directional disagreement rising to $0.36$
+there is a symptom of those noisy within-block answers, not a sequential, single-start signature; on the
+cliques, which the model does resolve, it stays exactly $0$.) So the learned bridge skill is somewhat
+pattern-specific: a complete clique is handled at any size, but a differently-built dense region is
+out-of-distribution and only partly handled --- ``unseen'', in the sense of claim~3, and (Report~V, where
+adding such blocks to training closed the analogous gap) fixable by the data, not an intrinsic
+difficulty.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report6/report6_figs/thick_bridges_n40.png}{0.74}
+    \caption{\emph{Model:} base standard transformer with the linear read-out ($L=2$, single head,
+    $d_{\mathrm{model}}=512$), trained on single bridged/split cliques (random size), four seeds, $n=40$.
+    \emph{Test set:} two blocks of size $c$ joined by a bridge, $\ge400$ graphs per size --- complete
+    cliques with a bridge of $1$, $2$ or $3$ edges (blues), and dense ER blocks with a single bridge
+    (red); cross distance $\le3$ throughout. \emph{Metric:} cross-block accuracy (is the bridge
+    propagated?), thick $=$ mean over seeds, thin $=$ each seed; the dotted green line is the matrix-power
+    oracle (flat at $1$, bridge $\le3$ hops). Cliques sit on the oracle at every size and every bridge
+    width; dense ER blocks decay with size.}
+    \label{fig:c2}
+\end{figure}
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llcccc}
+\toprule
+$n$ & block (bridge width) & within reach & cross acc.\ & discrim.\ & dir.\ disagr.\\
+\midrule
+$20$ & complete cliques ($w{=}1,2,3$) & 1.00 & 1.00 & 1.00 & 0.00\\
+$20$ & dense ER blocks ($w{=}1$)      & 0.90 & 0.76 & 0.69 & 0.19\\
+\midrule
+$40$ & complete cliques ($w{=}1,2,3$) & 1.00 & 1.00 & 1.00 & 0.00\\
+$40$ & dense ER blocks ($w{=}1$)      & 0.66 & 0.62 & 0.50 & 0.36\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer, linear read-out ($L=2$, single head,
+$d_{\mathrm{model}}=512$), trained on single bridged/split cliques (random size), four seeds. \emph{Test
+set:} two blocks of size $c=n/2$ (the full canvas) joined by a bridge, $2{,}000$ graphs --- complete
+cliques with bridge width $w$, or dense ER blocks; cross distance $\le3$. \emph{Metrics} (mean over
+seeds): within-block reach (target connected); cross-block accuracy (the bridge propagated, target
+connected); bridged-vs-split discrimination; and the directional-disagreement rate
+$\hat R_{ij}\neq\hat R_{ji}$ on the cross block. The three clique rows ($w{=}1,2,3$) are identical to two
+decimals, so they are combined. The matrix-power oracle is $1.00$ everywhere (bridge $\le3$ hops).}
+\label{tab:c2}
+\end{table}
+
+\paragraph{Reading Thread~C together.} The learned single bridge does compose and transfer, but only
+within a budget: it survives one extra hand-off and any thickness of bridge, and it carries across a
+\emph{familiar} dense block of any size, while it collapses across a long chain of hand-offs and only
+partly transfers to an \emph{unfamiliar} block type. Both limits point the same way as Report~V --- a
+within-capacity propagation bounded by the amount of (familiar) structure it must cross --- so claim~4
+holds in its weak form (a bridge composes a little, and thicker bridges are free) but not in its strong
+form (a learned bridge does not freely compose into arbitrarily long or arbitrarily unfamiliar
+structure).
 
 \subsection{Thread D --- Trees (exploratory)}
 \label{sec:res-trees}
