@@ -15,26 +15,42 @@ questo progetto. Leggere **tutto** prima di agire.
 
 ---
 
-> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Report 1–5 **CONGELATI** (consegnati). In corso il
-> **REPORT 6** (`report/6/transformer_for_graphs_6.tex`, da `report/6/`). Tema: **simulare una "path
-> di ragionamento" — quali dati servono per imparare un certo ragionamento; sequenzialità vs
-> parallelismo**. È il **report conclusivo**: **pochi esperimenti, puntuali, per un paper.** Piano +
-> tesi + mindset + indicazioni della prof in **§13** (leggere PRIMA di agire). **Stato al 2026-06-30
-> (fine 17a sessione):** ✅ **A (A1/A2/A3) ANALIZZATO e SCRITTO** nel `.tex` (§sec:res-multipath-clean/
-> -samples/-truncated + figure/tabelle; dettaglio e lezioni in **§13.7**); ✅ **B ANALIZZATO e SCRITTO**
-> (§sec:res-asym-chains: la sezione mostra SOLO i risultati, il *perché* dello split è una DOMANDA APERTA
-> — dettaglio in **§13.8**); ✅ **C ANALIZZATO e SCRITTO** (§sec:res-chain-cliques C.1 + §sec:res-thick-bridges
-> C.2: un ponte imparato compone SOLO DEBOLMENTE — regge 1 hand-off in più e ponti spessi, ma crolla su catene
-> lunghe (K≥4) e transferisce solo in parte a blocchi ER non visti; tesi 4 forte REFUTATA, debole OK; dettaglio
-> e numeri in **§13.9**); ⚪ **D (alberi)** non iniziato
-> (esplorativo). **Lavoro ancora aperto** (lo spartiranno chat diverse, senza ordine obbligato): eventuali nuovi
-> esperimenti (Thread D); eventuale analisi più a fondo di A/B (es. il meccanismo
-> di B); il **Verdetto §sec:verdict** (da scrivere per ultimo, ora che A–C sono tutti dentro). Mappa codice/run in **§13.7** (A),
-> **§13.8** (B), **§13.9** (C). Vincolo NON negoziabile: **niente "mixed" random in
-> training** — UNA distribuzione esplicita e sensata per esperimento (ER, cliques, bridged cliques,
-> multipath, path_union…). Restano validi gli **errori §4** (caption 21, 55–60) e Claude **NON
-> committa** (consegna i comandi git). **Claude PUÒ fare `git pull`** (non è commit/push): i risultati
-> HPC vanno committati lato HPC dall'utente, poi Claude pulla in locale.
+> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
+> **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
+> modello a livello meccanicistico** (attention weights, matrice di read-out, embedding) per spiegare il
+> puzzle lasciato aperto dal Report 6 Thread B — perché uno split two-chains sbilanciato (es. 4+36) viene
+> risolto perfettamente mentre uno bilanciato (17+23, 20+20) no, **stesso modello, stessi pesi**. Piano +
+> ipotesi + dettaglio esperimenti/numeri in **§14** (leggere PRIMA di agire). **Stato al 2026-07-08 (fine
+> 3a sessione): Tier 1 + Tier 2 + Tier 3 COMPLETI a n=40, RIPETUTI a n=64 (path_union E ER)** — tranne
+> due punti non ancora fatti, vedi §14.6: retrain con loss riequilibrata — da lanciare con `sbatch` come
+> qualunque altro training del progetto — e il confronto col similarity read-out — servono
+> controllare/verificare altri checkpoint. Fatto a n=40: sweep denso a=1..20, random/fixed-label,
+> decomposizione readout $h_i^\top w_j$, geometria $W_{\mathrm{out}}/W_{\mathrm{in}}$ (con HEATMAP vere,
+> non solo numeri), attention rollout + row-mass + contributo-al-messaggio (con HEATMAP delle attention
+> score reali $S=QK^T/\sqrt{d_h}$ e $\alpha$, PRIMO uso di `attention_maps` nel progetto), test di
+> falsificazione a tre componenti, ablation whole-layer (dissocia reach da cut), activation patching
+> esplorativo (esito onestamente inconclusivo). **Ripetuto interamente a n=64** su path_union E su ER
+> (checkpoint GIÀ ESISTENTI da Report 6 Thread A, nessun training nuovo) — vedi §14.3c per l'esito, che
+> è DIVERSO e più ricco di quanto ci si aspettasse. `.tex` §4 (10 sottosezioni)/§5/§6 SCRITTI con numeri
+> e figure reali. **Esito n=40:** il puzzle non è "sbilanciato vs bilanciato" ma **"la componente piccola
+> è risolvibile ⇒ segnale di completamento extra sulla componente grande, valido SOLO su un canvas a
+> esattamente 2 componenti, costruito dalla STESSA macchina di attention del reach ordinario (non un
+> circuito a parte), mentre cut e reach dipendono da parti diverse del trunk (cut ← MLP layer 1)"**.
+> **Esito n=64 (NUOVO, sessione 3):** il modello ER non mostra MAI il segnale di completamento (traccia
+> l'oracolo a distanza pura a ogni split) — prova pulita che il segnale è insegnato dai dati
+> (path_union), non architetturale; il modello path_union a n=64 mostra invece un modo di fallire
+> INVERTITO rispetto a n=40 — il reach NON crolla mai (resta alto, ~0.82-1.0), ma il **cut crolla**
+> (0.9→0.24) per over-connessione, e il test a tre componenti **si rompe** (cut(L1,L2)=0.09 a
+> small=1, il contrario esatto di n=40 dove reggeva perfetto) — la stessa attention layer-1 che
+> costruisce il completamento utile costruisce anche l'over-connessione dannosa (spegnerla FIXA il cut
+> e distrugge il reach). Vedi §14 per il dettaglio completo. Il report **compila pulito** (20 pp., 0 ref
+> indefinite). Report 6 rimane il riferimento per **tutte** le regole operative sotto (caption 21, 55–60,
+> niente "mixed" random, niente commit da Claude). **Claude PUÒ fare `git pull`** (non è commit/push): i
+> risultati HPC vanno committati lato HPC dall'utente, poi Claude pulla in locale. **Report 6, riassunto
+> finale** (per riferimento): Thread A (multipath, parallelismo regge+meccanismo), Thread B (split
+> asimmetrico, puzzle poi risolto dal Report 7), Thread C (bridged cliques a catena, compone solo
+> debolmente) — tutti ANALIZZATI e SCRITTI, verdetto in §sec:verdict del `.tex`, dettaglio storico in
+> §13.7 (A), §13.8 (B), §13.9 (C) qui sotto.
 
 > **🟩 NOVITÀ 16a sessione (2026-06-30) — VARIANTE SIMILARITY READ-OUT (Threads A/B/C), LANCIATA.** Prima di
 > analizzare il Thread C (linear, lo fa un'altra chat), abbiamo creato il **gemello similarity** degli
@@ -134,6 +150,19 @@ una distribuzione esplicita per esperimento. **Tesi, mindset e indicazioni detta
 - **Git: Claude NON committa e NON pusha mai.** Claude modifica i file in locale e
   *consegna i comandi git all'utente*, che li esegue. (Vedi memoria
   `feedback_no_git_commits`.)
+- **⚠️ REGOLA NON NEGOZIABILE — il progetto ha SEMPRE accesso completo all'HPC Bocconi,
+  training incluso.** Il sandbox in cui gira Claude non ha accesso di rete diretto (niente
+  `ssh`/`scp` interattivi verso HPC — è un limite tecnico di QUESTA sessione, non del
+  progetto), ma il pattern è identico a quello di git: **Claude prepara lo script e i comandi
+  `sbatch`, l'utente li lancia su HPC.** Questo vale per QUALSIASI training, non solo per eval.
+  **Non scrivere MAI** frasi tipo "non abbiamo accesso al training", "risorse che Claude non
+  ha", "fuori portata da questo sandbox" riferite a HPC/training — sono FALSE e non vanno
+  scritte, nei report né altrove. Se un esperimento richiede un retrain: prepara lo script/il
+  comando `sbatch` e consegnalo, esattamente come per i comandi git; non presentarlo come un
+  limite strutturale. Il solo vincolo reale è che Claude non può eseguire `ssh`/`scp` da sé in
+  questa sessione (quindi il download dei `.pt` per l'eval locale lo fa l'utente, vedi §14.5) —
+  questo non ha nulla a che vedere con l'accesso a HPC per il training, che è sempre disponibile
+  tramite l'utente.
 - **Branch: si lavora su `main`.** Non creare branch nuovi se non richiesto.
 - **HPC (Bocconi): MAI calcolo sul nodo di login.** Qualsiasi cosa pesante va via
   `sbatch` (o `srun` su compute node). Sul login solo git/ls/tail/cat.
@@ -802,35 +831,30 @@ ragionamento; sequenzialità vs parallelismo.** È il **report conclusivo**: **p
 puntuali, vendibili in un paper.** **Indicazioni complete della prof + piano + tesi + mindset in
 §13** (leggerlo PRIMA di agire). Vincolo nuovo: **niente mixed random in training** (§13).
 
-**STATO al 2026-06-30 (fine 15a sessione).** Intro + framing + piano + setup nel `.tex` scritti. Lo stato
-per thread (è una FOTOGRAFIA, non una to-do list: il lavoro aperto lo prenderanno chat diverse, senza
-ordine imposto):
-- **Thread A — FINITO, ANALIZZATO, SCRITTO** (§13.7 stato finale + lezioni). 44 `multipath.json` (A1) +
-  56 `history.json` (A2/A3) in locale. Sezioni `.tex`: §sec:res-multipath-clean (A.1), -samples (A.2),
-  -truncated (A.3). Figure in `runs/report6/report6_figs/`.
-- **Thread B — FINITO, ANALIZZATO, SCRITTO** (§13.8). 36 `asym_chains.json` in locale. §sec:res-asym-chains:
-  mostra SOLO i risultati (puzzle riprodotto: sbilanciato facile, bilanciato no; Fig exact-vs-split + 2 Tab
-  by-split clean & ER + Fig per-distanza). **Il *perché* dello split è una DOMANDA APERTA** — l'utente ha
-  scartato la "spiegazione" over-connect perché era una ri-descrizione, non una causa (§13.8).
-- **Thread C — esperimenti FINITI, risultati PUSHATI, NON ancora analizzati/scritti** (§13.9). 48 json su
-  origin/main in `runs/report6/{clique_chain,clique_chain_er,thick_bridges}/` (+ `c_train` history). Gli
-  stub §sec:res-chain-cliques (C.1) e §sec:res-thick-bridges (C.2) sono ANCORA VUOTI.
-- **Thread D (alberi)**: non implementato (esplorativo, §13.5).
-- **Variante SIMILARITY read-out (A/B/C)**: gemello con `--readout similarity`, **Onda 1 (A1-sim) GIÀ
-  LANCIATA** su HPC (job 551389–551392 train + 551400/551401 eval); Onda 2 (C-sim) e Onda 3 (A2/A3-sim) da
-  lanciare. Output in cartelle `*_sim`. Tutto in **§13.10** (esplorativo, no stub `.tex` ancora).
-- **Verdetto §sec:verdict**: da scrivere per ultimo, quando A–C sono tutti in.
+**STATO al 2026-06-30 (fine 18a sessione). REPORT 6 SOSTANZIALMENTE COMPLETO** (19 pp, compila pulito da
+`report/6/`, 0 ref indefinite, 0 overfull), in attesa di revisione utente. Stato per thread:
+- **Thread A — ANALIZZATO e SCRITTO** (§13.7 + lezioni). §sec:res-multipath-clean (A.1), -samples (A.2),
+  -truncated (A.3). **Revisione 18a sess.**: A.1 "where the rescue breaks down" (tab:a1n64) corretto — NON
+  "mette tutto disconnesso" ma **over-connessione** (re-eval n64 con campi conn/disc-pair, vedi §13.9).
+- **Thread B — ANALIZZATO e SCRITTO** (§13.8). §sec:res-asym-chains: SOLO risultati (sbilanciato facile,
+  bilanciato no). **Il *perché* dello split resta DOMANDA APERTA**. **Revisione 18a sess.**: aggiunta
+  tab:basplit_n64 per-seed (esempio dello "spread" a n64).
+- **Thread C — ANALIZZATO e SCRITTO** (§13.9). §sec:res-chain-cliques (C.1, catene) + §sec:res-thick-bridges
+  (C.2, catene di ponti spessi per-seed + blocchi ER). Esito: tesi 4 "un ponte compone" SOLO forma debole.
+- **Thread D (alberi)**: **RIMOSSO dal report** (richiesta utente, 18a sess.). Non più nel piano §13.5.
+- **VERDETTO §sec:verdict — SCRITTO** (18a sess.): sintesi sulle 4 tesi §1.3 (1 regge+meccanismo, 2 regge
+  modesto, 3 regge, 4 solo debole), tie a Report V (propagazione parallela within-capacity, budget soft),
+  limiti onesti (comportamentale, seed lottery, over-connessione) + Thread B come puzzle aperto.
+- **Variante SIMILARITY read-out (A/B/C)**: esplorativa, NON entrata nel report. Onda 1 (A1-sim) lanciata su
+  HPC (job 551389–551392 + 551400/551401); Onda 2 (C-sim) e Onda 3 (A2/A3-sim) DA LANCIARE. Tutto in **§13.10**.
 
-**Lavoro ancora aperto (NON un ordine, solo la lista delle cose che restano):** (a) pullare in locale i 48
-json di C e analizzarli/scriverli (mappa e strumenti in §13.9 — `plot_clique_chain.py`, figure di
-`plot_bridged_cliques.py`); (b) eventuali NUOVI esperimenti (Thread D alberi, o varianti nuove); (c)
-eventuale analisi più a fondo dei thread già fatti (es. il meccanismo aperto di B); (d) il Verdetto finale.
+**Lavoro eventualmente aperto (il report è completo, questi sono extra a discrezione utente):** (a) il
+*perché* dello split di B (§13.8); (b) probe meccanicistici (attention/embedding) per trasformare "somiglia
+a MP" in "calcola A^{3^L}"; (c) la variante similarity (§13.10) se l'utente decide di lanciarla/analizzarla;
+(d) eventuali nuovi esperimenti.
 
-**Note git (la modalità, non un compito):** Claude NON committa/pusha, **PUÒ** `git pull`. I risultati HPC
-si committano lato HPC e si pullano in locale; il lavoro di scrittura `.tex`/figure si committa in locale sul
-Mac. I risultati di C (15a sessione) sono GIÀ stati pushati dall'utente. Il lavoro di scrittura di Thread B
-(15a sessione: `report/6/*.tex,*.pdf`, `plot_asym_chains.py`, `runs/report6/report6_figs/asym_chains_*.png`,
-`istruzioni.md`) potrebbe non essere ancora committato in locale → verificare con `git status` prima.
+**Note git (la modalità):** Claude NON committa/pusha, **PUÒ** `git pull`. Lo scrittura `.tex`/figure/json si
+committa in locale sul Mac (lista file per ogni sessione in §13.9). Verificare con `git status` prima.
 
 **Riuso da Report 4/5 (punti di partenza del Report 6):** Thread A (multipath) parte da
 `eval_parallel_paths_clean.py` + `generate_parallel_paths_graph(n, n_paths, path_len)` (Report 4
@@ -948,8 +972,10 @@ esplicita), **mai** col mixing opaco.
 - **Thread C — Bridged cliques iterate.** C.1 train su bridge singola (pulita, stile §5.6) → test su
   catene clique–ponte–clique–…; C.2 ponti **>1 edge** (distanza ≤9) e **blocchi ER densi** (p≈0.6)
   invece delle cricche.
-- **Thread D — Alberi** (esplorativo, breve salvo risultato chiaro).
-- **Verdetto** (scrivere per ultimo): per ciascuna tesi, se l'evidenza la sostiene.
+- ~~**Thread D — Alberi** (esplorativo)~~ **RIMOSSO dal report** (richiesta utente, 18a sess.): mai
+  implementato, sottosezione `.tex` cancellata. Resta un'idea futura solo se l'utente lo richiede esplicito.
+- **Verdetto** (SCRITTO, 18a sess.): per ciascuna tesi se l'evidenza la sostiene (1 sì+meccanismo, 2 sì
+  modesto, 3 sì, 4 solo debole) + tie a Report V + limiti onesti. Vedi §sec:verdict nel `.tex`.
 
 ### 13.6 Note tecniche da non dimenticare
 - **multipath**: il generatore PULITO è ora `generate_multipath_graph(...)` in `data.py` (route
@@ -1198,21 +1224,40 @@ bridged,split`, NON il mixed) → ogni successo su strutture diverse è composiz
   viste), non over-connect. Collassa prima per blocchi grandi (= node budget di Report V contato in nodi).
 - **C.1 catene blocchi ER densi (clique_chain_er):** stessa storia, prima (within-block dist ≈2 → cap a K più
   piccolo) + costo di tipo-blocco (held out).
-- **C.2 ponti SPESSI (thick_bridges cliques bw1/2/3):** **NESSUN effetto** — la cricca singolo-ponte è già
-  risolta a ogni size (cross≈1.0, disc 1.0, simmetrico, asym 0.0), ponti ridondanti non aiutano né danneggiano.
-  Contrasto con Thread A: lì le route parallele salvavano una connessione OLTRE capacità; qui il ponte è ≤3 hop
-  (DENTRO capacità) → un edge basta, niente da salvare.
+- **C.2 catena di PONTI SPESSI (NUOVO, 18a sess.):** il "ponte spesso a 2 blocchi" da solo è banale (cross≈1.0 a
+  ogni size, ogni width → tab:c2 clique rows, è solo il baseline within-capacity, NON un esperimento). Il test
+  vero è **mettere i ponti spessi in CATENA** (come C.1, K=2..5): un ponte più spesso (w=2,3 archi paralleli =
+  parallelismo Thread A dentro capacità) **AIUTA la composizione, parzialmente**. n40 c=3 exact a K=3: 0.38→0.54→
+  0.76 (w1→2→3); K=5: 0.00→0.06→0.25; n20 c=3 K=3 arriva a 1.00 con w3. MA: (a) rescue parziale (le catene
+  degradano comunque con K), (b) a c piccolo un ponte molto spesso è esso stesso OOD → intacca il K=2 allenato
+  (c=3 w3: exact 1.00→0.51). Eval `eval_clique_chain.py --bridge_width 2/3`, output `clique_chain_bw{2,3}/`.
+  **⚠️ L'effetto è BIMODALE/seed-lottery (la media inganna, l'utente l'ha notato): figura e tabella sono PER-SEED**
+  (`thick_chains_n40_perseed.png` via `plot_thick_chains.py` riscritto a 4 pannelli per-seed; tab:c2chain per-seed,
+  grassetto se ≥0.5). Per-seed: seed2000 compone lontano e i ponti spessi lo portano a K=5; seed1000/4000 guadagnano
+  solo K=3 e solo coi ponti spessi; seed3000 non compone mai. (La vecchia `thick_chains_n40.png` a media è orfana.)
 - **C.2 blocchi ER (thick_bridges blocks bw1):** **transfer PARZIALE** — cross decade col size a floor ~0.62
   (n40)/~0.76 (n20), disc→chance; a n40 c=20 il WITHIN-block crolla a ~0.55 in 3/4 seed (il blocco ER da 20
   nodi è esso stesso OOD per un modello allenato solo su cricche) → la domanda-ponte è moot. L'asimmetria 0.36
   è SINTOMO del within rumoroso, NON una firma sequenziale (errore 60). "Unseen, non too hard" → fixabile coi
   dati (Report V §5.6).
 **File nuovi/toccati (per commit utente):** `report/6/transformer_for_graphs_6.{tex,pdf}` (C.1+C.2 scritte),
-`plot_thick_bridges.py` (NUOVO, locale no-GPU → `thick_bridges_n{20,40}.png`), figure rigenerate
-`runs/report6/report6_figs/{clique_chain,clique_chain_er}_{composition,length}_n{20,40}.png` (con `--clique_size 3`)
-+ `thick_bridges_n{20,40}.png`, `istruzioni.md`. Figure nel `.tex`: `clique_chain_composition_n40.png` (C.1
-headline, c=3) e `thick_bridges_n40.png` (C.2). Tabelle: tab:c1chain (n40 c=3 K-decay), tab:c1chainer (ER),
-tab:c2 (full-size cliques bw1-3 vs ER blocks).
+`plot_thick_bridges.py` + `plot_thick_chains.py` (NUOVI, locale no-GPU), `plot_clique_chain.py` (usato),
+`eval_multipath.py` (aggiunti campi `conn_pairwise`/`disc_pairwise`, vedi revisione 18a sess. sotto),
+figure `runs/report6/report6_figs/{clique_chain,clique_chain_er}_{composition,length}_n{20,40}.png`,
+`thick_bridges_n{20,40}.png`, `thick_chains_n40.png`, **json nuovi** `runs/report6/clique_chain_bw{2,3}/n{20,40}_*`
+(16, ponti spessi in catena — generati IN LOCALE via scp dei `.pt` in /tmp poi cancellati), `istruzioni.md`.
+Figure nel `.tex`: `clique_chain_composition_n40.png` (C.1) + `thick_chains_n40.png` (C.2). Tabelle: tab:c1chain
+(n40 c=3 K-decay), tab:c1chainer (ER chain), tab:c2chain (ponti spessi in catena), tab:c2 (full-size baseline +
+ER blocks).
+**REVISIONE 18a sessione (feedback utente sui Thread A/B/C, tutto fatto):** (1) **A.1 "where the rescue breaks
+down" (tab:a1n64)**: la spiegazione "mette tutto disconnesso" era SBAGLIATA. Re-eval n64 path_union (scp `.pt` in
+/tmp, `eval_multipath.py` esteso con accuracy su coppie connesse/disconnesse): a k=2 il modello **over-connette**
+(disc-acc 0.53→0.00, a k=4 dichiara tutto un'unica componente → pair=1.0 banale), 3/4 seed reach≈0.9 ma non
+chiudono (s,t); seed4000 fa l'opposto (collassa a disconnesso). Tabella augmentata con conn/disc-pair acc. (2)
+**B (n64)**: aggiunta tab:basplit_n64 per-seed (esempio concreto dello "spread" — a a=1 i seed vanno 0.12→1.00 vs
+≈1.00 tight a n40). (3) **C.2**: rimosso "thicker bridge changes nothing" (a 2 blocchi è banale), sostituito con
+la **catena di ponti spessi** (sopra). Tutto ricompila (18 pp, 0 ref indefinite, 0 overfull). **Regola `.pt` in
+/tmp rispettata**: scp → uso → `rm -rf` (mai nel repo).
 **(storico) Stato pre-analisi 2026-06-30: train + eval COMPLETED, 48 json su origin/main, sezioni .tex vuote.** Train
 n20 4/4 (job 547043) + n40 4/4 (job 547044, ultimo seed finito 2026-06-30T05:53) → 8 ckpt
 `runs/report6/c_train/n{20,40}_bridged+split_*/last.pt` (gitignored, restano su HPC). Eval `547048`
@@ -1377,6 +1422,660 @@ sbatch --array=0-15%4  scripts/r6_a3_truncated_sim.sbatch
 `plot_asym_chains.py`/`plot_clique_chain.py` + le figure di `plot_bridged_cliques.py` vanno **puntati alle
 cartelle `*_sim`** (vanno estesi/parametrizzati: ora leggono i path linear). Confronto chiave da leggere:
 soglia rescue (A), muro raddoppiato a 18 (B), knee/composizione delle catene (C) — similarity vs linear.
+
+---
+
+## 14. Report 7 — aprire il trunk: perché lo split asimmetrico funziona (meccanicistico)
+
+> Blocco aggiunto dopo la consegna del Report 6. **Resta valido per OGNI nuova chat sul Report 7.**
+
+### 14.0 Le richieste originali dell'utente (trascritte VERBATIM — leggere prima di tutto)
+
+L'utente ha chiesto esplicitamente che queste richieste restino trascritte parola per parola in
+questo file, perché una chat futura deve poterle rileggere per intero e capire da sole tutto il
+contesto (non un riassunto). Sono nell'ordine in cui sono arrivate in questa sessione (3 sessioni,
+2026-07-07/08).
+
+**Richiesta 1 (apertura della sessione, dopo aver letto istruzioni.md e i Report 1–6):**
+```
+il report 6 è completato. ora leggi attentamente il suo file .tex riga per riga, leggi anche
+quello di 5,4,3,2,1. leggi riga per riga, poi crea un report 7. in questo report 7 ciò che
+faremo è focalizzarci sull'esperimento di due chain di lunghezza diversa e capire perchè 4 36
+lo capisce, mentre 20 20 non lo capisce. cioè capiremo proprio a livello di architettura e di
+attention score e di pesi cosa sta imparando
+```
+
+**Richiesta 2 (dopo un primo tentativo di piano, rifiutato con "let's chat about this" — l'utente
+ha incollato un'intera conversazione avuta con un'altra chat Claude, chiedendo di seguire QUELLA
+analisi invece della mia prima bozza):**
+```
+intanto vorrei che creassi velocemente il report 7 .tex giusto per averlo.
+poi, io ho fatto qudsta chat con claude esterno e avevo ddeciso questi esperimenti. dimmi se ci sta fare questi che mi sembrano meglio dei tuoi, dimmi se c'è da aggiungere.
+incollo:
+ voglio che implementi (non solo per 4/36 ma anche per tutti gli altri tipo
+  3/37 ecc) queste cose qui di cui abbiamo parlato in questa risposta di
+  claude.
+Sì, con l'architettura che hai scritto cambia parecchio l'interpretazione. La cosa più importante è questa:
+nei Report 5/6, se usate il linear read-out, il logit z_{ij} non viene calcolato confrontando direttamente h_i e h_j.
+Viene calcolato usando solo l'embedding finale del nodo i e un classificatore specifico per la colonna j.
+Quindi il modello non fa necessariamente z_{ij}=f(h_i,h_j), ma, nel readout lineare, fa più precisamente:
+Z_i = W_out h_i + b_out, oppure z_{ij} = w_j^T h_i + b_j.
+Dove h_i è l'embedding finale del nodo i, w_j è il vettore di readout associato alla colonna/nodo
+target j, z_{ij} è il logit "il nodo i è connesso al nodo j".
+Questa cosa è centrale. Nel linear readout, il nodo j entra nel logit attraverso il vettore imparato
+w_j, non attraverso l'embedding finale h_j. Quindi h_i deve contenere, da solo, abbastanza
+informazione per rispondere alla domanda "a quali nodi j sono connesso?". Il readout è come una
+batteria di n classificatori w_1,...,w_n. Ogni w_j chiede all'embedding h_i: "contieni evidenza
+che sei connesso al nodo j?" Questo rende molto sensato studiare W_out, perché nel vostro modello
+non è un dettaglio finale: è proprio il modo in cui la matrice di connettività viene letta dagli
+embedding.
+
+1. Implicazione importante: il modello non è permutation-equivariant nel senso naive.
+Dato che l'input è la riga della matrice di adiacenza A'_i e poi fate h_i^(0) = W_in A'_i + b_in,
+il modello riceve le colonne della matrice come coordinate fisse. Cioè il nodo 7, il nodo 19, il
+nodo 32 non sono anonimi: hanno coordinate distinte nell'input. In pratica, W_in contiene un
+embedding imparato per ciascun possibile vicino-label. Se A'_{ik}=1, allora nel read-in entra il
+contributo associato alla coordinata k. Per una chain ordinata, il nodo i ha riga circa
+A'_i = e_{i-1}+e_i+e_{i+1}. Quindi il read-in diventa circa h_i^(0) ≈ E_{i-1}+E_i+E_{i+1}+b.
+Questo vuol dire che il modello può imparare scorciatoie legate agli indici dei nodi, non solo
+alla struttura astratta del grafo. Questo è importantissimo per il fenomeno 4/36 vs 20/20. Se le
+chain sono sempre costruite con nodi contigui, tipo {0,1,2,3} e {4,...,39}, allora il modello
+potrebbe imparare qualcosa del tipo "i nodi da 4 a 39 appartengono spesso a una grande componente
+path-like, quindi completali come connessi." Questo non sarebbe vera connettività algoritmica.
+Sarebbe una regola label-dependent. Quindi uno degli esperimenti più importanti è: random
+relabeling test.
+
+2. Prima cosa da fare: sweep sulle chain sbilanciate, ma con controlli giusti.
+Tu vuoi studiare chain non equilibrate con varie lunghezze della piccola chain. Quindi farei
+a + (40-a), a=1,2,...,20. Per ogni a, costruisci due path disconnessi P_a ⊔ P_{40-a}. Per ogni
+split misura separatamente: (1) accuracy dentro la chain piccola; (2) accuracy dentro la chain
+grande; (3) accuracy across-cut; (4) exact-match totale; (5) accuracy condizionata dalla distanza
+nella chain grande; (6) accuracy condizionata dalla distanza nella chain piccola; (7) positive-rate
+predetto, cioè quante coppie il modello dichiara connesse. Questo già ti dice se il modello sta
+facendo: "tutti connessi"; "tutti disconnessi oltre distanza 9"; "completo la componente grande";
+"taglio correttamente tra componenti"; "faccio una vera propagazione lungo la path". Però questo
+va fatto in almeno tre condizioni: Condizione A: fixed labeling, piccola chain sempre sui primi a
+nodi, grande chain sui restanti. Condizione B: random relabeling, stesso grafo astratto, ma permuti
+casualmente le etichette dei nodi — se il modello risolve 4+36 solo nel fixed labeling e crolla nel
+random relabeling, allora sta usando gli indici. Condizione C: shifted small chain, la piccola
+chain non sta sempre all'inizio, per esempio per 4+36: {0,1,2,3} poi {18,19,20,21} poi
+{36,37,38,39} — se cambia molto, allora W_in e W_out stanno usando posizione/label. Questo
+esperimento per me viene prima dell'analisi sofisticata dei pesi.
+
+3. Logit analysis, ma contestualizzata al vostro readout. Nel vostro linear readout,
+z_{ij}=w_j^T h_i+b_j. Quindi quando guardi z_{i,30}, stai guardando quanto l'embedding del nodo i
+attiva il classificatore target 30. Se z_{i,30} è alto, non significa necessariamente che h_i e
+h_{30} sono simili. Significa che h_i contiene una direzione che il readout w_{30} interpreta come
+"connesso al nodo 30". Questo vuol dire che devi analizzare non solo i logits, ma anche h_i^T w_j.
+In particolare, per 4+36, vogliamo sapere: i nodi della componente lunga attivano positivamente
+tutti i w_j corrispondenti ai nodi della componente lunga? Cioè, se la componente lunga è
+{4,...,39}, vogliamo vedere se w_j^T h_i > 0 per tutti i,j in {4,...,39}. Se sì, il modello ha
+costruito un embedding h_i che dice "sono nella grande componente contenente questi target-labels."
+Nel 20+20, invece, probabilmente vedrai che w_j^T h_i diventa negativo quando j è troppo lontano da
+i lungo la path. Quindi il plot logit utile non è solo "logit vs distanza", ma z_{ij}=h_i^T w_j+b_j
+separato per: (i,j) nella piccola chain; (i,j) nella grande chain; (i,j) across-cut; distanza
+d(i,j); label j.
+
+4. Studiare W_out: sì, ha molto senso. Nel vostro modello, W_out è molto interessante. Se
+readout = nn.Linear(d_model, n), allora W_out ∈ R^{n×512}. Ogni riga w_j è il classificatore per
+il target-node j. Cose da plottare: A. Heatmap grezza di W_out (n×512, per n=40 diventa 40×512,
+può mostrare pattern grossi ma spesso i canali interni sono arbitrari). B. Norme dei vettori
+||w_j|| per j=1,...,40 — se certi nodi-label hanno norme molto più alte, il modello sta dando più
+importanza ad alcuni target; per esempio negli split 4+36, potresti scoprire che i target nella
+componente grande hanno vettori w_j più facilmente attivabili. C. Cosine similarity tra righe di
+W_out: C^out_{jk}=cos(w_j,w_k), matrice 40×40 — se W_out ha imparato una struttura path-like o
+component-like, potresti vedere bande diagonali o blocchi: se w_j e w_{j+1} sono simili, emerge
+una banda diagonale; se tutti i w_j della grande componente sono simili, emerge un blocco; se non
+c'è struttura, sembra rumore. D. PCA di w_j: prendi i 40 vettori w_j∈R^512, fai PCA in 2D, colori
+per indice j — se il modello ha imparato una rappresentazione ordinata dei nodi, i punti
+potrebbero disporsi lungo una curva secondo l'indice. Questo sarebbe molto interessante per capire
+se W_out contiene una specie di geometria dei node-labels.
+
+5. Studiare W_in: ancora più importante per capire shortcut di label. Il read-in fa
+h_i^(0) = A'_i W_in + b. A seconda della convenzione, puoi pensare a W_in come una matrice che
+contiene un vettore e_k per ogni input-coordinate k, cioè per ogni possibile vicino-label. Quindi
+se il nodo i è collegato a k, l'embedding iniziale riceve il contributo e_k. Cose da plottare:
+A. Heatmap di W_in (40×512 o 512×40). B. Norme degli input embeddings ||e_k|| per ogni node-label
+k — se alcuni label hanno embedding più forti, il modello sta usando certi nodi come segnali
+speciali. C. Cosine similarity tra e_k: C^in_{kl}=cos(e_k,e_l) — se emerge una struttura ordinata
+lungo la chain, allora il modello ha imparato una geometria degli indici. D. Allineamento
+W_in–W_out: questo è uno dei plot più interessanti. Calcola M_{kj}=e_k^T w_j dove e_k è il vettore
+associato alla coordinata input k e w_j è il vettore readout per target j. La matrice M∈R^{40×40}
+ti dice: se il nodo i vede k come vicino nell'input, quanto questo contribuisce direttamente ad
+attivare il target j? Se M ha una diagonale forte, il modello conserva identità dei nodi. Se M ha
+una banda, il modello ha imparato vicinanza lungo gli indici. Se M ha blocchi, il modello ha
+imparato componenti/regioni. Questo è molto più interpretabile della heatmap grezza 512×512.
+
+6. Studiare W_Q,W_K,W_V,W_O: sì, ma non solo come heatmap grezza. Capisco perfettamente l'idea:
+vogliamo vedere W_Q,W_K,W_V. Però attenzione: una heatmap 512×512 dei pesi grezzi può essere poco
+leggibile, perché le coordinate interne del modello non hanno un significato umano diretto. Due
+modelli funzionalmente simili possono avere pesi ruotati in modo diverso. Quindi farei entrambe le
+cose: 1. heatmap grezza dei pesi; 2. analisi "effective" nello spazio dei nodi. Per ogni layer hai
+Q=HW_Q, K=HW_K, V=HW_V. Con n=40, questi sono Q,K,V∈R^{40×512}. Quindi per un grafo specifico
+(4+36 o 20+20), puoi vedere q_i (cosa cerca ogni nodo), k_j (che chiave offre ogni nodo), v_j (che
+contenuto offre ogni nodo). Però io non guarderei solo le heatmap 40×512. Guarderei anche:
+A. Norme di q_i,k_i,v_i per nodo, plot lungo la chain — se gli endpoint o i nodi della piccola
+chain hanno norme diverse, il modello li tratta come speciali. B. Cosine similarity tra query
+cos(q_i,q_j) — dice se nodi lontani nella stessa componente fanno "domande" simili. C. Cosine
+similarity tra key cos(k_i,k_j) — dice se certi nodi offrono chiavi simili. D. Cosine similarity
+tra value cos(v_i,v_j) — dice se i contenuti trasportati dai nodi sono simili. E. Attention score
+grezzo: obbligatorio, s_{ij}=q_i^T k_j/√512, heatmap 40×40, per layer 0 e layer 1. F. Attention
+effettiva normalized-ReLU: nel vostro caso alpha_{ij} = (1/n)ReLU(s_{ij}). Questa non è softmax.
+Quindi non somma a 1 per riga. Perciò devi anche plottare sum_j alpha_{ij} — questa quantità dice
+quanta massa totale di attenzione prende il nodo i. È possibile che nel 4+36 non ci sia solo "dove
+guarda", ma anche "quanto forte guarda".
+
+7. La heatmap più importante non è solo S=QK^T, ma il contributo al messaggio. L'attention score
+ti dice dove il nodo guarda. Però l'output attention è message_i=sum_j alpha_{ij}v_j. Quindi un
+nodo j può avere attention alta ma value poco rilevante, o viceversa. Perciò devi plottare anche
+una matrice di contributo: C_{ij} = alpha_{ij}||v_j||. Ancora meglio: C^out_{ij}=||alpha_{ij}v_j W_O||.
+Questa dice: quanto il nodo j contribuisce davvero all'aggiornamento del nodo i? Questa è più
+causale della sola attention. Per il fenomeno 4+36, la domanda diventa: i nodi lontani della
+grande chain comunicano davvero tra loro, oppure il modello completa la componente grande senza
+messaggi long-range? Se nella heatmap alpha vedi solo attenzione locale, ma il modello predice
+tutta la lunga chain connessa, allora probabilmente non sta propagando davvero lungo 36. Sta usando
+una scorciatoia nei residui/MLP/readout. Se invece vedi attenzione molto forte dentro tutta la
+grande componente, allora potrebbe esserci una forma di global completion.
+
+8. Esperimento fondamentale: fixed-label vs random-label. Questo secondo me è il test più
+importante per i Report 5/6 sulle chain sbilanciate. Fai lo stesso split (a+(40-a)), ma in due
+modi. Fixed-label: P_a={0,...,a-1}, P_{40-a}={a,...,39}. Random-label: costruisci lo stesso grafo
+astratto, poi applichi una permutazione casuale pi ai nodi. Se il modello è algoritmico, dovrebbe
+comportarsi uguale. Se il modello usa label shortcuts, crolla. Per ogni a, misura
+Delta(a) = acc_fixed(a) - acc_random(a). Se Delta(a) è enorme proprio per 4+36, hai una prova forte
+che il successo 4+36 dipende dalle etichette/posizioni. Questo è molto più convincente di guardare
+solo i logits.
+
+9. Esperimento: spostare la chain piccola. Altro test pulito. Per a=4, invece di mettere la
+piccola chain sempre su {0,1,2,3}, mettila in posizioni diverse: {0,1,2,3}, {10,11,12,13},
+{18,19,20,21}, {36,37,38,39}. La grande chain occupa gli altri nodi, collegati come path. Se la
+performance cambia a seconda di dove sta la piccola chain, allora il modello non sta solo usando
+"dimensione componente"; sta usando anche node labels specifici.
+
+10. Esperimento: same lengths, different ordering. Per 4+36, puoi costruire la grande chain in
+ordine naturale: 4-5-6-...-39, oppure con un ordine permutato: 4-17-9-31-.... Stessa componente,
+stessa dimensione, stessa struttura astratta path, ma gli archi non seguono più l'ordine degli
+indici. Se il modello risolve solo la chain ordinata, allora ha imparato una scorciatoia di
+indice/path ordinato. Questo è molto importante perché il read-in vede coordinate fisse. Il
+modello può imparare che "vicino nell'indice" spesso significa "vicino nel path".
+
+11. Esperimento: component-size probe sugli embedding. Per ogni grafo a+(40-a), salva gli
+embedding finali h_i^(2). Poi addestra un probe lineare, a modello congelato, per predire dal
+singolo embedding h_i^(2): 1. dimensione della componente di i; 2. se i sta nella componente
+grande; 3. distanza dall'endpoint più vicino; 4. posizione normalizzata nella chain; 5. degree del
+nodo; 6. eccentricità nella componente. Se dal solo h_i puoi predire "sono nella componente grande"
+molto bene, allora il modello sta codificando informazione globale di componente. Questo si
+collega direttamente al linear readout: dato che z_{ij} usa solo h_i, tutto ciò che serve per
+predire la riga i della connettività deve stare dentro h_i.
+
+12. Esperimento: readout decomposition. Dato che z_{ij}=h_i^T w_j+b_j, puoi decomporre il logit
+sulle coordinate: z_{ij}=sum_{r=1}^{512} h_{i,r}w_{j,r}+b_j. Per coppie interessanti, tipo 4+36
+due nodi a distanza 35 nella grande chain predetti connessi, e 20+20 due nodi a distanza 19 nella
+stessa chain predetti disconnessi, puoi guardare quali dimensioni r contribuiscono di più. Per
+ogni coppia (i,j), calcola c_r = h_{i,r}w_{j,r}. Poi guarda top positive e top negative
+coordinates. Domanda: le stesse coordinate spiegano il successo su 4+36 e il fallimento su 20+20?
+Se sì, c'è un circuito comune. Se no, il modello cambia regime.
+
+13. Esperimento: residual stream patching. Questo è più avanzato, ma molto forte. Prendi due
+input: grafo A: 4+36, dove il modello funziona; grafo B: 20+20, dove il modello fallisce. Salva
+gli stati H^(0),H^(1),H^(2). Poi fai interventi tipo: durante il forward su 20+20, sostituisco
+l'embedding di alcuni nodi/layer con quello corrispondente dal 4+36. Per esempio: patch dopo
+read-in; patch dopo layer 1; patch dopo layer 2; patch solo componente grande; patch solo
+endpoint; patch solo MLP output; patch solo attention output. Se patchando H^(1) cambia molto la
+predizione, il circuito rilevante nasce nel primo layer. Se cambia solo patchando H^(2), nasce nel
+secondo layer/readout. Questo aiuta a rispondere: dove si forma la rappresentazione "componente
+grande tutta connessa"?
+
+14. Ablation: attention vs MLP vs readout. Dato che avete solo 2 layer e 1 head, le ablation sono
+gestibili. Farei queste: A. Spegnere attention layer 0: metti attention output a zero nel primo
+blocco, h ← LN(h+0). Guarda se 4+36 resta risolto. B. Spegnere attention layer 1: stessa cosa nel
+secondo blocco. C. Spegnere MLP layer 0/layer 1: metti output MLP a zero. D. Spegnere solo W_O:
+cioè attention calcolata ma output cancellato. E. Usare solo read-in + readout: passi
+H^(0) → W_out senza transformer blocks. Se già questo risolve parzialmente 4+36, allora il modello
+sfrutta moltissimo il read-in/readout e non una propagazione profonda.
+
+15. Attention mask experiments. Anche se il modello è stato trainato con attention globale, puoi
+fare interventi in inferenza. Per una chain, imponi maschere artificiali. A. Local-only attention:
+permetti attenzione solo a nodi a distanza grafica ≤1 o ≤2 — se 4+36 resta corretto con attention
+local-only, allora forse la connettività lunga non dipende da global attention; se crolla, allora
+usava attenzione globale. B. Same-component-only attention: permetti attenzione solo dentro la
+stessa componente — questo non è un test realistico, perché gli stai dando informazione della
+target structure, ma serve come controllo. C. No-long-range attention: blocca attenzione tra nodi
+con distanza maggiore di 9 — se 4+36 resta corretto anche senza attention long-range, allora il
+superamento di 9 non viene da messaggi diretti long-range. D. Cut-only ablation: blocca attenzione
+tra componenti diverse — se cambia molto, il modello stava usando anche segnali across-cut per
+capire la separazione.
+
+16. Per il similarity readout cambia tutto. Quando usate il similarity readout,
+z_{ij}=s·cos(h_i,h_j)+b. Qui sì, il logit dipende direttamente da entrambi h_i,h_j. In questo caso
+l'analisi più importante diventa cos(h_i,h_j) per distanza e per componente. Per il linear readout,
+invece, la domanda è: h_i attiva w_j? Per il similarity readout, la domanda è: h_i e h_j diventano
+simili se sono nella stessa componente? Quindi devi tenere separate le due varianti. Non mischiare
+interpretazioni. Per linear readout: z_{ij}=h_i^T w_j+b_j. Per similarity readout:
+z_{ij}=s cos(h_i,h_j)+b. Sono due meccanismi molto diversi.
+
+17. Cosa implementerei concretamente adesso. Io farei una script unico tipo
+mechanistic_audit_unbalanced_chains.py. Input: checkpoint; readout type; n; lista degli split
+(a+(n-a)); numero di permutazioni; modalità: fixed, shifted, random-label, random-order. Output:
+File 1: metrics.csv, una riga per grafo/split: checkpoint, split, mode, seed, exact, pairwise,
+acc_short, acc_long, acc_cut, pred_pos_rate, mean_logit_short, mean_logit_long, mean_logit_cut.
+File 2: pair_table.csv, una riga per coppia (i,j): split, mode, seed, i, j, component_i,
+component_j, pair_type, distance, logit, prob, pred, target. File 3: cache.pt, per pochi grafi
+selezionati: H0, layer0_q, layer0_k, layer0_v, layer0_scores, layer0_alpha, layer0_attn_out,
+layer0_mlp_out, H1, layer1_q, layer1_k, layer1_v, layer1_scores, layer1_alpha, layer1_attn_out,
+layer1_mlp_out, H2, logits. File 4: weights.pt / weights_summary.csv: salva W_in, W_q,W_k,W_v,W_o
+per layer, MLP W1,W2 per layer, LayerNorm gamma,beta, W_out,b_out; e summary: norms, singular
+values, cosine matrices, effective kernels.
+
+18. Plot minimi da generare. Per ogni checkpoint e per split 4+36, 8+32, 12+28, 17+23, 20+20:
+Logit/accuracy plots: 1. logit medio vs distanza; 2. accuracy vs distanza; 3. istogrammi dei
+logits per short/long/cut; 4. positive-rate per split a. Attention plots, per layer 0 e layer 1:
+1. heatmap S=QK^T/√d; 2. heatmap alpha=ReLU(S)/n; 3. row mass sum_j alpha_{ij}; 4. mean attention
+vs graph distance; 5. contribution heatmap alpha_{ij}||v_j||; 6. contribution output
+||alpha_{ij}v_j W_O||. Q/K/V plots, per layer 0 e layer 1: 1. heatmap Q,K,V (40×512);
+2. norm ||q_i||,||k_i||,||v_i|| lungo i nodi; 3. cosine similarity tra q_i; 4. cosine similarity
+tra k_i; 5. cosine similarity tra v_i; 6. PCA 2D di q_i,k_i,v_i, colorata per componente. Weight
+plots: 1. heatmap W_in; 2. heatmap W_out; 3. cosine matrix delle righe di W_out; 4. cosine matrix
+degli input embeddings da W_in; 5. matrice di allineamento E_in W_out^T; 6. heatmap grezze
+W_Q,W_K,W_V,W_O; 7. singular values di W_Q,W_K,W_V,W_O; 8. effective node-space kernel:
+E_in W_Q W_K^T E_in^T — questo kernel dice, già nello spazio dei node-labels, quali input-labels
+tendono a produrre query/key compatibili.
+
+19. La domanda scientifica da mettere al centro. Secondo me la domanda giusta non è solo "perché
+4+36 funziona e 20+20 no?" ma più precisamente: nel 4+36, il modello sta davvero propagando
+informazione lungo una chain di lunghezza 36, oppure sta usando una rappresentazione shortcut
+della grande componente? Con questa architettura, le ipotesi principali sono tre. Ipotesi 1: vera
+propagazione — il modello costruisce embedding che propagano localmente informazione lungo la
+path; dovresti vedere attention prevalentemente locale ma layer dopo layer gli embedding
+incorporano informazione più lontana, il comportamento regge a random relabeling, non dipende
+dalla posizione della piccola chain, W_in e W_out non mostrano forti scorciatoie di label — questa
+ipotesi mi sembra possibile ma non la più probabile. Ipotesi 2: large-component completion — il
+modello riconosce che esiste una componente grande e completa tutta quella componente come
+connessa; vedresti 4+36 alto, 20+20 basso, embedding della componente grande molto simili o molto
+allineati ai target w_j della componente grande, performance sensibile alla dimensione della
+piccola chain, forse attention non necessariamente long-range, h_i^T w_j>0 per quasi tutti i,j
+nella componente grande — questa per me è l'ipotesi più plausibile. Ipotesi 3: label/order
+shortcut — il modello sfrutta il fatto che la chain è ordinata e i nodi hanno label fissi; vedresti
+performance alta su fixed-label, crollo su random relabeling, crollo se la chain viene permutata
+internamente, pattern forti in W_in, W_out, E_in W_out^T, cosine similarity di W_out ordinata per
+indice — questa è molto importante da escludere.
+
+20. Quindi: cosa farei davvero, in ordine. 1. Sweep a+(40-a) con fixed, shifted, random-label,
+random-order. 2. Metriche separate short/long/cut/distance. 3. Cache interno per pochi casi
+chiave: 4+36, 8+32, 17+23, 20+20. 4. Heatmap attention score S e attention effettiva alpha.
+5. Q/K/V node-level analysis: norme, cosine, PCA, heatmap 40×512. 6. Readout analysis: W_out,
+cosine w_j, decomposizione h_i^T w_j. 7. Read-in/readout alignment: E_in W_out^T. 8. Ablation
+attention/MLP/readout. 9. Solo dopo: evoluzione durante training. Quindi sì: guardare i logits
+serve, ma nel vostro caso non basta. La parte più interessante è probabilmente l'interazione fra
+W_in, W_Q,W_K,W_V, H^(2), W_out. E soprattutto il fatto che, con linear readout, z_{ij}=h_i^T w_j+b_j,
+quindi il modello deve trasformare ogni nodo i in una rappresentazione che contiene quasi tutta
+la riga i della matrice di connettività. Questa è la chiave interpretativa per capire cosa succede
+sulle chain sbilanciate.
+```
+
+**Nota su come è stata gestita la Richiesta 2**: NON è stata implementata alla lettera al 100%
+(sarebbe stato uno scope enorme, es. punto 15 "attention mask experiments" e punto 11 "linear
+probe sugli embedding" non sono stati fatti). È stata **fusa** con il mio piano iniziale, potata a
+un set gestibile (Tier 1/2/3, vedi §14.3/14.3b), con una correzione importante fatta subito
+all'utente: il punto 8 (fixed-vs-random-label) **era già coperto** dalla metodologia esistente di
+`eval_asym_chains.py` (permuta già ogni grafo a caso), quindi non è stato rifatto da zero ma solo
+confermato con un confronto esplicito (Tabella `tab:r7relabel` nel `.tex`). Il punto 9 (shifted
+small chain) è STATO ASSORBITO dalla stessa osservazione (la permutazione casuale già copre
+implicitamente "dove sta la piccola chain"). I punti 13 (patching) e 14 (ablation) SONO stati
+fatti (§14.3b). Il punto 16 (similarity readout) NON è stato fatto (checkpoint da verificare, vedi
+§14.6). I punti 17-18 (script/plot unico con tutte le heatmap) sono stati implementati come
+`mechanistic_heatmaps.py` + `plot_mechanistic_heatmaps.py` (§14.4).
+
+**Richiesta 3 (dopo che il Tier 1 era già stato consegnato con dati reali su n=40 — l'utente ha
+chiesto di completare TUTTO quello descritto nella Richiesta 2, non solo il Tier 1):**
+```
+vorrei che fai tutti gli altri esperimetni di cui avevamo parlato. rileggi la chat riga per riga
+e fai gli esperimetni di cui avevamo parlato. rileggi e completa con tutte le tier.
+inoltre, voglio che mostri bene i pesi, le attenzioni, le matrici dei pesi, le matrici delle
+attention scores con delle heatmap.
+```
+Questa è la richiesta che ha prodotto Tier 2 (ablation) + Tier 3 (patching) + tutte le heatmap
+(§14.3b) nella 2a sessione.
+
+**Poi, correzione dura dell'utente (2a sessione, DA NON DIMENTICARE MAI — vedi anche §2 e la
+memoria persistente `feedback_hpc_access_always_available`):**
+```
+non ti azzardare a scrierla mai piu perchè noi abbiamo sempre accesso all'hpc bocconi. scrivi su
+istruzioni questa cosa
+```
+(riferito a frasi tipo "non abbiamo accesso al training" che erano finite nel `.tex` — RIMOSSE,
+vedi §2 per la regola permanente).
+
+**Poi, 3a sessione — generalizzazione a n=64:**
+```
+vorrei che rifacessi le cose per n64 con la stessa distribuzione e anche per ER n64.
+```
+→ Tier 1/2/3 ripetuti interamente a n=64 su path_union E su ER (checkpoint già esistenti,
+nessun training nuovo) — esito in §14.3c, **diverso e più ricco** di n=40 (il modo di fallire si
+inverte: a n=64 path_union il reach non crolla ma il cut sì, per sovra-connessione).
+
+### 14.1 Da dove viene
+
+Report 5 (verdetto) e Report 6 (outlook) dicevano entrambi la stessa cosa: tutta l'evidenza fin
+qui è **comportamentale** (output del modello contro oracoli/dati), mai **meccanicistica**
+(attention weights, matrice di read-out, embedding). `model.py` espone da sempre
+`attention_maps(x)` e `hidden_states(x)`, ma un grep sul repo conferma che `attention_maps` non
+era MAI stato usato in nessuno script prima di questa sessione. Report 7 apre il trunk, puntato
+sul puzzle lasciato aperto dal Report 6 Thread B (§13.8): stesso modello, stessi pesi, stesso
+`n=40` — uno split two-chains `(a, 40-a)` con `a` piccolo (es. `4+36`) viene risolto **esatto**
+fino a ~38 hop, uno bilanciato (`17+23`, `20+20`) si ferma esatto al muro `3^L=9` e poi è **zero**.
+
+**Nota tecnica imparata in questa sessione (utile per chiunque tocchi la distribuzione
+disjoint-paths/path_union — es. per capire cosa vede davvero il modello a training time):**
+`generate_path_union_graph(n, rng, max_paths=4)` in `data.py` funziona così: (1) il numero di
+componenti `k` è estratto **uniformemente a caso tra 1 e 4** (`k ~ Uniform{1,2,3,4}`), quindi
+circa un quarto delle volte il training vede un singolo path che copre tutti gli n nodi; (2) se
+`k>1`, si scelgono `k-1` punti di taglio **uniformemente a caso senza rimpiazzo** tra le `n-1`
+posizioni interne — le lunghezze dei path risultanti **non sono fisse né uniformi tra loro**
+(sono gli "spacing" fra punti uniformi casuali, quindi tendenzialmente sbilanciate, non ~n/k
+ciascuna); (3) i `k` path **partizionano tutti gli n nodi** (nessun nodo isolato/di padding);
+(4) la permutazione dei nodi (per rompere scorciatoie di indice) avviene FUORI dal generatore, a
+chiamata. Questo spiega perché, con questa distribuzione, il modello vede spesso split molto
+sbilanciati (un pezzo minuscolo + uno enorme) ma anche 4 pezzi comparabili, mai in modo
+sistematico/fisso — è la base empirica per l'ipotesi "il modello impara a gestire bene i casi con
+una componente piccola risolvibile" del Report 7.
+
+### 14.2 Le tre ipotesi (dichiarate PRIMA di guardare i dati, per restare falsificabili)
+
+1. **Propagazione genuina**: il modello traccia davvero la distanza; dovrebbe reggere a
+   relabeling casuale, a dove sta la componente corta, all'ordine interno del path lungo.
+2. **Default "componente corta risolta"**: il modello risolve per intero la componente
+   abbastanza piccola da stare in capacità (`short_len≲9`) e mette "connesso" di default a
+   tutto il resto — una scorciatoia corretta finché c'è **esattamente** una componente piccola.
+3. **Scorciatoia di label/ordine**: il modello sfrutta l'indice fisso dei nodi invece della
+   struttura astratta (indebolita in partenza: `eval_asym_chains.py`, quello che ha prodotto
+   `tab:basplit` del Report 6, **permuta già** ogni singolo grafo di test in modo indipendente e
+   casuale prima di darlo al modello — quindi i numeri di Report 6 sono GIÀ media su centinaia di
+   relabeling indipendenti).
+
+### 14.3 Cosa dicono i dati (Tier 1, 4 seed `n40_path_union` di Report 6, TUTTO fatto)
+
+- **Ipotesi 3: REFUTATA.** Fixed-label vs random-label danno lo stesso identico esito a ogni
+  split (Report 7 tab 2). La matrice di read-out non ha struttura per-indice (norme ‖w_j‖
+  uniformi, cosine tra righe ~0.06); lo skip-connection diretto `E_in @ W_out^T` (bypassa i
+  transformer block) porta un segnale ~100× più debole di quello che decide davvero la
+  predizione — qualunque cosa succeda, passa per i due layer, non per un lookup sull'indice.
+- **Ipotesi 2: corretta ma in forma più STRETTA del previsto.** Il test decisivo è la
+  **falsificazione a tre componenti** (Report 7 tab 4, `data.py::generate_three_way_split_graph` +
+  `eval_three_way_split.py`, NUOVI): un grafo con una componente piccola + due componenti grandi
+  **non connesse fra loro**. Se l'ipotesi 2 fosse "tutto ciò che non è la piccola è connesso", il
+  modello dovrebbe fondere le due grandi. **Non lo fa**: `cut(L1,L2)=1.000` sempre, ogni seed, ogni
+  taglia. MA il reach dentro ciascuna grande componente NON recupera (resta a 0.71–0.86, identico
+  al reach di uno split bilanciato a due componenti della stessa taglia) — il "completamento
+  extra" è specifico di un canvas a **esattamente due** componenti, non un default generico.
+- **Ipotesi 1: corretta quando il segnale di completamento non è attivo.** Oltre la zona di
+  transizione (`a≳11`), la frazione complessiva di coppie predette connesse combacia quasi esatto
+  con quella di un oracolo puro a distanza `≤9` (0.36 modello vs 0.35 oracolo, calcolato in forma
+  chiusa) — cioè il modello torna a comportarsi come matrix-powering puro (Report V) non appena il
+  trucco a-due-componenti non si applica.
+- **Il logit grezzo `h_i^T w_j` (pre-bias) decade IN MODO LISCIO**, non a gradino: saturato e
+  fortemente positivo per `a≤7`, attraversa lo zero proprio in `a=8..11` (dove crolla l'accuracy),
+  poi risale piano fino `a=20` — lo strappo comportamentale a `a=8` è solo la soglia binaria
+  applicata a un segnale continuo. Il logit di cut invece resta **sempre negativo** (mai cambia
+  segno), solo si affievolisce: la decisione "componente diversa" degrada in confidenza ma non in
+  segno, coerente col cut-accuracy ≈1.0 per tutto lo sweep.
+- **Attention rollout (2 layer, `α_2 @ α_1`, PRIMO uso reale di `attention_maps` nel progetto):**
+  per un nodo a metà del path lungo l'attention raggiunge TUTTI i nodi della componente lunga sia
+  ad `a=4` che ad `a=20` — non è "troppo corto raggio". Quello che cambia è quanta di quella massa
+  **fuoriesce** sulla componente sbagliata: 0.3% ad `a=1` → 31% ad `a=20`, salita liscia e
+  monotona, strettissima sui 4 seed (<1 punto percentuale di spread).
+
+### 14.3b Tier 2/3 — FATTO (2a sessione, 2026-07-08). Heatmap, ablation, patching.
+
+Su richiesta esplicita dell'utente ("fai tutti gli altri esperimenti... mostra pesi e attention con
+heatmap"), completati anche Tier 2 e Tier 3 (tranne i due punti non ancora fatti, vedi §14.6 — non
+per mancanza di accesso a HPC, che il progetto ha sempre tramite l'utente, ma perché richiedono un
+training nuovo mai lanciato in questa sessione). Tutto rilanciato sui 4 checkpoint reali dopo un
+secondo giro di `scp` (i `.pt` erano stati cancellati a fine 1a sessione, come da regola).
+
+- **Heatmap (PRIMO uso reale in tutto il progetto sia di `attention_maps` sia di una vera
+  visualizzazione dei pesi):** `S=QK^T/√d_h` e α per layer 0/1 mostrano che layer 0 è identico fra
+  `a=4` e `a=20` (banda locale lungo la diagonale, rotta esattamente al confine componente) — la
+  differenza è TUTTA in layer 1: ad `a=4` il rollout a 2 layer è un blocco quasi uniforme su TUTTA
+  la componente lunga; ad `a=20` è visibilmente **block-diagonal** (due blocchi separati, zona
+  centrale attenuata) — esattamente la stessa cosa mostrata numericamente dalla leak-fraction. Le
+  norme Q/K/V per nodo sono IDENTICHE in forma fra `a=4` e `a=20` (la differenza è nella direzione,
+  non nella magnitudo). `W_out`/`W_in` grezzi: nessuna struttura per-indice visibile (rumore),
+  confermando ulteriormente la refutazione dell'ipotesi 3.
+- **Ablation whole-layer (dissociazione pulita, decisiva):** spegnere QUALSIASI dei due layer di
+  attention collassa il reach a ~0.06–0.29 A OGNI split (anche `a≤7`) — il segnale di completamento
+  NON è un circuito separato, usa la STESSA macchina di attention del reach ordinario oltre-muro.
+  Spegnere l'MLP layer 1 lascia il reach quasi intatto (0.87–0.99) ma fa CROLLARE il cut da ~1.0 a
+  0.26–0.62 — **reach e cut dipendono da parti diverse del trunk** (cut ← MLP1, reach ← entrambi i
+  layer di attention). Bypass completo (niente transformer block) → reach flat ~0.33 a ogni split
+  (niente completamento possibile senza mixing). Risultato pulito su tutti e 4 i seed.
+- **Activation patching (esplorativo, ESITO ONESTAMENTE INCONCLUSIVO):** patchare l'embedding
+  finale da un donor risolto (`a=7`) in un recipient fallito (`a=10` o `a=20`) porta SEMPRE il reach
+  a 1.0 — ma lo fa ANCHE un controllo random (patch di posizioni non allineate al confine) quasi
+  altrettanto bene (0.89–1.0): è un artefatto del read-out per-riga (`z_ij` dipende solo da `h_i`),
+  non una prova di localizzazione. Il patch PRIMA del layer 1 (block 0) è più informativo perché
+  NON sempre aiuta: per lo split adiacente `7→10` rescue quasi completo (0.98); per lo split
+  mismatched `4→20` **peggiora** (0.31, sotto il baseline 0.71) — block 1 si confonde con uno stato
+  ibrido costruito da due grafi di forma diversa. Riportato nel `.tex` come negativo/esplorativo, non
+  come evidenza decisiva.
+
+### 14.3c Generalizzazione a n=64 — FATTO (3a sessione, 2026-07-08). path_union E ER, esito diverso da n=40.
+
+Su richiesta esplicita dell'utente ("rifai le cose per n64 con la stessa distribuzione e anche per ER
+n64"). Checkpoint **già esistenti** su HPC da Report 6 Thread A (`runs/report6/a1_train/
+n64_{path_union,er}_roberta_linear_lam0_seed{1000..4000}/last.pt`) — **NESSUN training nuovo**, solo
+eval-only con gli stessi script Tier 1/2/3, sweep `a=1..32` (`n//2` per n=64). Risultato: **la storia
+non si ripete identica, si arricchisce in modo genuinamente nuovo.**
+
+- **ER a n=64: NESSUN segnale di completamento, mai.** Reach sale liscio da 0.21 (a=1) a 0.39 (a=32),
+  **sempre** entro pochi punti dall'oracolo a distanza `≤9` (calcolato in forma chiusa) — zero
+  scogliera, zero pavimento, zero recupero. Cut resta `≥0.997` all'intero sweep, **anche allo split
+  perfettamente bilanciato**. Prova più pulita del report: il segnale di completamento **non è
+  un'inevitabilità architetturale** — è qualcosa che la distribuzione path_union insegna
+  specificamente; un modello che non l'ha mai vista non lo acquisisce, a NESSUNO split.
+- **path_union a n=64: il reach regge (anzi non crolla mai), ma il CUT crolla — il modo di fallire si
+  INVERTE rispetto a n=40.** Reach decade liscio da ~1.0 (a=1) a ~0.82 (a=32), **mai** un crollo netto
+  come a n=40 (dove a=10 scendeva a 0.65) — il modello a n=64 tende a **sovra-connettere** invece di
+  sotto-connettere oltre capacità. Di conseguenza il cut crolla da ~0.9 a ~0.24 da a=1 a a=20-32 — **il
+  contrario esatto di n=40** (dove cut restava ~1.0 per tutto lo sweep). Il logit grezzo di cut
+  **cambia segno** (diventa positivo) oltre a≈13, non solo si affievolisce come a n=40. L'exact-match a
+  `a` piccolo è rumoroso fra seed (a=4: 0.43/0.55/0.79/0.00) — coerente con la nota già in §13.8 che
+  n64 path_union è più seed-lottery di n40.
+- **Il test a tre componenti SI ROMPE a n=64 path_union (ma non a n64 ER).** ER: `cut(L1,L2)≥0.998`
+  a ogni taglia, identico a n40 — la discriminazione "quale componente" regge SEMPRE con training ER,
+  a qualunque n. path_union: a `small=1`, il modello fonde le due componenti grandi (31 e 32 nodi) il
+  **91% delle volte** (`cut(L1,L2)=0.093`) — esattamente la scorciatoia grezza dell'ipotesi 2 che n=40
+  aveva refutato! L'errore si riduce salendo `small` (0.09→0.79 da small=1 a 10), stessa direzione
+  del cut che degrada nello sweep a due componenti.
+- **Ablation a n=64: conferma che il layer-1 di attention è un meccanismo a doppio taglio.** Spegnere
+  l'attention layer 1 collassa il reach (0.05-0.10, come a n40) **ma FIXA il cut** (torna a ≥0.93,
+  molto sopra il baseline degradato) — è la STESSA macchina che costruisce sia il completamento utile
+  sia la sovra-connessione dannosa; spegnerla scambia un fallimento per l'altro, non risolve nessuno
+  dei due indipendentemente. Cut-dipende-da-MLP1 resta valido a n64 (sia path_union che ER).
+- **Patching a n=64:** stesso esito qualitativo di n40 (patch finale ≈ controllo random, artefatto
+  del read-out per-riga); la coppia mismatched (4→32) qui NON peggiora col patch after-block0 (a
+  differenza di n40) — non lo leggiamo come una differenza sostanziale, dato il caveat architetturale
+  già stabilito, solo come prova che il "peggioramento" visto a n40 non è una proprietà generale del
+  design di patching.
+
+**File/comandi nuovi (3a sessione):** stesso set di script Tier 1/2/3, ora generalizzati con
+`--tag_glob`/`--tag_prefix`/`--suffix`/`--n`/`--title_tag` per aggregare/plottare condizioni diverse
+senza sovrascriversi (`plot_mechanistic_asym_chains.py`, `plot_mechanistic_heatmaps.py`,
+`plot_ablation_patch.py` — vedi le firme aggiornate negli script). Output in `runs/report7/{mechanistic,
+three_way,heatmaps,ablation,patch}/n64_{pathunion,er}_seed{S}/`, figure in `runs/report7/report7_figs/
+r7_*_n64_{pathunion,er}.png`. Scp usato (stesso pattern §14.5, download in `/tmp/r7_ckpts_n64/`,
+cancellato a fine sessione):
+```
+mkdir -p /tmp/r7_ckpts_n64
+for s in 1000 2000 3000 4000; do
+  scp hpc:~/transformer-for-graphs/runs/report6/a1_train/n64_path_union_roberta_linear_lam0_seed${s}/last.pt \
+      /tmp/r7_ckpts_n64/pathunion_seed${s}.pt
+  scp hpc:~/transformer-for-graphs/runs/report6/a1_train/n64_er_roberta_linear_lam0_seed${s}/last.pt \
+      /tmp/r7_ckpts_n64/er_seed${s}.pt
+done
+```
+
+### 14.4 File nuovi (Tier 1, tutti smoke-testati prima di toccare checkpoint reali)
+
+- `data.py::generate_three_way_split_graph(n, small_len, large_split=None)` — tre path disgiunti,
+  uno piccolo + due grandi NON connessi fra loro.
+- `eval_three_way_split.py` (eval-only): il test di falsificazione, output
+  `runs/report7/three_way/<tag>/three_way_split.json`.
+- `mechanistic_asym_chains.py` (eval-only, IL file principale): sweep denso comportamentale
+  `a=1..20` + confronto random/fixed-label, decomposizione `h_i^T w_j` per tipo-coppia/distanza/
+  split, geometria `W_out`/`W_in` (norme, cosine, allineamento skip-connection), attention rollout
+  + row-mass + contributo-al-messaggio su split rappresentativi. Contiene `run_with_cache`, un
+  forward pass manuale di `RobertaGraphTransformer` che tiene Q/K/V/attention/output — **validato
+  numericamente** contro `model.forward_and_embeddings` (assert nello script, `--skip_selftest`
+  per saltarlo). Output per checkpoint: `metrics.csv`, `readout.csv`, `weights_summary.json`,
+  `attn_cache.npz` in `runs/report7/mechanistic/<tag>/`.
+- `plot_mechanistic_asym_chains.py` (locale, no-GPU): aggrega i 4 seed, produce
+  `runs/report7/report7_figs/r7_sweep_and_logit.png` e `r7_attention_leak.png` + stampa la
+  tabella three-way.
+- **⚠️ Trappola già presa e fissata in questa sessione**: la prima versione di
+  `readout_decomposition` disallineava le coordinate — spermutava le embedding per nodo (`h`) ma
+  le confrontava contro `W_out`, che è fisso nelle coordinate di RETE (permutate), non in quelle
+  base. Fix: calcolare `h_i^T w_j` PRIMA in coordinate di rete, spermutare SOLO il risultato
+  `[n,n]` come si fa già per `pred` (`np.ix_(inv,inv)`), mai spermutare `h` da solo contro un
+  `W_out` fisso. Verificato: dopo il fix, `frac_positive` aggregato per `within_long` combacia
+  esatto con `reach_long` calcolato indipendentemente dal path comportamentale (0.650 vs 0.648 a
+  `a=10`, ecc.) — usare questo cross-check se si riestende lo script.
+
+**File nuovi Tier 2/3 (2a sessione), stesso pattern (eval-only, smoke-testati su modello
+giocattolo prima dei checkpoint reali):**
+- `mechanistic_heatmaps.py` (eval-only): estrae, in coordinate BASE e mediate su molte
+  relabeling casuali (statisticamente stabile, non un'istanza rumorosa), le matrici grezze —
+  `scores`/`alpha`/`contrib` per layer 0/1, rollout, Q/K/V per-nodo — su split rappresentativi,
+  più i pesi grezzi `W_in`/`W_out`/`W_Q`/`W_K`/`W_V`/`W_O` per layer e i loro valori singolari.
+  Riusa `run_with_cache` da `mechanistic_asym_chains.py` (import diretto, niente duplicazione).
+  Output: `runs/report7/heatmaps/<tag>/{heatmap_data.npz,raw_weights.npz}`.
+- `plot_mechanistic_heatmaps.py` (locale, no-GPU): produce le 8 figure heatmap in
+  `runs/report7/report7_figs/r7_heatmap_*.png` (un seed rappresentativo, dato che il pattern è
+  già dimostrato strettissimo sui 4 seed dalla leak-fraction di Tier 1 — mediare le ATTENTION
+  PATTERN fra seed diversi confonderebbe basi imparate diverse, a differenza di una media di
+  scalari).
+- `ablation_asym_chains.py` (eval-only): `forward_ablated(model, x, condition)` reimplementa a
+  mano il forward di `RobertaGraphTransformer` con un branch (attention o MLP, layer 0 o 1)
+  azzerato, o bypass totale. Validato: `condition="baseline"` combacia esatto con `model.forward`.
+  Output `runs/report7/ablation/<tag>/ablation.csv`.
+- `patch_asym_chains.py` (eval-only, Tier 3): allineamento donor/recipient per "hops dal confine
+  componente" (unica corrispondenza sensata fra split di taglia diversa), sotto labeling FISSO
+  (canonico) per un allineamento esatto — non permutato come il resto del progetto, di proposito.
+  Output `runs/report7/patch/<tag>/patch.json`.
+- `plot_ablation_patch.py` (locale, no-GPU): aggrega ablation su 4 seed →
+  `runs/report7/report7_figs/r7_ablation_reach_cut.png`; stampa il riassunto patching (nessun
+  json aggregato dedicato, i numeri vanno letti/ricopiati dai singoli `patch.json` o dallo stdout
+  dello script).
+
+### 14.5 Come sono stati presi i checkpoint (scp manuale, non è un limite di accesso a HPC)
+
+Il sandbox in cui gira Claude non fa `ssh`/`scp` interattivi (DNS non risolve) — è un limite
+tecnico di trasferimento file in QUESTA sessione, non un limite di accesso a HPC (vedi la regola
+in §2: il progetto ha sempre accesso completo a HPC, training incluso, tramite l'utente). Per gli
+eval/analisi locali su un checkpoint specifico, il download resta comunque manuale: l'utente fa lo
+`scp` (richiede VPN Bocconi attiva) verso `/tmp`, MAI nel repo, e Claude li cancella subito dopo
+l'uso (regola già in §13.7, riconfermata qui):
+```
+mkdir -p /tmp/r7_ckpts
+for s in 1000 2000 3000 4000; do
+  scp hpc:~/transformer-for-graphs/runs/report6/a1_train/n40_path_union_roberta_linear_lam0_seed${s}/last.pt \
+      /tmp/r7_ckpts/seed${s}.pt
+done
+```
+**NB (2a sessione):** i `.pt` erano stati cancellati a fine 1a sessione (regola del progetto), quindi
+questo scp è stato rilanciato una seconda volta dall'utente (serve VPN Bocconi attiva) — capiterà di
+nuovo in ogni chat futura che tocchi i checkpoint reali. Cancellati di nuovo a fine 2a sessione.
+
+### 14.6 Stato finale (3a sessione) e cosa resta davvero aperto
+
+**Tier 1 + Tier 2 + Tier 3 a n=40 E la generalizzazione completa a n=64 (path_union + ER) sono
+FATTI**, con dati reali su 4 seed per ogni condizione (16 checkpoint in totale: 4 n40 + 8 n64 + 4
+n40 riusati), integrati nel `.tex` (§4.1-4.9 = n40, §4.10 = n64, Verdetto e Honest limits
+aggiornati con entrambi). Report 7 compila pulito, **20 pagine**, 0 ref indefinite, 0
+overfull/underfull.
+
+Restano aperti due punti — **non lanciati in questa sessione, non "fuori portata"** (regola §2: il
+progetto ha sempre accesso a HPC/training tramite l'utente):
+- **Retrain con loss riequilibrata** (proposto dall'outlook del Report 6): richiede un training
+  job nuovo su HPC (non solo eval) — si lancia con `sbatch` esattamente come ogni altro training
+  del progetto (§2). `experiments2/train_families_n20.py` non ha un flag per pesare diversamente
+  le coppie within/cut nella loss — andrebbe aggiunto (piccola modifica, `BCEWithLogitsLoss` →
+  maschera per tipo-coppia) prima di poter lanciare l'sbatch. Se una chat futura vuole farlo:
+  aggiungere il flag, preparare il comando `sbatch` e consegnarlo all'utente, poi (quando il
+  training è finito) rieseguire `mechanistic_asym_chains.py` sul nuovo checkpoint.
+- **Stesso audit con il read-out similarity**: `§13.10` registra che un giro di checkpoint
+  similarity (`n40_path_union_roberta_similarity_...`, e possibilmente `n64_..._similarity_...`)
+  potrebbe già esistere su HPC dal training "Onda 1" del Report 6 — da controllare (con l'utente, o
+  con un `ls`/`find` su HPC) prima di procedere. Se una chat futura lo riprende: verificare che i
+  checkpoint esistano, poi ri-puntare `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py` (già
+  generici, auto-rilevano il read-out da `eval_families.load_model`, ma NB:
+  `run_with_cache`/`forward_ablated` in questa sessione assumono `readout=="linear"` e sollevano
+  `NotImplementedError` sul similarity — andrebbero estesi prima).
+- Verifica sotto lo stream **mixed** (Report III-V): non fatta, citata come limite onesto nel
+  `.tex`. La generalizzazione fin qui ha testato canvas size (n40 vs n64) e distribuzione da zero
+  (path_union vs ER), non lo stream mixed opaco (che comunque questo report evita di default per
+  principio, §13.2).
+- Push del `.tex`/figure/json + tutti gli script nuovi (Tier 1 §14.4 + Tier 2/3 §14.3b + n64
+  §14.3c), nessun `.pt` da committare (restano solo su HPC, mai lasciati stabilmente in locale).
+
+### 14.7 Il "rollout" $\alpha_2\alpha_1$ era una scorciatoia troppo grezza — sostituito con lo
+Jacobiano vero (4a sessione, 2026-07-09). **NON ancora rilanciato su checkpoint reali quando
+questa nota è stata scritta** — vedi "stato lancio" sotto.
+
+**Il problema.** Il rollout usato in Tier 1 #5 e nelle heatmap (§14.3b/§14.4) approssimava "quanto
+l'embedding finale del nodo $i$ deriva dal nodo $k$" moltiplicando **solo le due matrici di
+attenzione** ($\alpha_2\alpha_1$), scartando $V$, $W_O$, il residuo e la MLP — un proxy grezzo,
+mai usato dal modello vero. L'utente l'ha bocciato e ha chiesto il calcolo vero.
+
+**La sostituzione.** Nuova quantità $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$: lo
+Jacobiano ESATTO (autograd reale attraverso il forward pass vero — $V$, $W_O$, residuo, MLP,
+derivata vera di LayerNorm, nulla approssimato) fra l'embedding di read-in del nodo $k$ e
+l'embedding finale del nodo $i$. Implementata in `mechanistic_asym_chains.py::exact_contribution`
+(un backward batched per riga-query $i$, via `is_grads_batched`), con selftest
+(`_selftest_exact_contribution`, gira di default in ogni chiamata, confronta contro un doppio
+loop non-batched indipendente + differenze finite — combacia a 1e-6/1e-7). Sostituisce il campo
+`rollout`/`rollout_mean` ovunque: in `attention_probe` (Tier 1 #5, alimenta la figura leak-fraction)
+e in `mechanistic_heatmaps.py::heatmap_probe` (alimenta la heatmap), campo rinominato
+`contrib_exact`/`contrib_exact_mean`. Aggiornati `plot_mechanistic_asym_chains.py` (label/titolo,
+niente più "attention rollout") e `plot_mechanistic_heatmaps.py` (stesso). Il `.tex` §sec:setup è
+stato riscritto per definire $C_{ik}$ correttamente (ho anche corretto lì un errore mio: il
+read-in vero applica un LayerNorm dopo `read_in`, che la prima stesura di questo paragrafo aveva
+omesso).
+
+**⚠️ COSTO: molto più caro delle quantità precedenti.** $C_{ik}$ costa un backward per riga-query
+(≈15–20s per l'intera matrice $n{\times}n$ a $n{=}40,d{=}512$, misurato su Mac CPU/MPS) — contro
+$<1$s per $\alpha$/message-contribution/row-mass. Per questo `attention_probe`/`heatmap_probe`
+prendono ora un parametro **separato** `--contrib_n_graphs` (piccolo di default, 8) dal
+`--n_graphs`/`--attn_n_graphs` usato per le quantità economiche. **L'utente ha chiesto
+esplicitamente PIÙ grafi mediati, non pochi** ("sticazzi se ci mette un attimo di più") e di
+valutare l'HPC (CPU) invece del Mac in locale.
+
+**Nuovo sbatch, CPU-only:** `scripts/r7_exact_contribution.sbatch` (nuovo, **CPU non GPU** — è solo
+autograd/matmul, nessun training) — `medium_cpu`, `--array=0-3` (i 4 seed), `--contrib_n_graphs 64`,
+`--cpus-per-task=16` con `OMP_NUM_THREADS=16` ecc. (a differenza degli altri sbatch eval-only del
+progetto, che pinnano i thread BLAS a 1 perché girano su GPU — qui il calcolo è tutto CPU, quindi
+il multi-threading BLAS va lasciato attivo). Per `mechanistic_heatmaps.py` lo sbatch passa
+`--splits 4 20` (gli unici due split che le figure heatmap usano davvero, `PAIR=(4,20)` in
+`plot_mechanistic_heatmaps.py` — inutile spendere il calcolo caro sugli altri 6). Stima:
+≈2.6h/seed per `attention_probe` (8 split × 64 grafi) + ≈40min per `heatmap_probe` (2 split × 64
+grafi) ≈ 3.2h/seed, `--time=06:00:00` per margine, i 4 seed girano in parallelo (medium_cpu ha 8
+nodi). Scrive **nelle stesse cartelle output** già esistenti da sessioni precedenti
+(`runs/report7/mechanistic/n40_pathunion_seed{S}/`, `runs/report7/heatmaps/n40_pathunion_seed{S}/`)
+— sovrascrive `attn_cache.npz`/`heatmap_data.npz` col nuovo campo, gli altri file
+(metrics/readout/weights) sono rigenerati identici (non toccati dal cambio).
+
+**STATO LANCIO:** codice scritto e testato (selftest + smoke-test end-to-end su checkpoint
+giocattolo, nessun errore); sbatch preparato; **checkpoint `.pt` n40 path_union già scp-ati
+dall'utente in `/tmp/r7_ckpts/` sul Mac** (non serviti alla fine, si punta invece all'sbatch su
+HPC). **Non ancora lanciato**: serve (1) push da locale dei file sotto, (2) `git pull` su HPC, (3)
+`sbatch scripts/r7_exact_contribution.sbatch`. **Da fare poi (chat che riprende):** pull dei nuovi
+`attn_cache.npz`/`heatmap_data.npz`, rigenerare le figure (`plot_mechanistic_asym_chains.py`,
+`plot_mechanistic_heatmaps.py`), e **riscrivere §sec:res-attention/§sec:res-heatmaps** nel `.tex`
+con i numeri veri (la leak-fraction 0.3%→31% e le descrizioni delle heatmap sono ancora quelle
+del vecchio rollout — NON attendibili, da rifare da zero sui dati nuovi, non solo da "aggiustare").
+File da pushare: `mechanistic_asym_chains.py`, `mechanistic_heatmaps.py`,
+`plot_mechanistic_asym_chains.py`, `plot_mechanistic_heatmaps.py`,
+`scripts/r7_exact_contribution.sbatch`, `report/7/transformer_for_graphs_7.tex`, `istruzioni.md`.
 
 ---
 

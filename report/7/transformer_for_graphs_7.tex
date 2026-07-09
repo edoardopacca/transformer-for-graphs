@@ -1,0 +1,1017 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em
+
+% Figures live in the repo's runs/ directory; this file sits in report/7/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part VII: Opening the Trunk --- Why Does an Unbalanced Two-Chain Generalise?}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% =====================================================================
+% DRAFT / SKELETON. No data collected yet. This file lays out the framing and
+% the planned experiments for Report VII. Each results subsection is a STUB:
+% the % comments record (a) the question, (b) which hypothesis it adjudicates,
+% (c) the exact checkpoints/test distribution to use, (d) the caption fields
+% required by rule 21. Replace the italic "[To run --- data pending]" lines
+% with real tables/figures once the runs are in.
+%
+% Design rules carried over from istruzioni.md (esp. errors 21, 55-60):
+%  - every caption states MODEL + TRAINING SET + TEST SET + METRIC, no analysis;
+%  - no code/file/path/flag names in the rendered text;
+%  - no 'advisor' attributions, no chronological "we re-ran" story;
+%  - per-seed figures/tables wherever an effect could be seed-bimodal, not
+%    mean+band;
+%  - state hypotheses up front and report which survive, honestly.
+% =====================================================================
+
+\begin{abstract}
+\noindent Report~VI (Thread~B) found a puzzle it could not explain: the same
+trained $L{=}2$ transformer, same weights, same canvas size $n{=}40$, solves a
+two-chain graph split into paths of length $a$ and $n-a$ perfectly when $a$ is
+small (e.g.\ $4{+}36$, correct out to the far end of the long path) but fails
+completely once the split is close to balanced (e.g.\ $17{+}23$, $20{+}20$ ---
+correct only up to the architectural distance wall $3^L{=}9$, then exactly zero).
+Every report so far has read the model \emph{behaviourally}: from its outputs, not
+from what it computes. This report opens the trunk --- the attention weights, the
+read-out matrix, the per-layer embeddings --- and asks what is mechanistically
+different between a split the model solves and one it does not.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{What Reports I--VI established}
+\label{sec:recap}
+
+We treat the following as established (documented, multi-seed, in Reports~I--VI);
+the new investigation must stay consistent with them.
+
+\begin{itemize}\setlength\itemsep{0.2em}
+  \item \textbf{There is a sharp, architectural distance wall at $3^L$} ($=9$ at
+        $L=2$), which moves with depth and appears even on graph families seen
+        $\sim10^8$ times in training (Reports~III--IV).
+  \item \textbf{The model computes distance-bounded matrix powering, not a bounded
+        traversal}: a DFS/BFS reading is rejected on constructed and (partly) on
+        natural graphs; a soft, learned ``node budget'' on dense structure is a
+        removable data prior, not a second capacity (Report~V).
+  \item \textbf{Parallel routes and repeated local structure both help, within
+        capacity, in ways that are data-shaped rather than architecturally free}:
+        more disjoint routes between two endpoints rescue a connection the model
+        could not otherwise confirm; a learned local rule (a bridge between two
+        cliques) composes only weakly along a chain (Report~VI).
+  \item \textbf{The unexplained result this report targets}: sweeping the split
+        $(a, n-a)$ of a two-chain graph at fixed $n=40$, the same checkpoint goes
+        from solving \emph{every} pair in the long path (out to $\sim38$ hops) to
+        solving \emph{none} beyond the $9$-hop wall, as $a$ crosses a threshold
+        close to the capacity itself (Report~VI, Thread~B). No account of the
+        mechanism was given.
+  \item \textbf{Every report through Report~VI is behavioural.} Model outputs are
+        compared against oracles, ablated data distributions, or read-out variants
+        --- never against the attention weights or the read-out matrix themselves.
+        \texttt{model.py} exposes tools for exactly that (real per-layer attention
+        weights, per-layer embeddings) that no report has yet used.
+\end{itemize}
+
+\subsection{The new question: what is mechanistically different?}
+\label{sec:question}
+
+Report~VI's own closing paragraph names this split puzzle as the one open thread it
+could reproduce but not explain. This report is the direct follow-up: instead of
+another behavioural sweep, we open the trained model at the level of its attention
+scores and its read-out weights, on the exact same checkpoints, and ask what
+changes between a split the model solves and one it does not.
+
+\subsection{Three candidate hypotheses}
+\label{sec:hypotheses}
+
+We state candidate explanations up front, so each experiment is a test that could
+come out either way --- not a search for evidence of an assumed answer.
+
+\begin{enumerate}\setlength\itemsep{0.15em}
+  \item \textbf{Genuine propagation.} The model actually traces distance along the
+        path; behaviour should be robust to relabelling nodes, to where the short
+        component sits, and to the internal edge order of the long path.
+  \item \textbf{Short-component-resolved default.} The model fully resolves
+        whichever component is small enough to fit inside its capacity
+        ($\mathrm{short\_len}\lesssim9$) and defaults every other pair to
+        ``connected'' --- a shortcut that is correct whenever exactly one
+        component is small, and has nothing to fall back on once \emph{both}
+        components are too large to resolve.
+  \item \textbf{Label/order shortcut.} The model exploits some regularity in how
+        node indices map to structure, rather than the abstract graph. (The
+        existing evaluation already relabels every test graph independently at
+        random before scoring it, which substantially weakens the crude form of
+        this hypothesis before we even start; we still check it directly against
+        the read-in/read-out weights.)
+\end{enumerate}
+
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Model.} The same base model as Reports~III--VI: the RoBERTa-faithful
+standard transformer with the \emph{linear} read-out, $L=2$, single head,
+$d_{\mathrm{model}}=512$, normalised-ReLU attention $\alpha=(1/n)\,\mathrm{ReLU}
+(QK^\top/\sqrt{d_h})$, trained online at $n=40$ on a single clean distribution of
+disjoint paths (unions of $1$--$4$ paths covering all $n$ nodes), four seeds. This
+is the exact checkpoint set behind Report~VI's Thread~B.
+
+\paragraph{The forward pass, in full.} Because \S\ref{sec:res-attention}--\S\ref{sec:res-heatmaps}
+open the trunk directly, we fix here, once, exactly what the model computes at inference, so that
+every quantity used later --- the attention score, the normalised-ReLU weights, the message
+contribution, the node-to-node contribution --- has a precise definition. The input is the
+self-loop-augmented adjacency $A'=A+I\in\{0,1\}^{n\times n}$. The read-in, once,
+\[ H^{(0)} = \mathrm{LayerNorm}\big(A'\,W_{\mathrm{in}} + \mathbf 1\, b_{\mathrm{in}}^\top\big), \]
+starts row $i$, before the LayerNorm, as simply the sum of one learned vector per neighbour of
+$i$ (including $i$ itself, via the self-loop) plus a bias --- no attention yet. Each of the two
+transformer blocks (layer $\ell=1,2$, post-LayerNorm) then maps $H^{(\ell-1)}$ to $H^{(\ell)}$ by
+\begin{align*}
+Q_\ell = H^{(\ell-1)}W_Q^{(\ell)},\ \ K_\ell = H^{(\ell-1)}W_K^{(\ell)},\ \
+V_\ell = H^{(\ell-1)}W_V^{(\ell)}
+&\quad\text{(single head, so } d_h=d_{\mathrm{model}}\text{)}\\[2pt]
+S_\ell = Q_\ell K_\ell^\top/\sqrt{d_h}
+&\quad\text{(raw attention score)}\\[2pt]
+\alpha_\ell = \tfrac1n\,\mathrm{ReLU}(S_\ell)
+&\quad\text{(normalised-ReLU attention: \emph{not} a softmax, does not sum to $1$ per row)}\\[2pt]
+\mathrm{AttnOut}_\ell = (\alpha_\ell V_\ell)\,W_O^{(\ell)}
+&\quad\text{($\alpha_\ell$ weights the \emph{values} $V_\ell$, then an output projection)}\\[2pt]
+\widehat H_\ell = \mathrm{LayerNorm}\big(H^{(\ell-1)}+\mathrm{AttnOut}_\ell\big)
+&\quad\text{(residual)}\\[2pt]
+H^{(\ell)} = \mathrm{LayerNorm}\big(\widehat H_\ell + \mathrm{FFN}^{(\ell)}(\widehat H_\ell)\big)
+&\quad\text{(feed-forward, then residual)}
+\end{align*}
+Layer $2$ repeats this starting from $H^{(1)}$, with its \emph{own} $W_Q,W_K,W_V,W_O$ and its own
+feed-forward weights --- it does not reuse $\alpha_1$ in any way; the two layers are two separate
+passes of this same recipe, run one after the other. The read-out (\S\ref{sec:setup} below) is
+applied once, at the very end, to $H^{(2)}$.
+
+\paragraph{Message contribution and node-to-node contribution: what they measure, and how they
+are computed.} Two derived quantities recur in \S\ref{sec:res-attention} and
+\S\ref{sec:res-heatmaps}. The \textbf{message contribution} $\alpha_{ij}\|W_O v_j\|$ uses the
+actual value vector $v_j$ and output projection $W_O$ of one layer to size the additive message
+node $j$ sends into node $i$'s residual stream \emph{at that layer} --- it is exact for that one
+layer's attention branch, but does not include the residual stream itself or the feed-forward
+step, both of which also update $h_i$. The \textbf{node-to-node contribution}
+\[ C_{ik} \;=\; \left\|\frac{\partial h_i^{(2)}}{\partial h_k^{(0)}}\right\|_F \]
+answers the question directly, across \emph{both} layers at once: how much does node $i$'s final
+embedding move if node $k$'s read-in embedding moves, holding everything else fixed? We compute
+it by literal automatic differentiation through the exact forward pass above --- the real
+$V,W_O$, the real residual identity, the real feed-forward step, and LayerNorm's true local
+derivative are all part of the computation, none of them dropped or approximated; the only sense
+in which this is ``local'' is the ordinary one for any derivative, that it is evaluated at one
+specific graph's actual activations.
+
+\paragraph{Why the read-out shape matters.} With the linear read-out, the logit for
+pair $(i,j)$ is $z_{ij} = h_i^\top w_j + b_j$, where $w_j$ is the $j$-th row of the
+read-out matrix $W_{\mathrm{out}}$ --- a fixed, learned vector attached to the
+\emph{target} node $j$, not derived from $j$'s own embedding. Node $i$'s embedding
+$h_i$ alone must therefore carry enough information to answer, for \emph{every}
+other node $j$, ``are we connected'' --- all the structure the model has learned
+about node $j$ lives in $w_j$, fixed across every graph. This is why the read-out
+matrix itself, not only the attention weights, is a first-class object of study
+here.
+
+\paragraph{Test graphs.} Two-chain graphs partitioning all $n=40$ nodes into two
+disjoint paths of size $a$ and $n-a$, swept over the \emph{full} range $a=1,\dots,20$
+(Report~VI reported only a handful of points). A new three-component construction
+--- one small, resolvable path plus two large, individually-unresolvable paths that
+are \emph{not} connected to each other --- is used as a falsification probe for
+hypothesis~2 (\S\ref{sec:res-threeway}).
+
+\section{Plan of experiments}
+\label{sec:plan}
+
+\paragraph{Behavioural groundwork (\S\ref{sec:res-sweep}--\ref{sec:res-relabel}).} A
+dense split sweep and an explicit random-relabelling check, to fix the shape of the
+puzzle precisely and close off the crude label-shortcut hypothesis before opening
+the trunk.
+
+\paragraph{Read-out mechanism (\S\ref{sec:res-readout}--\ref{sec:res-wout}).} The
+$h_i^\top w_j$ decomposition and the geometry of $W_{\mathrm{out}}$'s rows ---
+does the read-out encode component membership as a blob, or a graded function of
+distance?
+
+\paragraph{Attention mechanism (\S\ref{sec:res-attention}).} Real per-layer
+attention weights, the two-layer rollout, and the message contribution each node
+actually sends --- does attention itself reach differently in a solved split than
+in a failed one?
+
+\paragraph{Falsification test (\S\ref{sec:res-threeway}).} The three-component
+construction: if the model is really defaulting ``not in the small component'' to
+connected, it should wrongly merge two large components that are genuinely
+disconnected from each other.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{The split sweep, in full}
+\label{sec:res-sweep}
+
+\paragraph{Question.} Report~VI reported exact match at seven splits. Sweeping
+every $a=1,\dots,20$ locates the break precisely and lets us compare the
+model's aggregate behaviour against a genuine distance-bounded oracle.
+
+\paragraph{Result: the break sits one node above the capacity, and beyond it the
+model's aggregate behaviour matches pure distance-bounded matrix powering almost
+exactly.} Figure~\ref{fig:r7sweep} (top) confirms Report~VI's shape at full
+resolution: exact match is $\approx1.0$ for $a\le7$ (with ordinary sampling
+noise at $a=3,6$: $0.80$--$0.87$, consistent across all four seeds, not a
+single bad run), collapses to exactly $0$ from $a=8$ on, and the long-component
+reach follows the same break with a soft floor-plus-recovery from $a\approx11$
+to $a=20$ --- the familiar shape of every beyond-capacity curve in this project.
+The new observation is the dashed and dotted curves: the model's overall
+predicted-positive rate (fraction of all pairs called ``connected'') tracks the
+\emph{true} positive rate closely while $a\le7$, then drops sharply and, from
+$a\approx11$ on, sits almost exactly on top of the positive rate a pure
+distance-$\le9$ oracle would produce on the same graphs ($0.36$ measured vs.\
+$0.35$ from the oracle, flat in $a$ because a long path's $9$-hop neighbourhood
+size does not depend on how far away the path's other end is). \textbf{Once
+both components are individually beyond capacity, the model's aggregate
+behaviour is indistinguishable from plain distance-bounded matrix powering}; the
+extra ``complete the whole long component'' behaviour is confined to the regime
+where one side is small.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+split $(a,\,40{-}a)$ & exact & reach (long) & reach (short) & cut & pred.\ positive rate\\
+\midrule
+$(1,39)$  & 1.000 & 1.000 & --    & 1.000 & 0.951\\
+$(4,36)$  & 1.000 & 1.000 & 1.000 & 1.000 & 0.820\\
+$(7,33)$  & 0.779 & 1.000 & 1.000 & 0.998 & 0.712\\
+$(8,32)$  & 0.000 & 0.992 & 1.000 & 0.925 & 0.699\\
+$(9,31)$  & 0.000 & 0.873 & 1.000 & 0.938 & 0.599\\
+$(10,30)$ & 0.000 & 0.648 & 1.000 & 0.999 & 0.434\\
+$(14,26)$ & 0.000 & 0.581 & 0.889 & 1.000 & 0.362\\
+$(17,23)$ & 0.000 & 0.638 & 0.792 & 1.000 & 0.362\\
+$(20,20)$ & 0.000 & 0.709 & 0.709 & 1.000 & 0.362\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} base standard transformer with the linear read-out
+($L=2$, single head, $d_{\mathrm{model}}=512$), trained on a single clean
+distribution of disjoint paths, four seeds, $n=40$ (the checkpoints behind
+Report~VI's Thread~B). \emph{Test set:} two-chain graphs split $(a,\,40{-}a)$,
+$200$ freshly sampled, independently node-relabelled graphs per split per seed
+($800$ total per split). \emph{Metrics} (mean over seeds): whole-graph exact
+match; pairwise reach inside the long/short path (target connected; ``--'' at
+$a=1$, no internal short-path pairs); pairwise accuracy across the two paths
+(target disconnected); the model's overall fraction of pairs predicted
+connected. Full sweep $a=1,\dots,20$ in Figure~\ref{fig:r7sweep}.}
+\label{tab:r7sweep}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_sweep_and_logit.png}{0.92}
+    \caption{\emph{Top: Model/training/test as in Table~\ref{tab:r7sweep}}, full
+    split sweep $a=1,\dots,20$; the dashed line is the model's overall predicted-
+    positive rate, the dotted line the positive rate a pure distance-$\le9$
+    oracle would give on the identical graphs (both computed in closed form from
+    the two path lengths, independent of any model). \emph{Bottom: same model
+    and test graphs}, the mean raw read-out logit $h_i^\top w_j$ (before adding
+    the target's bias $b_j$; \S\ref{sec:setup}) for pairs within the long path,
+    within the short path, and across the two paths, mean over seeds. Red dashed
+    line: capacity $3^L=9$.}
+    \label{fig:r7sweep}
+\end{figure}
+
+\paragraph{The collapse is not a discontinuity in the mechanism.} Figure~\ref{fig:r7sweep}
+(bottom) is the reason the exact-match curve looks like a cliff: the raw,
+pre-bias logit $h_i^\top w_j$ for a pair inside the long path is not a switch,
+it is a smoothly decaying quantity. It sits saturated and strongly positive for
+$a\le7$ ($\approx17$--$36$), falls through zero across $a=8$--$11$ (exactly
+where accuracy collapses), and settles into a small, slowly \emph{recovering}
+positive value from $a\approx11$ to $a=20$ --- the same soft floor-plus-recovery
+shape as the accuracy curve above it, now visible in the model's raw confidence
+rather than only in its thresholded predictions. The cut logit (across the two
+paths, target disconnected) tells a different story: it starts very negative
+($\approx-21$ at $a=1$) and its magnitude shrinks steadily as the split
+balances, but it \emph{never crosses zero} at any split tested --- the
+``different component'' decision degrades in confidence but not in sign,
+consistent with cut accuracy staying at $\approx1.0$ across the whole sweep in
+Table~\ref{tab:r7sweep}.
+
+\subsection{Relabelling does not explain it}
+\label{sec:res-relabel}
+
+Every graph in \S\ref{sec:res-sweep} is already independently relabelled at
+random before being scored (a fresh random permutation per graph, unpermuted
+before comparing predictions) --- this is the existing methodology, not a new
+control. We add one direct comparison: the same split sweep with node labels
+\emph{fixed} to a canonical order (the short path always occupying the first
+$a$ indices) instead of randomised. Table~\ref{tab:r7relabel} shows no
+meaningful difference at any split. Hypothesis~3 in its crude form --- the model
+exploiting a fixed mapping from node index to structure --- is not what is
+happening here.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcc}
+\toprule
+split $(a,\,40{-}a)$ & exact, random relabelling & exact, fixed labelling\\
+\midrule
+$(1,39)$  & 1.000 & 1.000\\
+$(4,36)$  & 1.000 & 1.000\\
+$(7,33)$  & 0.779 & 0.750\\
+$(8,32)$  & 0.000 & 0.000\\
+$(10,30)$ & 0.000 & 0.000\\
+$(17,23)$ & 0.000 & 0.000\\
+$(20,20)$ & 0.000 & 0.000\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r7sweep}}. \emph{Test set:}
+two-chain graphs at the split shown, $200$ graphs per seed, either
+independently relabelled at random per graph (the condition behind every other
+result in this report) or with node labels fixed to a canonical order (short
+path first). \emph{Metric:} whole-graph exact match, mean over four seeds.}
+\label{tab:r7relabel}
+\end{table}
+
+\subsection{What the read-out logit actually responds to}
+\label{sec:res-readout}
+
+\S\ref{sec:res-sweep} already showed the headline pattern (Figure~\ref{fig:r7sweep},
+bottom): the within-long logit is large and saturated while the short
+component is resolvable, collapses through the transition, and settles at a
+small, recovering value that mirrors distance-bounded matrix powering. The
+within-short logit is the mirror image by construction (symmetric around
+$a=20$, where the two logits meet exactly). One additional check confirms the
+decomposition is measuring the right quantity: aggregating $h_i^\top w_j+b_j>0$
+by pair type reproduces the behavioural reach numbers of Table~\ref{tab:r7sweep}
+to within sampling noise at every split (e.g.\ $0.650$ vs.\ $0.648$ at $a=10$,
+$0.709$ vs.\ $0.709$ at $a=20$) --- the two independently-computed views of the
+same model agree exactly, as they must.
+
+\subsection{The geometry of the read-out matrix}
+\label{sec:res-wout}
+
+If the model relied on a fixed node-index shortcut (hypothesis~3), we would
+expect a target-specific classifier vector $w_j$ to look unusually different
+from its neighbours, or the direct read-in-to-read-out skip connection
+$E_{\mathrm{in}}W_{\mathrm{out}}^\top$ (bypassing both transformer layers
+entirely) to already carry most of the signal. Neither holds
+(Table~\ref{tab:r7wout}): the $w_j$ row norms are uniform across all $40$
+targets (standard deviation $\approx4\%$ of the mean, every seed), the
+pairwise cosine similarity between different $w_j$'s is small
+($\approx0.06$), and the skip-connection alignment is small everywhere
+(diagonal $\approx0.2$--$0.3$, off-diagonal $\approx0$) --- two orders of
+magnitude below the $h_i^\top w_j$ values of $10$--$35$ that actually decide a
+prediction (\S\ref{sec:res-readout}). Whatever produces the large, split-dependent
+logit swings is built by the two attention/feed-forward layers, not read
+directly off which node is whose neighbour.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccc}
+\toprule
+ & $\|w_j\|$ (mean, std) & mean $\cos(w_j,w_k)$ & \multicolumn{2}{c}{$E_{\mathrm{in}}W_{\mathrm{out}}^\top$}\\
+ & & ($j\neq k$) & diagonal & off-diagonal\\
+\midrule
+seed 1000 & $5.18\pm0.23$ & $+0.065$ & $+0.31$ & $-0.03\pm0.17$\\
+seed 2000 & $5.21\pm0.19$ & $+0.063$ & $+0.25$ & $-0.06\pm0.19$\\
+seed 3000 & $5.09\pm0.19$ & $+0.063$ & $+0.26$ & $-0.02\pm0.17$\\
+seed 4000 & $5.12\pm0.20$ & $+0.061$ & $+0.24$ & $+0.03\pm0.16$\\
+\bottomrule\end{tabular}
+\caption{\emph{Model:} the four disjoint-paths-trained checkpoints of
+Table~\ref{tab:r7sweep} (no test graphs --- these are static properties of the
+trained weights). \emph{Metrics:} the read-out row norms $\|w_j\|$ (mean $\pm$
+std.\ over the $40$ target nodes); the mean pairwise cosine similarity between
+different rows of $W_{\mathrm{out}}$; and the read-in/read-out skip-connection
+alignment $E_{\mathrm{in}}W_{\mathrm{out}}^\top$ (row $k$ of the read-in weight
+against row $j$ of the read-out weight), split into its diagonal ($k=j$) and
+off-diagonal mean $\pm$ std.}
+\label{tab:r7wout}
+\end{table}
+
+\subsection{Attention: where the model actually looks}
+\label{sec:res-attention}
+
+\paragraph{Question.} The two-layer attention rollout $M=\alpha_2\alpha_1$
+approximates, for each query node, how much of its final representation traces
+back to each other node. Does this quantity reach differently in a split the
+model solves than in one it does not?
+
+\paragraph{Result: attention reaches every node of the long component either
+way; what changes is how well it stays inside it.} For a node roughly in the
+middle of the long path, the rollout already touches every other node of the
+long component at $a=4$ \emph{and} at $a=20$ (all $36$, respectively all $20$,
+long-component nodes receive non-negligible rollout mass) --- attention is not
+simply ``too short-range'' to reach far nodes in the failing case. What differs
+is how much of that same node's rollout mass leaks onto the wrong (short)
+component: at $a=4$ essentially none of it does ($2.9\%$ of the long-vs-short
+mass, illustrative single-node example); at $a=20$ nearly a third does
+($29\%$). Figure~\ref{fig:r7attn} shows this is not a one-node anecdote: pooled
+over every long-component node, the leak fraction rises smoothly and
+monotonically from $0.3\%$ at $a=1$ to $31\%$ at $a=20$, tight across all four
+seeds at every split (spread $<1$ percentage point), tracking the same
+transition zone around the capacity as every other quantity in this report.
+\textbf{The attention mechanism does not fail to reach far nodes as the split
+balances --- it fails to keep its reach confined to the query's own
+component.}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_attention_leak.png}{0.72}
+    \caption{\emph{Model/training as in Table~\ref{tab:r7sweep}}. \emph{Test
+    set:} two-chain graphs at the splits shown, $60$ graphs per seed. \emph{Metric:}
+    for each long-component node, the fraction of its two-layer attention-rollout
+    mass ($\alpha_2\alpha_1$, real attention weights via the model's attention
+    maps) that lands on the short component rather than its own long component,
+    mean over long-component nodes; small dots are individual seeds, the line is
+    the mean over seeds. Red dashed line: capacity $3^L=9$.}
+    \label{fig:r7attn}
+\end{figure}
+
+\subsection{Falsification test: does the model actually merge two unrelated large components?}
+\label{sec:res-threeway}
+
+\paragraph{Question.} If the model's mechanism in \S\ref{sec:res-sweep}--\ref{sec:res-attention}
+were simply ``resolve whichever component is small, default everything else to
+connected'' (hypothesis~2 in its crude form), then on a graph with \emph{three}
+disjoint paths --- one small and two large, the two large ones genuinely
+disconnected from each other --- the model should wrongly call the two large
+components connected to each other (both read only as ``not the small one'').
+
+\paragraph{Result: the crude shortcut is refuted, but so is a full recovery ---
+the completion trick is specific to a two-component canvas.} It is not refuted
+by a coin flip: at every small-component size tested and in every one of the
+four seeds, the model correctly calls the two large components disconnected
+($\mathrm{cut}=1.000$ throughout, Table~\ref{tab:r7threeway}) --- the ``which
+component'' decision generalises cleanly to three components, not just two.
+But the within-large-component reach does \emph{not} recover to the
+near-perfect values \S\ref{sec:res-sweep} found for a single long path beside a
+small stub: it sits at $0.71$--$0.86$, matching almost exactly the degraded
+reach of a \emph{balanced two-way} split of a similar size (Table~\ref{tab:r7sweep}:
+$0.71$ at the balanced $(20,20)$ split). Adding a small, cleanly-resolvable
+third component does not rescue the two large components' internal
+connectivity --- each is treated as if it were the ``long'' side of a balanced
+two-way split, not as the sole \emph{other} component in the graph. The
+completion trick found in \S\ref{sec:res-sweep} is specific to graphs with
+exactly two components, one of them small; it is not a general ``not-small
+therefore connected'' rule.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccccc}
+\toprule
+small & large$_1$ & large$_2$ & reach large$_1$ & reach large$_2$ & cut(S,L$_1$) & cut(S,L$_2$) & cut(L$_1$,L$_2$)\\
+\midrule
+1  & 19 & 20 & 0.737 & 0.710 & 1.000 & 1.000 & 1.000\\
+2  & 19 & 19 & 0.737 & 0.737 & 1.000 & 1.000 & 1.000\\
+4  & 18 & 18 & 0.765 & 0.765 & 1.000 & 1.000 & 1.000\\
+7  & 16 & 17 & 0.825 & 0.794 & 1.000 & 1.000 & 1.000\\
+8  & 16 & 16 & 0.824 & 0.825 & 1.000 & 1.000 & 1.000\\
+10 & 15 & 15 & 0.855 & 0.855 & 1.000 & 1.000 & 1.000\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r7sweep}}. \emph{Test set:}
+three disjoint paths partitioning all $40$ nodes --- one small path (size shown)
+and two large paths (sizes large$_1$, large$_2$), the two large paths
+\emph{not} connected to each other; $300$ graphs per seed, independently
+node-relabelled. \emph{Metrics} (mean over four seeds, tight in every cell):
+pairwise reach inside each large path (target connected); pairwise accuracy
+between the small path and large$_1$/large$_2$, and between the two large
+paths (all three target disconnected --- ``cut(L$_1$,L$_2$)'' is the decisive
+column).}
+\label{tab:r7threeway}
+\end{table}
+
+\subsection{Attention and read-out weights, visualised}
+\label{sec:res-heatmaps}
+
+\paragraph{The attention pattern itself changes shape between a solved and a
+failed split.} Figure~\ref{fig:r7attnscores} shows the real attention scores
+$S=QK^\top/\sqrt{d_h}$ and the resulting normalized-ReLU $\alpha$, per layer,
+for one example graph at $a=4$ and one at $a=20$. Layer $0$ is essentially
+identical in both: a narrow band along the diagonal (each node attending to
+its immediate path neighbours), broken cleanly at the component boundary ---
+a purely local, structure-driven pattern that does not depend on the split.
+Layer $1$ is where the two conditions diverge. At $a=4$, the rollout
+$\alpha_2\alpha_1$ (Figure~\ref{fig:r7rollout}) is a single, near-uniform
+bright block covering the \emph{entire} long component --- every node's
+representation draws on every other long-component node. At $a=20$, the same
+rollout is visibly block-diagonal: two separate, moderately-bright squares
+(one per half) with a darker, attenuated region between them --- exactly the
+attention-level picture behind the leak-fraction curve of
+Figure~\ref{fig:r7attn}. The row-mass panels (right column, Figure~\ref{fig:r7rollout})
+make the shape concrete: at $a=4$, layer-$1$ row-mass rises once past the
+component boundary and stays on a flat, high plateau for the whole long path;
+at $a=20$, it rises after \emph{each} boundary but dips again in the middle of
+each half, a double-hump rather than a plateau. Per-node $Q/K/V$ vector norms
+(not shown in the main figures; computed for every split) are essentially
+\emph{identical} in shape between $a=4$ and $a=20$ --- the difference is not
+in how strongly a node's query/key/value is scaled, only in which other
+nodes' keys and values it lines up with.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_attention_scores.png}{0.95}
+    \caption{\emph{Model:} one seed of the checkpoints of Table~\ref{tab:r7sweep}
+    (base standard transformer, linear read-out, $L=2$, single head,
+    $d_{\mathrm{model}}=512$, disjoint-paths-trained, $n=40$). \emph{Test set:}
+    one representative two-chain graph at $a=4$ and one at $a=20$, node order
+    fixed to base graph position (short path first, then long) for readability.
+    \emph{Metric:} the real attention score matrix $S=QK^\top/\sqrt{d_h}$ and
+    the resulting normalized-ReLU attention $\alpha=\mathrm{ReLU}(S)/n$, layer
+    $0$ (top) and layer $1$ (bottom), averaged over $80$ independent random
+    relabellings of the same underlying graph then mapped back to base node
+    order (so the figure reflects the model's stable behaviour on this graph
+    shape, not one noisy instance).}
+    \label{fig:r7attnscores}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_rollout_contrib.png}{0.95}
+    \caption{\emph{Model/test as in Figure~\ref{fig:r7attnscores}}. \emph{Metric:}
+    the two-layer attention rollout $\alpha_2\alpha_1$ (top row) and the
+    layer-$1$ message contribution $\alpha_{ij}\|W_O v_j\|$ (bottom row) ---
+    how much node $j$'s value, after the output projection, actually adds to
+    node $i$'s residual stream --- for $a=4$ (left) and $a=20$ (middle); and
+    the row-mass $\sum_j\alpha_{ij}$ (right column) along the chain, layer $0$
+    vs.\ layer $1$, for both splits, dotted line marks the component boundary.}
+    \label{fig:r7rollout}
+\end{figure}
+
+\paragraph{The read-out and read-in weight matrices show no exploitable
+structure (further evidence against hypothesis~3).} Figure~\ref{fig:r7wout}
+renders what Table~\ref{tab:r7wout} already summarised in numbers: $W_{\mathrm{out}}$
+and $W_{\mathrm{in}}$ look like unstructured noise at the level of individual
+entries, the cosine-similarity matrices between different target/label vectors
+are uniformly small off the diagonal, and the skip-connection alignment
+$E_{\mathrm{in}}W_{\mathrm{out}}^\top$ has no diagonal or banded pattern beyond
+a few scattered entries --- there is no visible ``special'' node index, and no
+sign that the model precomputes an index-based shortcut anywhere in these two
+matrices. The singular-value spectra of every weight matrix in the trunk
+(Figure~\ref{fig:r7sv}) decay smoothly with no isolated dominant direction,
+consistent with a distributed computation rather than a single low-rank
+shortcut circuit.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_weight_geometry.png}{0.95}
+    \caption{\emph{Model:} the four checkpoints of Table~\ref{tab:r7wout} (static
+    weights, no test graphs). \emph{Metric:} $W_{\mathrm{out}}$ and
+    $E_{\mathrm{in}}=W_{\mathrm{in}}^\top$ (raw entries); the skip-connection
+    alignment $E_{\mathrm{in}}W_{\mathrm{out}}^\top$; the cosine-similarity
+    matrices $\cos(w_j,w_k)$ and $\cos(e_k,e_l)$; and the row norms
+    $\|w_j\|,\|e_k\|$ by target/label index (one representative seed shown).}
+    \label{fig:r7wout}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_qkvo_weights.png}{0.75}
+    \figorbox{runs/report7/report7_figs/r7_heatmap_singular_values.png}{0.62}
+    \caption{\emph{Model as in Figure~\ref{fig:r7wout}.} \emph{Top:} the raw
+    attention projection matrices $W_Q,W_K,W_V,W_O$ for both layers
+    ($d_{\mathrm{model}}\times d_{\mathrm{model}}$). \emph{Bottom:} singular
+    value spectra of every trunk weight matrix, normalised to the largest
+    singular value (one representative seed).}
+    \label{fig:r7sv}
+\end{figure}
+
+\subsection{Localising the completion signal: layer ablations}
+\label{sec:res-ablation}
+
+\paragraph{Question.} Which part of the trunk is responsible for the extra,
+split-specific completion signal --- and is it the same machinery that does
+ordinary distance-bounded reach, or a separate add-on?
+
+\paragraph{Setup.} Starting from an otherwise normal forward pass, we zero one
+branch of the residual stream at a time --- the attention output or the
+feed-forward output, at layer $0$ or layer $1$ --- and re-run the full split
+sweep; a fifth condition bypasses both transformer blocks entirely (read-out
+applied directly to the read-in embedding, no cross-node mixing at all). If
+ablating a component collapses the $a\le7$ behaviour toward the ablated
+baseline everywhere, that component is doing the work; if the ablated model
+is essentially unaffected, it is not.
+
+\paragraph{Result: reach and cut depend on different parts of the trunk, and
+the completion signal is not a separate circuit --- it needs the same
+attention layers as ordinary reach.} Figure~\ref{fig:r7ablation} and
+Table~\ref{tab:r7ablation} show a clean split. \textbf{Either} attention layer
+alone is necessary for reach: zeroing layer $0$'s attention collapses reach to
+$0.06$--$0.11$ at \emph{every} split, including $a\le7$; zeroing layer $1$'s
+collapses it to $0.15$--$0.29$ --- both far below even the ordinary
+beyond-capacity floor, and both close to the no-mixing-at-all bypass baseline
+($0.32$--$0.34$, flat in $a$). The $a\le7$ completion signal does not survive
+losing either attention layer any better than the ordinary $a\ge11$ regime
+does: it is built by the \emph{same} two-layer attention machinery, not a
+separate mechanism riding on top of it. The feed-forward branches tell a
+different, sharper story. Zeroing layer $1$'s feed-forward leaves reach almost
+untouched ($0.87$--$0.99$, barely below baseline at every split) but collapses
+\emph{cut} from $\approx1.0$ to $0.26$--$0.62$ once the split is no longer
+tiny --- \textbf{cut and reach are read out through different final-layer
+computations}: cut depends heavily on layer $1$'s feed-forward step, reach
+barely does. Layer $0$'s feed-forward instead matters more for reach in the
+completion regime specifically (baseline $1.0\to0.47$ at $a=7$ under
+ablation, a much larger relative hit than the $0.71\to0.59$ it takes at
+$a=20$) while cut is only mildly affected throughout.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccccc}
+\toprule
+condition & $a{=}1$ & $a{=}4$ & $a{=}7$ & $a{=}8$ & $a{=}10$ & $a{=}14$ & $a{=}17$ & $a{=}20$\\
+\midrule
+\multicolumn{9}{l}{\emph{reach (long component)}}\\
+baseline    & 1.000 & 1.000 & 1.000 & 0.993 & 0.651 & 0.581 & 0.638 & 0.709\\
+zero attn 0 & 0.058 & 0.063 & 0.068 & 0.070 & 0.074 & 0.084 & 0.094 & 0.107\\
+zero attn 1 & 0.154 & 0.168 & 0.182 & 0.187 & 0.199 & 0.226 & 0.253 & 0.288\\
+zero mlp 0  & 0.808 & 0.635 & 0.469 & 0.428 & 0.438 & 0.490 & 0.535 & 0.593\\
+zero mlp 1  & 0.992 & 0.934 & 0.925 & 0.916 & 0.912 & 0.899 & 0.885 & 0.869\\
+bypass      & 0.322 & 0.325 & 0.326 & 0.328 & 0.326 & 0.332 & 0.332 & 0.336\\
+\midrule
+\multicolumn{9}{l}{\emph{cut (target: disconnected)}}\\
+baseline    & 1.000 & 1.000 & 0.998 & 0.926 & 0.999 & 1.000 & 1.000 & 1.000\\
+zero attn 0 & 0.995 & 0.995 & 0.994 & 0.994 & 0.993 & 0.993 & 0.993 & 0.993\\
+zero attn 1 & 0.986 & 0.997 & 0.996 & 0.996 & 0.995 & 0.995 & 0.993 & 0.994\\
+zero mlp 0  & 0.969 & 0.887 & 0.898 & 0.945 & 0.942 & 0.917 & 0.914 & 0.912\\
+zero mlp 1  & 0.939 & 0.599 & 0.617 & 0.618 & 0.534 & 0.276 & 0.262 & 0.256\\
+bypass      & 0.660 & 0.692 & 0.689 & 0.693 & 0.688 & 0.691 & 0.692 & 0.691\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r7sweep}}, four seeds.
+\emph{Test set:} two-chain graphs at the splits shown, $150$ graphs per seed,
+independently node-relabelled. \emph{Metric:} reach (long component, top block)
+and cut (bottom block), mean over seeds, under six forward-pass conditions ---
+unmodified (baseline); the attention or feed-forward branch zeroed at layer
+$0$ or $1$; and both transformer blocks skipped entirely (bypass, read-out
+applied directly to the read-in embedding).}
+\label{tab:r7ablation}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_ablation_reach_cut.png}{0.95}
+    \caption{Table~\ref{tab:r7ablation} as curves. \emph{Model/training/test as
+    in Table~\ref{tab:r7ablation}}, mean over four seeds. Red dashed line:
+    capacity $3^L=9$.}
+    \label{fig:r7ablation}
+\end{figure}
+
+\subsection{Activation patching between adjacent splits (exploratory)}
+\label{sec:res-patch}
+
+\paragraph{Question.} Can transplanting part of a \emph{solved} forward pass
+into a \emph{failing} one rescue the failing prediction --- and if so, does it
+matter \emph{which} nodes are transplanted?
+
+\paragraph{Setup.} Two different splits are two different graphs, so there is
+no generic node-for-node correspondence between e.g.\ $a=4$ and $a=20$. We
+align nodes by \emph{hops from the component boundary} instead of raw index
+--- the one correspondence that is meaningful across two split sizes --- under
+fixed (canonical, unpermuted) node labelling for exact alignment. We patch a
+solved \emph{donor} graph's residual stream into a failing \emph{recipient}
+graph's forward pass, at the boundary-aligned node positions only, at two
+points (right after block $0$, and at the final embedding before the
+read-out), and compare against a control that patches the same \emph{number}
+of nodes but at \emph{random}, non-aligned positions.
+
+\paragraph{Result: patching works, but not because of boundary alignment ---
+the read-out's per-row structure does most of the work, and only the
+earlier patch point is sensitive to \emph{which} donor is used.} Table~\ref{tab:r7patch}
+shows patching the \emph{final} embedding rescues reach to $1.0$ in every
+case tested --- but so does the random-position control, almost as well
+($0.89$--$1.0$). This is a direct, expected consequence of the read-out
+architecture (\S\ref{sec:setup}): since $z_{ij}=h_i^\top w_j+b_j$ depends only
+on row $i$, copying a solved graph's $h_i$ into most rows reproduces
+solved-\emph{like} predictions for those rows almost by construction, whether
+or not the copied rows are the ``right'' ones. The final-embedding patch is
+therefore not good evidence for boundary alignment specifically. The
+earlier patch point (right after block $0$, before block $1$ reprocesses it)
+is more informative precisely because it is \emph{not} always helpful: for
+the adjacent, structurally similar pair $(7\to10)$ it rescues reach to
+$0.98$, close to the aligned donor; for the mismatched pair $(4\to20)$ ---
+where the donor and recipient have very different short/long proportions ---
+patching at this earlier point \emph{hurts}, dropping reach to $0.31$, well
+\emph{below} the recipient's own unpatched baseline ($0.71$). Block $1$'s
+attention, reprocessing a hybrid state built from two differently-shaped
+graphs, is confused rather than helped. Taken together: this experiment does
+not cleanly localise the completion signal to the boundary region --- the
+final-layer result is largely an artefact of the read-out's per-row structure,
+and the one result that \emph{is} alignment-sensitive (the block-$0$ patch)
+shows fragility to a topology mismatch rather than a clean rescue. We report
+it as exploratory and inconclusive rather than decisive, and do not read more
+into it than that.
+
+\begin{table}[H]\centering\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lccccc}
+\toprule
+donor $\to$ recipient & aligned & baseline & patch & patch & random\\
+ & nodes & (recipient) & (final embedding) & (after block 0) & control\\
+\midrule
+$a{=}7\to a{=}8$   & 39 & 0.989 & 1.000 & 1.000 & 1.000\\
+$a{=}7\to a{=}10$  & 37 & 0.626 & 1.000 & 0.976 & 0.976\\
+$a{=}4\to a{=}20$  & 24 & 0.709 & 1.000 & 0.307 & 0.889\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r7sweep}}, four seeds, one
+canonical (fixed-label) graph pair per seed per row (deterministic, not
+sampled). \emph{Metric:} reach (long component) of the recipient split, mean
+over seeds, before patching (baseline) and after patching the donor's
+residual stream into the boundary-aligned recipient nodes at two points, vs.\
+a same-count random-position control.}
+\label{tab:r7patch}
+\end{table}
+
+\subsection{Generalising to $n=64$: path\_union and ER}
+\label{sec:res-n64}
+
+\paragraph{Question.} Every result so far is on one canvas size, $n=40$. Does the
+same completion signal appear at a larger, sparser canvas, and does it depend
+on having seen disjoint-path structure in training at all? We repeat the full
+Tier~1/2 audit on the $n=64$ checkpoints from Report~VI's Thread~A --- already
+trained, no new training needed --- for two training distributions: the same
+disjoint-paths family as everywhere else in this report, and pure sparse
+Erd\H{o}s--R\'enyi (which never contains a multi-path or two-chain graph).
+
+\paragraph{Result: ER shows no completion signal at all, and tracks the
+distance oracle almost exactly at every split.} Figure~\ref{fig:r7n64er} is the
+cleanest single result in this report. Trained purely on ER, the model shows
+\emph{no} special behaviour at small $a$: reach climbs smoothly from $0.21$ to
+$0.39$ as $a$ goes from $1$ to $32$, sitting within a few points of the
+distance-$\le9$ oracle rate at \emph{every} split, with no cliff, no floor, no
+recovery --- exactly the profile of plain distance-bounded matrix powering,
+never departing from it. Cut, meanwhile, stays at $\ge0.997$ across the entire
+sweep, including the fully balanced split. The completion signal found
+throughout this report is not an architectural inevitability of the trunk ---
+it is something the disjoint-paths training distribution specifically teaches;
+a model that never saw that structure does not acquire it, at any split.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_sweep_and_logit_n64_er.png}{0.92}
+    \caption{\emph{Model:} base standard transformer, linear read-out ($L=2$,
+    single head, $d_{\mathrm{model}}=512$), trained on pure sparse
+    Erd\H{o}s--R\'enyi ($p=0.03$, mean degree $\approx1.9$; never any path
+    structure), four seeds, $n=64$ (checkpoints from Report~VI Thread~A).
+    \emph{Test set/metrics as in Figure~\ref{fig:r7sweep}}, full split sweep
+    $a=1,\dots,32$.}
+    \label{fig:r7n64er}
+\end{figure}
+
+\paragraph{Result: path\_union at $n=64$ reproduces the completion signal for
+reach, but the failure mode beyond it inverts --- cut collapses instead of
+staying robust.} Figure~\ref{fig:r7n64pu} shows the disjoint-paths-trained
+$n=64$ model does still single out small $a$ (exact match is high and reach
+saturates near $1.0$ for $a\le4$, tracking the same qualitative shape as
+$n=40$), but two things differ from $n=40$. First, reach \emph{never really
+collapses}: it decays smoothly from $\approx1.0$ at $a=1$ to $\approx0.82$ at
+$a=32$, always well above the distance oracle, with none of the sharp
+$n=40$-style cliff --- on this larger, sparser canvas the model leans toward
+\emph{over}-connecting rather than under-connecting once capacity is
+exceeded. Second, and directly following from that: cut degrades steadily and
+substantially, from $\approx0.9$ at small $a$ down to $\approx0.24$ by
+$a=20$--$32$ --- the opposite of $n=40$, where cut stayed at $\approx1.0$
+throughout. The raw read-out logit for cut (bottom panel) makes this precise:
+it actually \emph{crosses zero} and turns mildly positive past $a\approx13$,
+not merely fainter as at $n=40$ --- the model is not just less confident that
+distant pairs are disconnected, for many of them it now positively believes
+they are connected. Exact match at very small $a$ is also visibly noisier than
+the tight $n=40$ result (per-seed at $a=4$: $0.43,\,0.55,\,0.79,\,0.00$),
+consistent with Report~VI's own note that the $n=64$ path\_union checkpoints
+are a noisier, more seed-dependent read than $n=40$'s tight clean model.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_sweep_and_logit_n64_pathunion.png}{0.92}
+    \caption{\emph{Model/metrics as in Figure~\ref{fig:r7n64er}} but trained on
+    the same disjoint-paths distribution as every other result in this report,
+    four seeds, $n=64$ (checkpoints from Report~VI Thread~A). Full split sweep
+    $a=1,\dots,32$.}
+    \label{fig:r7n64pu}
+\end{figure}
+
+\paragraph{The three-way falsification test flips too.} Repeating
+\S\ref{sec:res-threeway} at $n=64$ (Table~\ref{tab:r7n64threeway}) reproduces
+the ER-vs-path\_union contrast cleanly. The ER-trained model keeps
+$\mathrm{cut}(\mathrm{L}_1,\mathrm{L}_2)\ge0.998$ at every small-component
+size, exactly as at $n=40$ --- the two large, unrelated components are
+correctly kept apart regardless of training distribution or canvas size. The
+path\_union-trained model does \emph{not}: at a very small third component
+($\mathrm{small}=1$), it wrongly calls the two large ($31$- and $32$-node)
+components connected $91\%$ of the time
+($\mathrm{cut}(\mathrm{L}_1,\mathrm{L}_2)=0.093$) --- the crude ``not the small
+one'' shortcut hypothesis~2 explicitly predicted and that $n=40$ refuted. The
+error shrinks steadily as the small component grows ($0.09\to0.79$ from
+$\mathrm{small}=1$ to $10$), the same direction as the two-way sweep's cut
+degrading with more structure to keep separate. So hypothesis~2's crude form,
+refuted at $n=40$, is \emph{not} refuted in general --- whether the ``which
+component'' skill survives a third component depends on canvas size and
+training distribution, tracking the same over-connection tendency visible in
+Figure~\ref{fig:r7n64pu}.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{path\_union-trained} & \multicolumn{3}{c}{ER-trained}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+small & reach L$_1$/L$_2$ & cut(S,L) & cut(L$_1$,L$_2$) & reach L$_1$/L$_2$ & cut(S,L) & cut(L$_1$,L$_2$)\\
+\midrule
+1  & 0.926 & 0.999 & 0.093 & 0.396 & 1.000 & 0.998\\
+2  & 0.707 & 1.000 & 0.369 & 0.404 & 1.000 & 0.998\\
+4  & 0.756 & 0.999 & 0.322 & 0.417 & 1.000 & 0.998\\
+7  & 0.503 & 0.997 & 0.612 & 0.431 & 1.000 & 1.000\\
+8  & 0.427 & 0.997 & 0.717 & 0.438 & 0.999 & 0.999\\
+10 & 0.394 & 0.998 & 0.785 & 0.453 & 1.000 & 1.000\\
+\bottomrule\end{tabular}
+\caption{\emph{Model/training/test as in Table~\ref{tab:r7threeway}}, $n=64$,
+four seeds each. \emph{Metrics:} pairwise reach inside the two large components
+(mean of L$_1$, L$_2$); cut between the small and either large component
+(mean); cut between the two large components (target disconnected --- the
+decisive column, contrast the two blocks).}
+\label{tab:r7n64threeway}
+\end{table}
+
+\paragraph{Ablation confirms layer-$1$ attention is a double-edged mechanism at
+$n=64$: the same computation that builds the completion signal also builds the
+over-connection.} Figure~\ref{fig:r7n64ablation} repeats \S\ref{sec:res-ablation}
+on the path\_union $n=64$ model. Zeroing layer-$1$ attention collapses reach
+just as it does at $n=40$ ($0.05$--$0.10$ at every split) --- but it also
+\emph{fixes} cut, pushing it to $\ge0.93$ at every split, well above the
+degraded baseline. The same is true, more mildly, of zeroing layer-$0$
+attention (cut steady at $\approx0.88$, versus baseline's fall to $0.24$).
+Zeroing layer-$1$'s feed-forward again collapses cut specifically (down to
+$0.15$ at $a=32$) while leaving reach largely intact, replicating
+\S\ref{sec:res-ablation} exactly. Put together: the two-layer attention
+mechanism that builds the beyond-capacity reach signal is the \emph{same}
+mechanism responsible for the over-connection that erodes cut on this larger
+canvas --- removing it trades one failure for the other rather than fixing
+either independently.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_ablation_reach_cut_n64_pathunion.png}{0.92}
+    \caption{\emph{Model/training/test as in Table~\ref{tab:r7ablation}},
+    $n=64$, path\_union-trained, four seeds. \emph{Metric as in
+    Figure~\ref{fig:r7ablation}.}}
+    \label{fig:r7n64ablation}
+\end{figure}
+
+\paragraph{Patching, briefly.} Repeating \S\ref{sec:res-patch} at $n=64$
+(adjacent splits $a{=}7\to a{=}10$, and the widest contrast $a{=}4\to a{=}32$)
+reproduces the same qualitative pattern: the final-embedding patch and the
+random-position control land within a few points of each other in every case
+($0.96$--$1.00$ vs.\ $0.92$--$0.96$), the same read-out-artefact story as
+\S\ref{sec:res-patch}. Unlike at $n=40$, the earlier (post-block-$0$) patch did
+not backfire on the mismatched pair here ($1.00$ for $4\to32$); we do not read
+much into that difference given the same architectural caveat already applies
+--- it is not evidence the patch is more meaningful at $n=64$, just that the
+failure mode seen once at $n=40$ is not a robust general property of this
+patching design.
+
+\section{Verdict}
+\label{sec:verdict}
+
+We stated three candidate hypotheses in \S\ref{sec:hypotheses}. The mechanistic
+evidence settles them as follows.
+
+\paragraph{Hypothesis~3 (label/order shortcut) --- refuted.} Fixing node labels
+to a canonical order instead of relabelling every graph independently changes
+nothing (Table~\ref{tab:r7relabel}). The read-out matrix shows no
+target-specific outlier structure, and the direct read-in-to-read-out skip
+connection carries a signal two orders of magnitude smaller than what actually
+decides a prediction (Table~\ref{tab:r7wout}) --- whatever the model does, it
+is not reading node identity off a fixed index mapping.
+
+\paragraph{Hypothesis~2 (short-component-resolved default) --- correct in a
+narrower form than stated, and that form is itself canvas- and
+training-distribution-dependent.} The model does not implement a generic ``not
+in the small component therefore connected'' rule: at $n=40$, the three-way
+falsification test shows it correctly separates two large, unrelated
+components from a small one at $\mathrm{cut}=1.000$ throughout
+(Table~\ref{tab:r7threeway}), which a crude default-connect rule would get
+wrong. What survives at $n=40$ is narrower and, we think, more interesting: on
+a graph with \emph{exactly two} components, once one of them is small enough
+that the model can resolve it completely, the \emph{other} component gets an
+extra, split-specific completion signal --- visible as a smoothly saturating
+positive read-out logit (\S\ref{sec:res-readout}) and as attention that stays
+cleanly confined to the true component (\S\ref{sec:res-attention}) --- that
+goes beyond plain distance-bounded reach. That signal is switched off, not
+merely weakened, once the graph has a third, separate component at $n=40$: the
+two large components in \S\ref{sec:res-threeway} are each treated exactly like
+the long side of a balanced two-way split, not like the sole beneficiary of a
+completion rule. \textbf{This clean picture does not fully survive at
+$n=64$} (\S\ref{sec:res-n64}): the same path\_union-trained model, on the
+larger canvas, wrongly merges two large unrelated components when the third is
+very small ($\mathrm{cut}(\mathrm{L}_1,\mathrm{L}_2)=0.09$ at
+$\mathrm{small}=1$) --- the crude form of hypothesis~2 that $n=40$ refuted. A
+model trained on ER instead, at either canvas size, never shows the completion
+signal and never shows this failure either, keeping cut $\ge0.998$ throughout.
+So ``does the which-component skill generalise to a third component'' is not a
+fixed fact about the architecture; it is entangled with how full/sparse the
+canvas is and what the training distribution taught, in the same direction as
+the over-connection tendency documented since Report~III--IV for large, sparse
+canvases.
+
+\paragraph{Hypothesis~1 (genuine, distance-graded propagation) --- correct once
+the completion signal is not active.} Beyond the two-component-with-a-small-side
+regime, the model's aggregate behaviour is very hard to distinguish from plain
+distance-bounded matrix powering: the overall predicted-positive rate for
+$a\gtrsim11$ sits almost exactly on the rate a pure distance-$\le9$ oracle would
+give on the same graphs (\S\ref{sec:res-sweep}), and the attention-leak curve
+(Figure~\ref{fig:r7attn}) rises smoothly rather than switching on and off. The
+``genuine propagation'' account is the right description of the model
+\emph{outside} the specific regime where the completion shortcut fires --- it
+is not a competing story to hypothesis~2, it is what the model falls back to
+when hypothesis~2's narrow condition is not met.
+
+\paragraph{Put together.} The Report~VI puzzle is not really about balance. It
+is about whether a two-component graph contains one component small enough to
+fully resolve. When it does, the model gets an extra completion signal for the
+other component that reaches far beyond its ordinary distance-bounded capacity
+(the $4{+}36$ case); when it does not --- whether because the split is
+balanced, or because a third component is present at all --- that signal does
+not fire, and the model's behaviour reverts to the same distance-bounded,
+$3^L$-capped propagation documented since Report~III.
+
+\paragraph{Where the signal lives.} The ablations of \S\ref{sec:res-ablation}
+add a mechanistic layer to that picture rather than a competing one. Reach and
+cut are computed by different parts of the trunk --- cut depends heavily on
+layer $1$'s feed-forward step and barely on either attention layer's presence
+\emph{once both are intact}, while reach collapses if \emph{either} attention
+layer is removed, at every split, including the completion regime. In other
+words, the $a\le7$ completion signal is not a separate sub-circuit bolted onto
+an otherwise-ordinary matrix-powering computation: it needs the same
+two-layer attention machinery that ordinary beyond-capacity reach needs, and
+the attention-score heatmaps (\S\ref{sec:res-heatmaps}) show \emph{why} ---
+the same layer-$1$ attention that forms a narrow, capacity-bounded band at
+large $a$ forms a broad, near-uniform block covering the whole long path once
+the other side is small enough to resolve. It is the same mechanism doing
+more, not two mechanisms. The activation-patching experiment
+(\S\ref{sec:res-patch}) was the one place this report tried to go further and
+did not cleanly succeed: because the read-out is a per-row function of a
+single node's embedding, transplanting a solved graph's embeddings into a
+failing one reproduces solved-like answers almost regardless of which nodes
+are transplanted, so that experiment could not isolate the boundary region as
+special. We report that as a negative methodological result, not as evidence
+either way.
+
+\paragraph{$n=64$ confirms the mechanism is data-shaped, not architectural, and
+reveals its dark side.} The ER-vs-path\_union contrast at $n=64$
+(\S\ref{sec:res-n64}) is the cleanest evidence in this report that the
+completion signal is something specific training distributions teach: the
+ER-trained model never acquires it, at any split, and tracks a plain
+distance-bounded oracle almost exactly throughout. The path\_union-trained
+model does acquire it, and at $n=64$ the ablations show it is a double-edged
+version of the \emph{same} mechanism found at $n=40$ --- the identical
+two-layer attention computation that lets a small-side graph confirm
+connections far beyond capacity also, on a larger and sparser canvas, starts
+declaring unrelated large components connected to each other. Zeroing
+layer-$1$ attention removes both effects together (Figure~\ref{fig:r7n64ablation}):
+reach collapses, but cut is fully restored. Reach and cut were already shown
+to depend on different final-layer computations (cut on layer-$1$
+feed-forward, largely independent of either attention layer's presence); what
+$n=64$ adds is that the attention mechanism which \emph{builds} the useful
+completion signal is the same one that, past a point, over-generalises it into
+a harmful one.
+
+\section{Honest limits}
+\label{sec:limits}
+
+This report opens the trunk further than any before it, but the evidence
+remains statistical and correlational, not a proof of what the network
+computes. The read-out, attention, and ablation analyses show quantities and
+sub-computations that move in lockstep with behaviour; they do not amount to
+a formal account of \emph{why} training produces a completion signal specific
+to a two-component canvas. The activation-patching experiment
+(\S\ref{sec:res-patch}) was an attempt to localise that signal causally and
+came back inconclusive, for an architectural reason (the per-row read-out)
+rather than a negative result about the signal itself --- a cleaner patching
+design, perhaps intervening on attention patterns directly rather than the
+residual stream, is left for future work. Two further follow-ups were not run
+in this round and are left open: a retrain with a loss that reweights
+within-component and cross-component pairs evenly, to separate a genuine
+representational effect from a training-objective artefact (the confound
+Report~VI's own outlook names); and the same audit repeated with the
+similarity read-out, whose logit is a direct function of \emph{both}
+endpoints' embeddings and may not show the same asymmetric, target-specific
+completion signal at all. We have not checked whether the two-component
+completion signal survives under the mixed training stream of earlier
+reports --- the $n=64$ generalisation (\S\ref{sec:res-n64}) checks canvas size
+and a from-scratch training distribution, not that stream specifically.
+
+\end{document}
