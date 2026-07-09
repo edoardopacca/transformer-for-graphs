@@ -2065,17 +2065,81 @@ nodi). Scrive **nelle stesse cartelle output** già esistenti da sessioni preced
 (metrics/readout/weights) sono rigenerati identici (non toccati dal cambio).
 
 **STATO LANCIO:** codice scritto e testato (selftest + smoke-test end-to-end su checkpoint
-giocattolo, nessun errore); sbatch preparato; **checkpoint `.pt` n40 path_union già scp-ati
-dall'utente in `/tmp/r7_ckpts/` sul Mac** (non serviti alla fine, si punta invece all'sbatch su
-HPC). **Non ancora lanciato**: serve (1) push da locale dei file sotto, (2) `git pull` su HPC, (3)
-`sbatch scripts/r7_exact_contribution.sbatch`. **Da fare poi (chat che riprende):** pull dei nuovi
-`attn_cache.npz`/`heatmap_data.npz`, rigenerare le figure (`plot_mechanistic_asym_chains.py`,
-`plot_mechanistic_heatmaps.py`), e **riscrivere §sec:res-attention/§sec:res-heatmaps** nel `.tex`
-con i numeri veri (la leak-fraction 0.3%→31% e le descrizioni delle heatmap sono ancora quelle
-del vecchio rollout — NON attendibili, da rifare da zero sui dati nuovi, non solo da "aggiustare").
-File da pushare: `mechanistic_asym_chains.py`, `mechanistic_heatmaps.py`,
-`plot_mechanistic_asym_chains.py`, `plot_mechanistic_heatmaps.py`,
-`scripts/r7_exact_contribution.sbatch`, `report/7/transformer_for_graphs_7.tex`, `istruzioni.md`.
+giocattolo, nessun errore); **job LANCIATO su HPC** (job `574086`, array 0-3, `medium_cpu`) —
+osservato a metà corsa: task 0 (seed 1000) ha fatto 5/8 split di `attention_probe` in 49 min
+(≈9.8 min/split con 40 grafi, non 64 — vedi nota sotto), stima ≈1.5-2h totali a job. **Se una
+chat futura riprende senza sapere l'esito**: controllare `squeue -u 3352759` e i log in
+`out/r7contrib_574086_*.out` prima di assumere che sia finito o fallito. **Da fare poi (chat che
+riprende, quando il job è finito):** pull dei nuovi `attn_cache.npz`/`heatmap_data.npz`,
+rigenerare le figure (`plot_mechanistic_asym_chains.py`, `plot_mechanistic_heatmaps.py`), e
+**riscrivere §sec:res-attention/§sec:res-heatmaps** nel `.tex` con i numeri veri (la leak-fraction
+0.3%→31% e le descrizioni delle heatmap sono ancora quelle del vecchio rollout — NON attendibili,
+da rifare da zero sui dati nuovi, non solo da "aggiustare").
+**Nota sul numero di grafi:** `attention_probe` usa `min(contrib_n_graphs, attn_n_graphs)` e lo
+sbatch non sovrascrive `--attn_n_graphs` (resta al default 40) → l'`attention_probe` userà 40
+grafi/split, non i 64 richiesti (il `heatmap_probe` invece userà i 64 pieni, il suo `n_graphs`
+di default è 80). Deciso con l'utente di **non rilanciare** solo per questo, 40 è già un campione
+solido.
+
+**⚠️ Sezione patching RIMOSSA dal report (richiesta utente, 4a sessione, 2026-07-09).** L'utente,
+dopo aver capito cosa faceva davvero l'esperimento (stesso checkpoint, due grafi di test diversi
+mai visti in training, patch fra loro SOLO a inferenza — non due training diversi, la confusione
+iniziale), ha chiesto di toglierlo (`toglilo direttamente`): probabilmente perché l'esperimento
+era già dichiarato "esplorativo/inconcludente" nel testo (l'artefatto del read-out per-riga rende
+il confronto random-vs-allineato poco informativo). **Rimossa l'intera sottosezione
+§sec:res-patch** (Question/Setup/Result/tabella `tab:r7patch`), il paragrafo "Patching, briefly"
+sotto §sec:res-n64, e i riferimenti in Verdetto/Honest limits — compila pulito, ora **20 pagine**
+(era 21). **NON cancellati** (solo non più citati nel `.tex`): lo script `patch_asym_chains.py`,
+la sua parte in `plot_ablation_patch.py`, e i dati `runs/report7/patch/**` — restano su disco,
+nessuna azione richiesta a meno che l'utente non chieda esplicitamente di cancellarli.
+
+File da pushare (in più rispetto a quanto sopra): `report/7/transformer_for_graphs_7.tex` e
+`report/7/transformer_for_graphs_7.pdf` (già aggiornati con la sezione patching rimossa),
+`istruzioni.md`.
+
+### 14.8 Richiesto un condizione parallela ER a n=40 per §4.1/§4.4/§4.5/§4.6/§4.7/§4.8 (4a
+sessione, 2026-07-09). **NON ancora lanciato.**
+
+**Cosa ha chiesto l'utente.** Finora tutto il Report 7 (§4.1–§4.8, cioè sweep, geometria del
+read-out, attention/heatmap, falsificazione a tre componenti, ablation) è fatto **solo sui
+checkpoint n40 path\_union-trained**. L'utente vuole la **stessa identica batteria** ripetuta sui
+checkpoint **n40 ER-trained** (mai visto path/multi-componenti in training — lo stesso ruolo di
+cross-check che l'ER gioca già a n64 in §sec:res-n64, ma qui aggiunto anche a n40), e vuole i
+risultati aggiunti nel `.tex` come sottosezioni **"b"** subito dopo ogni "a" esistente (es. §4.1a
+= sweep path\_union esistente, §4.1b = sweep ER nuovo), per avere **due esempi affiancati** in
+ogni capitolo. **Esplicitamente NON richiesti**: §4.2 (relabelling) e §4.3 (decomposizione
+readout, che non ha una tabella propria) — solo §4.1, §4.4, §4.5, §4.6, §4.7, §4.8.
+
+**Checkpoint:** `runs/report4/families_n40/n40_er_roberta_linear_lam0_seed{1000..4000}/last.pt`
+(fallback non-bucketato `runs/families_n40/...`, stesso pattern `find_ckpt` di
+`scripts/r6_a1_eval.sbatch`) — **esistenti, nessun training nuovo**.
+
+**Script (tutti già generici, verificato leggendo i CLI args — nessuna modifica di codice
+necessaria, solo un nuovo sbatch):**
+- `mechanistic_asym_chains.py` → copre §4.1 (sweep, `tab:r7sweep`-analogo), §4.4 (geometria
+  read-out, `tab:r7wout`-analogo), §4.5 (attention/leak, ora con la contribution esatta).
+- `mechanistic_heatmaps.py` → §4.7 (heatmap, `--splits 4 20`, gli unici usati nelle figure).
+- `eval_three_way_split.py` → §4.6 (falsificazione a tre componenti).
+- `ablation_asym_chains.py` → §4.8 (ablation per-layer).
+
+**Nuovo sbatch `scripts/r7_er_n40.sbatch`** (CPU-only, `medium_cpu`, `--array=0-3`, stessa
+struttura di `scripts/r7_exact_contribution.sbatch` ma con tutti e 4 gli script in sequenza per
+seed, output taggato `n40_er_seed{S}` in `runs/report7/{mechanistic,heatmaps,three_way,ablation}/`).
+**Fix rispetto al lancio precedente**: qui `--attn_n_graphs 64` è esplicito (non lasciato al
+default 40) insieme a `--contrib_n_graphs 64`, così la exact-contribution usa davvero 64 grafi
+(nel lancio path\_union precedente era rimasta cappata a 40 per lo stesso motivo — vedi §14.7,
+lì si è deciso di non rilanciare, ma qui che il job è nuovo si è corretto subito).
+`--time=05:00:00` (tre pezzi extra — three\_way/ablation — sono comportamentali, veloci, pochi
+minuti; il grosso resta `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py`).
+
+**STATO: sbatch scritto e sintatticamente verificato (`bash -n`), NON ancora lanciato.** Può
+girare in parallelo al job path\_union di §14.7 se non ha ancora finito (medium\_cpu ha 8 nodi,
+SLURM accoda quello che non entra). **Da fare poi (chat che riprende, quando entrambi i job sono
+finiti):** pull dei nuovi output, poi scrivere §4.1b/§4.4b/§4.5b/§4.6b/§4.7b/§4.8b nel `.tex`
+(prosa + tabelle/figure nuove, caption regola 21 con MODELLO+TRAINING+TEST+METRICA — qui il
+training è ER, non path\_union, va dichiarato esplicito in ogni caption) subito dopo ciascuna
+sezione "a" esistente; **non scrivere niente finché i dati reali non sono arrivati** (nessun
+numero inventato).
 
 ---
 
