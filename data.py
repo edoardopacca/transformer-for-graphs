@@ -48,6 +48,37 @@ def generate_split_chains_graph(n: int, short_len: int) -> np.ndarray:
     return adj
 
 
+def generate_three_way_split_graph(n: int, small_len: int, large_split: int | None = None) -> np.ndarray:
+    """Three disjoint paths partitioning ALL n nodes: one SMALL component
+    (``small_len`` nodes, meant to sit within capacity and be fully resolvable)
+    and two LARGE components (sizes ``large_split`` and
+    ``n - small_len - large_split``, meant to each individually exceed capacity)
+    that are NOT connected to each other. Default ``large_split`` splits the
+    remainder as evenly as possible. Three connected components, no isolated
+    padding, no self-loops; node order NOT permuted (permute at the call site).
+
+    Report VII falsification test (Thread B follow-up): if the model resolves
+    connectivity by fully identifying a small component and defaulting every
+    other pair to ``connected`` (rather than genuinely tracing distance), it
+    should wrongly mark the two large, mutually disconnected components as
+    connected to each other -- the decisive cross accuracy to read here."""
+    if not 1 <= small_len <= n - 2:
+        raise ValueError(f"three-way split requires 1 <= small_len <= n-2, got {small_len} (n={n})")
+    remainder = n - small_len
+    if large_split is None:
+        large_split = remainder // 2
+    if not 1 <= large_split <= remainder - 1:
+        raise ValueError(f"large_split must split the remaining {remainder} nodes into two "
+                          f"non-empty paths, got {large_split}")
+    adj = np.zeros((n, n), dtype=np.float32)
+    bounds = (0, small_len, small_len + large_split, n)  # three contiguous segments -> paths
+    for a, b in zip(bounds[:-1], bounds[1:]):
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+    return adj
+
+
 def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     if n != 2 * k:
         raise ValueError(f"TwoCliques requires n == 2*k, got n={n}, k={k}")

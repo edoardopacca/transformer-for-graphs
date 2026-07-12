@@ -80,11 +80,14 @@ fi
 echo "tag=$TAG checkpoint=$CKPT"
 
 echo "== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) =="
+FAIL=0
+
 python mechanistic_asym_chains.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/mechanistic/${TAG}" \
   --attn_n_graphs 64 \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_asym_chains.py"; FAIL=1; }
 
 echo "== mechanistic_heatmaps.py (heatmap probe, exact contribution, all 5 representative splits) =="
 python mechanistic_heatmaps.py \
@@ -92,15 +95,22 @@ python mechanistic_heatmaps.py \
   --output_dir "runs/report7/heatmaps/${TAG}" \
   --splits 1 4 7 8 10 \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_heatmaps.py"; FAIL=1; }
 
 echo "== eval_three_way_split.py (falsification test) =="
 python eval_three_way_split.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/three_way/${TAG}"
+[ $? -ne 0 ] && { echo "FAILED: eval_three_way_split.py"; FAIL=1; }
 
 echo "== ablation_asym_chains.py (layer ablations) =="
 python ablation_asym_chains.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/ablation/${TAG}"
+[ $? -ne 0 ] && { echo "FAILED: ablation_asym_chains.py"; FAIL=1; }
 
+if [ "$FAIL" -ne 0 ]; then
+  echo "one or more steps FAILED for $TAG -- see FAILED markers above"
+  exit 1
+fi
 echo "done $TAG"

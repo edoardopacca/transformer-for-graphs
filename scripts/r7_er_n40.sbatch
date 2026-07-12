@@ -64,6 +64,15 @@ if [ -z "$CKPT" ]; then
 fi
 echo "seed=$S checkpoint=$CKPT"
 
+# Each step's exit status is checked explicitly (not `set -e`, so a failure in
+# one step does not skip the later ones) and OR'd into an overall FAIL flag,
+# so the job's own exit code reflects reality -- a step that dies (e.g. an
+# unpushed dependency: python's own "No such file or directory" still exits
+# non-zero) must NOT be able to leave the job reporting COMPLETED, which is
+# exactly what let three_way/ablation silently no-op on the first run of this
+# script (istruzioni.md sec 14.8/14.9 fix-up note).
+FAIL=0
+
 echo "== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) =="
 # --attn_n_graphs raised to 64 too: exact_contribution is capped at
 # min(contrib_n_graphs, attn_n_graphs), and the currently-running path_union
@@ -74,6 +83,7 @@ python mechanistic_asym_chains.py \
   --output_dir "runs/report7/mechanistic/${TAG}" \
   --attn_n_graphs 64 \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_asym_chains.py"; FAIL=1; }
 
 echo "== mechanistic_heatmaps.py (heatmap probe, exact contribution) =="
 python mechanistic_heatmaps.py \
@@ -81,15 +91,22 @@ python mechanistic_heatmaps.py \
   --output_dir "runs/report7/heatmaps/${TAG}" \
   --splits 4 20 \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_heatmaps.py"; FAIL=1; }
 
 echo "== eval_three_way_split.py (falsification test) =="
 python eval_three_way_split.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/three_way/${TAG}"
+[ $? -ne 0 ] && { echo "FAILED: eval_three_way_split.py"; FAIL=1; }
 
 echo "== ablation_asym_chains.py (layer ablations) =="
 python ablation_asym_chains.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/ablation/${TAG}"
+[ $? -ne 0 ] && { echo "FAILED: ablation_asym_chains.py"; FAIL=1; }
 
+if [ "$FAIL" -ne 0 ]; then
+  echo "one or more steps FAILED for seed $S -- see FAILED markers above"
+  exit 1
+fi
 echo "done seed $S"

@@ -47,11 +47,14 @@ if [ ! -f "$CKPT" ]; then
   exit 1
 fi
 
+FAIL=0
+
 echo "== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) -- seed $S =="
 python mechanistic_asym_chains.py \
   --checkpoint "$CKPT" \
   --output_dir "runs/report7/mechanistic/${TAG}" \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_asym_chains.py"; FAIL=1; }
 
 echo "== mechanistic_heatmaps.py (heatmap probe, exact contribution) -- seed $S =="
 python mechanistic_heatmaps.py \
@@ -59,5 +62,10 @@ python mechanistic_heatmaps.py \
   --output_dir "runs/report7/heatmaps/${TAG}" \
   --splits 4 20 \
   --contrib_n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_heatmaps.py"; FAIL=1; }
 
+if [ "$FAIL" -ne 0 ]; then
+  echo "one or more steps FAILED for seed $S -- see FAILED markers above"
+  exit 1
+fi
 echo "done seed $S"
