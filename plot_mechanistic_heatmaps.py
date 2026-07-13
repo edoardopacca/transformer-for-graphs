@@ -41,18 +41,30 @@ def heat(ax, mat, title, cmap="RdBu_r", vlim=None, cbar=True, diverging=True):
 def fig_weight_geometry(seed_tag, suffix=""):
     ws = json.load((MECH_ROOT / seed_tag / "weights_summary.json").open())
     raw = np.load(HEAT_ROOT / seed_tag / "raw_weights.npz")
-    fig, axes = plt.subplots(2, 3, figsize=(15, 9))
-    heat(axes[0, 0], raw["W_out"], r"$W_{\mathrm{out}}$ (targets $\times$ $d_{\mathrm{model}}$)", cmap="RdBu_r")
-    heat(axes[0, 1], raw["W_in"].T, r"$E_{\mathrm{in}}=W_{\mathrm{in}}^\top$ (neighbour-labels $\times$ $d_{\mathrm{model}}$)", cmap="RdBu_r")
-    heat(axes[0, 2], np.array(ws["alignment_ein_wout"]), r"$E_{\mathrm{in}}W_{\mathrm{out}}^\top$ (skip-connection alignment)", cmap="RdBu_r")
-    heat(axes[1, 0], np.array(ws["cos_out"]), r"$\cos(w_j,w_k)$", cmap="RdBu_r", vlim=1.0)
-    heat(axes[1, 1], np.array(ws["cos_in"]), r"$\cos(e_k,e_l)$", cmap="RdBu_r", vlim=1.0)
-    axes[1, 2].plot(ws["norms_out"], label=r"$\|w_j\|$")
-    axes[1, 2].plot(ws["norms_in"], label=r"$\|e_k\|$ ($\times5$)" if False else r"$\|e_k\|$")
-    axes[1, 2].set_xlabel("target / label index $j$"); axes[1, 2].legend(fontsize=8)
-    axes[1, 2].set_title("read-out / read-in row norms", fontsize=9)
-    axes[1, 2].grid(alpha=0.3)
-    fig.suptitle(f"Read-out ($W_{{\\mathrm{{out}}}}$) and read-in ($W_{{\\mathrm{{in}}}}$) geometry -- {seed_tag}")
+    if ws.get("readout_kind") == "similarity":
+        # no W_out / per-target row for this read-out -- only E_in has a
+        # geometry to check; report the two read-out scalars in the title.
+        fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+        heat(axes[0], raw["W_in"].T, r"$E_{\mathrm{in}}=W_{\mathrm{in}}^\top$ (neighbour-labels $\times$ $d_{\mathrm{model}}$)", cmap="RdBu_r")
+        heat(axes[1], np.array(ws["cos_in"]), r"$\cos(e_k,e_l)$", cmap="RdBu_r", vlim=1.0)
+        axes[2].plot(ws["norms_in"], label=r"$\|e_k\|$")
+        axes[2].set_xlabel("label index $k$"); axes[2].legend(fontsize=8)
+        axes[2].set_title("read-in row norms", fontsize=9); axes[2].grid(alpha=0.3)
+        fig.suptitle(f"Read-in ($W_{{\\mathrm{{in}}}}$) geometry -- {seed_tag} (similarity read-out: "
+                     f"scale={ws['sim_scale']:.2f}, bias={ws['sim_bias']:.2f}, no $W_{{\\mathrm{{out}}}}$)")
+    else:
+        fig, axes = plt.subplots(2, 3, figsize=(15, 9))
+        heat(axes[0, 0], raw["W_out"], r"$W_{\mathrm{out}}$ (targets $\times$ $d_{\mathrm{model}}$)", cmap="RdBu_r")
+        heat(axes[0, 1], raw["W_in"].T, r"$E_{\mathrm{in}}=W_{\mathrm{in}}^\top$ (neighbour-labels $\times$ $d_{\mathrm{model}}$)", cmap="RdBu_r")
+        heat(axes[0, 2], np.array(ws["alignment_ein_wout"]), r"$E_{\mathrm{in}}W_{\mathrm{out}}^\top$ (skip-connection alignment)", cmap="RdBu_r")
+        heat(axes[1, 0], np.array(ws["cos_out"]), r"$\cos(w_j,w_k)$", cmap="RdBu_r", vlim=1.0)
+        heat(axes[1, 1], np.array(ws["cos_in"]), r"$\cos(e_k,e_l)$", cmap="RdBu_r", vlim=1.0)
+        axes[1, 2].plot(ws["norms_out"], label=r"$\|w_j\|$")
+        axes[1, 2].plot(ws["norms_in"], label=r"$\|e_k\|$")
+        axes[1, 2].set_xlabel("target / label index $j$"); axes[1, 2].legend(fontsize=8)
+        axes[1, 2].set_title("read-out / read-in row norms", fontsize=9)
+        axes[1, 2].grid(alpha=0.3)
+        fig.suptitle(f"Read-out ($W_{{\\mathrm{{out}}}}$) and read-in ($W_{{\\mathrm{{in}}}}$) geometry -- {seed_tag}")
     fig.tight_layout()
     p = OUT / f"r7_heatmap_weight_geometry{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
@@ -71,7 +83,10 @@ def fig_qkvo_raw_weights(seed_tag, suffix=""):
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
     fig, ax = plt.subplots(figsize=(7, 5))
-    for key, title in names + [("W_in", r"$W_{\mathrm{in}}$"), ("W_out", r"$W_{\mathrm{out}}$")]:
+    extra = [("W_in", r"$W_{\mathrm{in}}$")]
+    if "sv_W_out" in raw.files:
+        extra.append(("W_out", r"$W_{\mathrm{out}}$"))  # absent for the similarity read-out
+    for key, title in names + extra:
         sv = raw[f"sv_{key}"]
         ax.plot(sv / sv[0], label=title, alpha=0.8)
     ax.set_yscale("log"); ax.set_xlabel("singular value index"); ax.set_ylabel("relative singular value")

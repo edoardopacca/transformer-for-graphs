@@ -74,10 +74,6 @@ def run_with_cache(model, x):
     projection, so alpha_ij * wo_v[j] is the exact additive message j sends to
     i's residual stream), each as float32 numpy arrays with the batch and
     (single) head dims squeezed out -- shapes [B,n,d]/[B,n,n] as noted below."""
-    if model.readout_kind != "linear":
-        raise NotImplementedError("run_with_cache assumes the linear read-out "
-                                   "(z_ij = h_i^T w_j); similarity is a different "
-                                   "mechanism, out of scope for this script")
     h = model.emb_drop(model.emb_ln(model.read_in(x)))
     cache = {"h0": h.detach().cpu().numpy()}
     for li, blk in enumerate(model.blocks):
@@ -108,7 +104,11 @@ def run_with_cache(model, x):
         cache[f"layer{li}_alpha"] = alpha[:, 0].detach().cpu().numpy()
         cache[f"layer{li}_wo_v"] = wo_v.detach().cpu().numpy()
         cache[f"h{li + 1}"] = h.detach().cpu().numpy()
-    logits = model.read_out(h)
+    if model.readout_kind == "similarity":
+        hn = F.normalize(h, dim=-1)
+        logits = model.sim_scale * torch.matmul(hn, hn.transpose(-1, -2)) + model.sim_bias
+    else:
+        logits = model.read_out(h)
     return cache, h.detach().cpu().numpy(), logits.detach().cpu().numpy()
 
 
@@ -329,6 +329,74 @@ def readout_decomposition(model, dev, n, splits, rng, n_graphs):
 
 
 # --------------------------------------------------------------------------
+# Tier-1 #3, SIMILARITY variant. There is no per-target vector w_j for this
+# read-out -- z_ij = scale*cos(h_i,h_j)+bias is a genuinely symmetric function
+# of BOTH embeddings, so the natural analogue of the h_i^T w_j decomposition
+# is cos(h_i,h_j) itself (the raw, pre-scale/bias quantity that the read-out
+# actually thresholds). Unlike the linear version, both indices here refer to
+# real node embeddings, so unpermuting needs the ordinary double np.ix_(inv,inv)
+# used elsewhere in this project for symmetric pairwise quantities (rollout/
+# contrib), not the row-only unpermute the linear w_j-is-fixed-in-network-
+# coordinates case requires.
+# --------------------------------------------------------------------------
+def readout_decomposition_similarity(model, dev, n, splits, rng, n_graphs):
+    rows = []
+    for a in splits:
+        base_adj = generate_split_chains_graph(n, a)
+        base_dist = compute_all_pairs_shortest_paths(base_adj)
+        seg0, seg1 = np.arange(0, a), np.arange(a, n)
+        L, S = (seg1, seg0) if (n - a) >= a else (seg0, seg1)
+
+        xs = np.empty((n_graphs, n, n), np.float32)
+        invs = []
+        for i in range(n_graphs):
+            p = rng.permutation(n)
+            xs[i] = add_self_loops(base_adj[np.ix_(p, p)])
+            invs.append(np.argsort(p))
+        xb = torch.from_numpy(xs).to(dev, torch.float32)
+        h_all = np.empty((n_graphs, n, model.config.d_model), np.float32)
+        for s in range(0, n_graphs, 128):
+            e = min(s + 128, n_graphs)
+            h = model.embeddings(xb[s:e])
+            h_all[s:e] = h.detach().cpu().numpy()
+        hn = h_all / (np.linalg.norm(h_all, axis=-1, keepdims=True) + 1e-9)
+        cos_perm = np.einsum("gid,gjd->gij", hn, hn)               # [n_graphs,n,n], network coords
+        scale = float(model.sim_scale.detach().cpu()); bias = float(model.sim_bias.detach().cpu())
+        cos = np.empty_like(cos_perm)
+        for i, inv in enumerate(invs):
+            cos[i] = cos_perm[i][np.ix_(inv, inv)]                  # -> base node coordinates
+        z = scale * cos + bias                                       # the actual logit
+        for i_set, j_set, label in ((L, L, "within_long"), (S, S, "within_short"),
+                                     (L, S, "cut"), (S, L, "cut")):
+            if len(i_set) == 0 or len(j_set) == 0:
+                continue
+            if label in ("within_long", "within_short") and len(i_set) <= 1:
+                continue
+            sub = cos[:, i_set][:, :, j_set]
+            subz = z[:, i_set][:, :, j_set]
+            if label == "within_long" or label == "within_short":
+                off = ~np.eye(len(i_set), dtype=bool)
+                vals, valsz = sub[:, off], subz[:, off]
+            else:
+                vals, valsz = sub.reshape(sub.shape[0], -1), subz.reshape(subz.shape[0], -1)
+            rows.append({"split_a": a, "pair_type": label,
+                         "mean_cos": round(float(vals.mean()), 4),
+                         "frac_positive": round(float((valsz > 0).mean()), 4),
+                         "n_pairs": int(vals.size)})
+        dL = base_dist[np.ix_(L, L)]
+        cosL = cos[:, L][:, :, L]
+        zL = z[:, L][:, :, L]
+        for d in sorted(set(int(v) for v in dL[dL > 0])):
+            m = dL == d
+            rows.append({"split_a": a, "pair_type": f"within_long_d{d}",
+                         "mean_cos": round(float(cosL[:, m].mean()), 4),
+                         "frac_positive": round(float((zL[:, m] > 0).mean()), 4),
+                         "n_pairs": int(m.sum())})
+        print(f"  readout(similarity) a={a:>2d} done", flush=True)
+    return rows
+
+
+# --------------------------------------------------------------------------
 # Tier-1 #4: W_out / W_in geometry
 # --------------------------------------------------------------------------
 def weights_geometry(model):
@@ -348,6 +416,31 @@ def weights_geometry(model):
     return {"norms_out": norms_out.tolist(), "norms_in": norms_in.tolist(),
             "cos_out": cos_out.tolist(), "cos_in": cos_in.tolist(),
             "alignment_ein_wout": alignment.tolist()}
+
+
+# --------------------------------------------------------------------------
+# Tier-1 #4, SIMILARITY variant. There is no W_out for this read-out (only the
+# two learned scalars sim_scale, sim_bias) and therefore no per-target row w_j
+# to align E_in against -- the skip-connection check (E_in @ W_out^T) and the
+# W_out row-cosine check have no counterpart here. What DOES carry over is
+# W_in/E_in itself (shared with the linear model, since read-in is identical
+# architecture): if hypothesis 3 (label/order shortcut) were true it would
+# still have to show up as structure in E_in, so we report exactly that, plus
+# the two read-out scalars for completeness.
+# --------------------------------------------------------------------------
+def weights_geometry_similarity(model):
+    W_in = model.read_in.weight.detach().cpu().numpy()
+    E_in = W_in.T
+    norms_in = np.linalg.norm(E_in, axis=1)
+
+    def cos_matrix(M):
+        Mn = M / (np.linalg.norm(M, axis=1, keepdims=True) + 1e-9)
+        return Mn @ Mn.T
+
+    cos_in = cos_matrix(E_in)
+    return {"norms_in": norms_in.tolist(), "cos_in": cos_in.tolist(),
+            "sim_scale": float(model.sim_scale.detach().cpu()),
+            "sim_bias": float(model.sim_bias.detach().cpu())}
 
 
 # --------------------------------------------------------------------------
@@ -457,15 +550,27 @@ def main():
         w.writeheader(); w.writerows(rows)
     print(f"  saved -> {out}/metrics.csv")
 
-    print("\n== readout decomposition h_i^T w_j ==")
-    rrows = readout_decomposition(model, dev, n, splits, rng, args.n_graphs)
-    with (out / "readout.csv").open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["split_a", "pair_type", "mean_hTw", "frac_positive", "n_pairs"])
-        w.writeheader(); w.writerows(rrows)
-    print(f"  saved -> {out}/readout.csv")
+    if readout == "similarity":
+        print("\n== readout decomposition cos(h_i,h_j) (similarity read-out) ==")
+        rrows = readout_decomposition_similarity(model, dev, n, splits, rng, args.n_graphs)
+        with (out / "readout.csv").open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=["split_a", "pair_type", "mean_cos", "frac_positive", "n_pairs"])
+            w.writeheader(); w.writerows(rrows)
+        print(f"  saved -> {out}/readout.csv")
 
-    print("\n== W_out / W_in geometry ==")
-    wg = weights_geometry(model)
+        print("\n== W_in geometry (similarity read-out has no W_out) ==")
+        wg = weights_geometry_similarity(model)
+    else:
+        print("\n== readout decomposition h_i^T w_j ==")
+        rrows = readout_decomposition(model, dev, n, splits, rng, args.n_graphs)
+        with (out / "readout.csv").open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=["split_a", "pair_type", "mean_hTw", "frac_positive", "n_pairs"])
+            w.writeheader(); w.writerows(rrows)
+        print(f"  saved -> {out}/readout.csv")
+
+        print("\n== W_out / W_in geometry ==")
+        wg = weights_geometry(model)
+    wg["readout_kind"] = readout
     (out / "weights_summary.json").write_text(json.dumps(wg))
     print(f"  saved -> {out}/weights_summary.json")
 

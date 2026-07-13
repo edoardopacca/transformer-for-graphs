@@ -107,8 +107,14 @@ def raw_weights(model):
     d = {}
     d["W_in"] = model.read_in.weight.detach().cpu().numpy()     # [d_model, n]
     d["b_in"] = model.read_in.bias.detach().cpu().numpy()
-    d["W_out"] = model.read_out.weight.detach().cpu().numpy()   # [n, d_model]
-    d["b_out"] = model.read_out.bias.detach().cpu().numpy()
+    if model.readout_kind == "similarity":
+        # no W_out for this read-out -- just the two learned scalars.
+        d["sim_scale"] = np.array([float(model.sim_scale.detach().cpu())])
+        d["sim_bias"] = np.array([float(model.sim_bias.detach().cpu())])
+    else:
+        d["W_out"] = model.read_out.weight.detach().cpu().numpy()   # [n, d_model]
+        d["b_out"] = model.read_out.bias.detach().cpu().numpy()
+        d["sv_W_out"] = np.linalg.svd(d["W_out"], compute_uv=False)
     for li, blk in enumerate(model.blocks):
         d[f"WQ{li}"] = blk.attn.q_proj.weight.detach().cpu().numpy()
         d[f"WK{li}"] = blk.attn.k_proj.weight.detach().cpu().numpy()
@@ -117,7 +123,6 @@ def raw_weights(model):
         for name in (f"WQ{li}", f"WK{li}", f"WV{li}", f"WO{li}"):
             d[f"sv_{name}"] = np.linalg.svd(d[name], compute_uv=False)
     d["sv_W_in"] = np.linalg.svd(d["W_in"], compute_uv=False)
-    d["sv_W_out"] = np.linalg.svd(d["W_out"], compute_uv=False)
     return d
 
 
@@ -139,8 +144,8 @@ def main():
     model, mcfg, arch, readout = load_model(args.checkpoint, dev)
     n = mcfg.n
     print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev}")
-    if arch != "roberta" or readout != "linear":
-        raise NotImplementedError("this script targets the linear-read-out RobertaGraphTransformer")
+    if arch != "roberta":
+        raise NotImplementedError("this script targets the RobertaGraphTransformer only")
     splits = args.splits if args.splits is not None else \
         sorted({s for s in (1, 4, 7, 8, 10, 14, 17, n // 2) if 1 <= s <= n // 2})
     rng = np.random.default_rng(args.seed)

@@ -17,35 +17,40 @@ questo progetto. Leggere **tutto** prima di agire.
 
 > **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
 > **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
-> modello a livello meccanicistico** (attention weights, matrice di read-out, embedding) per spiegare il
-> puzzle lasciato aperto dal Report 6 Thread B — perché uno split two-chains sbilanciato (es. 4+36) viene
-> risolto perfettamente mentre uno bilanciato (17+23, 20+20) no, **stesso modello, stessi pesi**. Piano +
-> ipotesi + dettaglio esperimenti/numeri in **§14** (leggere PRIMA di agire). **Stato al 2026-07-08 (fine
-> 3a sessione): Tier 1 + Tier 2 + Tier 3 COMPLETI a n=40, RIPETUTI a n=64 (path_union E ER)** — tranne
-> due punti non ancora fatti, vedi §14.6: retrain con loss riequilibrata — da lanciare con `sbatch` come
-> qualunque altro training del progetto — e il confronto col similarity read-out — servono
-> controllare/verificare altri checkpoint. Fatto a n=40: sweep denso a=1..20, random/fixed-label,
-> decomposizione readout $h_i^\top w_j$, geometria $W_{\mathrm{out}}/W_{\mathrm{in}}$ (con HEATMAP vere,
-> non solo numeri), attention rollout + row-mass + contributo-al-messaggio (con HEATMAP delle attention
-> score reali $S=QK^T/\sqrt{d_h}$ e $\alpha$, PRIMO uso di `attention_maps` nel progetto), test di
-> falsificazione a tre componenti, ablation whole-layer (dissocia reach da cut), activation patching
-> esplorativo (esito onestamente inconclusivo). **Ripetuto interamente a n=64** su path_union E su ER
-> (checkpoint GIÀ ESISTENTI da Report 6 Thread A, nessun training nuovo) — vedi §14.3c per l'esito, che
-> è DIVERSO e più ricco di quanto ci si aspettasse. `.tex` §4 (10 sottosezioni)/§5/§6 SCRITTI con numeri
-> e figure reali. **Esito n=40:** il puzzle non è "sbilanciato vs bilanciato" ma **"la componente piccola
-> è risolvibile ⇒ segnale di completamento extra sulla componente grande, valido SOLO su un canvas a
-> esattamente 2 componenti, costruito dalla STESSA macchina di attention del reach ordinario (non un
-> circuito a parte), mentre cut e reach dipendono da parti diverse del trunk (cut ← MLP layer 1)"**.
-> **Esito n=64 (NUOVO, sessione 3):** il modello ER non mostra MAI il segnale di completamento (traccia
-> l'oracolo a distanza pura a ogni split) — prova pulita che il segnale è insegnato dai dati
-> (path_union), non architetturale; il modello path_union a n=64 mostra invece un modo di fallire
-> INVERTITO rispetto a n=40 — il reach NON crolla mai (resta alto, ~0.82-1.0), ma il **cut crolla**
-> (0.9→0.24) per over-connessione, e il test a tre componenti **si rompe** (cut(L1,L2)=0.09 a
-> small=1, il contrario esatto di n=40 dove reggeva perfetto) — la stessa attention layer-1 che
-> costruisce il completamento utile costruisce anche l'over-connessione dannosa (spegnerla FIXA il cut
-> e distrugge il reach). Vedi §14 per il dettaglio completo. Il report **compila pulito** (20 pp., 0 ref
-> indefinite). Report 6 rimane il riferimento per **tutte** le regole operative sotto (caption 21, 55–60,
-> niente "mixed" random, niente commit da Claude). **Claude PUÒ fare `git pull`** (non è commit/push): i
+> modello a livello meccanicistico** per spiegare il puzzle del Report 6 Thread B — perché uno split
+> two-chains sbilanciato (es. 4+36) viene risolto perfettamente mentre uno bilanciato (17+23, 20+20) no,
+> stesso modello, stessi pesi. Piano + ipotesi + dettaglio in **§14** (leggere PRIMA di agire).
+> **Stato al 2026-07-13 (fine 4a sessione), il più aggiornato:**
+> - **Il "rollout" $\alpha_2\alpha_1$ (Tier 1/2 originali, sessioni 1–3) è stato SOSTITUITO** con lo
+>   Jacobiano esatto $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ (autograd reale attraverso
+>   $V,W_O$, residuo, MLP, LayerNorm — l'utente ha bocciato il proxy grezzo). Vedi **§14.7**. Tutte le
+>   figure/numeri di attention e heatmap nel `.tex` sono ora su questa base, NON sul vecchio rollout.
+> - **La sezione activation-patching è stata RIMOSSA dal report** su richiesta utente (§14.7) — restava
+>   "esplorativa/inconcludente" e la confusione su cosa facesse davvero ha portato a toglierla piuttosto
+>   che tenerla. Script/dati restano su disco, solo non più citati nel `.tex`.
+> - **Ogni filone (§4.1 sweep, §4.4 geometria read-out, §4.5 attention/leak, §4.6 falsificazione a 3
+>   componenti, §4.7 heatmap, §4.8 ablation) è ora scritto in COPPIA "a"/"b"**: "a" = path_union (come
+>   prima), "b" = **stesso identico esperimento su un modello n=40 allenato SOLO su ER** (§14.8). PIÙ
+>   una **nuova sottosezione §sec:res-n20** (dopo §sec:res-n64): stessa batteria su **n=20**, path_union
+>   E ER (§14.9) — terza taglia canvas, dove la capacità non può mai essere superata.
+> - **⚠️ CORREZIONE IMPORTANTE al Verdetto** (era scritta in modo sbagliato prima di questa sessione):
+>   NON è vero che "il modello ER non mostra mai il merge grezzo a nessuna taglia" — a **n=40 il
+>   modello ER mostra il merge grezzo ESATTAMENTE come path_union a n=64** (cut(L1,L2)=0.01–0.09 a
+>   small piccolo). La lettura corretta: il merge grezzo (ipotesi 2 in forma cruda) non è legato a
+>   quale distribuzione di training, ma a se QUEL checkpoint ha sviluppato una tendenza a
+>   sovra-connettere oltre-capacità — path_union la sviluppa solo a n64, ER solo a n40. A **n=20**
+>   (dove niente supera mai la capacità 3^L=9) ENTRAMBE le distribuzioni restano pulite — conferma che
+>   è un fallimento specificamente oltre-capacità.
+> - Il meccanismo "a doppio taglio" (stessa attention che costruisce reach e over-connessione,
+>   spegnerla fixa cut e distrugge reach) è ora confermato **sia a n64 (path_union) sia a n40 (ER)** —
+>   proprietà generale dell'architettura quando un checkpoint sovra-connette, non un artefatto di canvas.
+> - **Nuovo, verificato numericamente**: l'estremità lontana di ogni path è una sorgente di contributo
+>   3–4× sopra la media (non un ricevitore) — ma **solo nel modello path_union**, assente in quello ER:
+>   un pezzo del meccanismo che LA distribuzione insegna specificamente, a differenza del trade-off
+>   reach/cut generale.
+> - Report **compila pulito, 28 pagine**, 0 ref indefinite.
+> Report 6 rimane il riferimento per **tutte** le regole operative sotto (caption 21, 55–60, niente
+> "mixed" random, niente commit da Claude). **Claude PUÒ fare `git pull`** (non commit/push): i
 > risultati HPC vanno committati lato HPC dall'utente, poi Claude pulla in locale. **Report 6, riassunto
 > finale** (per riferimento): Thread A (multipath, parallelismo regge+meccanismo), Thread B (split
 > asimmetrico, puzzle poi risolto dal Report 7), Thread C (bridged cliques a catena, compone solo
@@ -2064,17 +2069,20 @@ nodi). Scrive **nelle stesse cartelle output** già esistenti da sessioni preced
 — sovrascrive `attn_cache.npz`/`heatmap_data.npz` col nuovo campo, gli altri file
 (metrics/readout/weights) sono rigenerati identici (non toccati dal cambio).
 
-**STATO LANCIO:** codice scritto e testato (selftest + smoke-test end-to-end su checkpoint
-giocattolo, nessun errore); **job LANCIATO su HPC** (job `574086`, array 0-3, `medium_cpu`) —
-osservato a metà corsa: task 0 (seed 1000) ha fatto 5/8 split di `attention_probe` in 49 min
-(≈9.8 min/split con 40 grafi, non 64 — vedi nota sotto), stima ≈1.5-2h totali a job. **Se una
-chat futura riprende senza sapere l'esito**: controllare `squeue -u 3352759` e i log in
-`out/r7contrib_574086_*.out` prima di assumere che sia finito o fallito. **Da fare poi (chat che
-riprende, quando il job è finito):** pull dei nuovi `attn_cache.npz`/`heatmap_data.npz`,
-rigenerare le figure (`plot_mechanistic_asym_chains.py`, `plot_mechanistic_heatmaps.py`), e
-**riscrivere §sec:res-attention/§sec:res-heatmaps** nel `.tex` con i numeri veri (la leak-fraction
-0.3%→31% e le descrizioni delle heatmap sono ancora quelle del vecchio rollout — NON attendibili,
-da rifare da zero sui dati nuovi, non solo da "aggiustare").
+**STATO: FATTO (4a sessione, completato).** Job `574086` (path_union, n40) girato su HPC, pull
+locale fatto (dopo aver rimosso vecchi `.npz`/`.csv`/`.json` locali non tracciati del run
+rollout-based, che bloccavano il `git pull` — stesso pattern dell'errore 32/14), figure
+rigenerate, **§sec:res-attention e §sec:res-heatmaps riscritte con i numeri veri**. Risultato
+onesto: la leak-fraction **non è liscia/monotona** come suggeriva il vecchio rollout (0.3%→31%) —
+i numeri veri sono $5.8\%$ ($a{=}1$) → $11\%$ ($a{=}4$) → $21$–$24\%$ ($a{=}7$–$8$) → **picco al
+$42.5\%$ proprio ad $a{=}10$** (subito dopo il collasso comportamentale) → scende al $27\%$
+($a{=}14$) → risale al $31$–$36\%$ ($a{=}17$–$20$); il picco è riproducibile sui 4 seed, non
+rumore. L'heatmap non è un "blocco uniforme" ma una **banda vicino-diagonale che decade con la
+distanza**, tagliata nettamente al confine di componente ad $a{=}20$ ma non ad $a{=}4$ (componente
+corta troppo piccola per formare un blocco distinto); **scoperta nuova, verificata numericamente**:
+l'estremità lontana di ogni path è una sorgente (non ricevitore) di contributo $3$–$4\times$ sopra
+la media, a ogni split — coerente con un segnale "questo path si è chiuso" trasmesso verso
+l'esterno. Compila pulito, **21 pagine**.
 **Nota sul numero di grafi:** `attention_probe` usa `min(contrib_n_graphs, attn_n_graphs)` e lo
 sbatch non sovrascrive `--attn_n_graphs` (resta al default 40) → l'`attention_probe` userà 40
 grafi/split, non i 64 richiesti (il `heatmap_probe` invece userà i 64 pieni, il suo `n_graphs`
@@ -2132,14 +2140,185 @@ lì si è deciso di non rilanciare, ma qui che il job è nuovo si è corretto su
 `--time=05:00:00` (tre pezzi extra — three\_way/ablation — sono comportamentali, veloci, pochi
 minuti; il grosso resta `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py`).
 
-**STATO: sbatch scritto e sintatticamente verificato (`bash -n`), NON ancora lanciato.** Può
-girare in parallelo al job path\_union di §14.7 se non ha ancora finito (medium\_cpu ha 8 nodi,
-SLURM accoda quello che non entra). **Da fare poi (chat che riprende, quando entrambi i job sono
-finiti):** pull dei nuovi output, poi scrivere §4.1b/§4.4b/§4.5b/§4.6b/§4.7b/§4.8b nel `.tex`
-(prosa + tabelle/figure nuove, caption regola 21 con MODELLO+TRAINING+TEST+METRICA — qui il
-training è ER, non path\_union, va dichiarato esplicito in ogni caption) subito dopo ciascuna
-sezione "a" esistente; **non scrivere niente finché i dati reali non sono arrivati** (nessun
-numero inventato).
+**STATO: FATTO (4a sessione, completato).** Job `574311` girato (con un fix-up
+`scripts/r7_threeway_ablation_fix.sbatch` per `eval_three_way_split.py`/`ablation_asym_chains.py`,
+mai pushati prima — vedi nota sotto), pull fatto, **§4.1b/§4.4b/§4.5b/§4.6b/§4.7b/§4.8b scritte
+nel `.tex`** con dati reali. Risultati chiave, onestamente diversi da quanto ci si aspettava
+per simmetria con path\_union:
+- **§4.1b (sweep):** reach resta alto ovunque (0.90–0.98, NESSUN floor-and-recovery), ma **cut
+  degrada costantemente** da 1.0 (a=1) a 0.15 (a=20) — il **fallimento speculare** di path_union
+  (che aveva cut≈1.0 sempre e reach che crollava). Il logit di cut **cambia segno** verso a≈14
+  (a differenza di path_union, che restava sempre negativo).
+- **§4.4b (geometria read-out):** stessa storia di path_union (norme uniformi, cosine piccola,
+  skip-alignment debole) — refuta l'ipotesi 3 anche per ER.
+- **§4.5b (leak-fraction):** **liscia e monotona** (0%→30%), a differenza dello strano picco ad
+  a=10 di path_union — prova che quel picco è specifico di path_union, non generico.
+- **§4.6b (falsificazione a 3 componenti) — IMPORTANTE, corregge un'affermazione precedente nel
+  Verdetto:** a n=40 il modello ER **NON refuta** la scorciatoia grezza dell'ipotesi 2
+  (cut(L1,L2)=0.01–0.09 a small piccolo!) — il contrario esatto di quanto scritto prima
+  ("ER non mostra mai questo fallimento, a nessuna taglia"). Riscritto il paragrafo Ipotesi 2 nel
+  Verdetto: non è "ER vs path_union" fisso, è se QUEL checkpoint ha una tendenza a
+  sovra-connettere (path_union→sì solo a n64, ER→sì solo a n40).
+- **§4.7b (heatmap):** stessa banda vicino-diagonale ma **il taglio netto al confine c'è già ad
+  a=4** (non solo ad a=20 come path_union), e **l'effetto "estremità = sorgente" È ASSENTE** —
+  quindi quell'effetto è specifico del training path_union, non generale.
+- **§4.8b (ablation):** **stesso meccanismo "a doppio taglio"** già visto a n64 per path_union,
+  ma qui a **n=40** per ER — spegnere l'attention FIXA il cut e distrugge il reach. Prova che il
+  meccanismo è generale, non specifico di canvas/training.
+File pushati in più: `data.py`, `eval_three_way_split.py`, `ablation_asym_chains.py` (mai
+committati prima — bug scoperto: gli sbatch li chiamavano ma silenziosamente fallivano,
+`COMPLETED` fittizio; fixati anche gli sbatch con controllo esplicito dell'exit status).
+
+### 14.9 Terza taglia canvas, n=20, ER e path\_union entrambi (4a sessione, 2026-07-09). **NON
+ancora lanciato.**
+
+**Cosa ha chiesto l'utente.** Verificare "per correttezza" che lo stesso approccio (exact
+node-to-node contribution, stessa batteria §4.1/§4.4/§4.5/§4.6/§4.7/§4.8) funzioni anche a
+**n=20**, sia ER sia path\_union (disjoint paths $1$–$4$), come **ulteriore riscontro**
+(terza taglia canvas dopo n40 e n64) — se i risultati sono sensati, va aggiunto come **nuova
+sezione** nel report (probabilmente affiancata a §sec:res-n64, la generalizzazione-taglia
+esistente, non necessariamente fusa con quella).
+
+**⚠️ Aspettativa da tenere a mente (nota già presente da Report VI Thread B, §13.8 qui sopra):**
+a $n{=}20$ **anche lo split più bilanciato $(10,10)$ resta dentro la capacità $3^L{=}9$**
+(distanza massima interna $9$, non oltre) — a differenza di $n{=}40/64$ dove lo split bilanciato
+supera nettamente la capacità. Quindi il muro comportamentale potrebbe **non mordere allo stesso
+modo** a $n{=}20$ (quasi tutto risolto, come già notato per Report 6 Thread B). Questo è
+esattamente il motivo per cui vale la pena testarlo (una vera terza taglia, non solo una riconferma),
+non un motivo per aspettarsi lo stesso identico risultato di n40/n64.
+
+**Split**: il codice calcola già i range giusti da `mcfg.n` senza bisogno di override — a $n{=}20$,
+`n//2=10` dà sweep completo $a{=}1..10$ e split rappresentativi $\{1,4,7,8,10\}$ (la formula
+`sorted({s for s in (1,4,7,8,10,14,17,n//2) if s in splits})` scarta automaticamente $14,17>10$).
+
+**Checkpoint (esistenti, nessun training nuovo):**
+- path\_union: `runs/report6/a1_train/n20_path_union_roberta_linear_lam0_seed{1000..4000}/last.pt`.
+- ER: `runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed{1000..4000}/best.pt` (fallback
+  bucketato `runs/report3/repro_paper_n20_roberta/...` — **NB errore 34: il bucketato ha SOLO
+  json/png, il `.pt` vero è nel path non-bucketato**, messo per primo nel `find_ckpt` di
+  `scripts/r6_a1_eval.sbatch` ma l'ordine non conta, `find_ckpt` prova entrambi).
+
+**Nuovo sbatch `scripts/r7_n20.sbatch`** (CPU-only, `medium_cpu`, `--array=0-7` = 2 distribuzioni
+× 4 seed, stessa struttura a 4 pezzi di `r7_er_n40.sbatch`). Due scelte deliberate diverse dal
+lancio n40 (imparate dagli errori lì):
+- `--attn_n_graphs 64` esplicito insieme a `--contrib_n_graphs 64` **fin dal primo lancio** (a
+  differenza del primo giro n40 path\_union, dove `attn_n_graphs` era rimasto al default 40 —
+  vedi §14.7).
+- `mechanistic_heatmaps.py` gira su **tutti e 5** gli split rappresentativi (non una coppia
+  fissa `--pair`): a $n{=}20$ non si sa ancora, prima di vedere lo sweep comportamentale, quale
+  coppia "risolto vs fallito" sia la più informativa (vedi nota sopra: potrebbe non essercene
+  una netta). La scelta della coppia per le figure si fa DOPO, con `plot_mechanistic_heatmaps.py
+  --pair A B` (già supportato, nessuna modifica di codice).
+
+**STATO: FATTO (4a sessione, completato).** Job `574336` girato, pull fatto, nuova
+sottosezione §sec:res-n20 scritta subito dopo §sec:res-n64, nel Verdetto e nell'abstract del
+piano esperimenti aggiornati di conseguenza. Esattamente come previsto **il muro NON morde per
+path_union** (exact ≈1.0 a ogni split, $10{,}10$ incluso — tutto entro capacità) — ma questo si
+è rivelato comunque informativo: la **leak-fraction continua a salire lisciamente (0.4%→36%)
+anche con comportamento perfetto ovunque**, prova che il segnale meccanicistico non è solo un
+sintomo del muro comportamentale. **ER a n20 invece NON risolve bene a nessuno split** (exact
+picco 46% ad a=3, poi 0 ad a=6–9) per una ragione che non è il muro-capacità (niente lo supera
+qui) — legge come sensibilità OOD generica ai grafi a due componenti a questa taglia. Falsificazione
+a 3 componenti **pulita per ENTRAMBI** (cut(L1,L2)≥0.95) — conferma pulita che il merge grezzo
+richiede di superare la capacità (coerente col fix del Verdetto in §14.8). Ablation: pattern
+"a doppio taglio" presente ma più debole/distribuito a n20 (reach più robusto alle ablation
+rispetto a n40/64). Report compila pulito, **28 pagine**, 0 ref indefinite.
+
+**File da pushare (sessione completa):** `report/7/transformer_for_graphs_7.tex` +
+`transformer_for_graphs_7.pdf` (tutte le sezioni "b" + §sec:res-n20 + Verdetto/Piano
+aggiornati), `istruzioni.md`. Nessun altro file di codice nuovo in questa fase (tutti gli
+script erano già pronti/pushati nelle fasi precedenti di questa sessione).
+
+**Due fix successivi allo §sec:setup (stessa sessione, dopo §14.9):** (1) l'`align*` con
+equazione+commento affiancati (Q/K/V/S/α/AttnOut/Ĥ/H) mandava alcune righe **fuori dal margine
+destro della pagina** (testo tagliato, es. "does no[t]...") — nessun warning "Overfull" in log,
+scoperto solo guardando il PDF pagina per pagina. **Non fidarsi del log da solo per l'overflow
+matematico**: renderizzare la pagina (`pdftoppm`) e guardarla. Fix: equazioni pulite in `align*`
+(solo `=`, niente testo affiancato), spiegazioni spostate in prosa sotto (va a capo normale).
+(2) Aggiunto, su richiesta utente, il calcolo **entry-per-entry** (non solo a livello di
+matrice) per ogni quantità del forward pass — verificato riga per riga contro `model.py`
+(bias inclusi per Q/K/V/W_O/FFN, prima omessi nell'equazione a matrice; LayerNorm con
+varianza non corretta/biased come fa PyTorch; GELU esatta $x\Phi(x)$). Un refuso di battitura
+(pedice `_\cdot` mal posizionato, sembrava un punto sporco) trovato e corretto nella stessa
+passata. Report ora **29 pagine**.
+
+### 14.10 Richiesta di rifare tutto anche col readout SIMILARITY (4a sessione, 2026-07-13).
+**NON ancora lanciato.**
+
+**Richiesta dell'utente, VERBATIM (come richiesto esplicitamente di riportare):**
+```
+voglio intanto che rifai tutti quanti gli esperimenti (dal 4.1 in poi tutti quanti) però per i
+checkpoint con readout similarity. voglio capire se è una cosa che dipende solo dal readout
+oppure se anche per il similarity impara lo stesso. poi aggiungiamo al report una sezione per
+questo. aggiorna istruzioni e report per giustificare questa cosa e spiegare i dubbi.
+```
+Contesto immediatamente precedente (perché la domanda nasce lì): l'utente ha notato che con
+il readout lineare $z_{ij}=h_i^\top w_j+b_j$, il vettore $w_j$ deve imparare qualcosa di
+generale su ogni nodo $j$ che vada bene combinato con QUALSIASI $h_i$ — un readout "a lookup
+per nodo", non una funzione simmetrica $g(h_i,h_j)$ dei due embedding. L'utente vuole scrivere
+un paper e non vuole che i risultati siano un artefatto di questo readout particolare. Ha
+chiesto se esistono readout più generali (risposta data in chat: dot-product/GAE, cosine —
+**già nel codice come "similarity"**, bilineare $h_i^\top M h_j$, concat+MLP). Chiesto
+**scope**: l'utente ha scelto **il disegno 2×2 completo** (path_union E ER, non solo
+path_union) — stessa struttura a coppie già usata per linear a n40.
+
+**Perché questo era GIÀ un limite dichiarato nel report:** §sec:limits (Honest limits) diceva
+già "the same audit repeated with the similarity read-out, whose logit is a direct function
+of both endpoints' embeddings and may not show the same asymmetric, target-specific
+completion signal at all" — questa sessione lo trasforma da limite aperto a esperimento in
+corso.
+
+**⚠️ Problema scoperto SUBITO (bug preesistente, non di questa richiesta): 3 dei 4 script
+usati in tutto il Report 7 rifiutavano ESPLICITAMENTE i checkpoint similarity** (`raise
+NotImplementedError` se `readout != "linear"`), perché la loro ultima riga chiamava
+`model.read_out(h)` direttamente invece di gestire anche il ramo `similarity` (che non ha
+`read_out`, solo `sim_scale`/`sim_bias`). **Fixato (verificato smoke-test su checkpoint
+giocattolo similarity prima di toccare checkpoint reali, stesso pattern del progetto):**
+- `mechanistic_asym_chains.py::run_with_cache` — ultima riga ora fa il branch
+  linear/similarity (rispecchia `model.forward_and_embeddings`); guardia in cima rimossa
+  (era ridondante con quella in fondo). **NUOVE funzioni**
+  `readout_decomposition_similarity` (usa $\cos(h_i,h_j)$ al posto di $h_i^\top w_j$ — la
+  quantità che il readout similarity guarda DAVVERO, dato che non c'è un $w_j$ fisso) e
+  `weights_geometry_similarity` (**solo $E_{in}$** — non esiste un $W_{out}$ per questo
+  readout, solo due scalari `sim_scale`/`sim_bias`, riportati anch'essi). `main()` sceglie la
+  coppia giusta di funzioni in base a `readout` rilevato da `load_model`; `weights_summary.json`
+  ora include sempre `readout_kind` per chiarezza a valle.
+- `ablation_asym_chains.py::forward_ablated` — le due chiamate dirette a `model.read_out(h)`
+  sostituite da un helper `_apply_readout()` che fa lo stesso branch; guardia rilassata
+  (blocca solo `arch != "roberta"`, non più il readout).
+- `mechanistic_heatmaps.py::raw_weights` — salta `W_out`/`b_out`/`sv_W_out` per similarity
+  (non esistono), salva `sim_scale`/`sim_bias` al loro posto; guardia rilassata allo stesso modo.
+- `eval_three_way_split.py` — **NESSUNA modifica necessaria**, era già agnostico al readout
+  (usa solo `model.forward()`, che già smista internamente).
+- **Script di plot aggiornati per non crashare** su output similarity:
+  `plot_mechanistic_asym_chains.py::fig_sweep_and_logit` (autodetect colonna `mean_hTw` vs
+  `mean_cos` in `readout.csv`, etichette di conseguenza) e
+  `plot_mechanistic_heatmaps.py::fig_weight_geometry`/`fig_qkvo_raw_weights` (versione
+  ridotta — solo pannelli $E_{in}$ — quando `weights_summary.json` dichiara
+  `readout_kind=="similarity"`, e il pannello dei valori singolari salta `W_out` se assente).
+
+**Checkpoint (esistenti, nessun training nuovo — confermato da §13.10 e dal path non-bucketato
+già noto per families_n40):**
+- path_union-similarity n40: `runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed{1000..4000}/last.pt`
+  (allenati in Report 6, 16a sessione, "Onda 1", job 551391).
+- ER-similarity n40: `runs/report4/families_n40/n40_er_roberta_similarity_lam0_seed{1000..4000}/last.pt`
+  (fallback `runs/families_n40/...`).
+
+**Nuovo sbatch `scripts/r7_similarity_n40.sbatch`** (CPU-only, `medium_cpu`, `--array=0-7` = 2
+distribuzioni × 4 seed, stessa struttura a 4 pezzi con controllo esplicito dell'exit status
+già usata per `r7_er_n40.sbatch`/`r7_n20.sbatch`). `--attn_n_graphs 64`/`--contrib_n_graphs 64`
+fin da subito, `--splits 4 20` per le heatmap (stessa coppia rappresentativa del linear, per
+confronto diretto).
+
+**STATO: codice scritto, smoke-testato end-to-end su checkpoint giocattolo (tutti e 4 gli
+script + i 2 plot-script, nessun crash), sbatch scritto e verificato (`bash -n`). NON ancora
+lanciato.** **Da fare poi (chat che riprende, quando il job è finito):** pull, poi scrivere la
+nuova sezione **§sec:res-similarity** (dopo §sec:res-n20, prima del Verdetto) con
+prosa+tabelle+figure sui dati veri — confrontare esplicitamente contro le sezioni "a"/"b"
+lineari già scritte per rispondere alla domanda dell'utente (dipende dal readout, o il
+similarity impara la stessa cosa?); aggiornare Verdetto/Honest-limits di conseguenza (questo
+era uno dei due punti aperti lì). **Non scrivere niente finché i dati reali non sono
+arrivati.**
 
 ---
 

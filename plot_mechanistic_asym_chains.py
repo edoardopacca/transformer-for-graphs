@@ -61,10 +61,14 @@ def fig_sweep_and_logit(metrics_rows, readout_rows, n, suffix, title_tag):
         if r["mode"] != "random" or r["metric"] not in keep_metrics:
             continue
         behav[int(r["split_a"])][r["metric"]].append(float(r["value"]))
+    # readout.csv has "mean_hTw" for the linear read-out (h_i^T w_j) or
+    # "mean_cos" for the similarity read-out (cos(h_i,h_j)) -- auto-detect.
+    value_col = "mean_cos" if readout_rows and "mean_cos" in readout_rows[0] else "mean_hTw"
+    value_label = r"mean $\cos(h_i,h_j)$" if value_col == "mean_cos" else r"mean $h_i^\top w_j$"
     read = defaultdict(lambda: defaultdict(list))
     for r in readout_rows:
         if r["pair_type"] in ("within_long", "within_short", "cut"):
-            read[int(r["split_a"])][r["pair_type"]].append(float(r["mean_hTw"]))
+            read[int(r["split_a"])][r["pair_type"]].append(float(r[value_col]))
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
     for key, lab, col in [("exact", "exact match", "#222222"),
@@ -83,15 +87,15 @@ def fig_sweep_and_logit(metrics_rows, readout_rows, n, suffix, title_tag):
     ax1.grid(alpha=0.3); ax1.legend(loc="center left", fontsize=7, ncol=1)
     ax1.set_title(f"Behavioural sweep (top) and raw read-out logit (bottom), n={n}, {title_tag}")
 
-    for key, lab, col in [("within_long", r"within long: mean $h_i^\top w_j$", "#1b9e77"),
-                          ("within_short", r"within short: mean $h_i^\top w_j$", "#66a61e"),
-                          ("cut", r"cut: mean $h_i^\top w_j$", "#e7298a")]:
+    for key, lab, col in [("within_long", f"within long: {value_label}", "#1b9e77"),
+                          ("within_short", f"within short: {value_label}", "#66a61e"),
+                          ("cut", f"cut: {value_label}", "#e7298a")]:
         ys = [np.mean(read[a][key]) if read[a][key] else np.nan for a in splits]
         ax2.plot(splits, ys, "-o", ms=4, color=col, label=lab)
     ax2.axhline(0, color="k", lw=1)
     ax2.axvline(9, color="red", ls="--", lw=1)
     ax2.set_xlabel(f"split: short-component size $a$ (components $a$ and ${n}-a$)")
-    ax2.set_ylabel(r"mean $h_i^\top w_j$ (pre-bias logit)")
+    ax2.set_ylabel(value_label + (" (pre-bias, pre-scale)" if value_col == "mean_cos" else " (pre-bias logit)"))
     ax2.grid(alpha=0.3); ax2.legend(loc="center left", fontsize=8)
     ax2.set_xticks(splits[::2] if len(splits) > 24 else splits)
     fig.tight_layout()

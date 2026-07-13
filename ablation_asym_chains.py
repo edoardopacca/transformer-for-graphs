@@ -44,13 +44,21 @@ def _device():
     return torch.device("cpu")
 
 
+def _apply_readout(model, h):
+    """logits for either read-out kind (mirrors model.forward_and_embeddings)."""
+    if model.readout_kind == "similarity":
+        hn = F.normalize(h, dim=-1)
+        return model.sim_scale * torch.matmul(hn, hn.transpose(-1, -2)) + model.sim_bias
+    return model.read_out(h)
+
+
 @torch.no_grad()
 def forward_ablated(model, x, condition):
     """Re-derives RobertaGraphTransformer.forward with one branch optionally
     zeroed. Mirrors mechanistic_asym_chains.run_with_cache's block logic."""
     h = model.emb_drop(model.emb_ln(model.read_in(x)))
     if condition == "bypass":
-        return model.read_out(h)
+        return _apply_readout(model, h)
     for li, blk in enumerate(model.blocks):
         inp = blk.attn_ln(h) if blk.norm_style != "post" else h
         att = blk.attn
@@ -80,7 +88,7 @@ def forward_ablated(model, x, condition):
             else:
                 f = blk.output(blk.act(blk.intermediate(blk.out_ln(h))))
             h = h + f
-    return model.read_out(h)
+    return _apply_readout(model, h)
 
 
 def eval_condition(model, dev, n, a, rng, n_graphs, condition):
@@ -136,8 +144,8 @@ def main():
     model, mcfg, arch, readout = load_model(args.checkpoint, dev)
     n = mcfg.n
     print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev}")
-    if arch != "roberta" or readout != "linear":
-        raise NotImplementedError("forward_ablated targets the linear-read-out RobertaGraphTransformer")
+    if arch != "roberta":
+        raise NotImplementedError("forward_ablated targets the RobertaGraphTransformer only")
     splits = args.splits if args.splits is not None else \
         sorted({s for s in (1, 4, 7, 8, 10, 14, 17, n // 2) if 1 <= s <= n // 2})
     rng = np.random.default_rng(args.seed)
