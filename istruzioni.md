@@ -15,12 +15,34 @@ questo progetto. Leggere **tutto** prima di agire.
 
 ---
 
-> **🟥 STATO ATTUALE — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
+> **🟥🟥 STATO ATTUALE (AGGIORNATO, leggere PRIMA di quanto segue) — Report 1–7 CONGELATI
+> (consegnati). IN CORSO IL REPORT 8** (`report/8/transformer_for_graphs_8.tex`, da `report/8/`).
+> **Poco tempo, obiettivo: concludere il paper.** Tema: capire DOVE e COME l'informazione di
+> connettività viene combinata nel trunk (forse nell'MLP), dopo che il Report 7 ha trovato il segnale
+> di completamento ma non ha guardato h^(1)/h^(2) direttamente né l'attention output. **Standard
+> d'ora in poi: readout SIMILARITY** (funziona molto meglio, Report 7 §sec:res-similarity). Piano
+> completo, indicazioni verbatim della prof, stato e goal in **§15 (leggere PRIMA di agire)**. Stato
+> sintetico: §sec:battery del Report 8 (la batteria meccanicistica unita, n40 path\_union, similarity)
+> è SCRITTA con dati reali (riusa dati/figure già esistenti del Report 7, zero calcolo nuovo); il test
+> a due cicli (§sec:cycles, endpoint del path sono causali o incidentali?) è implementato e
+> smoke-testato ma **NON ancora lanciato su HPC** — `sbatch scripts/r8_two_cycles.sbatch` quando pronto
+> (vedi §15). Idee NON ancora implementate (§15/outlook): nuova contribution basata su A' (non h^(0)),
+> plot diretto di h^(1)/h^(2), plot dell'attention output.
+
+> **🟥 STATO ATTUALE (storico, Report 7) — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
 > **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
 > modello a livello meccanicistico** per spiegare il puzzle del Report 6 Thread B — perché uno split
 > two-chains sbilanciato (es. 4+36) viene risolto perfettamente mentre uno bilanciato (17+23, 20+20) no,
 > stesso modello, stessi pesi. Piano + ipotesi + dettaglio in **§14** (leggere PRIMA di agire).
-> **Stato al 2026-07-13 (fine 4a sessione), il più aggiornato:**
+> **Stato al 2026-07-14 (fine 5a sessione), il più aggiornato:**
+> - **NUOVO (5a sessione): §sec:res-similarity SCRITTA con dati veri** (§14.12) — confronto
+>   readout linear-vs-similarity, entrambe le distribuzioni, $n{=}40$. Risposta: il segnale di
+>   completamento a due componenti **non dipende dal readout** (il trunk lo mostra anche con
+>   similarity), ma il readout **decide quanto quel segnale può nuocere** — col similarity il
+>   floor duro del reach lineare sparisce e il cut resta robusto (anche per ER, che falliva
+>   clamorosamente col lineare allo stesso canvas). Aggiunta anche una figura standalone della
+>   matrice $C_{ik}$ pura sotto la Figura 3/§sec:res-attention (§14.11).
+> - Report ora **38 pagine**, 0 ref indefinite, 0 overfull.
 > - **Il "rollout" $\alpha_2\alpha_1$ (Tier 1/2 originali, sessioni 1–3) è stato SOSTITUITO** con lo
 >   Jacobiano esatto $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ (autograd reale attraverso
 >   $V,W_O$, residuo, MLP, LayerNorm — l'utente ha bocciato il proxy grezzo). Vedi **§14.7**. Tutte le
@@ -68,6 +90,42 @@ questo progetto. Leggere **tutto** prima di agire.
 > `r6_c_eval_sim`); Onda 3 = **A2/A3-sim** (`r6_a2_samples_sim` + `r6_a3_truncated_sim`). Dettaglio completo,
 > mappa output e comandi residui in **§13.10**. È un **confronto similarity-vs-linear esplorativo**: NON c'è
 > ancora uno stub `.tex`; l'analisi (e se entra nel report) viene dopo.
+
+> **🟦 NOVITÀ 6a sessione (2026-07-17) — Report 7 ricompilato/verificato dopo un blocco disco
+> temporaneo; CAMBIO DI DESTINAZIONE DEL REPORT (leggere, cambia le priorità d'ora in poi).**
+> - **Verifica tecnica:** la sessione precedente si era interrotta per `ENOSPC` sul disco
+>   temporaneo della sandbox (`/private/tmp/claude-501/...`) — non un problema del repo. In
+>   questa sessione il disco è risultato libero al primo comando di prova; ricompilato
+>   `report/7/transformer_for_graphs_7.tex` (2 passate `pdflatex` da `report/7/`): **38 pagine,
+>   0 errori, 0 ref indefinite, 0 overfull** (`grep -iE "error|undefined|overfull"` sul log =
+>   vuoto). Verificate **visivamente** via `pdftoppm` le due modifiche fatte in una sessione
+>   precedente e mai confermate a schermo: **Figura 4** (§sec:res-attention, pag. 12, coppia
+>   path_union — e i suoi gemelli ER/similarity altrove nel report) e **Figura/Tabella 9**
+>   (geometria read-out/read-in, pag. 18) ora hanno il campo `Test set:` esplicito in caption
+>   (regola 21); su Figura 9, che non valuta nessun grafo, il campo dice esplicitamente *"Test
+>   set: none — static properties of the trained weights, not evaluated on any graph"*.
+> - **⚠️ CAMBIO IMPORTANTE comunicato dall'utente in questa sessione: da ora in poi il Report 7
+>   NON è più il materiale mostrato direttamente alla prof.** L'utente costruirà **a mano** un
+>   PowerPoint per la prof **a partire dal contenuto del report**. Il report stesso diventa
+>   quindi **un documento di lavoro/riferimento per l'utente**, non più il deliverable finale che
+>   la prof legge direttamente. **Non è stato chiesto di rilassare nessuna regola di scrittura**
+>   (§3, regole 20/21/55-60: niente codice/path nel testo renderizzato, caption complete
+>   Model+Training+Test+Metric, tono da studente, niente riferimenti storici/cronologici) — finché
+>   l'utente non lo dice esplicitamente, **continuare a seguirle tutte**: restano un buon standard
+>   per un documento di riferimento chiaro, ed è proprio da questo testo che l'utente estrarrà le
+>   slide. Se in futuro l'utente chiede di rilassare una regola specifica "tanto non la vede la
+>   prof direttamente", è coerente con questo cambio, non una sorpresa — chiedere comunque conferma
+>   prima di allentare qualcosa (es. rimettere path/nomi-funzione nel testo) perché il report resta
+>   comunque la fonte da cui l'utente copia i numeri per le slide, quindi la chiarezza conta ancora.
+
+> **🟨 NOVITÀ (stessa sessione, dopo aver mostrato il PPT alla prof) — due nuove regole NON NEGOZIABILI,
+> §14.14, errori 61/62.** (1) **Ogni grafico che aggrega su seed deve avere error bars** — mancavano sulla
+> Figura 1 del Report 7 e le sue gemelle, ora FIXATE (rigenerate in locale, nessun nuovo dato). (2) **Uno
+> sweep discreto va sempre infittito intorno a un punto interessante trovato** — la Figura 3 (leak-fraction)
+> aveva un buco (`a=11,12,13`) proprio dopo lo spike ad `a=10`; fix nel codice fatto (default `attn_splits`
+> + merge logic), **sbatch pronto ma non ancora lanciato**: `sbatch scripts/r7_leak_splits_11_12_13.sbatch`
+> (poi pull + rigenerare la figura). Le gemelle di Figura 3 (ER/n64/n20/similarity) hanno lo stesso buco,
+> non ancora corrette (non richiesto). Dettagli completi in §14.14.
 
 ---
 
@@ -198,6 +256,12 @@ una distribuzione esplicita per esperimento. **Tesi, mindset e indicazioni detta
 - Proporre esperimenti, ragionare sul "perché", spiegare in modo semplice quando
   chiede "non capisco".
 - Concisione: *"non scrivere più di così"* — non gonfiare.
+
+**Cambio di destinazione del Report 7 (dal 2026-07-17, 6a sessione, vedi §14.13):** l'utente
+costruirà a mano un PowerPoint per la prof partendo dal report — il report NON va più mostrato
+direttamente alla prof, diventa un documento di lavoro/riferimento per l'utente. Le regole di
+scrittura sotto (20/21/55–60) restano valide finché non detto altrimenti: sono comunque lo
+standard da cui l'utente estrarrà le slide.
 
 **Non piace:**
 - Figure fuorvianti (media+banda su esiti bimodali; il "generalization rate"
@@ -544,6 +608,26 @@ una distribuzione esplicita per esperimento. **Tesi, mindset e indicazioni detta
     comunque predisposto a output simmetrico, quindi "zero asimmetria" sorprende poco: il **discriminatore FORTE è
     il TREND** clique-size (DFS-oracle SALE, modello SCENDE = opposto), l'asimmetria solo conferma. Se la prof
     chiede "perché l'asimmetria?": è la firma di un algoritmo sequenziale single-start; il transformer non ce l'ha.
+61. **⚠️ REGOLA NON NEGOZIABILE (feedback prof, dopo aver visto il PPT del Report 7, §14.14) — OGNI grafico che
+    aggrega su più seed deve mostrare error bars / la dispersione fra seed, MAI solo la media nuda.** La Figura 1
+    del Report 7 (`r7_sweep_and_logit.png` e tutte le sue gemelle — ER/n64/n20/similarity) disegnava solo la
+    curva media sui 4 seed: mancava un'informazione importante (quanto i seed concordano). Fix fatto:
+    `plot_mechanistic_asym_chains.py::fig_sweep_and_logit` ora disegna error bars (std sui seed) su ogni curva in
+    entrambi i pannelli (i dati per-seed erano già in `metrics.csv`/`readout.csv`, semplicemente non venivano
+    usati per la dispersione); le 8 figure `r7_sweep_and_logit*.png` rigenerate in locale, nessun nuovo dato
+    servito. REGOLA GENERALE (vale per OGNI report, non solo il 7): error bars (std sui seed) di default su ogni
+    curva aggregata; se il fenomeno è bimodale/seed-lottery, preferire linee/punti per-seed distinti (regola 4/20,
+    non si escludono — scegliere quella più leggibile) ma MAI una media senza indicare la dispersione.
+62. **⚠️ REGOLA NON NEGOZIABILE (feedback prof, §14.14) — quando uno sweep discreto trova qualcosa di interessante
+    (picco, salto, transizione) in un punto, valutare SEMPRE anche i punti immediatamente vicini, non saltare al
+    prossimo valore già pianificato.** La Figura 3 del Report 7 (`r7_attention_leak.png`, §sec:res-attention) aveva
+    uno spike riproducibile ad `a=10`, ma il prossimo split valutato era `a=14` — un buco di 3 split (`11,12,13`)
+    proprio dove serviva vedere se lo spike scende subito o resta alto. Fix: il default di `attn_splits` in
+    `mechanistic_asym_chains.py` ora include `11,12,13` per ogni run futuro; aggiunta anche una logica di MERGE con
+    l'`attn_cache.npz` esistente (non sovrascrive più gli split già calcolati — costosi, un backward per
+    nodo-query — quando se ne aggiungono altri). REGOLA GENERALE: un valore isolato "interessante" in uno sweep
+    discreto non è mai sufficiente da solo — verificarne la forma locale con almeno 2-3 punti vicini prima di
+    scriverlo nel report come una scoperta robusta. Dettagli/stato del fix in §14.14.
 
 ---
 
@@ -2310,15 +2394,404 @@ già usata per `r7_er_n40.sbatch`/`r7_n20.sbatch`). `--attn_n_graphs 64`/`--cont
 fin da subito, `--splits 4 20` per le heatmap (stessa coppia rappresentativa del linear, per
 confronto diretto).
 
-**STATO: codice scritto, smoke-testato end-to-end su checkpoint giocattolo (tutti e 4 gli
-script + i 2 plot-script, nessun crash), sbatch scritto e verificato (`bash -n`). NON ancora
-lanciato.** **Da fare poi (chat che riprende, quando il job è finito):** pull, poi scrivere la
-nuova sezione **§sec:res-similarity** (dopo §sec:res-n20, prima del Verdetto) con
-prosa+tabelle+figure sui dati veri — confrontare esplicitamente contro le sezioni "a"/"b"
-lineari già scritte per rispondere alla domanda dell'utente (dipende dal readout, o il
-similarity impara la stessa cosa?); aggiornare Verdetto/Honest-limits di conseguenza (questo
-era uno dei due punti aperti lì). **Non scrivere niente finché i dati reali non sono
-arrivati.**
+**STATO: LANCIATO, parzialmente completato.** Job `583272` (`--array=0-7`, `medium_cpu`,
+`--time=05:00:00`): 5/8 task `COMPLETED` (seed 2000 di path_union-similarity + **tutti e 4** i
+seed ER-similarity — "COMPLETED" qui è affidabile, grazie al controllo esplicito dell'exit
+status aggiunto dopo il bug del §14.8, quindi vuol dire davvero che tutti e 4 i pezzi sono
+riusciti). **3/8 in `TIMEOUT`** (path_union-similarity seed 1000/3000/4000, indici array 0/2/3):
+nodi condivisi più lenti del solito (già visto altre volte, es. errore 18) — a giudicare dai
+log, servono **~7h** contro le 5h richieste, sopra il cap di `medium_cpu` (6h10).
+**Rilanciati sulla partizione `compute`** (3 nodi, cap 3 giorni, nessun rischio di ritaglio):
+`sbatch -p compute --time=20:00:00 --array=0,2,3 scripts/r7_similarity_n40.sbatch` (rifà da zero
+i 3 seed mancanti, sovrascrivendo l'eventuale output parziale — nessuna logica di skip nello
+script, corretto e atteso). **Da fare poi (chat che riprende, quando anche questi 3 sono
+finiti):** pull, poi scrivere la nuova sezione **§sec:res-similarity** (dopo §sec:res-n20,
+prima del Verdetto) con prosa+tabelle+figure sui dati veri — confrontare esplicitamente contro
+le sezioni "a"/"b" lineari già scritte per rispondere alla domanda dell'utente (dipende dal
+readout, o il similarity impara la stessa cosa?); aggiornare Verdetto/Honest-limits di
+conseguenza (questo era uno dei due punti aperti lì). **Non scrivere niente finché i dati reali
+non sono arrivati.**
+
+**Richiesta successiva dell'utente (stessa sessione): le tabelle §sec:res-n20 (tab:r7n20sweep,
+tab:r7n20sweeper) mostravano solo 5 split rappresentativi ($a{=}1,4,7,8,10$) — chiesto
+esplicitamente **tutti e 10** ($a{=}1..10$, cioè $(1,19),(2,18),\dots,(10,10)$), per entrambe
+le distribuzioni. **FATTO**: ricalcolati con precisione dai `metrics.csv` (non a memoria/da
+numeri già scritti prima — richiesta esplicita "dai risultati corretti"), entrambe le tabelle
+ora hanno le 10 righe complete; tolta la prosa "not tabulated" per $a{=}3$ (ER), ora in
+tabella. Compila pulito, **29 pagine** (invariate).
+
+### 14.11 §4.7 — aggiunta la matrice $C_{ik}$ pura come figura standalone (5a sessione, 2026-07-14).
+
+**Richiesta dell'utente:** voleva $C_{ik}$ come heatmap $40\times40$ subito sotto la Figura 3
+(la leak-fraction aggregata, §sec:res-attention) — non solo dentro la figura 2×3 di §4.7
+(`fig:r7rollout`, che la mostra già ma impacchettata con message-contribution e row-mass).
+**FATTO**: nuova funzione `plot_mechanistic_heatmaps.py::fig_contrib_matrix_only` (nessun nuovo
+calcolo, riusa `contrib_exact` già in `heatmap_data.npz`) → figura dedicata
+`r7_heatmap_contrib_matrix{suffix}.png`, un pannello per split ($a{=}4,20$), senza altri pannelli.
+Inserita nel `.tex` **subito sotto** `fig:r7attn` (nuovo `fig:r7contribmat`) e sotto
+`fig:r7attner` (nuovo `fig:r7contribmater`) — non dentro §sec:res-heatmaps. Compila pulito, **30
+pagine**.
+
+### 14.12 Sezione §sec:res-similarity SCRITTA con i dati veri (5a sessione, 2026-07-14). Risultati
+sorprendenti: il completamento non è un artefatto del readout lineare, ma il readout decide
+quanto costano le imperfezioni del trunk.
+
+**Stato di partenza:** i 3 task TIMEOUT del job `583272` (relanciati su `compute`,
+`--array=0,2,3`) sono tornati `COMPLETED` (verificato con `sacct`) — tutti e 8/8 task
+similarity-n40 completati. Pull fatto (commit HPC coi dati, poi `git pull` locale): 32 nuove
+cartelle in `runs/report7/{mechanistic,heatmaps,three_way,ablation}/n40_{pathunion,er}_similarity_seed{1000..4000}/`.
+
+**Numeri chiave (letti direttamente da `metrics.csv`/`readout.csv`/`weights_summary.json`/
+`attn_cache.npz`/`three_way_split.json`/`ablation.csv`, MAI a memoria):**
+- **Sweep path\_union-similarity:** reach (long) non crolla MAI sotto $0.91$ (nessun floor a
+  $0.58$--$0.65$ come il lineare) e recupera a $0.995$ ad $a{=}20$; cut $\ge0.995$ ovunque.
+  Exact match a $a{=}8$--$11$ = $0.500$ **nasconde bimodalità netta per seed** (2 semi a 1.000,
+  2 a 0.000, verificato riga per riga nei `metrics.csv` — NON un degrado uniforme): scritto
+  esplicitamente in prosa, non lasciato nella media (regola preferenze §3).
+- **Sweep ER-similarity:** reach parte GIÀ imperfetto ad $a{=}1$ ($0.716$) e sale
+  MONOTONICAMENTE con $a$ (ordine opposto a ogni altra condizione del report); cut $=1.000$
+  sempre; exact $=0$ ovunque (troppi pair per un match esatto anche con reach alto).
+- **Geometria readout:** niente $W_{out}$ (solo $E_{in}$ + due scalari `sim_scale`/`sim_bias`
+  globali). Nessuna scorciatoia per-indice (norme uniformi, cosine bassa) — refuta ipotesi 3
+  anche qui. **Osservazione nuova**: la soglia di decisione $\cos=-\text{bias}/\text{scale}$
+  ($\approx0.15$ path\_union, $\approx0.25$ ER) non viene mai avvicinata dal cut-cosine
+  nell'intero sweep testato — spiega perché il cut non degrada mai come nel lineare (dove il
+  segno di un logit per-coppia illimitato è l'unica difesa).
+- **Leak-fraction (contributo esatto):** **path\_union-similarity**: salta da $0\%$ ($a{=}1$) a
+  un plateau **piatto** $\approx22$--$23\%$ da $a{=}4$ in poi (non sale/scende come il lineare).
+  **ER-similarity**: **$\le0.2\%$ a OGNI split** — praticamente zero, contrasto nettissimo
+  confermato visivamente dalle heatmap $C_{ik}$ (quasi perfettamente block-diagonal a $a{=}4$ E
+  $a{=}20$, mentre path\_union-similarity ha una banda diffusa che attraversa tutta la matrice
+  anche col comportamento quasi perfetto — **dissociazione reale meccanismo/comportamento**: il
+  trunk mischia, il readout a coseno non se ne fa ingannare).
+- **Falsificazione a 3 componenti:** **ENTRAMBE le distribuzioni quasi perfette**
+  ($\text{cut}(L_1,L_2)\ge0.988$, spesso $1.000$) — nessuna traccia del merge grezzo che il
+  modello ER-LINEARE mostrava a questo stesso canvas (§14.8, $0.01$--$0.09$).
+  Il readout similarity sembra eliminare quel fallimento specifico a $n{=}40$.
+- **Ablation:** dissociazione reach/cut molto più pulita che nel lineare. Il `bypass` (niente
+  transformer, readout diretto sul read-in) dà GIÀ cut $0.95$--$1.000$ per entrambe le
+  distribuzioni (il taglio è quasi "gratis" dalla sola geometria coseno del read-in) con reach
+  basso ($0.10$--$0.20$, nessun mixing = nessun reach) — praticamente l'opposto del lineare
+  (bypass lì dava cut mediocre $\approx0.66$--$0.69$). Per ER-similarity la dissociazione è
+  quasi perfetta: `zero_attn1` uccide il reach ma lascia cut a $1.000$; `zero_attn0` lascia il
+  reach quasi intatto ma uccide il cut.
+
+**Risposta diretta alla domanda dell'utente ("dipende dal readout, o il similarity impara lo
+stesso?"):** il **segnale di completamento a due componenti non è un artefatto del readout
+lineare** — il trunk lo mostra anche con similarity (leak-fraction non nulla, readout risponde
+allo split). Quello che CAMBIA è **quanto quel segnale può nuocere**: il floor duro del reach
+lineare e la fragilità del cut (un solo segno di un logit illimitato) sono proprietà del
+readout lineare, non del trunk — un margine coseno fisso e globale rende il cut robusto per
+ENTRAMBE le distribuzioni a $n{=}40$ col readout similarity, incluso il caso ER che falliva
+clamorosamente col lineare allo stesso canvas.
+
+**File toccati:** `plot_mechanistic_heatmaps.py` (nuova `fig_contrib_matrix_only`, §14.11),
+`report/7/transformer_for_graphs_7.tex` (nuova §sec:res-similarity con dati veri, Verdetto
+esteso con un paragrafo di sintesi, Honest limits aggiornato — rimossa la voce "similarity non
+ancora fatta", aggiunta la voce "similarity fatta solo a n40, non n64/n20"), `istruzioni.md`.
+Compila pulito, **38 pagine**, 0 ref indefinite, 0 overfull (verificato anche visivamente
+pagina per pagina via `pdftoppm`, incluse le figure affiancate e le tabelle a 8 colonne).
+
+**Aperto per una sessione futura (non richiesto esplicitamente, ma coerente coi limiti onesti
+appena scritti):** ripetere il confronto similarity-vs-linear a $n{=}64$ e $n{=}20$ per vedere
+se la robustezza del cut regge anche dove il lineare fallisce peggio (path\_union a $n64$, ER a
+$n40$ — già fatto qui — e la generica sensibilità OOD di ER a $n20$).
+
+### 14.13 Ricompilazione/verifica post-blocco disco + cambio di destinazione del report (6a
+sessione, 2026-07-17).
+
+**Blocco disco (non un problema del progetto):** la sessione precedente non era riuscita a
+ricompilare per `ENOSPC` sul disco temporaneo della sandbox (`/private/tmp/claude-501/...`), non
+sul disco del Mac né sul repo. Questa sessione è iniziata verificando con un comando minimo
+(`true`) che lo spazio si fosse liberato — sì, al primo tentativo.
+
+**Ricompilato e verificato** `report/7/transformer_for_graphs_7.tex` (2 passate `pdflatex` da
+`report/7/`): **38 pagine**, log ripulito con `grep -iE "error|undefined|overfull"` → **zero
+righe**, quindi 0 errori/0 ref indefinite/0 overfull. Estratte a PNG (via `pdftoppm`) e ispezionate
+a schermo le due pagine con le modifiche di caption fatte in una sessione precedente ma mai
+confermate visivamente:
+- **pag. 12 (Figura 4, §sec:res-attention)**: caption ora include `Test set: two-chain graphs at
+  the split shown (a=4 left, a=20 right), 64 independently node-relabelled graphs`.
+- **pag. 18 (Figura/Tabella 9, geometria read-out/read-in)**: caption ora include `Test set: none
+  — static properties of the trained weights, not evaluated on any graph` (corretto: quella
+  figura è sui pesi allenati, non valuta nessun grafo — differenza importante rispetto al
+  template standard della regola 21, che qui va dichiarata esplicitamente come "none" invece di
+  essere lasciata implicita).
+
+Le stesse coppie gemelle ER/similarity di Figura 4 (e la Tabella 4 corrispondente) erano state
+sistemate nella stessa sessione precedente con lo stesso pattern — non ricontrollate pagina per
+pagina qui (nessuna modifica aggiuntiva fatta), solo il PDF intero ricompilato pulito conferma che
+nessuna di quelle modifiche ha rotto la build.
+
+**Nessuna scoperta tecnica nuova sui dati/modello in questa sessione** — solo verifica di build.
+L'unica domanda di merito posta dall'utente (se `generate_path_union_graph` produce nodi isolati)
+era già interamente documentata in **§14.1** (nessun nodo isolato: i `k` path partizionano SEMPRE
+tutti gli `n` nodi, `k ~ Uniform{1,4}`), risposta data da lì senza bisogno di nuova indagine.
+
+**⚠️ Cambio di contesto da ricordare per ogni sessione futura (vedi anche il callout in cima al
+file e §3):** da questa sessione in poi il Report 7 **non va più trattato come il deliverable
+finale per la prof** — l'utente lo userà come base per costruire a mano un PowerPoint. Continuare
+comunque a rispettare tutte le regole di scrittura del report (§3, regole 20/21/55–60) finché
+l'utente non chiede esplicitamente di allentarne qualcuna.
+
+### 14.14 Feedback della prof sul PowerPoint del Report 7 (stessa sessione, 2026-07-17). Errori 61/62 + spiegazione similarity.
+
+**Contesto:** l'utente ha mostrato alla prof il PowerPoint costruito a mano dal Report 7 (§14.13: da questa
+sessione il report non è più il materiale diretto per la prof, ma resta la fonte da cui l'utente estrae le
+slide). La prof ha dato tre osservazioni, tutte sul contenuto mostrato — trascritte e gestite qui.
+
+**1. Error bars mancanti (ora errore 61).** La Figura 1 del report (`fig:r7sweep`, `r7_sweep_and_logit.png`) e
+tutte le sue gemelle nelle altre condizioni (ER-trained, `n64`, `n20`, similarity — 8 figure in totale) mostravano
+solo la media sui 4 seed, senza error bars. **Fix FATTO**: `plot_mechanistic_asym_chains.py::fig_sweep_and_logit`
+ora calcola anche lo std sui seed per ogni punto e disegna error bars (`ax.errorbar`) su ogni curva in entrambi i
+pannelli (sweep comportamentale sopra, logit grezzo sotto). Nessun nuovo dato necessario — i valori per-seed erano
+già in `metrics.csv`/`readout.csv`, prodotti dagli sbatch già girati, semplicemente lo script di plot ne calcolava
+solo la media. **Le 8 figure sono state rigenerate in locale** (no GPU, `python plot_mechanistic_asym_chains.py
+--tag_glob "n{...}_seed*" --n {...} --suffix "_{...}" --title_tag "..."` per ciascuna condizione — vedi i comandi
+usati, uno per condizione, in `git log`/questa sessione): `r7_sweep_and_logit.png` (n40 path\_union),
+`_n40_er`, `_n64_er`, `_n64_pathunion`, `_n40_pathunion_similarity`, `_n40_er_similarity`, più le due gemelle
+`_n20_pathunion`/`_n20_er` (orfane, non referenziate nel `.tex` — rigenerate comunque per coerenza). Verificata
+visivamente una figura (`r7_sweep_and_logit.png`): gli error bars confermano quanto già scritto in prosa (es. il
+rumore di campionamento ad `a=3,6` è genuinamente piccolo/stretto sui 4 seed, non un singolo run rumoroso) e
+aggiungono un'informazione nuova non ancora in prosa (il logit di cut ha uno spread per-seed ampio a `a` piccolo,
+che si restringe salendo lo split). **Nessuna modifica al testo del `.tex` necessaria** (le caption/didascalie
+restano valide, il contenuto qualitativo delle curve non cambia — solo si aggiunge l'informazione di dispersione).
+
+**2. Buco nello sweep proprio sul punto interessante (ora errore 62).** La Figura 3 (`fig:r7attn`,
+`r7_attention_leak.png`, la leak-fraction) ha uno spike riproducibile al $42.5\%$ ad $a{=}10$ (§14.7), ma lo split
+successivo valutato era $a{=}14$: un buco di tre split ($11,12,13$) esattamente dove serviva capire se lo spike
+scende subito dopo il picco o resta elevato. **Fix FATTO nel codice, NON ancora eseguito su HPC**:
+- `mechanistic_asym_chains.py`: il default di `attn_splits` (usato dall'`attention_probe` che alimenta
+  `attn_cache.npz` → Figura 3 e le sue gemelle) ora è `{1,4,7,8,10,11,12,13,14,17,n//2}` (era
+  `{1,4,7,8,10,14,17,n//2}`) — ogni run futuro copre automaticamente l'intorno di un punto notevole già noto.
+- Aggiunta una logica di **merge**: `main()` ora, prima di scrivere `attn_cache.npz`, carica il file esistente (se
+  c'è) e aggiunge/sovrascrive solo le chiavi degli split appena calcolati, invece di sovrascrivere l'intero file.
+  Motivo: l'`exact_contribution` (Jacobiano, un backward per nodo-query) è la parte cara del probe — ricalcolare
+  tutti gli 8 split già fatti solo per aggiungerne 3 sarebbe stato uno spreco.
+- **Nuovo sbatch `scripts/r7_leak_splits_11_12_13.sbatch`** (CPU-only, `medium_cpu`, `--array=0-3`, i 4 seed della
+  condizione PRIMARIA di Figura 3, `n40` path\_union): chiama `mechanistic_asym_chains.py --attn_splits 11 12 13
+  --contrib_n_graphs 64` sugli stessi checkpoint/output-dir di sempre (`runs/report7/mechanistic/n40_pathunion_seed{S}`)
+  — grazie al merge, aggiunge SOLO i 3 split mancanti, costo ≈3/8 del job originale (§14.7, era ~2.6h/seed per 8
+  split → questo dovrebbe stare abbondantemente dentro le 2h richieste). **Da lanciare:**
+  `sbatch scripts/r7_leak_splits_11_12_13.sbatch`. **Dopo il pull**: rigenerare la figura con
+  `python plot_mechanistic_asym_chains.py` (nessuna modifica allo script di plot necessaria — `fig_attention_leak`
+  già itera su tutte le chiavi `aXX` presenti nell'npz, incluse quelle nuove).
+- **Le altre gemelle di Figura 3 hanno lo stesso buco** (stesso default pre-fix): ER-trained a `n40`
+  (`fig:r7attner`), path\_union/ER a `n64` (`fig:r7n64...` leak, dentro §res-n64), path\_union/ER a `n20`
+  (`fig:r7n20leak`), path\_union/ER con readout similarity (`fig:r7simleak`) — **NON ancora ricalcolate**, non
+  richiesto esplicitamente dalla prof (solo Figura 3 è stata nominata). Per estenderle: stesso pattern dello
+  sbatch sopra, cambiando `CKPT`/`TAG` (e per la similarity, verificare che `mechanistic_asym_chains.py` gestisca
+  già il ramo `similarity` per l'`attn_splits` — sì, è agnostico al readout dal §14.10). Non prioritario finché
+  l'utente non lo chiede.
+
+**3. Perché il readout similarity ha reach alta per seed ma exact match 0 (spiegato in chat, non richiesto scritto
+qui — ma la spiegazione ESISTE GIÀ nel `.tex`).** Riferito a Tabella `tab:r7simsweeper` (§sec:res-similarity,
+il modello **ER-trained con readout similarity** a $n{=}40$): il reach (pairwise, sulla componente lunga) è alto
+per ogni seed ($0.72$--$0.99$ a seconda dello split) ma l'exact-match (l'INTERA matrice giusta) è $0.000$ a ogni
+split. Non è un bug né un'incoerenza: exact-match richiede che **tutte** le centinaia di coppie nella componente
+lunga siano corrette **simultaneamente** nello stesso grafo, mentre il reach è una media coppia-per-coppia. Se
+ogni singola coppia ha probabilità $\approx0.8$--$0.95$ di essere giusta ma le coppie non sono perfettamente
+correlate fra loro (il modello non è ideale), la probabilità che TUTTE lo siano insieme crolla rapidamente con il
+numero di coppie — con centinaia di coppie anche un reach per-coppia del $95\%$ implica una probabilità
+dell'intera riga/matrice vicina a zero. Il `.tex` lo dice già esplicitamente (§sec:res-similarity, dopo
+`tab:r7simsweeper`): *"Exact match is 0 throughout, not because the model does something qualitatively wrong, but
+because a reach of 0.7–0.99 spread over hundreds of long-component pairs almost never lands on a perfectly exact
+whole-graph match."* Nessuna azione richiesta: è già scritto correttamente, la domanda della prof era di
+comprensione, non un errore da correggere.
+
+**File toccati questa sessione:** `mechanistic_asym_chains.py` (default `attn_splits` + merge logic),
+`plot_mechanistic_asym_chains.py` (error bars in `fig_sweep_and_logit`), `scripts/r7_leak_splits_11_12_13.sbatch`
+(nuovo), le 8 figure `runs/report7/report7_figs/r7_sweep_and_logit*.png` (rigenerate), `istruzioni.md`. **Nessuna
+modifica al `.tex`** del Report 7 in questa sessione (le caption restano valide).
+
+---
+
+## 15. Report 8 — dove/come viene combinata l'informazione di connettività
+
+> Blocco aggiunto all'apertura del Report 8 (2026-07-21). **Resta valido per OGNI nuova chat sul
+> Report 8.** Poco tempo, obiettivo dichiarato dall'utente: **concludere il paper**.
+
+### 15.0 Richiesta originale dell'utente (trascritta VERBATIM — leggere prima di tutto)
+
+Come già fatto per il Report 7 (§14.0), l'utente ha chiesto di trascrivere qui parola per parola gli
+appunti presi durante l'incontro con la prof, così una chat futura può rileggerli per intero invece
+che affidarsi a un riassunto:
+
+```
+lei plotterebbe anche gli h(1) e poi gli h(2) cosi da vedere se li si vedono i blocchi e se si vede
+a che punto c'è già un assetto diciamo. plotterebbe anche la relu.
+lei pensa che c'è una parte della rete che dice se sei vicino a questo, sei vicino a quest'altro e
+allora sei connesso a quel nodo oppure no: l'obiettivo di questo report è capire come vengono
+combinate queste informazioni. forse nell'mlp. provo a plottare attention out/h(l), magari vengono
+già combinati li. di base comunque è interessante vedere a che punto le informazioni sono già
+combinate. prendi questo come titolo e come idea chiave per questo report.
+non le è chiaro come trova informazioni sulla connettività, come vengono combinate.
+attenzione, la professoressa mi ha detto che non le piace la misura di node to node contribution
+perchè si chiedeva se effettivamente cambiasse prendere h_i(0) o direttamente la colonna del nodo
+i, nel senso che può essere che non sia piu correlato strettamente al nodo i. la professoressa mi
+ha detto che non le piace la misura di node to node contribution perchè si chiedeva se
+effettivamente cambiasse prendere h(0), nel senso che può essere che non sia piu correlato
+strettamente al nodo j. cioè ha piu senso rifare quegli esperimenti usando anzichè h(0) già
+modificato, A' capito? cioè ha piu senso vedere come cambia il final embedding del node I se
+cambio da 0 ad 1 o viceversa un edge. quindi appunto anzichè prendere le colonne di h, prendere
+quelle di A'. parliamo se ha senso.
+quindi ho già pensato ad un espeirmento come soluzione, però te lo dico in un nuovo messaggio.
+intanto volevo solo spiegarti le cose da mettere nel nuovo report 8 e le cose che implenteremo.
+
+poi:
+nell'esperimento con la vecchia contribution sembrava che gli estremi avessero tanta attenzione.
+per verificare se effettivamnete ciò che capisce è 'questa path è closed' dagli estremi dei
+segmenti (come si vede nella contrivution matrix) una cosa che posso fare è fare:
+testing di quel modello però quei grafi di due chain li chiudo (chiudo a cerchio le due catene):
+anzichè avere due chain faccio due cicli (sempre con catene di (ad esempio) 4 e 36 (ma da fare
+sweep come sempre) che diventano due cicli) e vedere:
+se impara -> i boundary/estremi del segmento non influenzano e sono solo nodi che si comportano
+in modo diverso.
+se invece non riesce mai ad imparare allora vuol dire che quei nodi di estremi del segmento sono
+super influenti
+
+come modello uso sempre il readout similarity. è giusto dire: 'abbiamo visto che funziona molto
+meglio cosi, allora abbiamo deciso di usare questo readout'. una cosa però: non abbiamo messo nel
+report 7 la matrice di attenzione plottata. io quindi rifarei in una sezione del report 8
+esattamente il plot di tabella 1, figura 1 sia sopra che sotto (con gli estremi che indicano la
+varianza però), tabella 4, le weights matrixes visualized: W_out,Win, readout/radi norms,
+cos(wi,wj), la figure con le attention scores and normalized relu alpha per layer 0 ed 1 con a = 4
+e a =20, il real node to node contribution mass reaching the wrong component con la nuova
+contribution, l'exact node to node contrivution matrix per un seed, il layer ablation reasults, il
+falsification test. insomma guarda attentamente le slides che ho messo dentro a report 7 (il pdf
+trasnfomrer for grphas 7.pdf) e voglio mettere tutti quegli esperimenti in quel modo.
+infatti è meglio un setting unico in cui mostrare le cose.
+partiamo con n40 union path, in caso poi capiamo per il resto in un secondo momento.
+
+quindi diciamo preapra il report 8 adattandolo agli altri report, prepara poi le istruzioni
+incollando esttamente il testo che ti ho scritto fin qui, in modo che ogni chat di claude abbia in
+mente il focus del report 8. poi implementa l'esperimento di testing con due cicli (mantieni
+sempre quella contribution iniziale, poi faremo la nuova)
+mettiti dei goal cosi fai tutto
+```
+
+### 15.1 Come è stata interpretata la richiesta (mappatura verbatim → azioni)
+
+- **"Tabella 1, Figura 1 sopra/sotto con estremi/varianza", "Tabella 4", "weights matrixes... W_out,
+  Win, readout norms, cos(wi,wj)", "attention scores/alpha layer 0/1 a=4,a=20", "node to node
+  contribution mass... l'exact node to node contribution matrix", "layer ablation", "falsification
+  test"** → questi numeri fanno riferimento alla numerazione di Tabelle/Figure del **Report 7**:
+  Tabella 1 = `tab:r7sweep`, Figura 1 = `fig:r7sweep`, Tabella 4 = `tab:r7wout` (geometria
+  read-out/read-in), poi `fig:r7wout`, `fig:r7attnscores`, `fig:r7attn`+`fig:r7contribmat`,
+  `tab:r7ablation`, `tab:r7threeway`. La prof vuole che questa batteria intera venga rifatta **con
+  il readout similarity come UNICO setting** (non più sparsa fra linear-primario e similarity-a-parte
+  come nel Report 7) — **"è meglio un setting unico in cui mostrare le cose"**.
+- **Scoperta chiave di questa sessione**: per `n40_pathunion_similarity` questi dati/figure **esistono
+  già** su disco da quando il Report 7 ha girato `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py`
+  sui checkpoint similarity (§14.10) — **incluso** `r7_heatmap_attention_scores_n40_pathunion_similarity.png`,
+  che infatti esiste come FILE ma **non era mai stato messo nel `.tex` del Report 7** (l'utente lo nota
+  esplicitamente: "non abbiamo messo nel report 7 la matrice di attenzione plottata" — verificato,
+  vero). Quindi §sec:battery del Report 8 **non ha richiesto nuovo calcolo**: solo riorganizzare i dati
+  già validati del Report 7 in un'unica sezione, con la nuova figura mai mostrata aggiunta.
+- **"con la nuova contribution"** (menzionato una volta, a proposito del leak-fraction): letto come
+  l'intenzione finale una volta che la nuova misura (vedi sotto) esisterà, NON come richiesta per
+  questa sessione — l'istruzione esplicita e finale dell'utente è **"mantieni sempre quella
+  contribution iniziale, poi faremo la nuova"**. §sec:battery-contrib e il test a due cicli usano
+  quindi entrambi la contribution ESISTENTE (`C_ik`, Jacobiano esatto, Report 7 §sec:setup), con una
+  nota esplicita nel `.tex` che verranno rifatti quando la nuova misura sarà definita.
+- **La nuova misura di contribution (A' invece di h^(0))**: l'utente ha detto esplicitamente che la
+  spiega in **un messaggio successivo** — NON è ancora stata specificata. **Non inventare il design**:
+  aspettare quel messaggio. Annotato come primo item aperto in §sec:outlook del `.tex` e qui sotto.
+- **Plot di h^(1)/h^(2) direttamente (non solo quantità derivate), plot della ReLU, plot di
+  attention\_out/h(l) per capire dove si combina l'informazione**: idee esplicitamente indicate come
+  parte del "cosa mettere nel report 8" ma **nessun "implementa" esplicito** per queste — a differenza
+  del test a due cicli, per cui l'utente ha scritto **"poi implementa l'esperimento di testing con due
+  cicli"** come comando diretto. Trattate come **prossimo passo pianificato** (§sec:outlook nel `.tex`,
+  vedi anche §15.4 qui sotto), non implementate in questa sessione per restare dentro l'unico comando
+  di implementazione esplicito e il tempo limitato dichiarato dall'utente.
+- **"come modello uso sempre il readout similarity... abbiamo visto che funziona molto meglio così"**:
+  standardizzato da questa sessione in poi. Motivazione da scrivere nel report (fatto, §sec:setup del
+  `.tex`): Report 7 §sec:res-similarity ha mostrato che il readout similarity rende il comportamento
+  molto più robusto alle imperfezioni del trunk (reach non crolla mai sotto 0.91 a n40 vs il floor
+  lineare 0.58–0.65; cut non scende mai sotto 0.995 vs il collasso lineare a 0.15/0.01–0.09 a seconda
+  della distribuzione) pur mostrando lo stesso segnale meccanicistico graduale — quindi si fissa il
+  readout a similarity per concentrarsi sul meccanismo, non sull'artefatto del readout lineare.
+- **"partiamo con n40 union path, in caso poi capiamo per il resto in un secondo momento"**: scope di
+  QUESTA sessione = solo `n40`, training `path_union` (disjoint-paths), readout similarity. ER/n64/n20
+  per la batteria unificata e per il test a due cicli sono lasciati esplicitamente a dopo (annotato in
+  §sec:outlook del `.tex`).
+- **"prepara il report 8 adattandolo agli altri report"**: fatto, `report/8/transformer_for_graphs_8.tex`
+  — stesso preambolo/stile/regole di scrittura dei Report 4–7 (§3, regole 20/21/55–60), compila pulito.
+- **"prepara le istruzioni incollando esattamente il testo"**: fatto, è questa sezione (§15.0 sopra).
+- **"implementa l'esperimento di testing con due cicli (mantieni sempre quella contribution iniziale,
+  poi faremo la nuova)"**: fatto (codice + smoke-test), sbatch pronto **NON ancora lanciato** — vedi
+  §15.3.
+
+### 15.2 Titolo/idea chiave del report (dalla richiesta della prof)
+
+Il Report 7 ha trovato *che* esiste un segnale di completamento e *quanto* dipende dal readout, ma non
+ha mai chiesto **DOVE nel forward pass l'informazione viene combinata** — cioè: a che punto la rete ha
+già deciso "sei vicino a questo nodo, quello è vicino al target, quindi sei connesso (o no)"? La
+domanda guida del Report 8, presa **verbatim come titolo/idea chiave** su richiesta esplicita
+dell'utente ("prendi questo come titolo e come idea chiave per questo report"): capire **a che punto le
+informazioni sono già combinate** — se già dopo il layer 1, o solo dopo il layer 2, e se la
+combinazione avviene nell'attention o nell'MLP. Titolo scelto per il `.tex`: *"Part VIII: Where Is
+Connectivity Information Combined?"*.
+
+### 15.3 Stato implementazione (questa sessione, 2026-07-21)
+
+**Codice, FATTO e smoke-testato** (su un checkpoint giocattolo, readout linear E similarity, prima di
+toccare checkpoint reali — stesso pattern del progetto):
+- `data.py::generate_split_cycles_graph(n, short_len)` — analogo a due cicli di
+  `generate_split_chains_graph`: stesso split `(a, n-a)`, ogni segmento chiuso a ciclo invece che path
+  aperto (richiede `short_len>=3` e `n-short_len>=3`, un ciclo semplice ha bisogno di almeno 3 nodi).
+- `mechanistic_asym_chains.py`: aggiunto `--topology {chain,cycle}` (default `chain`, **retrocompatibile
+  — verificato che il comportamento di default non cambia**) che fa da dispatch fra i due generatori in
+  tutte e quattro le funzioni che costruivano il grafo (`behavioural_sweep`, `readout_decomposition`,
+  `readout_decomposition_similarity`, `attention_probe`); per `--topology cycle` lo split di default
+  parte da `a=3` (non `a=1`, un ciclo non può avere 1-2 nodi).
+- `mechanistic_heatmaps.py`: stesso `--topology {chain,cycle}` aggiunto a `heatmap_probe`.
+- `plot_mechanistic_asym_chains.py` / `plot_mechanistic_heatmaps.py`: aggiunto `--report_root` (default
+  `report7`, retrocompatibile) così gli stessi script di plot servono sia `runs/report7/...` sia
+  `runs/report8/...`; i nomi dei file figura ora derivano da `--report_root` (`report8` → prefisso
+  `r8_`) invece di avere `r7_` hardcoded.
+- Tutti e quattro gli script **compilano e girano end-to-end** (smoke-test locale con un checkpoint
+  giocattolo `RobertaGraphTransformer` linear E similarity, sia `--topology chain` sia `cycle`,
+  incluso il test che il merge dell'`attn_cache.npz` esistente funziona — vedi errore 62).
+- `scripts/r8_two_cycles.sbatch` (nuovo, CPU-only `medium_cpu`, `--array=0-3`, i 4 seed
+  `n40_pathunion_similarity`): chiama `mechanistic_asym_chains.py --topology cycle` +
+  `mechanistic_heatmaps.py --topology cycle --splits 4 20` sugli stessi checkpoint del Report 7
+  (`runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed{S}/last.pt`), output
+  `runs/report8/{mechanistic,heatmaps}/n40_pathunion_cycle_seed{S}/`. **Da lanciare**:
+  `sbatch scripts/r8_two_cycles.sbatch`.
+- **Deliberatamente NON incluso in questo giro** (fuori scope della richiesta esplicita): il
+  falsification test a 3 componenti e il layer ablation per la topologia a cicli (richiederebbero un
+  generatore "tre cicli" e non erano nella richiesta — solo il comportamento/sweep + la contribution
+  esistente sul test a due cicli erano richiesti).
+
+**Report, FATTO**: `report/8/transformer_for_graphs_8.tex`, compila pulito (**10 pagine**, 0 ref
+indefinite, 0 overfull/underfull). Struttura: §1 recap I–VII + domanda guida; §2 setup (standardizza su
+similarity, spiega perché); §3 `sec:battery` — la batteria unificata (sweep+logit con error bars,
+geometria read-in, attention scores/alpha — NUOVA, mai mostrata prima —, contribution leak-fraction +
+matrice, layer ablation, falsification test), **tutta scritta con dati reali già esistenti** (nessun
+nuovo calcolo, riusa `runs/report7/report7_figs/*_n40_pathunion_similarity.png` via
+`\includegraphics`/`\figorbox` — riferimento cross-report, pattern già in uso dal Report 4 che legge
+dati dal Report 3); §4 `sec:cycles` — il test a due cicli, ipotesi dichiarate PRIMA dei dati (endpoint
+incidentali vs load-bearing), **stub "data pending"** (job non ancora lanciato); §5 `sec:outlook` — le
+tre idee non ancora implementate (nuova contribution su A', plot diretto di h^(1)/h^(2), plot
+dell'attention output), più l'estensione a ER/n64/n20 lasciata a dopo.
+
+**Da fare in una chat futura (in ordine)**:
+1. `sbatch scripts/r8_two_cycles.sbatch`, poi pull, poi rigenerare le figure con
+   `python plot_mechanistic_asym_chains.py --tag_glob "n40_pathunion_cycle_seed*" --n 40 --topology...`
+   — **nota**: il tag_glob seleziona le cartelle per nome, non serve passare `--topology` al plot
+   script (l'informazione è già nei dati salvati); usare
+   `--report_root report8 --suffix _n40_pathunion_cycle --title_tag "disjoint-paths-trained, closed into cycles"`.
+   Sostituire il paragrafo "[Data pending]" in `report/8` §sec:cycles con la tabella/figura vere e il
+   verdetto (endpoint incidentali o load-bearing).
+2. Quando l'utente manda il messaggio con il design della nuova contribution (basata su `A'`, non
+   `h^(0)`): NON improvvisare prima di quel messaggio. Implementarla come nuova funzione (probabilmente
+   in `mechanistic_asym_chains.py`, accanto a `exact_contribution`), poi rifare §sec:battery-contrib e
+   il test a due cicli con la nuova misura.
+3. Plot diretto di `h^{(1)}`/`h^{(2)}` (proiezione bassa dimensionalità colorata per componente) e
+   dell'attention output per layer: nuovi script, non ancora iniziati.
+4. Estendere §sec:battery e il test a due cicli a ER/n64/n20 (checkpoint già esistenti dal Report 7,
+   nessun training nuovo).
 
 ---
 

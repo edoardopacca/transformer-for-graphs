@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 MECH_ROOT = Path("runs/report7/mechanistic")
 THREEWAY_ROOT = Path("runs/report7/three_way")
 OUT = Path("runs/report7/report7_figs")
+FIG_PREFIX = "r7"   # reset from --report_root in main() (e.g. "r8" for report8)
 CAP = 9
 
 
@@ -70,28 +71,38 @@ def fig_sweep_and_logit(metrics_rows, readout_rows, n, suffix, title_tag):
         if r["pair_type"] in ("within_long", "within_short", "cut"):
             read[int(r["split_a"])][r["pair_type"]].append(float(r[value_col]))
 
+    # error bars = std across the 4 training seeds at each split (istruzioni.md errore 61:
+    # every figure must show seed-to-seed spread, not only the across-seed mean).
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
     for key, lab, col in [("exact", "exact match", "#222222"),
                           ("reach_long", "reach (long)", "#1b9e77"),
                           ("reach_short", "reach (short)", "#66a61e"),
                           ("cut", "cut (target: disconnected)", "#e7298a")]:
         ys = [np.mean(behav[a][key]) if behav[a][key] else np.nan for a in splits]
-        ax1.plot(splits, ys, "-o", ms=4, color=col, label=lab)
+        es = [np.std(behav[a][key]) if behav[a][key] else np.nan for a in splits]
+        ax1.errorbar(splits, ys, yerr=es, fmt="-o", ms=4, capsize=3, elinewidth=1,
+                     color=col, label=lab)
     pos = [np.mean(behav[a]["pred_positive_rate"]) for a in splits]
+    pos_err = [np.std(behav[a]["pred_positive_rate"]) for a in splits]
     oracle = [dist_bounded_rate(n, a) for a in splits]
-    ax1.plot(splits, pos, "--", color="#7570b3", label="predicted-positive rate")
+    ax1.errorbar(splits, pos, yerr=pos_err, fmt="--", capsize=2, elinewidth=1,
+                 color="#7570b3", label="predicted-positive rate")
     ax1.plot(splits, oracle, ":", color="#7570b3", lw=2,
              label=r"distance$\,\leq 9$ oracle positive rate")
     ax1.axvline(9, color="red", ls="--", lw=1, label="capacity $3^L=9$")
     ax1.set_ylabel("accuracy / rate"); ax1.set_ylim(-0.02, 1.02)
     ax1.grid(alpha=0.3); ax1.legend(loc="center left", fontsize=7, ncol=1)
-    ax1.set_title(f"Behavioural sweep (top) and raw read-out logit (bottom), n={n}, {title_tag}")
+    n_seeds = max((len(v) for a in splits for v in behav[a].values()), default=1)
+    ax1.set_title(f"Behavioural sweep (top) and raw read-out logit (bottom), n={n}, {title_tag}\n"
+                  f"(error bars: std across the {n_seeds} seeds)")
 
     for key, lab, col in [("within_long", f"within long: {value_label}", "#1b9e77"),
                           ("within_short", f"within short: {value_label}", "#66a61e"),
                           ("cut", f"cut: {value_label}", "#e7298a")]:
         ys = [np.mean(read[a][key]) if read[a][key] else np.nan for a in splits]
-        ax2.plot(splits, ys, "-o", ms=4, color=col, label=lab)
+        es = [np.std(read[a][key]) if read[a][key] else np.nan for a in splits]
+        ax2.errorbar(splits, ys, yerr=es, fmt="-o", ms=4, capsize=3, elinewidth=1,
+                     color=col, label=lab)
     ax2.axhline(0, color="k", lw=1)
     ax2.axvline(9, color="red", ls="--", lw=1)
     ax2.set_xlabel(f"split: short-component size $a$ (components $a$ and ${n}-a$)")
@@ -99,7 +110,7 @@ def fig_sweep_and_logit(metrics_rows, readout_rows, n, suffix, title_tag):
     ax2.grid(alpha=0.3); ax2.legend(loc="center left", fontsize=8)
     ax2.set_xticks(splits[::2] if len(splits) > 24 else splits)
     fig.tight_layout()
-    p = OUT / f"r7_sweep_and_logit{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_sweep_and_logit{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
     return splits, behav
 
@@ -139,7 +150,7 @@ def fig_attention_leak(attn_by_run, n, suffix, title_tag):
     ax.grid(alpha=0.3); ax.set_xticks(splits)
     ax.legend(fontsize=8)
     fig.tight_layout()
-    p = OUT / f"r7_attention_leak{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_attention_leak{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -163,14 +174,22 @@ def table_threeway(tag_glob):
 
 
 def main():
+    global MECH_ROOT, THREEWAY_ROOT, OUT, FIG_PREFIX
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag_glob", default="n40_pathunion_seed*",
-                    help="glob (relative to runs/report7/mechanistic/) selecting which seed dirs to pool")
+                    help="glob (relative to runs/<report_root>/mechanistic/) selecting which seed dirs to pool")
     ap.add_argument("--n", type=int, default=40)
     ap.add_argument("--suffix", default="", help="appended to output figure filenames")
     ap.add_argument("--title_tag", default="disjoint-paths-trained",
                     help="short description of the training distribution, used in figure titles")
+    ap.add_argument("--report_root", default="report7",
+                    help="runs/<report_root>/{mechanistic,three_way,<report_root>_figs} -- "
+                         "e.g. report8 for the two-cycles falsification test")
     args = ap.parse_args()
+    MECH_ROOT = Path(f"runs/{args.report_root}/mechanistic")
+    THREEWAY_ROOT = Path(f"runs/{args.report_root}/three_way")
+    OUT = Path(f"runs/{args.report_root}/{args.report_root}_figs")
+    FIG_PREFIX = args.report_root.replace("report", "r")
     OUT.mkdir(parents=True, exist_ok=True)
     metrics_rows = load_metrics(args.tag_glob)
     readout_rows = load_readout(args.tag_glob)

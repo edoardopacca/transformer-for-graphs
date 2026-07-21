@@ -48,6 +48,32 @@ def generate_split_chains_graph(n: int, short_len: int) -> np.ndarray:
     return adj
 
 
+def generate_split_cycles_graph(n: int, short_len: int) -> np.ndarray:
+    """Two disjoint CYCLES partitioning ALL n nodes into components of size
+    ``short_len`` and ``n - short_len`` -- the cycle analogue of
+    ``generate_split_chains_graph`` (Report VIII). Each segment is the same
+    contiguous path PLUS its closing edge, so NEITHER component has a degree-1
+    endpoint. This isolates whether the model's asymmetric-split behaviour
+    (Report VI Thread B / Report VII) depends on the path's open ends acting as
+    a distinguished "this component is closed" signal (Report VII sec 4.7's
+    far-endpoint-as-source effect) rather than on the split itself: close both
+    paths into cycles and the endpoint effect either vanishes (endpoints were
+    incidental) or the split can no longer be learned at all (endpoints were
+    load-bearing). Requires each segment to have >= 3 nodes (the smallest simple
+    cycle). No self-loops; node order NOT permuted (permute at the call site)."""
+    if short_len < 3 or n - short_len < 3:
+        raise ValueError(f"each cycle needs >= 3 nodes, got short_len={short_len}, "
+                          f"n-short_len={n - short_len} (n={n})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in ((0, short_len), (short_len, n)):     # two contiguous segments -> cycles
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+        adj[a, b - 1] = 1.0                           # close the cycle
+        adj[b - 1, a] = 1.0
+    return adj
+
+
 def generate_three_way_split_graph(n: int, small_len: int, large_split: int | None = None) -> np.ndarray:
     """Three disjoint paths partitioning ALL n nodes: one SMALL component
     (``small_len`` nodes, meant to sit within capacity and be fully resolvable)

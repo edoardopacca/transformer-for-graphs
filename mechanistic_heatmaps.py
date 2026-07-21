@@ -32,9 +32,15 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import add_self_loops, generate_split_chains_graph
+from data import add_self_loops, generate_split_chains_graph, generate_split_cycles_graph
 from eval_families import load_model
 from mechanistic_asym_chains import run_with_cache, exact_contribution
+
+# Report VIII: same --topology dispatch as mechanistic_asym_chains.py, so the
+# heatmap probe (weights, attention scores/alpha, exact contribution) can be
+# run on the two-cycles graphs with no other code change.
+_TOPOLOGY_GENERATORS = {"chain": generate_split_chains_graph,
+                        "cycle": generate_split_cycles_graph}
 
 
 def _device():
@@ -43,10 +49,10 @@ def _device():
     return torch.device("cpu")
 
 
-def heatmap_probe(model, dev, n, splits, rng, n_graphs, contrib_n_graphs=8):
+def heatmap_probe(model, dev, n, splits, rng, n_graphs, contrib_n_graphs=8, topology="chain"):
     out = {}
     for a in splits:
-        base_adj = generate_split_chains_graph(n, a)
+        base_adj = _TOPOLOGY_GENERATORS[topology](n, a)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
         L, S = (seg1, seg0) if (n - a) >= a else (seg0, seg1)
         xs = np.empty((n_graphs, n, n), np.float32)
@@ -136,6 +142,9 @@ def main():
                          "(Jacobian norm) -- kept small, it is O(n) backward passes/graph")
     ap.add_argument("--splits", type=int, nargs="+", default=None,
                     help="representative splits; default 1,4,7,8,10,14,17,20")
+    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
+                    help="chain = two disjoint paths (Report VI/VII); cycle = two "
+                         "disjoint cycles, same split, no path endpoints (Report VIII)")
     ap.add_argument("--seed", type=int, default=12345)
     args = ap.parse_args()
 
@@ -146,13 +155,14 @@ def main():
     print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev}")
     if arch != "roberta":
         raise NotImplementedError("this script targets the RobertaGraphTransformer only")
+    min_a = 3 if args.topology == "cycle" else 1
     splits = args.splits if args.splits is not None else \
-        sorted({s for s in (1, 4, 7, 8, 10, 14, 17, n // 2) if 1 <= s <= n // 2})
+        sorted({s for s in (1, 4, 7, 8, 10, 14, 17, n // 2) if min_a <= s <= n // 2})
     rng = np.random.default_rng(args.seed)
 
     print("== attention/Q/K/V heatmap probe ==")
     probe = heatmap_probe(model, dev, n, splits, rng, args.n_graphs,
-                           contrib_n_graphs=args.contrib_n_graphs)
+                           contrib_n_graphs=args.contrib_n_graphs, topology=args.topology)
     flat = {}
     for a_key, d in probe.items():
         for k, v in d.items():

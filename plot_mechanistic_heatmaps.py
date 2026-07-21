@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 HEAT_ROOT = Path("runs/report7/heatmaps")
 MECH_ROOT = Path("runs/report7/mechanistic")
 OUT = Path("runs/report7/report7_figs")
+FIG_PREFIX = "r7"   # reset from --report_root in main() (e.g. "r8" for report8)
 PAIR = (4, 20)   # solved vs failed, the recurring comparison pair in this report
 
 
@@ -66,7 +67,7 @@ def fig_weight_geometry(seed_tag, suffix=""):
         axes[1, 2].grid(alpha=0.3)
         fig.suptitle(f"Read-out ($W_{{\\mathrm{{out}}}}$) and read-in ($W_{{\\mathrm{{in}}}}$) geometry -- {seed_tag}")
     fig.tight_layout()
-    p = OUT / f"r7_heatmap_weight_geometry{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_heatmap_weight_geometry{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -79,7 +80,7 @@ def fig_qkvo_raw_weights(seed_tag, suffix=""):
         heat(ax, raw[key], title, cmap="RdBu_r")
     fig.suptitle(f"Raw attention projection weight matrices ($d_{{\\mathrm{{model}}}}\\times d_{{\\mathrm{{model}}}}$) -- {seed_tag}")
     fig.tight_layout()
-    p = OUT / f"r7_heatmap_qkvo_weights{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_heatmap_qkvo_weights{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
     fig, ax = plt.subplots(figsize=(7, 5))
@@ -93,7 +94,7 @@ def fig_qkvo_raw_weights(seed_tag, suffix=""):
     ax.set_title(f"Singular value spectra (normalised to $\\sigma_1$) -- {seed_tag}")
     ax.legend(fontsize=7, ncol=2); ax.grid(alpha=0.3, which="both")
     fig.tight_layout()
-    p = OUT / f"r7_heatmap_singular_values{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_heatmap_singular_values{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -109,7 +110,7 @@ def fig_attention_scores_alpha(seed_tag, pair=PAIR, suffix=""):
     fig.suptitle(f"Attention scores $S=QK^\\top/\\sqrt{{d_h}}$ (left of each pair) and normalized-ReLU "
                 f"$\\alpha$ (right) -- {seed_tag}, node order = base graph position (short then long)")
     fig.tight_layout()
-    p = OUT / f"r7_heatmap_attention_scores{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_heatmap_attention_scores{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -130,7 +131,31 @@ def fig_rollout_contrib(seed_tag, pair=PAIR, suffix=""):
         axes[row, 2].legend(fontsize=7); axes[row, 2].grid(alpha=0.3)
     fig.suptitle(f"Real node-to-node contribution, message contribution, and row-mass -- {seed_tag}")
     fig.tight_layout()
-    p = OUT / f"r7_heatmap_rollout_contrib{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_heatmap_rollout_contrib{suffix}.png"
+    fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
+
+
+def fig_contrib_matrix_only(seed_tag, pair=PAIR, suffix=""):
+    """Just the raw C_ik = ||dh_i^(2)/dh_k^(0)||_F matrix, one panel per split,
+    with no message-contribution or row-mass panels alongside it -- meant to sit
+    directly under the aggregate leak-fraction figure (fig:r7attn) in
+    S:res-attention, so the reader can see the matrix that curve is summarising
+    before reaching the fuller multi-panel figure in S:res-heatmaps."""
+    d = np.load(HEAT_ROOT / seed_tag / "heatmap_data.npz")
+    fig, axes = plt.subplots(1, len(pair), figsize=(6.5 * len(pair), 5.5))
+    if len(pair) == 1:
+        axes = [axes]
+    for ax, a in zip(axes, pair):
+        mat = d[f"a{a}__contrib_exact"]
+        heat(ax, mat, f"$C_{{ik}}=\\|\\partial h_i^{{(2)}}/\\partial h_k^{{(0)}}\\|_F$, a={a}",
+             cmap="viridis", diverging=False)
+        ax.axvline(len(d[f"a{a}__short_idx"]) - 0.5, color="white", ls=":", lw=1)
+        ax.axhline(len(d[f"a{a}__short_idx"]) - 0.5, color="white", ls=":", lw=1)
+        ax.set_xlabel("source node $k$ (base position, short then long)")
+        ax.set_ylabel("query node $i$ (base position, short then long)")
+    fig.suptitle(f"Exact node-to-node contribution matrix -- {seed_tag} (dotted lines: component boundary)")
+    fig.tight_layout()
+    p = OUT / f"{FIG_PREFIX}_heatmap_contrib_matrix{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -144,7 +169,7 @@ def fig_qkv_nodes(seed_tag, pair=PAIR, layer=1, suffix=""):
         ax.set_xlabel("head dim"); ax.set_ylabel("base node position")
     fig2.suptitle(f"Per-node Q/K/V, layer {layer} -- {seed_tag}")
     fig2.tight_layout()
-    p2 = OUT / f"r7_heatmap_qkv_nodes{suffix}.png"
+    p2 = OUT / f"{FIG_PREFIX}_heatmap_qkv_nodes{suffix}.png"
     fig2.savefig(p2, dpi=150); plt.close(fig2); print("saved", p2)
 
     # norms along chain position, both splits, both layers
@@ -160,7 +185,7 @@ def fig_qkv_nodes(seed_tag, pair=PAIR, layer=1, suffix=""):
     axes3[0].set_ylabel(r"$\|q_i\|,\|k_i\|,\|v_i\|$"); axes3[0].legend(fontsize=7, ncol=2)
     fig3.suptitle(f"Per-node Q/K/V norms along the chain (dashed=layer 1, solid=layer 0) -- {seed_tag}")
     fig3.tight_layout()
-    p3 = OUT / f"r7_heatmap_qkv_norms{suffix}.png"
+    p3 = OUT / f"{FIG_PREFIX}_heatmap_qkv_norms{suffix}.png"
     fig3.savefig(p3, dpi=150); plt.close(fig3); print("saved", p3)
 
     # cosine similarity matrices for Q/K/V, one representative split/layer
@@ -174,18 +199,26 @@ def fig_qkv_nodes(seed_tag, pair=PAIR, layer=1, suffix=""):
                 cmap="RdBu_r", vlim=1.0)
     fig4.suptitle(f"Per-node Q/K/V cosine similarity, layer {layer} -- {seed_tag}")
     fig4.tight_layout()
-    p4 = OUT / f"r7_heatmap_qkv_cosine{suffix}.png"
+    p4 = OUT / f"{FIG_PREFIX}_heatmap_qkv_cosine{suffix}.png"
     fig4.savefig(p4, dpi=150); plt.close(fig4); print("saved", p4)
 
 
 def main():
+    global HEAT_ROOT, MECH_ROOT, OUT, FIG_PREFIX
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag_prefix", default="n40_pathunion",
                     help="checkpoint family tag, e.g. n40_pathunion, n64_pathunion, n64_er")
     ap.add_argument("--seed", type=int, default=1000, help="representative seed for the per-graph attention figures")
     ap.add_argument("--pair", type=int, nargs=2, default=list(PAIR), help="solved vs failed split to compare")
     ap.add_argument("--suffix", default="", help="appended to output figure filenames (default: derived from tag_prefix)")
+    ap.add_argument("--report_root", default="report7",
+                    help="runs/<report_root>/{heatmaps,mechanistic,<report_root>_figs} -- "
+                         "e.g. report8 for the two-cycles falsification test")
     args = ap.parse_args()
+    HEAT_ROOT = Path(f"runs/{args.report_root}/heatmaps")
+    MECH_ROOT = Path(f"runs/{args.report_root}/mechanistic")
+    OUT = Path(f"runs/{args.report_root}/{args.report_root}_figs")
+    FIG_PREFIX = args.report_root.replace("report", "r")
     pair = tuple(args.pair)
     suffix = args.suffix if args.suffix else (f"_{args.tag_prefix}" if args.tag_prefix != "n40_pathunion" else "")
     OUT.mkdir(parents=True, exist_ok=True)
@@ -196,6 +229,7 @@ def main():
     fig_qkvo_raw_weights(seed_tag, suffix)
     fig_attention_scores_alpha(seed_tag, pair, suffix)
     fig_rollout_contrib(seed_tag, pair, suffix)
+    fig_contrib_matrix_only(seed_tag, pair, suffix)
     fig_qkv_nodes(seed_tag, pair, suffix=suffix)
 
 

@@ -1,0 +1,575 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em
+
+% Figures live in the repo's runs/ directory; this file sits in report/8/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part VIII: Where Is Connectivity Information Combined?}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% =====================================================================
+% DRAFT / IN PROGRESS. Section 5 (the unified similarity-read-out battery) is
+% WRITTEN with real data (all of it already existed on disk from Report VII's
+% own similarity run, sec:res-similarity there -- no new computation needed,
+% only a new attention-scores figure that existed as a FILE but was never
+% shown in Report VII's rendered text). Section 6 (two cycles) is a STUB:
+% code is implemented and smoke-tested, the HPC job is prepared but not yet
+% run. Section 7 (outlook) records ideas not yet implemented. See
+% istruzioni.md sec 16 for the full brief this report follows.
+% =====================================================================
+
+\begin{abstract}
+\noindent Report~VII opened the trunk and found a graded, split-specific
+completion signal that lets an unbalanced two-chain split resolve far beyond
+the architectural distance wall, and showed that a similarity read-out makes
+the model's behaviour far more robust to that signal's imperfections than the
+linear read-out used everywhere before it. This report does two things.
+First, having decided to standardize on the similarity read-out going
+forward, it collects the \emph{whole} mechanistic battery --- the behavioural
+sweep, the read-out geometry, the attention scores, the node-to-node
+contribution, the layer ablations, the falsification test --- in one place
+for the first time, rather than split across a linear-read-out-first
+narrative. Second, it asks a new question about the mechanism itself: does
+the model's apparent reliance on a path's open \emph{endpoints} reflect
+something the endpoints \emph{are} (a distinguished degree-1 node), or
+something a path merely \emph{has} (an end)? We test this by closing both
+segments of the two-chain split into cycles, removing every endpoint while
+keeping the split intact.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{What Reports I--VII established}
+\label{sec:recap}
+
+We treat the following as established (documented, multi-seed, in
+Reports~I--VII); this report's new work must stay consistent with them.
+
+\begin{itemize}\setlength\itemsep{0.2em}
+  \item \textbf{There is a sharp, architectural distance wall at $3^L$} ($=9$
+        at $L=2$), which moves with depth and appears even on graph families
+        seen $\sim10^8$ times in training (Reports~III--IV).
+  \item \textbf{The model computes distance-bounded matrix powering, not a
+        bounded traversal}, and a soft, learned ``node budget'' on dense
+        structure is a removable data prior, not a second capacity
+        (Report~V).
+  \item \textbf{Parallel routes and repeated local structure both help,
+        within capacity, in data-shaped ways} rather than architecturally for
+        free (Report~VI).
+  \item \textbf{An unbalanced two-chain split resolves far beyond the
+        distance wall; a balanced split does not, with the same weights}
+        (Report~VI, Thread~B) --- and opening the trunk shows why
+        (Report~VII): on a graph with exactly two components, once one is
+        small enough to resolve completely, the model gets an extra,
+        graded completion signal for the \emph{other} component, built by
+        the same two-layer attention machinery that does ordinary
+        beyond-capacity reach, not a separate circuit. The signal survives
+        under \emph{both} training distributions tested (disjoint paths,
+        pure Erd\H{o}s--R\'enyi) and at three canvas sizes ($n=20,40,64$); a
+        label/index shortcut is refuted throughout.
+  \item \textbf{The read-out shape decides how much that signal can hurt, not
+        whether the trunk has it.} The linear read-out's specific failure
+        modes --- a hard reach floor, a cut decision defended only by the
+        sign of an unbounded logit --- are properties of \emph{that}
+        read-out. The similarity read-out
+        ($z_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$) shows the
+        same graded, split-specific mechanistic signal (Report~VII,
+        \S sec:res-similarity) but converts it into a materially more robust
+        behaviour: at $n=40$, reach never drops below $0.91$ (against a
+        linear floor of $0.58$--$0.65$) and cut never drops below $0.995$
+        (against a linear collapse to $0.15$ for one training distribution
+        and to $0.01$--$0.09$ for another) --- a global, fixed cosine margin
+        defends the cut decision everywhere a per-pair unbounded logit could
+        not.
+\end{itemize}
+
+\subsection{The new question: where, and how, is the information combined?}
+\label{sec:question}
+
+Every report through Report~VII reads the trunk's computation through a single
+lens at a time: how far it reaches, which node budget it respects, which
+oracle it resembles, which attention weights or read-out entries move with a
+split. What none of them asks directly is the more basic mechanical question:
+\emph{at which point in the forward pass does the model already have the
+answer} --- has it already decided ``connected'' or ``not'' by the end of
+layer~1, or only after layer~2? Does the feed-forward step (rather than
+attention) do the actual \emph{combining} of ``I am near this node, and that
+node is near the target, therefore\ldots''? This report is framed around that
+question: not just \emph{whether} a signal exists, but \emph{where in the
+stack} it is assembled. \S\ref{sec:battery} lays the groundwork by putting
+every existing mechanistic quantity for the (now-standard) similarity
+read-out in one place; \S\ref{sec:cycles} tests one specific structural
+claim the existing evidence suggests (that a path's open ends carry special
+weight) by removing the ends entirely; \S\ref{sec:outlook} lists the concrete
+next steps this framing calls for --- comparing the raw per-layer embeddings
+$h^{(1)}, h^{(2)}$ directly (not only derived quantities) to see whether a
+two-component ``block'' structure is visible layer by layer, inspecting the
+attention output added to the residual stream directly, and a revised
+node-to-node contribution measure that differentiates with respect to the
+\emph{input} adjacency rather than the post-read-in embedding.
+
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Model.} The same base model as Reports~III--VII: the
+RoBERTa-faithful standard transformer, $L=2$, single head,
+$d_{\mathrm{model}}=512$, normalised-ReLU attention. \textbf{From this report
+on we standardize on the similarity read-out}
+($z_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$, a single global
+scale and bias, genuinely symmetric in $h_i,h_j$) rather than the linear
+read-out used as the default through Report~VII. The justification is
+Report~VII's own finding (\S\ref{sec:recap} above): the two-component
+completion signal this project has spent two reports characterising is
+present under \emph{either} read-out, but the similarity read-out is
+categorically more forgiving of the trunk's imperfect, graded cross-component
+mixing --- reach does not floor, cut does not collapse, and (for a model that
+never saw disconnected graphs in training) the mechanism-vs-behaviour
+dissociation is cleaner. Since the read-out is not the thing under
+investigation here, we fix it to the one that lets behaviour track the
+mechanism most faithfully. We start with the \emph{disjoint-paths} training
+distribution (unions of $1$--$4$ paths covering all $n$ nodes, as in every
+two-chain result since Report~VI) at $n=40$, four seeds --- the checkpoint set
+already used for Report~VII's own similarity comparison. Other training
+distributions and canvas sizes are left for a later pass (\S\ref{sec:outlook}).
+
+\paragraph{Notation.} We reuse Report~VII's forward-pass notation without
+repeating the full derivation: $h_i^{(0)}$ is node $i$'s read-in embedding
+(after the embedding LayerNorm); $h_i^{(1)}, h_i^{(2)}$ its embedding after
+each of the two transformer blocks; $S_{\ell,ij}=q_{i}^\top k_{j}/\sqrt{d_h}$
+the raw attention score and $\alpha_{\ell,ij}=\tfrac1n\max(0,S_{\ell,ij})$ the
+normalised-ReLU attention weight at layer $\ell$; and
+$C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ the exact node-to-node
+contribution (real automatic differentiation through the whole forward pass
+--- $V$, $W_O$, the residual identity, the feed-forward step, LayerNorm's true
+local derivative), introduced in Report~VII \S sec:setup to replace an
+attention-only rollout approximation. \S\ref{sec:outlook} discusses a planned
+revision of this last quantity.
+
+\paragraph{Test graphs.} Two-chain graphs partitioning all $n=40$ nodes into
+two disjoint paths of size $a$ and $n-a$, swept over $a=1,\dots,20$, exactly
+as in Report~VII.
+
+\section{The full mechanistic battery, in one setting}
+\label{sec:battery}
+
+Report~VII introduced the similarity read-out comparison as one section
+(\S sec:res-similarity there) after five sections built around the linear
+read-out; consequently several quantities computed for the similarity
+checkpoints were never shown together, and one (the attention-score heatmap)
+was computed but not rendered in the report text at all. This section
+collects the complete battery for the model this project now treats as
+standard --- similarity read-out, disjoint-paths training, $n=40$ --- in one
+place. Every quantity below reuses Report~VII's already-validated
+computation (same scripts, same checkpoints, same four seeds); no new
+computation was needed for this section.
+
+\subsection{Behavioural sweep and the raw cosine logit}
+\label{sec:battery-sweep}
+
+Table~\ref{tab:r8sweep} and Figure~\ref{fig:r8sweep} give the full split
+sweep. Exact match still falls from $1.0$ to $0$ as the split balances, but
+reach in the long component never drops below $0.91$ at any split tested and
+recovers to $0.995$ by $a=20$ --- there is no floor-and-recovery cliff down to
+$0.58$--$0.65$ the way the linear read-out shows at the same canvas. Cut
+stays at $\ge0.995$ across the entire sweep. The exact-match values at
+$a=8$--$10$ ($0.500$) hide a clean per-seed split rather than a graded
+degradation: two of the four seeds solve every graph exactly at each of these
+splits, the other two solve none --- a seed-level threshold shift of a few
+nodes, not a within-seed partial success.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+split $(a,\,40{-}a)$ & exact & reach (long) & reach (short) & cut & pred.\ positive rate\\
+\midrule
+$(1,39)$  & 1.000 & 1.000 & --    & 1.000 & 0.951\\
+$(4,36)$  & 1.000 & 1.000 & 1.000 & 1.000 & 0.820\\
+$(7,33)$  & 1.000 & 1.000 & 1.000 & 1.000 & 0.711\\
+$(8,32)$  & 0.500 & 0.910 & 1.000 & 1.000 & 0.624\\
+$(9,31)$  & 0.500 & 0.917 & 1.000 & 1.000 & 0.603\\
+$(10,30)$ & 0.500 & 0.925 & 1.000 & 1.000 & 0.584\\
+$(14,26)$ & 0.000 & 0.915 & 1.000 & 0.999 & 0.511\\
+$(17,23)$ & 0.000 & 0.961 & 1.000 & 0.995 & 0.501\\
+$(20,20)$ & 0.000 & 0.995 & 0.995 & 0.996 & 0.499\\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} base standard transformer with the \emph{similarity}
+read-out ($L=2$, single head, $d_{\mathrm{model}}=512$,
+$z_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$), trained on a single
+clean distribution of disjoint paths (unions of $1$--$4$ paths covering all
+$n$ nodes), four seeds, $n=40$. \emph{Test set:} two-chain graphs split
+$(a,\,40{-}a)$, $200$ independently node-relabelled graphs per split per seed.
+\emph{Metrics} (mean over seeds): whole-graph exact match; pairwise reach
+inside the long/short path (target connected); pairwise accuracy across the
+two paths (target disconnected); the model's overall fraction of pairs
+predicted connected.}
+\label{tab:r8sweep}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_sweep_and_logit_n40_pathunion_similarity.png}{0.92}
+    \caption{\emph{Model/training/test as in Table~\ref{tab:r8sweep}}, full
+    split sweep $a=1,\dots,20$. \emph{Top:} behavioural sweep, error bars
+    $=$ std across the four seeds. \emph{Bottom:} mean raw $\cos(h_i,h_j)$
+    (before scale/bias) for pairs within the long path, within the short
+    path, and across the two paths, mean over seeds, error bars $=$ std
+    across seeds.}
+    \label{fig:r8sweep}
+\end{figure}
+
+\subsection{Read-in geometry}
+\label{sec:battery-geometry}
+
+There is no $W_{\mathrm{out}}$ for this read-out, only the read-in embedding
+$E_{\mathrm{in}}$ and two global scalars, $\mathrm{scale}$ and
+$\mathrm{bias}$. Table~\ref{tab:r8wout} and Figure~\ref{fig:r8wout} give its
+geometry: row norms close to uniform across the $40$ labels and small
+pairwise cosine similarity between different rows (no fixed node-index
+shortcut). The decision boundary is $\mathrm{scale}\cdot\cos(h_i,h_j)+
+\mathrm{bias}=0$, i.e.\ $\cos(h_i,h_j)=-\mathrm{bias}/\mathrm{scale}\approx0.146$
+for this training distribution --- a single, fixed cosine threshold every
+pair is measured against.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcc}
+\toprule
+ & $\|e_k\|$ (mean, std) & mean $\cos(e_k,e_l)$ ($k\neq l$)\\
+\midrule
+seed 1000 & $1.89\pm0.09$ & $+0.250$\\
+seed 2000 & $1.19\pm0.05$ & $+0.369$\\
+seed 3000 & $2.02\pm0.09$ & $+0.255$\\
+seed 4000 & $1.36\pm0.18$ & $+0.299$\\
+\midrule
+mean scale, bias & \multicolumn{2}{c}{$32.6,\ -4.77$}\\
+implied threshold $\cos$ & \multicolumn{2}{c}{$\approx0.146$}\\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the four checkpoints of Table~\ref{tab:r8sweep}.
+\emph{Test set:} none --- static properties of the trained weights, not
+evaluated on any graph. \emph{Metrics:} read-in row norms $\|e_k\|$ (mean
+$\pm$ std.\ over the $40$ labels); mean pairwise cosine similarity between
+different rows of $E_{\mathrm{in}}$; the two global read-out scalars (mean
+over seeds); and the cosine value at which
+$\mathrm{scale}\cdot\cos+\mathrm{bias}=0$, the model's fixed connectivity
+threshold.}
+\label{tab:r8wout}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_weight_geometry_n40_pathunion_similarity.png}{0.85}
+    \caption{\emph{Model:} the four checkpoints of Table~\ref{tab:r8sweep}.
+    \emph{Test set:} none --- static weights, as in Table~\ref{tab:r8wout}.
+    \emph{Metric:} $E_{\mathrm{in}}=W_{\mathrm{in}}^\top$ (raw entries), the
+    cosine-similarity matrix $\cos(e_k,e_l)$, and the row norms $\|e_k\|$ by
+    label index (one representative seed).}
+    \label{fig:r8wout}
+\end{figure}
+
+\subsection{Attention scores and normalized-ReLU $\alpha$}
+\label{sec:battery-attn}
+
+This figure was computed for the similarity read-out in Report~VII but never
+shown there. Figure~\ref{fig:r8attnscores} gives the real attention-score
+matrix $S=QK^\top/\sqrt{d_h}$ and the resulting $\alpha$, per layer, at
+$a=4$ (solved) and $a=20$ (failed). Layer~$0$ is a narrow band along the
+diagonal at both splits --- local, structure-driven, matching every other
+condition in this project. Layer~$1$ is where the two splits differ and
+where a feature not visible in the linear read-out's version of this figure
+stands out clearly: at \emph{both} $a=4$ and $a=20$, the columns nearest the
+two path endpoints (the first few and last few base-node indices) draw a
+markedly higher $\alpha$ than the rest of the row from almost every other
+node --- bright vertical bands at both edges of the layer-1 panels --- while
+the component boundary itself is visible as a break in the near-diagonal band
+only once the short component is a large enough fraction of the canvas
+(clearest at $a=20$).
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_attention_scores_n40_pathunion_similarity.png}{0.95}
+    \caption{\emph{Model:} one seed of the checkpoints of Table~\ref{tab:r8sweep}.
+    \emph{Test set:} one representative two-chain graph at $a=4$ and one at
+    $a=20$, node order fixed to base graph position (short path first, then
+    long) for readability. \emph{Metric:} the real attention score matrix
+    $S=QK^\top/\sqrt{d_h}$ and the resulting normalized-ReLU attention
+    $\alpha=\mathrm{ReLU}(S)/n$, layer $0$ (top) and layer $1$ (bottom),
+    averaged over $80$ independent random relabellings of the same
+    underlying graph then mapped back to base node order.}
+    \label{fig:r8attnscores}
+\end{figure}
+
+\subsection{Node-to-node contribution}
+\label{sec:battery-contrib}
+
+Figure~\ref{fig:r8leak} gives the leak fraction (the share of a long-path
+node's exact contribution mass $C_{ik}$ that traces back to the short
+component) across the full sweep, and Figure~\ref{fig:r8contribmat} the raw
+matrix at the same two representative splits. The leak fraction jumps from
+$0\%$ at $a=1$ to a \emph{flat} plateau of $\approx21$--$23\%$ from $a=4$
+onward --- neither the smooth monotone rise nor the sharp spike the linear
+read-out shows at the same canvas (Report~VII \S sec:res-attention). The
+matrix itself shows a genuine, non-trivial band of cross-component mixing at
+\emph{both} splits, even though behaviour is nearly perfect at $a=4$: a real
+dissociation between mechanism and behaviour --- the trunk mixes across the
+component boundary by a similar amount whether or not the split is solved,
+and it is the read-out, not the mixing, that decides whether that costs
+anything (\S\ref{sec:recap}). \emph{This measure will be revisited once the
+revised, adjacency-based contribution of \S\ref{sec:outlook} is defined; the
+figures here use the same $C_{ik}$ as every result since Report~VII.}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_attention_leak_n40_pathunion_similarity.png}{0.7}
+    \caption{\emph{Model/training as in Table~\ref{tab:r8sweep}}. \emph{Test
+    set:} two-chain graphs at the splits shown, $64$ independently
+    node-relabelled graphs per seed. \emph{Metric:} for each long-component
+    node, the fraction of its exact node-to-node contribution mass
+    $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ (\S\ref{sec:setup})
+    that traces back to the short component rather than its own long
+    component, mean over long-component nodes; small dots are individual
+    seeds, the line is the mean over seeds.}
+    \label{fig:r8leak}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_heatmap_contrib_matrix_n40_pathunion_similarity.png}{0.95}
+    \caption{\emph{Model:} one seed of the checkpoints of Table~\ref{tab:r8sweep}
+    (representative; the pattern is consistent across seeds).
+    \emph{Test set:} two-chain graphs at the split shown ($a=4$ left, $a=20$
+    right), $64$ independently node-relabelled graphs, $C_{ik}$ averaged
+    over them. \emph{Metric:} the raw exact node-to-node contribution matrix
+    $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$, rows/columns
+    ordered by base position (short component first, then long). Dotted
+    white lines mark the component boundary.}
+    \label{fig:r8contribmat}
+\end{figure}
+
+\subsection{Layer ablation}
+\label{sec:battery-ablation}
+
+Table~\ref{tab:r8ablation} and Figure~\ref{fig:r8ablation} give the ablation
+sweep. The bypass condition (both transformer blocks skipped, read-out
+applied directly to the read-in embedding) already gives cut $0.95$--$0.995$
+across the whole sweep --- higher than several of the attention-ablated
+conditions --- while its reach is low throughout ($0.10$--$0.20$): most of
+what makes cut work is already present in the read-in embeddings' cosine
+geometry before any attention runs, and the trunk's main job for this
+read-out is building reach, not cut. Zeroing attention layer~$1$ knocks reach
+down only mildly ($0.82$--$0.89$) while zeroing layer~$0$ leaves reach
+essentially untouched ($0.987$--$0.992$) but collapses cut to $0.01$--$0.04$
+once the split is no longer tiny --- the reverse of the dependency the
+linear read-out showed, where cut depended on layer-$1$ feed-forward
+specifically.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lcccccccc}
+\toprule
+condition & $a{=}1$ & $a{=}4$ & $a{=}7$ & $a{=}8$ & $a{=}10$ & $a{=}14$ & $a{=}17$ & $a{=}20$\\
+\midrule
+\multicolumn{9}{l}{\emph{reach (long component)}}\\
+baseline    & 1.000 & 1.000 & 1.000 & 0.911 & 0.925 & 0.915 & 0.961 & 0.995\\
+zero attn 0 & 0.992 & 0.992 & 0.992 & 0.992 & 0.991 & 0.990 & 0.988 & 0.987\\
+zero attn 1 & 0.885 & 0.876 & 0.868 & 0.865 & 0.859 & 0.844 & 0.831 & 0.820\\
+zero mlp 0  & 0.959 & 0.954 & 0.953 & 0.959 & 0.949 & 0.942 & 0.937 & 0.923\\
+zero mlp 1  & 0.794 & 0.944 & 0.913 & 0.886 & 0.902 & 0.921 & 0.961 & 0.991\\
+bypass      & 0.102 & 0.110 & 0.120 & 0.124 & 0.132 & 0.152 & 0.172 & 0.197\\
+\midrule
+\multicolumn{9}{l}{\emph{cut (target: disconnected)}}\\
+baseline    & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 0.996 & 0.997\\
+zero attn 0 & 0.997 & 0.035 & 0.025 & 0.024 & 0.019 & 0.015 & 0.013 & 0.014\\
+zero attn 1 & 0.752 & 0.903 & 0.382 & 0.343 & 0.293 & 0.241 & 0.225 & 0.219\\
+zero mlp 0  & 0.917 & 0.047 & 0.136 & 0.113 & 0.100 & 0.082 & 0.074 & 0.074\\
+zero mlp 1  & 0.807 & 0.226 & 0.335 & 0.477 & 0.518 & 0.686 & 0.739 & 0.760\\
+bypass      & 0.949 & 0.986 & 0.991 & 0.992 & 0.993 & 0.994 & 0.995 & 0.995\\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r8sweep}}, four seeds.
+\emph{Test set:} two-chain graphs at the splits shown, $150$ graphs per seed,
+independently node-relabelled. \emph{Metric:} reach (long component, top
+block) and cut (bottom block), mean over seeds, under six forward-pass
+conditions --- unmodified (baseline); the attention or feed-forward branch
+zeroed at layer $0$ or $1$; and both transformer blocks skipped entirely
+(bypass, read-out applied directly to the read-in embedding).}
+\label{tab:r8ablation}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report7/report7_figs/r7_ablation_reach_cut_n40_pathunion_similarity.png}{0.95}
+    \caption{Table~\ref{tab:r8ablation} as curves. \emph{Model/training/test
+    as in Table~\ref{tab:r8ablation}}, mean over four seeds. Red dashed
+    line: capacity $3^L=9$.}
+    \label{fig:r8ablation}
+\end{figure}
+
+\subsection{Falsification test: three components}
+\label{sec:battery-threeway}
+
+Table~\ref{tab:r8threeway} repeats Report~VII's falsification construction: a
+small, cleanly-resolvable path plus two large paths that are \emph{not}
+connected to each other. If the model implemented a crude ``not the small one
+therefore connected'' rule, it would wrongly merge the two large components.
+It does not, at any small-component size tested: $\mathrm{cut}(\mathrm{L}_1,
+\mathrm{L}_2)\ge0.988$ throughout, reaching $1.000$ for several cells, with
+reach inside each large component close to perfect once the small component
+is not itself a single node.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+small & reach L$_1$/L$_2$ & cut(S,L) & cut(L$_1$,L$_2$)\\
+\midrule
+1  & 0.998 & 1.000 & 0.998\\
+2  & 1.000 & 1.000 & 0.988\\
+4  & 1.000 & 1.000 & 0.999\\
+7  & 1.000 & 1.000 & 0.999\\
+8  & 1.000 & 1.000 & 1.000\\
+10 & 1.000 & 1.000 & 1.000\\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model/training as in Table~\ref{tab:r8sweep}}. \emph{Test
+set:} three disjoint paths partitioning all $40$ nodes --- one small path
+(size shown) and two large paths, the two large paths \emph{not} connected
+to each other; $300$ graphs per seed, independently node-relabelled.
+\emph{Metrics} (mean over four seeds): pairwise reach inside the two large
+components (mean of L$_1$, L$_2$, target connected); pairwise accuracy
+between the small path and either large path (target disconnected, mean);
+pairwise accuracy between the two large paths (target disconnected --- the
+decisive column).}
+\label{tab:r8threeway}
+\end{table}
+
+\section{Testing the path-endpoint hypothesis: closing the chains into cycles}
+\label{sec:cycles}
+
+\paragraph{Where this comes from.} Two independent pieces of evidence, both
+in \S\ref{sec:battery} and in Report~VII, single out a path's open
+\emph{endpoints} (its two degree-$1$ nodes) as structurally unusual. Under the
+linear read-out (Report~VII \S sec:res-heatmaps), the far endpoint of each
+path segment is an outsized \emph{source} of node-to-node contribution ---
+$3$--$4\times$ the per-node average --- without being an unusual
+\emph{receiver}, read there as a ``this path is closed'' signal broadcast
+outward. Under the similarity read-out (\S\ref{sec:battery-attn} above), the
+columns nearest each path's two endpoints draw markedly more layer-$1$
+attention than the rest of the graph, at every split tested. Both readings
+point the same way, but neither rules out the alternative: that these effects
+are an artefact of \emph{how the test graphs are built} (a path always has
+exactly two special nodes) rather than something the model's completion
+mechanism actually depends on.
+
+\paragraph{The test.} We remove every endpoint while changing nothing else:
+close each of the two path segments into a \textbf{cycle}, keeping the same
+split $(a,\,n-a)$, the same total node count, and the same
+disjoint-two-component structure --- only now neither component has a
+degree-$1$ node. % generate_split_cycles_graph(n, short_len) in data.py, the
+                  % direct structural analogue of generate_split_chains_graph
+                  % used for every two-chain result since Report VI.
+A cycle needs at least three nodes, so the sweep starts at
+$a=3$ rather than $a=1$. We feed this construction to the \emph{same}
+checkpoints as \S\ref{sec:battery} (disjoint-paths-trained, similarity
+read-out, $n=40$) --- eval-only, no retraining --- and read the identical
+battery: the behavioural sweep, and the node-to-node contribution leak
+fraction, using the \emph{same} exact-Jacobian contribution measure as
+\S\ref{sec:battery-contrib} (the revised, adjacency-based measure of
+\S\ref{sec:outlook} is deliberately not used yet, so this result is not
+entangled with that separate open question).
+
+\paragraph{Two readings, stated before looking at the data.} If the model
+solves the cycle sweep about as well as the chain sweep (same split
+threshold, similar reach/cut pattern), the endpoints were \emph{incidental}:
+whatever the completion mechanism actually tracks does not depend on a
+degree-$1$ node existing, and the source/high-attention effect at the
+endpoints was a by-product of them being the two nodes farthest from every
+other node on their segment, not a special role tied to being an open end.
+If instead the model's performance degrades sharply or the split threshold
+moves, the endpoints are \emph{load-bearing}: removing them removes
+something the mechanism relies on to decide a segment is fully resolved.
+
+\emph{[Data pending --- the eval is prepared (eval-only on the existing
+similarity checkpoints, no training) but not yet run at the time of writing.
+Replace this paragraph with the real sweep table, the leak-fraction
+comparison against Figure~\ref{fig:r8leak}, and the verdict once the job
+returns.]}
+
+\section{Outlook}
+\label{sec:outlook}
+
+Three concrete next steps follow directly from the framing of
+\S\ref{sec:question}, none implemented yet.
+
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{A revised node-to-node contribution measure.} Every
+        contribution result since Report~VII (including
+        \S\ref{sec:battery-contrib} above) differentiates the final
+        embedding $h_i^{(2)}$ with respect to the \emph{post-read-in}
+        embedding $h_k^{(0)}$. The concern: $h_k^{(0)}$ is already a learned
+        transformation of the input, so by the time it is used as the
+        differentiation variable it may no longer be as tightly tied to
+        ``node $k$ specifically'' as the raw input row is. The planned fix
+        differentiates with respect to the input adjacency $A'$ itself ---
+        concretely, how the final embedding of node $i$ changes if a single
+        edge is flipped from $0$ to $1$ (or the reverse) in $A'$, rather than
+        through the already-processed $h^{(0)}$. The exact experimental
+        design is still being worked out and will be specified in a
+        follow-up before it is implemented.
+  \item \textbf{Plot the per-layer embeddings themselves, not only derived
+        quantities.} Every mechanistic result so far (attention, contribution,
+        read-out logits) is a quantity \emph{derived from} $h^{(1)}$ and
+        $h^{(2)}$. Plotting the embeddings directly (e.g.\ a low-dimensional
+        projection, coloured by which component a node belongs to) at each
+        layer would show directly whether a two-component ``block''
+        structure is visible in the representation itself, and at which
+        layer it first appears.
+  \item \textbf{Inspect where the information is combined.} The working
+        hypothesis is that the trunk first establishes, per node, something
+        like ``which other nodes are near me'' and only later \emph{combines}
+        that with the target's identity to decide connectedness --- and that
+        this combination step is a natural place to look for in the
+        feed-forward sub-layer rather than attention. Plotting the attention
+        output added to the residual stream directly (rather than only the
+        attention weights $\alpha$) at each layer is the first concrete probe
+        of this, to see whether the two branches are already combined before
+        the feed-forward step or only after it.
+\end{itemize}
+
+Beyond these three, the battery of \S\ref{sec:battery} and the cycle test of
+\S\ref{sec:cycles} are both, for now, run only on the disjoint-paths
+training distribution at $n=40$. Extending either to the pure-Erd\H{o}s--R\'enyi
+distribution and to $n=20/64$ (as Report~VII did for the linear read-out) is
+the natural next pass once the questions above are settled.
+
+\end{document}

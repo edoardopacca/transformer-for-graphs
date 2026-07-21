@@ -50,8 +50,22 @@ import torch
 import torch.nn.functional as F
 
 from data import (add_self_loops, compute_connectivity_matrix,
-                  compute_all_pairs_shortest_paths, generate_split_chains_graph)
+                  compute_all_pairs_shortest_paths, generate_split_chains_graph,
+                  generate_split_cycles_graph)
 from eval_families import load_model
+
+# Report VIII: --topology cycle swaps every "two disjoint paths, split (a, n-a)"
+# graph in this script for "two disjoint CYCLES, split (a, n-a)" (same split
+# knob, same node-index ranges, only the two segments are closed into cycles).
+# Kept as a single dispatch point so every downstream function (behavioural
+# sweep, readout decomposition, attention probe) works unchanged for either
+# topology, rather than duplicating this whole file for one graph-generator swap.
+_TOPOLOGY_GENERATORS = {"chain": generate_split_chains_graph,
+                        "cycle": generate_split_cycles_graph}
+
+
+def _build_split_graph(n, a, topology):
+    return _TOPOLOGY_GENERATORS[topology](n, a)
 
 
 def _device():
@@ -199,10 +213,10 @@ def _selftest(model, dev, n):
 # --------------------------------------------------------------------------
 # Tier-1 #1/#2: dense behavioural sweep (+ relabelling toggle)
 # --------------------------------------------------------------------------
-def behavioural_sweep(model, dev, n, splits, rng, n_graphs, fixed_label):
+def behavioural_sweep(model, dev, n, splits, rng, n_graphs, fixed_label, topology="chain"):
     rows = []
     for a in splits:
-        base_adj = generate_split_chains_graph(n, a)
+        base_adj = _build_split_graph(n, a, topology)
         base_y = compute_connectivity_matrix(base_adj).astype(np.int8)
         base_dist = compute_all_pairs_shortest_paths(base_adj)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
@@ -262,12 +276,12 @@ def behavioural_sweep(model, dev, n, splits, rng, n_graphs, fixed_label):
 # --------------------------------------------------------------------------
 # Tier-1 #3: h_i^T w_j readout decomposition, aggregated by pair type/distance/split
 # --------------------------------------------------------------------------
-def readout_decomposition(model, dev, n, splits, rng, n_graphs):
+def readout_decomposition(model, dev, n, splits, rng, n_graphs, topology="chain"):
     W_out = model.read_out.weight.detach().cpu().numpy()      # [n, d_model], row j = w_j
     b_out = model.read_out.bias.detach().cpu().numpy()        # [n]
     rows = []
     for a in splits:
-        base_adj = generate_split_chains_graph(n, a)
+        base_adj = _build_split_graph(n, a, topology)
         base_dist = compute_all_pairs_shortest_paths(base_adj)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
         L, S = (seg1, seg0) if (n - a) >= a else (seg0, seg1)
@@ -339,10 +353,10 @@ def readout_decomposition(model, dev, n, splits, rng, n_graphs):
 # contrib), not the row-only unpermute the linear w_j-is-fixed-in-network-
 # coordinates case requires.
 # --------------------------------------------------------------------------
-def readout_decomposition_similarity(model, dev, n, splits, rng, n_graphs):
+def readout_decomposition_similarity(model, dev, n, splits, rng, n_graphs, topology="chain"):
     rows = []
     for a in splits:
-        base_adj = generate_split_chains_graph(n, a)
+        base_adj = _build_split_graph(n, a, topology)
         base_dist = compute_all_pairs_shortest_paths(base_adj)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
         L, S = (seg1, seg0) if (n - a) >= a else (seg0, seg1)
@@ -450,10 +464,10 @@ def weights_geometry_similarity(model):
 # query node per graph, so it is far more expensive than the plain
 # alpha/message-contribution quantities below.
 # --------------------------------------------------------------------------
-def attention_probe(model, dev, n, splits, rng, n_graphs, contrib_n_graphs=8):
+def attention_probe(model, dev, n, splits, rng, n_graphs, contrib_n_graphs=8, topology="chain"):
     out = {}
     for a in splits:
-        base_adj = generate_split_chains_graph(n, a)
+        base_adj = _build_split_graph(n, a, topology)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
         L, S = (seg1, seg0) if (n - a) >= a else (seg0, seg1)
         xs = np.empty((n_graphs, n, n), np.float32)
@@ -519,6 +533,10 @@ def main():
                     help="split range for the dense behavioural/readout sweep; default 1..n//2")
     ap.add_argument("--attn_splits", type=int, nargs="+", default=None,
                     help="representative splits for the (heavier) attention probe")
+    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
+                    help="chain = two disjoint paths, split (a, n-a) (Report VI/VII); "
+                         "cycle = the same split but each segment closed into a cycle, "
+                         "so neither component has a degree-1 path endpoint (Report VIII)")
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--skip_selftest", action="store_true")
     args = ap.parse_args()
@@ -535,16 +553,24 @@ def main():
         _selftest(model, dev, n)
         _selftest_exact_contribution(dev)
 
-    splits = args.splits if args.splits is not None else list(range(1, n // 2 + 1))
+    # a cycle needs >= 3 nodes per component; a chain's smallest component is 1 node.
+    min_a = 3 if args.topology == "cycle" else 1
+    splits = args.splits if args.splits is not None else list(range(min_a, n // 2 + 1))
+    # 11, 12, 13 added (istruzioni.md errore 62): the leak-fraction spike found at a=10
+    # (Report VII fig:r7attn) was left unresolved because the next probed split jumped
+    # straight to 14 -- always probe the immediate neighbours of an interesting point in
+    # a sweep, not just the point itself.
     attn_splits = args.attn_splits if args.attn_splits is not None else \
-        sorted({s for s in (1, 4, 7, 8, 10, 14, 17, n // 2) if s in splits})
+        sorted({s for s in (1, 4, 7, 8, 10, 11, 12, 13, 14, 17, n // 2) if s in splits})
 
     rng = np.random.default_rng(args.seed)
     print("\n== behavioural sweep (random relabelling, the primary condition) ==")
-    rows = behavioural_sweep(model, dev, n, splits, rng, args.n_graphs, fixed_label=False)
+    rows = behavioural_sweep(model, dev, n, splits, rng, args.n_graphs, fixed_label=False,
+                              topology=args.topology)
     print("\n== fixed-label comparison (identity permutation, confirmatory only) ==")
-    fixed_splits = sorted({s for s in (1, 4, 7, 8, 10, 17, n // 2) if 1 <= s <= n // 2})
-    rows += behavioural_sweep(model, dev, n, fixed_splits, rng, args.n_graphs, fixed_label=True)
+    fixed_splits = sorted({s for s in (1, 4, 7, 8, 10, 17, n // 2) if min_a <= s <= n // 2})
+    rows += behavioural_sweep(model, dev, n, fixed_splits, rng, args.n_graphs, fixed_label=True,
+                              topology=args.topology)
     with (out / "metrics.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["split_a", "mode", "metric", "distance", "value", "n_pairs"])
         w.writeheader(); w.writerows(rows)
@@ -552,7 +578,8 @@ def main():
 
     if readout == "similarity":
         print("\n== readout decomposition cos(h_i,h_j) (similarity read-out) ==")
-        rrows = readout_decomposition_similarity(model, dev, n, splits, rng, args.n_graphs)
+        rrows = readout_decomposition_similarity(model, dev, n, splits, rng, args.n_graphs,
+                                                  topology=args.topology)
         with (out / "readout.csv").open("w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=["split_a", "pair_type", "mean_cos", "frac_positive", "n_pairs"])
             w.writeheader(); w.writerows(rrows)
@@ -562,7 +589,8 @@ def main():
         wg = weights_geometry_similarity(model)
     else:
         print("\n== readout decomposition h_i^T w_j ==")
-        rrows = readout_decomposition(model, dev, n, splits, rng, args.n_graphs)
+        rrows = readout_decomposition(model, dev, n, splits, rng, args.n_graphs,
+                                       topology=args.topology)
         with (out / "readout.csv").open("w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=["split_a", "pair_type", "mean_hTw", "frac_positive", "n_pairs"])
             w.writeheader(); w.writerows(rrows)
@@ -576,13 +604,21 @@ def main():
 
     print("\n== attention probe (representative splits) ==")
     ap_out = attention_probe(model, dev, n, attn_splits, rng, args.attn_n_graphs,
-                              contrib_n_graphs=args.contrib_n_graphs)
+                              contrib_n_graphs=args.contrib_n_graphs, topology=args.topology)
     npz_dict = {}
+    existing_path = out / "attn_cache.npz"
+    if existing_path.exists():
+        # merge with whatever splits were already cached (e.g. a prior run computed
+        # 1,4,7,8,10,14,17,20 and this run only adds 11,12,13) instead of overwriting
+        # them -- recomputing the expensive exact-contribution splits from scratch
+        # every time a new split is added would waste the earlier, still-valid work.
+        with np.load(existing_path) as old:
+            npz_dict = {k: old[k] for k in old.files}
     for a_key, d in ap_out.items():
         for k, v in d.items():
             npz_dict[f"{a_key}__{k}"] = np.asarray(v)
-    np.savez_compressed(out / "attn_cache.npz", **npz_dict)
-    print(f"  saved -> {out}/attn_cache.npz")
+    np.savez_compressed(existing_path, **npz_dict)
+    print(f"  saved -> {existing_path} ({len(npz_dict)} arrays)")
 
 
 if __name__ == "__main__":
