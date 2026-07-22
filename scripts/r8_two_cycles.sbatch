@@ -21,16 +21,19 @@
 # (a, n-a), same total n, same two-component structure, but neither component
 # has an endpoint anymore.
 #
-# Deliberately uses the SAME exact node-to-node contribution C_ik as every
-# result since Report VII (Jacobian of h_i^(2) wrt h_k^(0)) -- the revised,
-# adjacency-based contribution measure is a SEPARATE open question
-# (report/8 sec:outlook) and is not conflated with this experiment.
+# Uses the SAME exact Jacobian node-to-node contribution C_ik as every result
+# since Report VII (istruzioni.md errore keeps old/new separate) AND, new in
+# this job, the causal edge-ablation contribution (edge_ablation_contribution.py,
+# istruzioni.md sec 15 update) -- both computed for the cycle topology so the
+# endpoint question can be read from either lens.
 #
 # Checkpoints (existing, similarity read-out -- this project now standardizes
 # on it, report/8 sec 2 -- no training):
 #   runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed{S}/last.pt
 #
-# Two pieces per seed, both eval-only (no GPU -- dense matmuls + autograd):
+# Three pieces per seed, all eval-only (no GPU -- dense matmuls, no backward
+# pass at all for edge_ablation_contribution.py, an exact Jacobian backward
+# per query node for mechanistic_asym_chains.py):
 #   1. mechanistic_asym_chains.py --topology cycle -- behavioural sweep +
 #      readout decomposition + attention probe (leak fraction, exact
 #      contribution). Splits default to 3..n//2 automatically for cycles
@@ -38,6 +41,13 @@
 #   2. mechanistic_heatmaps.py --topology cycle -- attention-score/weight
 #      heatmaps at two representative splits (a=4, a=20 -- kept as the SAME
 #      pair used throughout report/8 sec:battery for a direct comparison).
+#   3. edge_ablation_contribution.py --topology cycle -- the causal C_edge/
+#      C_logit/C_far heatmaps and edge/logit/far leak fractions, over the
+#      same representative-split set used everywhere in this report. Far
+#      pairs need the LONG cycle segment's diameter (~half its length) to
+#      exceed the capacity 9, so this needs a large enough long segment to
+#      be informative -- expected to bite only once the long segment is
+#      long enough (~19+ nodes for a cycle, vs ~10+ for a chain).
 #
 # CPU-only, BLAS multi-threaded across --cpus-per-task, same pattern as every
 # other r7_*/r8_* mechanistic sbatch in this project.
@@ -81,6 +91,14 @@ python mechanistic_heatmaps.py \
   --splits 4 20 \
   --contrib_n_graphs 64
 [ $? -ne 0 ] && { echo "FAILED: mechanistic_heatmaps.py"; FAIL=1; }
+
+echo "== edge_ablation_contribution.py --topology cycle (seed $S) =="
+python edge_ablation_contribution.py \
+  --checkpoint "$CKPT" \
+  --output_dir "runs/report8/edge_contrib/${TAG}" \
+  --topology cycle \
+  --n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: edge_ablation_contribution.py"; FAIL=1; }
 
 if [ "$FAIL" -ne 0 ]; then
   echo "one or more steps FAILED for seed $S -- see FAILED markers above"

@@ -25,9 +25,14 @@ questo progetto. Leggere **tutto** prima di agire.
 > sintetico: §sec:battery del Report 8 (la batteria meccanicistica unita, n40 path\_union, similarity)
 > è SCRITTA con dati reali (riusa dati/figure già esistenti del Report 7, zero calcolo nuovo); il test
 > a due cicli (§sec:cycles, endpoint del path sono causali o incidentali?) è implementato e
-> smoke-testato ma **NON ancora lanciato su HPC** — `sbatch scripts/r8_two_cycles.sbatch` quando pronto
-> (vedi §15). Idee NON ancora implementate (§15/outlook): nuova contribution basata su A' (non h^(0)),
-> plot diretto di h^(1)/h^(2), plot dell'attention output.
+> smoke-testato. **NUOVO (2026-07-22, §15.4): la nuova contribution CAUSALE (edge-ablation su A', non
+> più Jacobiano su h^(0)) è stata specificata dalla prof e IMPLEMENTATA** (`edge_ablation_contribution.py`
+> + `plot_edge_ablation.py`, smoke-testati) — la vecchia contribution NON è stata tolta, resta come
+> misura di sensibilità interna. **DUE sbatch pronti, NESSUNO ancora lanciato**:
+> `sbatch scripts/r8_edge_contrib_n40_pathunion.sbatch` (condizione chain/batteria) e
+> `sbatch scripts/r8_two_cycles.sbatch` (condizione cycle, ora include anche l'edge-ablation). Idee
+> ancora NON implementate (§15/outlook): il controllo chord per l'edge-ablation, plot diretto di
+> h^(1)/h^(2), plot dell'attention output.
 
 > **🟥 STATO ATTUALE (storico, Report 7) — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
 > **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
@@ -2792,6 +2797,84 @@ dell'attention output), più l'estensione a ER/n64/n20 lasciata a dopo.
    dell'attention output per layer: nuovi script, non ancora iniziati.
 4. Estendere §sec:battery e il test a due cicli a ER/n64/n20 (checkpoint già esistenti dal Report 7,
    nessun training nuovo).
+
+### 15.4 La nuova contribution causale (edge-ablation), 2026-07-22 — design ricevuto, implementata
+
+**Contesto**: l'utente ha mandato il design della nuova misura (quella annunciata al punto 2 di §15.3,
+"lo dico in un nuovo messaggio") — un agente esterno l'ha elaborato in dettaglio. Richiesta esplicita:
+implementarla per **entrambi** gli esperimenti in corso — la condizione attuale di §sec:battery (n40
+path\_union, similarity, topologia chain) **e** dentro lo sbatch dei due cicli (§15.3), che non era
+ancora stato lanciato quindi c'era tempo per modificarlo. **La vecchia contribution (Jacobiano,
+`exact_contribution`) NON va eliminata** — va **rinominata/reinterpretata** come misura di *sensibilità
+interna* (non causale), tenuta così com'è; la nuova è il complemento causale da usare per affermazioni
+sul ruolo di un edge o della componente corta.
+
+**Il design (riassunto, dettaglio completo nel docstring di `edge_ablation_contribution.py`):** invece
+di derivare rispetto a `h_k^{(0)}` (già un embedding interno, costruito dall'intero vicinato di `k`, non
+strettamente legato al solo nodo `k`), si interviene **direttamente su `A'`**: per ogni edge non
+orientato `{u,v}` del grafo si azzera in entrambe le direzioni (self-loop sulla diagonale intatti — il
+grafo/modello sono simmetrici, non si tocca una sola entry), si rifà il forward pass, e si misura per
+ogni nodo `i` (1) il cambio nel suo embedding finale (norma L2), (2) il cambio medio assoluto su tutta
+la sua riga di logit, (3) lo stesso ma ristretto alle coppie within-long a distanza `>9` (le coppie
+beyond-capacity del puzzle Report VI/VII). Aggregazione per nodo `k`: **media** (non somma) sugli edge
+incidenti a `k` — motivazione esplicita dell'utente: un estremo di path ha grado 1, un nodo interno
+grado 2, sommare confonderebbe "più edge" con "più influenza". Risultato: tre matrici $40\times40$
+$C^{\mathrm{edge}}, C^{\mathrm{logit}}, C^{\mathrm{far}}$, stessa forma/convenzione (componente corta
+prima, poi lunga; ogni relabeling rimappato all'ordine base prima di aggregare) delle heatmap esistenti.
+Più una **edge-leak fraction** analoga a quella vecchia (frazione di massa causale della componente
+lunga attribuibile agli edge della componente corta), calcolabile sia su $C^{\mathrm{edge}}$ sia su
+$C^{\mathrm{far}}$. **Caveat esplicito dell'utente, tenuto nel report in una frase sola**: su una
+path/ciclo OGNI edge è un ponte — rimuoverlo cambia anche il vero target di connettività per quella
+coppia, quindi la misura è l'effetto di una perturbazione strutturale reale, non un contributo
+additivo indipendente. Un controllo con l'aggiunta di una *chord* (edge dentro la stessa componente, il
+target vero non cambia) è indicato dall'utente come **naturale prossimo passo, non richiesto ora**.
+
+**Implementato, smoke-testato** (checkpoint giocattolo, linear e similarity, chain e cycle, prima di
+qualunque dato reale):
+- `edge_ablation_contribution.py` (NUOVO): `edge_ablation_probe(...)` fa tutto il calcolo (nessun
+  backward pass — solo forward, quindi molto più economico del Jacobiano esatto: un batch di
+  `1+n_edges` forward pass per grafo, niente autograd); riusa `_build_split_graph` da
+  `mechanistic_asym_chains.py` per il dispatch chain/cycle (stesso `--topology` delle altre due). Un
+  self-test (`_selftest`) verifica: (a) la riga baseline del batch combacia con un forward pass a
+  parte; (b) i self-loop sopravvivono a un'ablazione di edge; (c) l'insieme $F(i)$ (coppie
+  beyond-capacity within-long) è confinato alla componente lunga. Output `edge_contrib.npz` per
+  checkpoint (stesso pattern chiavi-appiattite `aXX__...` di `attn_cache.npz`).
+- `plot_edge_ablation.py` (NUOVO, locale no-GPU): le tre heatmap $C^{\mathrm{edge}}/C^{\mathrm{logit}}/
+  C^{\mathrm{far}}$ a due split rappresentativi (default 4 e 20, un seed rappresentativo — stesso motivo
+  delle altre heatmap: sono pattern, non scalari, non si mediano fra seed con basi diverse) + la curva
+  edge/logit/far-leak-fraction sull'intero sweep, **con error bars (std sui seed) — errore 61**,
+  aggregata su tutti i seed che matchano `--tag_glob`. Supporta `--report_root` come gli altri plot
+  script di questa sessione.
+- `scripts/r8_two_cycles.sbatch` **modificato** (non era ancora stato lanciato, in tempo per
+  modificarlo come richiesto): aggiunto un terzo step `edge_ablation_contribution.py --topology cycle`
+  per ognuno dei 4 seed, output `runs/report8/edge_contrib/n40_pathunion_cycle_seed{S}/`.
+- `scripts/r8_edge_contrib_n40_pathunion.sbatch` (NUOVO): la stessa misura per la condizione chain di
+  §sec:battery (n40 path\_union, similarity) — **da lanciare separatamente**, non tocca gli altri due
+  step già fatti per quella condizione (mechanistic/heatmaps già completi da §15.3).
+- `report/8/transformer_for_graphs_8.tex` **aggiornato**: §sec:battery-contrib riformulata (ora dice
+  esplicitamente "sensibilità interna, non ancora una prova causale", rimanda alla nuova sezione); nuova
+  §sec:battery-edge (subito dopo) con il design spiegato e uno stub "data pending" (le predizioni da
+  verificare: ad `a=4` gli edge della componente corta dovrebbero avere un effetto reale su
+  $C^{\mathrm{far}}$ della componente lunga, ad `a=20` l'effetto dovrebbe restare vicino alla diagonale);
+  §sec:cycles aggiornata per menzionare che userà anche la nuova misura, con la nota sul diametro dei
+  cicli (metà di quello di una path della stessa lunghezza — la soglia beyond-capacity per $C^{far}$
+  nei cicli serve un segmento lungo più lungo, ~19 nodi contro ~10 per una path); §sec:outlook
+  riscritta: tolto il bullet "nuova contribution" (ora implementata, non più un'idea vaga), aggiunto il
+  controllo chord come nuovo follow-up esplicito dell'utente. Compila pulito, **11 pagine**, 0 ref
+  indefinite, 0 overfull.
+
+**Da fare in una chat futura (in ordine, aggiorna/sostituisce il punto 2 di §15.3 che è ora FATTO)**:
+1. `sbatch scripts/r8_edge_contrib_n40_pathunion.sbatch` (condizione chain, aggiorna §sec:battery-edge)
+   e `sbatch scripts/r8_two_cycles.sbatch` (ora include anche l'edge-ablation per i cicli, aggiorna
+   §sec:cycles) — **nessuno dei due è stato ancora lanciato**.
+2. Dopo il pull: `python plot_edge_ablation.py --tag_glob "n40_pathunion_seed*" --report_root report8
+   --title_tag "disjoint-paths-trained"` (chain) e con `--tag_glob "n40_pathunion_cycle_seed*" --suffix
+   _n40_pathunion_cycle --title_tag "disjoint-paths-trained, closed into cycles"` (cycle); più
+   `python plot_mechanistic_asym_chains.py`/`plot_mechanistic_heatmaps.py` per i cicli (punto 1 di
+   §15.3, ancora valido). Sostituire i due paragrafi "[Data pending]" nel `.tex` con tabelle/figure vere
+   e il verdetto.
+3. Il controllo chord (§sec:outlook) e i punti 3–4 di §15.3 (plot h^(1)/h^(2), attention output,
+   estensione a ER/n64/n20) restano aperti, non iniziati.
 
 ---
 

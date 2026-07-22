@@ -130,15 +130,18 @@ node is near the target, therefore\ldots''? This report is framed around that
 question: not just \emph{whether} a signal exists, but \emph{where in the
 stack} it is assembled. \S\ref{sec:battery} lays the groundwork by putting
 every existing mechanistic quantity for the (now-standard) similarity
-read-out in one place; \S\ref{sec:cycles} tests one specific structural
-claim the existing evidence suggests (that a path's open ends carry special
-weight) by removing the ends entirely; \S\ref{sec:outlook} lists the concrete
-next steps this framing calls for --- comparing the raw per-layer embeddings
-$h^{(1)}, h^{(2)}$ directly (not only derived quantities) to see whether a
-two-component ``block'' structure is visible layer by layer, inspecting the
-attention output added to the residual stream directly, and a revised
-node-to-node contribution measure that differentiates with respect to the
-\emph{input} adjacency rather than the post-read-in embedding.
+read-out in one place, including a new \emph{causal} complement to the
+existing node-to-node contribution: instead of only asking how sensitive the
+final embedding is to a perturbation of an internal representation, it
+intervenes directly on the input graph (removing one edge at a time) and
+reads off the resulting change (\S\ref{sec:battery-edge}). \S\ref{sec:cycles}
+tests one specific structural claim the existing evidence suggests (that a
+path's open ends carry special weight) by removing the ends entirely.
+\S\ref{sec:outlook} lists the concrete next steps this framing still calls
+for --- comparing the raw per-layer embeddings $h^{(1)}, h^{(2)}$ directly
+(not only derived quantities) to see whether a two-component ``block''
+structure is visible layer by layer, and inspecting the attention output
+added to the residual stream directly.
 
 \section{Setup}
 \label{sec:setup}
@@ -331,7 +334,7 @@ only once the short component is a large enough fraction of the canvas
     \label{fig:r8attnscores}
 \end{figure}
 
-\subsection{Node-to-node contribution}
+\subsection{Node-to-node contribution: internal sensitivity, not yet a causal claim}
 \label{sec:battery-contrib}
 
 Figure~\ref{fig:r8leak} gives the leak fraction (the share of a long-path
@@ -346,9 +349,17 @@ matrix itself shows a genuine, non-trivial band of cross-component mixing at
 dissociation between mechanism and behaviour --- the trunk mixes across the
 component boundary by a similar amount whether or not the split is solved,
 and it is the read-out, not the mixing, that decides whether that costs
-anything (\S\ref{sec:recap}). \emph{This measure will be revisited once the
-revised, adjacency-based contribution of \S\ref{sec:outlook} is defined; the
-figures here use the same $C_{ik}$ as every result since Report~VII.}
+anything (\S\ref{sec:recap}). One caveat about what this quantity actually
+shows, worth stating plainly rather than only in a footnote: $C_{ik}$ is the
+sensitivity of $h_i^{(2)}$ to an \emph{arbitrary} perturbation of $h_k^{(0)}$,
+and $h_k^{(0)}$ is itself an internal representation built from node $k$'s
+\emph{whole} neighbourhood (through the read-in and a LayerNorm), not a
+quantity tied only to node $k$'s own identity. A large $C_{ik}$ is therefore
+good evidence of internal token-to-token \emph{sensitivity}, but not by
+itself evidence that node $k$'s actual incident edges have a \emph{causal}
+effect on node $i$ --- that question is taken up directly in
+\S\ref{sec:battery-edge}, which intervenes on the input graph itself rather
+than on an internal embedding.
 
 \begin{figure}[H]
     \centering
@@ -377,6 +388,49 @@ figures here use the same $C_{ik}$ as every result since Report~VII.}
     white lines mark the component boundary.}
     \label{fig:r8contribmat}
 \end{figure}
+
+\subsection{A causal complement: edge-ablation contribution}
+\label{sec:battery-edge}
+
+\paragraph{Why a second measure.} \S\ref{sec:battery-contrib} measures
+sensitivity to a perturbation of an already-processed embedding. To make a
+\emph{causal} statement about the short component's edges --- do they
+actually drive the long component's beyond-capacity predictions, or does the
+trunk merely correlate the two --- the natural experiment intervenes on the
+input graph directly: remove one edge, re-run the forward pass, and measure
+what changes.
+
+\paragraph{Construction.} For every edge $e=\{u,v\}$ of a two-chain graph
+(both directions removed from $A'$ at once, since the model is trained on
+symmetric inputs; self-loops on the diagonal are left untouched), we compare
+a forward pass on the intact graph against one with $e$ removed, and read
+three quantities off node $i$: the change in its final embedding
+$\|h_i^{(2)}(A'\!\setminus\!e)-h_i^{(2)}(A')\|_2$; the mean absolute change
+over its whole logit row; and the same logit change restricted to the pairs
+$(i,j)$ that matter most for the beyond-capacity puzzle --- both $i,j$ inside
+the long component, at true graph distance $>9$. Averaging (never summing,
+so that a path endpoint's degree of $1$ is not confounded with an internal
+node's degree of $2$) over every edge touching a given node $k$ turns each of
+the three quantities into a $40\times40$ matrix, column $k$ = which node's
+incident edges were removed, row $i$ = whose state we observe --- the same
+shape as Figure~\ref{fig:r8contribmat}, but built from real interventions on
+the graph rather than a derivative of an internal embedding. One honest
+caveat carried through the design rather than left implicit: on a path or a
+cycle \emph{every} edge is a bridge for at least one pair, so removing it
+also changes that pair's true connectivity target --- this measures the
+effect of a real structural change, not an independent, additive
+contribution the way the phrase ``edge contribution'' might suggest.
+
+\emph{[Data pending --- the computation is implemented and smoke-tested (a
+forward-pass-only intervention, no backward pass, cheaper than
+\S\ref{sec:battery-contrib}'s Jacobian) but not yet run on the real
+checkpoints at the time of writing. Replace this paragraph with the three
+heatmaps at $a=4$ and $a=20$, the edge/logit/far leak-fraction curve across
+the full split sweep, and a comparison against
+\S\ref{sec:battery-contrib}'s reading once the job returns. The prediction to
+check: at $a=4$ the short component's edges should show a real effect on the
+long component's beyond-capacity logits (a high $C^{\mathrm{far}}$ leak); at
+$a=20$ that effect should be small and confined near the diagonal.]}
 
 \subsection{Layer ablation}
 \label{sec:battery-ablation}
@@ -502,11 +556,15 @@ A cycle needs at least three nodes, so the sweep starts at
 $a=3$ rather than $a=1$. We feed this construction to the \emph{same}
 checkpoints as \S\ref{sec:battery} (disjoint-paths-trained, similarity
 read-out, $n=40$) --- eval-only, no retraining --- and read the identical
-battery: the behavioural sweep, and the node-to-node contribution leak
-fraction, using the \emph{same} exact-Jacobian contribution measure as
-\S\ref{sec:battery-contrib} (the revised, adjacency-based measure of
-\S\ref{sec:outlook} is deliberately not used yet, so this result is not
-entangled with that separate open question).
+battery: the behavioural sweep, the exact-Jacobian contribution leak
+fraction of \S\ref{sec:battery-contrib}, and the causal edge-ablation
+contribution of \S\ref{sec:battery-edge}, all with no change to either
+measure's definition --- only the underlying graph topology changes. One
+adjustment the cycle geometry itself forces: a $k$-cycle's diameter is
+$\lfloor k/2\rfloor$, roughly half a $k$-node path's, so the
+beyond-capacity pairs the far-logit variant of \S\ref{sec:battery-edge}
+looks at only exist once the long \emph{cycle} segment is long enough
+(around $19$ nodes, versus around $10$ for a path of the same role).
 
 \paragraph{Two readings, stated before looking at the data.} If the model
 solves the cycle sweep about as well as the chain sweep (same split
@@ -522,30 +580,27 @@ something the mechanism relies on to decide a segment is fully resolved.
 \emph{[Data pending --- the eval is prepared (eval-only on the existing
 similarity checkpoints, no training) but not yet run at the time of writing.
 Replace this paragraph with the real sweep table, the leak-fraction
-comparison against Figure~\ref{fig:r8leak}, and the verdict once the job
-returns.]}
+comparison against Figure~\ref{fig:r8leak}, the edge-ablation comparison
+against \S\ref{sec:battery-edge}, and the verdict once the job returns.]}
 
 \section{Outlook}
 \label{sec:outlook}
 
-Three concrete next steps follow directly from the framing of
-\S\ref{sec:question}, none implemented yet.
+The causal edge-ablation contribution of \S\ref{sec:battery-edge} answers the
+concern that motivated it (\S\ref{sec:battery-contrib}): it is implemented and
+its design is fixed, only the data collection is still pending. Beyond it,
+three concrete next steps follow from the framing of \S\ref{sec:question},
+none implemented yet.
 
 \begin{itemize}\setlength\itemsep{0.15em}
-  \item \textbf{A revised node-to-node contribution measure.} Every
-        contribution result since Report~VII (including
-        \S\ref{sec:battery-contrib} above) differentiates the final
-        embedding $h_i^{(2)}$ with respect to the \emph{post-read-in}
-        embedding $h_k^{(0)}$. The concern: $h_k^{(0)}$ is already a learned
-        transformation of the input, so by the time it is used as the
-        differentiation variable it may no longer be as tightly tied to
-        ``node $k$ specifically'' as the raw input row is. The planned fix
-        differentiates with respect to the input adjacency $A'$ itself ---
-        concretely, how the final embedding of node $i$ changes if a single
-        edge is flipped from $0$ to $1$ (or the reverse) in $A'$, rather than
-        through the already-processed $h^{(0)}$. The exact experimental
-        design is still being worked out and will be specified in a
-        follow-up before it is implemented.
+  \item \textbf{A chord-addition control for the edge-ablation measure.} On a
+        path or a cycle every edge is a bridge, so removing one always changes
+        the true connectivity target for at least one pair
+        (\S\ref{sec:battery-edge}) --- the measured effect is real but
+        confounded with that target change. Repeating the same intervention
+        with an edge \emph{added} between two nodes already in the same
+        component (a chord) leaves the true target unchanged and would isolate
+        the effect of a structural change from the effect of a target change.
   \item \textbf{Plot the per-layer embeddings themselves, not only derived
         quantities.} Every mechanistic result so far (attention, contribution,
         read-out logits) is a quantity \emph{derived from} $h^{(1)}$ and
