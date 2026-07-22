@@ -1,0 +1,12 @@
+== stagewise_diagnostics.py (seed 2000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise a= 4 done (M_far H0=0.022, H2=0.770)
+  stagewise a= 7 done (M_far H0=0.008, H2=0.900)
+  stagewise a= 8 done (M_far H0=0.006, H2=0.666)
+  stagewise a=10 done (M_far H0=0.002, H2=0.625)
+  stagewise a=14 done (M_far H0=-0.003, H2=0.553)
+  stagewise a=20 done (M_far H0=-0.009, H2=0.511)
+  saved -> runs/report8/stagewise/n40_pathunion_seed2000/stagewise_{geometry.npz,metrics.csv,margins.csv,deltaz.csv}
+done seed 2000

@@ -1,0 +1,96 @@
+== mechanistic_asym_chains.py --topology cycle (seed 4000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 3 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 5 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 6 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 9 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=11 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=12 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=13 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=14 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=15 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=16 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=18 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=19 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed4000/metrics.csv
+
+== readout decomposition cos(h_i,h_j) (similarity read-out) ==
+  readout(similarity) a= 3 done
+  readout(similarity) a= 4 done
+  readout(similarity) a= 5 done
+  readout(similarity) a= 6 done
+  readout(similarity) a= 7 done
+  readout(similarity) a= 8 done
+  readout(similarity) a= 9 done
+  readout(similarity) a=10 done
+  readout(similarity) a=11 done
+  readout(similarity) a=12 done
+  readout(similarity) a=13 done
+  readout(similarity) a=14 done
+  readout(similarity) a=15 done
+  readout(similarity) a=16 done
+  readout(similarity) a=17 done
+  readout(similarity) a=18 done
+  readout(similarity) a=19 done
+  readout(similarity) a=20 done
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed4000/readout.csv
+
+== W_in geometry (similarity read-out has no W_out) ==
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed4000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 4 done (row_mass1 mean=1.333, exact-contribution over 64 graphs)
+  attention a= 7 done (row_mass1 mean=1.324, exact-contribution over 64 graphs)
+  attention a= 8 done (row_mass1 mean=1.384, exact-contribution over 64 graphs)
+  attention a=10 done (row_mass1 mean=1.398, exact-contribution over 64 graphs)
+  attention a=11 done (row_mass1 mean=1.394, exact-contribution over 64 graphs)
+  attention a=12 done (row_mass1 mean=1.388, exact-contribution over 64 graphs)
+  attention a=13 done (row_mass1 mean=1.382, exact-contribution over 64 graphs)
+  attention a=14 done (row_mass1 mean=1.382, exact-contribution over 64 graphs)
+  attention a=17 done (row_mass1 mean=1.382, exact-contribution over 64 graphs)
+  attention a=20 done (row_mass1 mean=1.382, exact-contribution over 64 graphs)
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed4000/attn_cache.npz (60 arrays)
+== mechanistic_heatmaps.py --topology cycle (seed 4000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a=20 done
+  saved -> runs/report8/heatmaps/n40_pathunion_cycle_seed4000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report8/heatmaps/n40_pathunion_cycle_seed4000/raw_weights.npz
+== edge_ablation_contribution.py --topology cycle (seed 4000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu topology=cycle
+  [selftest] batched baseline matches standalone forward; self-loops survive ablation; F(i) confined to the long component
+  edge-ablation a= 4 done (edges=40, edge_leak=0.079, logit_leak=0.052, far_leak=0.021)
+  edge-ablation a= 7 done (edges=40, edge_leak=0.142, logit_leak=0.140, far_leak=0.081)
+  edge-ablation a= 8 done (edges=40, edge_leak=0.188, logit_leak=0.199, far_leak=0.152)
+  edge-ablation a=10 done (edges=40, edge_leak=0.234, logit_leak=0.263, far_leak=0.185)
+  edge-ablation a=11 done (edges=40, edge_leak=0.258, logit_leak=0.290, far_leak=0.198)
+  edge-ablation a=12 done (edges=40, edge_leak=0.281, logit_leak=0.319, far_leak=0.209)
+  edge-ablation a=13 done (edges=40, edge_leak=0.308, logit_leak=0.349, far_leak=0.225)
+  edge-ablation a=14 done (edges=40, edge_leak=0.330, logit_leak=0.375, far_leak=0.247)
+  edge-ablation a=17 done (edges=40, edge_leak=0.400, logit_leak=0.420, far_leak=0.311)
+  edge-ablation a=20 done (edges=40, edge_leak=0.468, logit_leak=0.457, far_leak=0.371)
+  saved -> runs/report8/edge_contrib/n40_pathunion_cycle_seed4000/edge_contrib.npz
+done seed 4000
