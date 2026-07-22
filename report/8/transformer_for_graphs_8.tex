@@ -177,8 +177,16 @@ $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ the exact node-to-node
 contribution (real automatic differentiation through the whole forward pass
 --- $V$, $W_O$, the residual identity, the feed-forward step, LayerNorm's true
 local derivative), introduced in Report~VII \S sec:setup to replace an
-attention-only rollout approximation. \S\ref{sec:outlook} discusses a planned
-revision of this last quantity.
+attention-only rollout approximation. One piece of that derivation matters
+enough for \S\ref{sec:battery-contrib}--\ref{sec:battery-edge} below that we
+restate it here rather than only cite it: the read-in embedding is
+\[ H^{(0)} = \mathrm{LayerNorm}\big(A'\,W_{\mathrm{in}} + \mathbf 1\, b^\top\big), \]
+so $h_k^{(0)}$, row $k$ of $H^{(0)}$, is already a function of node $k$'s
+\emph{entire} row of $A'$ --- every one of $k$'s neighbours, via
+$W_{\mathrm{in}}$, not a quantity that isolates $k$'s identity on its own.
+\S\ref{sec:battery-contrib} discusses why this matters for what $C_{ik}$ does
+and does not show; \S\ref{sec:battery-edge} discusses the revision it
+motivates.
 
 \paragraph{Test graphs.} Two-chain graphs partitioning all $n=40$ nodes into
 two disjoint paths of size $a$ and $n-a$, swept over $a=1,\dots,20$, exactly
@@ -350,14 +358,25 @@ dissociation between mechanism and behaviour --- the trunk mixes across the
 component boundary by a similar amount whether or not the split is solved,
 and it is the read-out, not the mixing, that decides whether that costs
 anything (\S\ref{sec:recap}). One caveat about what this quantity actually
-shows, worth stating plainly rather than only in a footnote: $C_{ik}$ is the
-sensitivity of $h_i^{(2)}$ to an \emph{arbitrary} perturbation of $h_k^{(0)}$,
-and $h_k^{(0)}$ is itself an internal representation built from node $k$'s
-\emph{whole} neighbourhood (through the read-in and a LayerNorm), not a
-quantity tied only to node $k$'s own identity. A large $C_{ik}$ is therefore
-good evidence of internal token-to-token \emph{sensitivity}, but not by
-itself evidence that node $k$'s actual incident edges have a \emph{causal}
-effect on node $i$ --- that question is taken up directly in
+shows, worth stating plainly and precisely rather than only in a footnote.
+Written out, the quantity behind Figures~\ref{fig:r8leak}--\ref{fig:r8contribmat}
+is
+\[ C^{\mathrm{old}}_{ik} \;=\; \left\|\frac{\partial h_i^{(2)}}{\partial h_k^{(0)}}\right\|_F, \]
+the Frobenius norm of the Jacobian of node $i$'s final embedding with respect
+to node $k$'s read-in embedding --- how much $h_i^{(2)}$ would move under an
+\emph{arbitrary infinitesimal} perturbation of $h_k^{(0)}$, evaluated at the
+graph's actual activations. Two things follow directly from
+$h_k^{(0)}$'s own definition (\S\ref{sec:setup}, $H^{(0)}=\mathrm{LayerNorm}(A'W_{\mathrm{in}}+b)$):
+first, an arbitrary perturbation of $h_k^{(0)}$ does not, in general,
+correspond to any realisable change of the graph itself, since $h_k^{(0)}$
+sits downstream of a LayerNorm and a learned linear map; second, $h_k^{(0)}$
+is already built from node $k$'s \emph{entire} row of $A'$ --- every one of
+$k$'s neighbours contributes to it, not $k$'s identity alone. $C^{\mathrm{old}}_{ik}$
+is therefore a genuine measure of internal token-to-token \emph{sensitivity},
+and everything said about it above is a real property of the trunk --- but a
+large $C^{\mathrm{old}}_{ik}$ is not, by itself, evidence that node $k$, or
+specifically its incident edges, have a \emph{causal} effect on node $i$'s
+final embedding or prediction. That question is taken up directly in
 \S\ref{sec:battery-edge}, which intervenes on the input graph itself rather
 than on an internal embedding.
 
@@ -400,37 +419,166 @@ trunk merely correlate the two --- the natural experiment intervenes on the
 input graph directly: remove one edge, re-run the forward pass, and measure
 what changes.
 
-\paragraph{Construction.} For every edge $e=\{u,v\}$ of a two-chain graph
-(both directions removed from $A'$ at once, since the model is trained on
-symmetric inputs; self-loops on the diagonal are left untouched), we compare
-a forward pass on the intact graph against one with $e$ removed, and read
-three quantities off node $i$: the change in its final embedding
-$\|h_i^{(2)}(A'\!\setminus\!e)-h_i^{(2)}(A')\|_2$; the mean absolute change
-over its whole logit row; and the same logit change restricted to the pairs
-$(i,j)$ that matter most for the beyond-capacity puzzle --- both $i,j$ inside
-the long component, at true graph distance $>9$. Averaging (never summing,
-so that a path endpoint's degree of $1$ is not confounded with an internal
-node's degree of $2$) over every edge touching a given node $k$ turns each of
-the three quantities into a $40\times40$ matrix, column $k$ = which node's
-incident edges were removed, row $i$ = whose state we observe --- the same
-shape as Figure~\ref{fig:r8contribmat}, but built from real interventions on
-the graph rather than a derivative of an internal embedding. One honest
-caveat carried through the design rather than left implicit: on a path or a
+\paragraph{Construction.} We intervene directly on the adjacency $A'$ instead
+of on an internal embedding, and build the result back into a $40\times40$
+heatmap of exactly the same shape as Figure~\ref{fig:r8contribmat} --- row
+$i$ = the node whose final embedding we observe, column $k$ = the node whose
+\emph{incident edges} are perturbed.
+
+For a given graph we first run one forward pass on the intact adjacency and
+keep the final embeddings,
+\[ H^{(2)}_{\mathrm{base}} = f(A'). \]
+Then, for every unordered edge $e=\{u,v\}$ of the graph, we build a copy of
+the adjacency with that one edge removed \emph{in both directions} (the
+model is trained on symmetric inputs, so a single directed entry is never
+edited on its own), leaving the self-loops on the diagonal untouched,
+\[ A'^{(-e)}_{uv} = A'^{(-e)}_{vu} = 0, \]
+run a second forward pass,
+\[ H^{(2)}_{-e} = f\big(A'^{(-e)}\big), \]
+and read off, for every node $i$, how much its final embedding moved,
+\[ \Delta_{i,e} \;=\; \big\| h_i^{(2)}\big(A'^{(-e)}\big) - h_i^{(2)}(A') \big\|_2. \]
+Every edge therefore produces one length-$40$ vector $\Delta_{:,e}$. To turn
+this into a node-to-node matrix we aggregate, for each node $k$, over every
+edge incident to $k$ --- and critically, by the \emph{mean}, not the sum:
+\[ C^{\mathrm{edge}}_{ik} \;=\; \frac{1}{\deg(k)}\sum_{e\ni k}\Delta_{i,e}, \]
+where $\deg(k)$ is $k$'s degree in the (self-loop-free) graph. The mean is
+the deliberate choice here: on a two-chain graph a path endpoint has degree
+$1$ and every internal node degree $2$, so summing would make internal
+nodes look more influential merely because they own more edges, not because
+any single one of their edges matters more.
+
+A large change in the embedding need not matter for the prediction, so we
+repeat the same aggregation on the read-out logits. Writing
+$Z_{\mathrm{base}}=\mathrm{readout}(H^{(2)}_{\mathrm{base}})$ and
+$Z_{-e}=\mathrm{readout}(H^{(2)}_{-e})$ for the two logit matrices (the
+similarity read-out of \S\ref{sec:setup} in this report), the mean absolute
+change over query node $i$'s whole logit row is
+\[ \Delta^{\mathrm{logit}}_{i,e} \;=\; \frac{1}{n}\sum_{j=1}^{n}
+   \big| z_{ij}\big(A'^{(-e)}\big) - z_{ij}(A') \big|, \qquad
+   C^{\mathrm{logit}}_{ik} \;=\; \frac{1}{\deg(k)}\sum_{e\ni k}\Delta^{\mathrm{logit}}_{i,e}. \]
+A third variant targets the beyond-capacity puzzle directly: for a
+long-component query node $i$, let
+\[ F(i) \;=\; \{\, j\in L : \mathrm{dist}(i,j) > 9 \,\} \]
+be its far partners --- the other long-component nodes whose true shortest-path
+distance from $i$ exceeds the capacity $3^L=9$. Restricting the same logit
+change to only those pairs,
+\[ \Delta^{\mathrm{far}}_{i,e} \;=\; \frac{1}{|F(i)|}\sum_{j\in F(i)}
+   \big| z_{ij}\big(A'^{(-e)}\big) - z_{ij}(A') \big|, \qquad
+   C^{\mathrm{far}}_{ik} \;=\; \frac{1}{\deg(k)}\sum_{e\ni k}\Delta^{\mathrm{far}}_{i,e}, \]
+zero by construction for a node $i$ outside the long component, or with no
+far partner. $C^{\mathrm{edge}}$ shows where the \emph{representations}
+change; $C^{\mathrm{logit}}$ and $C^{\mathrm{far}}$ show where the
+\emph{predictions} change, the latter restricted to exactly the pairs the
+Report~VI/VII puzzle is about. All three, like every quantity in
+\S\ref{sec:battery}, are averaged over many independent node-relabellings of
+the same split, each unpermuted back to base node order before averaging
+(short component first, then long), so that the row/column of the matrix
+always means ``base node $i$/$k$'', not a position specific to one
+relabelling. The three leak fractions of Table~\ref{tab:r8edgeleak} are the
+same construction as Figure~\ref{fig:r8leak}'s, applied to each of these
+three matrices in turn --- e.g.\
+$\mathrm{edge\_leak} = \big(\sum_{i\in L,k\in S}C^{\mathrm{edge}}_{ik}\big)
+\big/ \big(\sum_{i\in L,k=1}^{n}C^{\mathrm{edge}}_{ik}\big)$.
+
+One honest caveat carried through the design rather than left implicit: on a path or a
 cycle \emph{every} edge is a bridge for at least one pair, so removing it
 also changes that pair's true connectivity target --- this measures the
 effect of a real structural change, not an independent, additive
 contribution the way the phrase ``edge contribution'' might suggest.
 
-\emph{[Data pending --- the computation is implemented and smoke-tested (a
-forward-pass-only intervention, no backward pass, cheaper than
-\S\ref{sec:battery-contrib}'s Jacobian) but not yet run on the real
-checkpoints at the time of writing. Replace this paragraph with the three
-heatmaps at $a=4$ and $a=20$, the edge/logit/far leak-fraction curve across
-the full split sweep, and a comparison against
-\S\ref{sec:battery-contrib}'s reading once the job returns. The prediction to
-check: at $a=4$ the short component's edges should show a real effect on the
-long component's beyond-capacity logits (a high $C^{\mathrm{far}}$ leak); at
-$a=20$ that effect should be small and confined near the diagonal.]}
+\paragraph{Result: the causal leak is small while the split is solved and grows as it
+balances --- the opposite order from what we expected, and the opposite
+shape from the internal-sensitivity measure.} Table~\ref{tab:r8edgeleak} and
+Figure~\ref{fig:r8edgeleak} give the three leak fractions across the full
+split sweep. Before looking at the data we expected the causal leak to be
+\emph{largest} at $a=4$ (where the short component's structure is supposedly
+what lets the long component complete) and small once the split balances.
+The opposite happens: at $a=4$, where behaviour is exact on every graph, only
+$5.9\%$ of the long component's edge-ablation mass and $0.8\%$ of its
+beyond-capacity logit-ablation mass trace back to the four short-component
+edges; both climb steadily as the split balances, reaching $35.6\%$ and
+(for the plain logit leak) $27.1\%$ by the fully balanced $a=20$, where
+behaviour has long since failed. The far-pair leak $C^{\mathrm{far}}$ breaks
+that monotone trend: it rises together with the other two up to a peak of
+$12.8\%$ at $a=12$, then \emph{falls back} to $4.4$--$4.7\%$ by $a=17$--$20$.
+This is a real dissociation from \S\ref{sec:battery-contrib}'s internal
+sensitivity, which sits on an almost flat plateau of $\approx22$--$24\%$ over
+the same range ($a=4$: $22.8\%$; $a=20$: $22.7\%$, computed the same way from
+the same checkpoints) --- the internal-sensitivity view says the short
+component always ``shows up'' in the long component's representation by
+about the same amount, while the causal view says its edges barely matter
+when the split is easy and matter progressively more as it gets hard, with
+the specifically beyond-capacity effect peaking mid-sweep and receding at the
+extremes.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+split $(a,\,40{-}a)$ & edge leak ($C^{\mathrm{edge}}$) & logit leak ($C^{\mathrm{logit}}$) & far leak ($C^{\mathrm{far}}$)\\
+\midrule
+$(1,39)$  & 0.000 & 0.000 & 0.000\\
+$(4,36)$  & 0.059 & 0.010 & 0.008\\
+$(7,33)$  & 0.065 & 0.035 & 0.025\\
+$(8,32)$  & 0.120 & 0.107 & 0.097\\
+$(10,30)$ & 0.124 & 0.078 & 0.057\\
+$(11,29)$ & 0.163 & 0.118 & 0.082\\
+$(12,28)$ & 0.210 & 0.172 & 0.128\\
+$(13,27)$ & 0.212 & 0.161 & 0.103\\
+$(14,26)$ & 0.220 & 0.160 & 0.081\\
+$(17,23)$ & 0.278 & 0.216 & 0.047\\
+$(20,20)$ & 0.356 & 0.271 & 0.044\\
+\bottomrule
+\end{tabular}
+\caption{\emph{Model:} the four checkpoints of Table~\ref{tab:r8sweep}
+(base standard transformer, similarity read-out, disjoint-paths-trained,
+$n=40$). \emph{Test set:} two-chain graphs at the split shown, $64$
+independently node-relabelled graphs per seed; every edge of the graph
+ablated in turn (both directions, self-loops untouched). \emph{Metrics}
+(mean over four seeds; std in the text and Figure~\ref{fig:r8edgeleak}):
+edge leak $=$ the fraction of the long component's total
+$C^{\mathrm{edge}}$ mass attributable to the short component's edges;
+logit leak $=$ the same for $C^{\mathrm{logit}}$ (mean absolute change over
+a node's whole logit row); far leak $=$ the same for $C^{\mathrm{far}}$
+(logit change restricted to within-long pairs at true distance $>9$).}
+\label{tab:r8edgeleak}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report8/report8_figs/r8_edge_leak_n40_pathunion.png}{0.72}
+    \caption{Table~\ref{tab:r8edgeleak} as curves, mean over the four seeds,
+    error bars $=$ std across seeds.}
+    \label{fig:r8edgeleak}
+\end{figure}
+
+\paragraph{What the heatmaps add: the effect is broad, not local, and the
+caveat explains why.} Figure~\ref{fig:r8edgeheat} shows why the leak-fraction
+numbers above should not be read as ``the short component's edges quietly
+influence a few nearby long-component nodes.'' At $a=4$, ablating an edge
+inside the long component moves final embeddings and logits over a wide,
+diffuse band spanning much of the rest of that component, not only its
+immediate neighbours --- exactly the caveat stated in the construction: on a
+path, every edge is a bridge, so cutting one anywhere near the middle
+\emph{disconnects} a large stretch of nodes from each other, and their true
+connectivity target flips for many pairs at once. At the balanced $a=20$
+split, the same broad pattern appears \emph{within each half separately},
+and --- matching the leak fractions above --- essentially not at all across
+the component boundary: an edge in one 20-node half has almost no
+measurable effect on the other half's embeddings, logits, or far pairs.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report8/report8_figs/r8_edge_contrib_heatmaps_n40_pathunion.png}{0.92}
+    \caption{\emph{Model/training as in Table~\ref{tab:r8edgeleak}}, one seed
+    (representative; the qualitative pattern is consistent across seeds).
+    \emph{Test set:} two-chain graphs at the split shown ($a=4$ left, $a=20$
+    right), $64$ independently node-relabelled graphs, every edge ablated in
+    turn. \emph{Metric:} $C^{\mathrm{edge}}$ (top), $C^{\mathrm{logit}}$
+    (middle), $C^{\mathrm{far}}$ (bottom) --- row $i$ = query node whose
+    final state is observed, column $k$ = node whose incident edges were
+    removed. Dotted line marks the component boundary.}
+    \label{fig:r8edgeheat}
+\end{figure}
 
 \subsection{Layer ablation}
 \label{sec:battery-ablation}
@@ -582,6 +730,87 @@ similarity checkpoints, no training) but not yet run at the time of writing.
 Replace this paragraph with the real sweep table, the leak-fraction
 comparison against Figure~\ref{fig:r8leak}, the edge-ablation comparison
 against \S\ref{sec:battery-edge}, and the verdict once the job returns.]}
+
+\section{Where is the information combined? A stagewise probe}
+\label{sec:stagewise}
+
+\paragraph{Question.} \S\ref{sec:question} framed this report around a more
+basic mechanical question than any single result answers on its own: at which
+point in the forward pass does the model already have the answer? Every
+result in \S\ref{sec:battery} reads only the two layers' \emph{final}
+embeddings $H^{(1)},H^{(2)}$; none of them look at what happens
+\emph{between} the attention step and the feed-forward step of a single
+layer, where a natural two-part story would live --- attention gathers
+\emph{which other nodes are near me}, and the feed-forward step turns that
+into \emph{am I connected to the target}.
+
+\paragraph{Setup: five stages, not two.} Recall from \S\ref{sec:setup} that
+each of the two post-norm transformer blocks computes
+$\mathrm{AttnOut}^{(\ell)}=(\alpha^{(\ell)}V^{(\ell)})W_O^{(\ell)}$,
+$H_{\mathrm{attn}}^{(\ell)}=\mathrm{LayerNorm}(H^{(\ell-1)}+\mathrm{AttnOut}^{(\ell)})$,
+and $H^{(\ell)}=\mathrm{LayerNorm}(H_{\mathrm{attn}}^{(\ell)}+\mathrm{FFN}^{(\ell)}(H_{\mathrm{attn}}^{(\ell)}))$.
+A diagnostic forward pass (no change to the model's ordinary behaviour) keeps
+every one of these intermediate states, giving five \emph{main} stages to
+compare: $H^{(0)}$ (read-in), $H_{\mathrm{attn}}^{(1)}$ (after attention 1,
+before MLP 1), $H^{(1)}$ (after MLP 1), $H_{\mathrm{attn}}^{(2)}$ (after
+attention 2, before MLP 2), and $H^{(2)}$ (the final embedding used
+everywhere else in this report).
+
+\paragraph{Layerwise cosine geometry and an intermediate read-out probe.} For
+each stage $X$ we compute the same quantity the similarity read-out actually
+uses, $G^X_{ij}=\cos(x_i,x_j)$, and apply the model's own trained scale and
+bias to it as if the model had stopped at that stage,
+$Z^X_{ij}=\mathrm{scale}\cdot G^X_{ij}+\mathrm{bias}$,
+$\hat R^X_{ij}=\mathbf 1[Z^X_{ij}>0]$. This is a diagnostic, never a
+prediction the model actually makes at an intermediate stage --- scale and
+bias were fit only for $H^{(2)}$ --- but it answers a sharp question: if the
+model were forced to decide here, would the geometry already be right? We
+read off exact match, reach in the short/long component, reach in the long
+component split into near ($d\le9$) and far ($d>9$) pairs, cut, and the
+predicted-positive rate, at each stage.
+
+\paragraph{A threshold-free margin.} Because scale/bias are trained for the
+last stage only, we also track a quantity that does not depend on them: the
+margin $M_{\mathrm{far}}^X=\mu_{\mathrm{long\text{-}far}}^X-\mu_{\mathrm{cross}}^X$,
+the mean cosine similarity among far within-long pairs minus the mean cosine
+similarity among cross-component pairs, at stage $X$. The model's actual
+decision boundary is $\cos=-\mathrm{bias}/\mathrm{scale}\approx0.146$ for this
+training distribution (Table~\ref{tab:r8wout}), so the stage at which
+$M_{\mathrm{far}}^X$ grows most is the strongest candidate for \emph{where}
+the far-pair decision is assembled, independent of any one stage's untrained
+threshold.
+
+\paragraph{Per-sub-block logit attribution.} Finally we take four consecutive
+differences of the intermediate read-out logits,
+$\Delta Z_{\mathrm{attn1}}=Z^{H_{\mathrm{attn}}^{(1)}}-Z^{H^{(0)}}$,
+$\Delta Z_{\mathrm{mlp1}}=Z^{H^{(1)}}-Z^{H_{\mathrm{attn}}^{(1)}}$,
+$\Delta Z_{\mathrm{attn2}}=Z^{H_{\mathrm{attn}}^{(2)}}-Z^{H^{(1)}}$,
+$\Delta Z_{\mathrm{mlp2}}=Z^{H^{(2)}}-Z^{H_{\mathrm{attn}}^{(2)}}$ --- a signed
+$40\times40$ heatmap per sub-block, positive where that sub-block alone
+pushed a pair toward ``connected''. Averaging each over the within-short,
+within-long-near, within-long-far, and cross categories gives a compact
+attribution: which sub-block moves which category of pair, and in which
+direction.
+
+\paragraph{Hypotheses, stated before looking at the data.} A natural guess ---
+not yet a result --- is that attention~1 gathers local structure, MLP~1
+begins separating the two components, attention~2 raises the similarity of
+far within-long pairs specifically, and MLP~2 converts that geometry into the
+final decision. This is one plausible division of labour among several; the
+point of the probe above is to read off which stages actually move
+$M_{\mathrm{far}}$ and the far-pair category means, not to assume this
+split in advance.
+
+\emph{[Data pending --- the computation is implemented and smoke-tested (a
+forward-pass-only diagnostic, no backward pass) on the same $n{=}40$
+path\_union similarity checkpoints as \S\ref{sec:battery}, but not yet run at
+the time of writing. Replace this paragraph with: the five-panel cosine
+heatmaps at $a=4$ and $a=20$; the far-reach-vs-stage and
+$M_{\mathrm{far}}$-vs-stage curves; the four $\Delta Z$ heatmaps at $a=4$ and
+$a=20$ with their category table; and a verdict on the hypothesis above.]}
+% stagewise_diagnostics.py -- computes G^X, the intermediate readout metrics,
+% M_far, and the four dZ sub-block matrices for every MAIN_STAGES entry;
+% plot_stagewise_diagnostics.py renders the figures listed above.
 
 \section{Outlook}
 \label{sec:outlook}

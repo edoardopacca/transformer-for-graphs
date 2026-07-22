@@ -4,9 +4,8 @@ Documento di riferimento per chiunque (incluso Claude in una nuova chat) riprend
 questo progetto. Leggere **tutto** prima di agire.
 
 > **⚠️ REGOLA DI LETTURA NON NEGOZIABILE (prima di toccare qualsiasi cosa).** Leggere
-> **attentamente OGNI riga** di questo `istruzioni.md` e **OGNI riga dei 6 report** dai
-> sorgenti `.tex` (`report/2..6/*.tex`; il report 1 è solo PDF). In particolare il
-> **Report 6** (`report/6/transformer_for_graphs_6.tex`) va **riletto 4 VOLTE riga per
+> **attentamente OGNI riga** di questo `istruzioni.md` e **OGNI riga dei report** dai
+> sorgenti `.tex`; il report 1 è solo PDF). In particolare l'ultimo report va **riletto 4 VOLTE riga per
 > riga** prima di scriverci dentro: è lungo, denso, e gli errori più gravi di questa sessione
 > sono nati dal **non aver letto tutto** . Non saltare righe perché "sembrano un dettaglio": le caption, i `%`
 > commento negli stub, e le righe-errore qui sotto contengono i vincoli che fanno fallire chi
@@ -32,7 +31,13 @@ questo progetto. Leggere **tutto** prima di agire.
 > `sbatch scripts/r8_edge_contrib_n40_pathunion.sbatch` (condizione chain/batteria) e
 > `sbatch scripts/r8_two_cycles.sbatch` (condizione cycle, ora include anche l'edge-ablation). Idee
 > ancora NON implementate (§15/outlook): il controllo chord per l'edge-ablation, plot diretto di
-> h^(1)/h^(2), plot dell'attention output.
+> h^(1)/h^(2), plot dell'attention output. **NUOVO (2026-07-22, §15.5): Priorità 1 del filone "dove si
+> combina l'informazione" IMPLEMENTATA** — `stagewise_diagnostics.py` + `plot_stagewise_diagnostics.py`
+> (5 stadi per layer: H0, dopo attention, dopo MLP, per ciascuno dei 2 layer; cosine geometry,
+> intermediate read-out, margin threshold-free, ΔZ per sotto-blocco), smoke-testati (2 bug di layout
+> matplotlib trovati e corretti). **Sbatch pronto, NON lanciato**: `sbatch
+> scripts/r8_stagewise_n40_pathunion.sbatch`. Priorità 2 (Q/K/V/message-contribution/causal masking) e
+> Priorità 3 (stagewise edge ablation/chord/PCA) NON ancora iniziate — vedi §15.5 per l'ordine esatto.
 
 > **🟥 STATO ATTUALE (storico, Report 7) — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
 > **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
@@ -2874,7 +2879,82 @@ qualunque dato reale):
    §15.3, ancora valido). Sostituire i due paragrafi "[Data pending]" nel `.tex` con tabelle/figure vere
    e il verdetto.
 3. Il controllo chord (§sec:outlook) e i punti 3–4 di §15.3 (plot h^(1)/h^(2), attention output,
-   estensione a ER/n64/n20) restano aperti, non iniziati.
+   estensione a ER/n64/n20) restano aperti, non iniziati. **Aggiornamento (§15.5): il plot di
+   h^(1)/h^(2) è ora coperto (in forma più ricca, con tutti gli stadi intermedi) — vedi sotto.**
+
+### 15.5 Dove viene combinata l'informazione: probe stagewise (Priorità 1), 2026-07-22
+
+**Contesto**: l'utente ha mandato una specifica tecnica enorme in 12 sezioni (probabilmente elaborata
+da un agente esterno, come per l'edge-ablation di §15.4) per una nuova domanda del report: **a che
+punto del forward pass l'informazione di connettività viene combinata** — già l'idea chiave del titolo
+del Report 8 (§15.2). L'utente stesso ha dato un **ordine di priorità esplicito**: Priorità 1 (stati
+intermedi, cosine heatmaps, intermediate read-out, margin per stadio, ΔZ per sotto-blocco) = "gli
+esperimenti essenziali"; Priorità 2 (Q/K/V/αV/AttnOut norms, message-contribution matrix, causal
+short-to-long attention masking); Priorità 3 (stagewise edge ablation, chord-addition control, PCA).
+Dato il tempo limitato, **questa sessione implementa SOLO la Priorità 1**, seguendo l'ordine
+esplicitamente richiesto — Priorità 2/3 restano da fare, elencate sotto come prossimi passi.
+
+**Design (riassunto — dettaglio completo nel docstring di `stagewise_diagnostics.py` e nella nuova
+sezione `sec:stagewise` del `.tex`, scritta con lo stesso livello di formule del Report 7/della
+sezione edge-ablation):** un forward pass diagnostico (non tocca il comportamento standard del
+modello) salva, per ciascuno dei due layer, non solo $H^{(1)}/H^{(2)}$ ma anche
+$\mathrm{AttnOut}^{(\ell)}$, $H_{\mathrm{attn}}^{(\ell)}$ (dopo attention+residuo+LayerNorm, prima
+dell'MLP) e $\mathrm{FFNOut}^{(\ell)}$ — 5 "stadi principali" in tutto:
+$H^{(0)}\to H_{\mathrm{attn}}^{(1)}\to H^{(1)}\to H_{\mathrm{attn}}^{(2)}\to H^{(2)}$. Per ciascuno:
+(1) la matrice coseno $G^X_{ij}=\cos(x_i,x_j)$ (esattamente ciò che il readout similarity usa); (2) un
+probe "intermediate read-out" — applica scale/bias già allenati (solo per $H^{(2)}$) a $G^X$ come se il
+modello si fermasse lì, e misura exact/reach short/reach long (near/far)/cut/positive-rate; (3) il
+margine **threshold-free** $M_{\mathrm{far}}^X=\mu_{\text{long-far}}^X-\mu_{\text{cross}}^X$ (non
+dipende da scale/bias allenati solo per l'ultimo stadio); (4) i quattro $\Delta Z$ per sotto-blocco
+(differenze consecutive dei logit intermedi: attn1, mlp1, attn2, mlp2), aggregati per categoria
+(within-short/within-long-near/within-long-far/cross). Ipotesi dichiarata PRIMA dei dati (non
+assunta, come richiesto esplicitamente dall'utente — "non assumere in anticipo... riportare ciò che
+emerge"): attention 1 raccoglie info locale, MLP 1 comincia a separare le componenti, attention 2 alza
+la similarità delle coppie lontane, MLP 2 converte questo in decisione finale — una fra le letture
+possibili, da verificare con $M_{\mathrm{far}}$ e le medie per categoria, non da assumere.
+
+**Implementato, smoke-testato** (checkpoint giocattolo similarity, `n=20`, prima di qualunque dato
+reale — **due bug di layout trovati e corretti durante lo smoke-test, non solo un test passivo**):
+- `stagewise_diagnostics.py` (NUOVO): `run_with_stages(...)` (il forward diagnostico, analogo a
+  `run_with_cache` ma con gli stadi intra-layer in più), un self-test che verifica $H^{(2)}$/logit
+  contro `model.forward_and_embeddings`, e `stagewise_probe(...)` che calcola tutto quanto sopra per
+  ogni split. Solo readout **similarity** (coerente con lo standard del Report 8, §15.1). Nessun
+  backward pass — solo forward, economico come `edge_ablation_contribution.py`. Output
+  `stagewise_geometry.npz` (matrici) + `stagewise_{metrics,margins,deltaz}.csv` (scalari).
+- `plot_stagewise_diagnostics.py` (NUOVO, locale no-GPU): heatmap coseno 5 pannelli, heatmap ΔZ 4
+  pannelli, curve far-reach/margin-vs-stadio (error bars su seed — errore 61), tabella categoria×branch
+  per ΔZ. **Bug trovati e corretti durante lo smoke-test**: (1) un backslash-spazio superfluo in due
+  titoli (`"vs.\\ stage"`) che matplotlib renderizzava letteralmente fuori da un blocco `$...$`; (2)
+  `fig.colorbar(im, ax=axes, ...)` insieme a `fig.tight_layout()` con un `suptitle` a due righe causava
+  sovrapposizione fra il suptitle e i titoli dei pannelli, e la colorbar finiva sopra l'ultimo pannello
+  — corretto passando a un colorbar-axis dedicato (`fig.add_axes` dopo `tight_layout(rect=...)`)
+  invece di lasciare che `colorbar` rubi spazio dalla lista di assi. Verificato visivamente prima e
+  dopo il fix.
+- `scripts/r8_stagewise_n40_pathunion.sbatch` (NUOVO, CPU-only `medium_cpu`, `--array=0-3`, i 4 seed
+  `n40_pathunion_similarity` — stessa condizione di §sec:battery): **da lanciare**,
+  `sbatch scripts/r8_stagewise_n40_pathunion.sbatch`. Time limit 2h (stesso ordine di grandezza
+  dell'edge-ablation, nessun backward pass — dovrebbe bastare ampiamente).
+- `report/8/transformer_for_graphs_8.tex`: nuova sezione `sec:stagewise` ("Where is the information
+  combined? A stagewise probe") fra il test due-cicli e l'outlook, con tutte le formule (stessa
+  precisione del Report 7), le ipotesi dichiarate prima dei dati, stub "data pending". Compila pulito,
+  **15 pagine**, 0 ref indefinite, 0 overfull.
+
+**Deliberatamente NON implementato in questa sessione** (Priorità 2/3, esplicitamente rimandate):
+Q/K/V/αV/AttnOut norms lungo la path, message-contribution matrix $T^{(\ell)}_{ij}$, causal
+short-to-long attention masking (condizioni A–E); stagewise edge-ablation (la contribution causale di
+§15.4 estesa a tutti e 5 gli stadi, non solo $H^{(2)}$); chord-addition control; PCA/UMAP. Da fare in
+questo ordine quando si riprende.
+
+**Da fare in una chat futura (in ordine)**:
+1. `sbatch scripts/r8_stagewise_n40_pathunion.sbatch` — non ancora lanciato.
+2. Dopo il pull: `python plot_stagewise_diagnostics.py --tag_glob "n40_pathunion_seed*" --heatmap_seed
+   1000 --title_tag "disjoint-paths-trained"`. Sostituire lo stub "[Data pending]" in `report/8`
+   §sec:stagewise con le figure vere e il verdetto sull'ipotesi (quale stadio muove di più
+   $M_{\mathrm{far}}$?).
+3. Poi, in ordine: Priorità 2 (Q/K/V/message-contribution/causal masking), Priorità 3 (stagewise edge
+   ablation, chord control, PCA) — nessuna delle due iniziata.
+4. Restano aperti anche i punti già noti: il controllo chord di §15.4/outlook, l'estensione di
+   §sec:battery/§sec:cycles/§sec:stagewise a ER/n64/n20.
 
 ---
 
