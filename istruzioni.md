@@ -15,12 +15,14 @@ questo progetto. Leggere **tutto** prima di agire.
 ---
 
 > **🟥 STATO ATTUALE (AGGIORNATO 2026-07-25) — Report 1–8 CHIUSI. Report 9 APERTO: il PIANO è scritto
-> (§16); DUE pezzi ora hanno CODICE PRONTO e smoke-testato (il sanity-check n=46 e il Thread A.4),
-> ma NESSUN DATO REALE è ancora tornato** — gli `sbatch` sono preparati in **§16.6**, non ancora
-> lanciati (Claude non lancia mai `sbatch`, solo l'utente). Onboarding standard per la nuova chat:
-> questo file per intero + tutti i `.tex` dei report, incluso `report/9/transformer_for_graphs_9.tex`
-> (piano/scheletro + le due sezioni ora "code pronto, dati in arrivo"), come da regola di lettura in
-> cima al file.
+> (§16); DUE pezzi hanno CODICE PRONTO (il sanity-check n=46 e il Thread A.4, §16.6), LANCIATI** — il
+> Thread A.4 (job `604793`, CPU) è partito correttamente, in attesa che finisca; i due training n=46
+> sono invece **falliti alla sottomissione** (partizione `gpunew` nuda sparita dal cluster, errore 68),
+> **fix fatto** (`gpuh200` al posto di `gpunew`, §16.7) — **da ri-lanciare dall'utente**. Ancora
+> **nessun dato reale tornato** da nessuno dei tre. Onboarding standard per la nuova chat: questo file
+> per intero + tutti i `.tex` dei report, incluso `report/9/transformer_for_graphs_9.tex` (piano/
+> scheletro + le due sezioni ora "code pronto, dati in arrivo"), come da regola di lettura in cima al
+> file.
 >
 > **Perché nasce il Report 9 (dettaglio completo, richiesta VERBATIM della prof, in §16.0 — leggerlo
 > per intero prima di qualunque altra cosa).** Il Report 8 (path\_union-trained, readout similarity,
@@ -605,6 +607,17 @@ standard da cui l'utente estrarrà le slide.
     quando si copia/adatta una tabella da un report precedente, NON abbreviare le colonne che servono a
     capire il contesto sperimentale (dimensioni, split, condizioni) solo perché sembrano ridondanti — la
     leggibilità stand-alone della tabella conta più della sua compattezza.
+68. **La partizione `gpunew` NUDA (senza prefisso) è SPARITA dal cluster (scoperto 2026-07-25, dopo la
+    manutenzione RHEL 9.8/Slurm di cui sotto).** `sinfo` non la elenca più: restano solo
+    `long_gpunew`/`medium_gpunew`/`short_gpunew`/`debug_gpunew` (i tier), mentre `gpuh200` **nuda esiste
+    ancora** (cap 1 giorno, 6 nodi — più capienza del vecchio pool `gpunew`). Qualsiasi sbatch scritto
+    prima di questa data con `--partition=gpunew` per un training >6h10 (che quindi non entra nei tier
+    `medium_*`/`short_*`) fallisce con `sbatch: error: ... User's group not permitted to use this
+    partition` — capitato ai due training $n{=}46$ del Report 9 (§16.6/§16.7). **FIX: usa `gpuh200`** al
+    posto di `gpunew` nudo per ogni training che serva un cap >6h10 e ≤1 giorno (verifica comunque con
+    `sinfo -o "%P %G %l %D"` prima di fidarti di un `--partition=` scritto in una sessione precedente,
+    la lista dei nomi può cambiare dopo una manutenzione). Dettaglio completo (incluso il nuovo pool
+    temporaneo `gpua100`, la finestra di manutenzione full-cluster e la nuova policy `/scratch`) in §6.
 
 ---
 
@@ -750,6 +763,39 @@ standard da cui l'utente estrarrà le slide.
 > `scontrol update JobId=<id> Partition=short_gpuh200 TimeLimit=01:00:00` (ridurre il time è
 > permesso, aumentarlo NO). (e) Resta vietata la **multi-partizione** (errore 12): UNA sola.
 > NB: il job `brblocks` (eval bridged-blocks, §11 esperimento OOD) è eval-only → short.
+
+> **🟨 AGGIORNAMENTO 2026-07-25 — la `gpunew` NUDA è sparita; manutenzione full-cluster lunedì
+> 27/7; nuova policy `/scratch`; nuovo pool temporaneo `gpua100`.** Scoperto lanciando i due
+> training $n{=}46$ del Report 9 (§16.6/§16.7): `sinfo -o "%P %G %l %D"` in questa sessione **non
+> elenca più una partizione `gpunew` nuda** — restano solo i tier `long_gpunew` (3gg, 2 nodi),
+> `medium_gpunew` (6h10, 4 nodi), `short_gpunew` (1h10, 4 nodi), `debug_gpunew` (15min, 4 nodi).
+> **`gpuh200` nuda invece esiste ancora** (cap 1 giorno, 6 nodi) insieme ai suoi tier. Un
+> `--partition=gpunew` per un training >6h10 ora fallisce subito con `sbatch: error: ... User's
+> group not permitted to use this partition` (errore 68) — **usa `gpuh200`** al posto di
+> `gpunew` per qualunque training che serva più dei 6h10 di `medium_gpunew` ma stia dentro 1
+> giorno (i training n40/n46 di questo progetto, ~6–14h, rientrano). Verificato che il resto
+> della mappa partizioni sotto (H100 vs H200, cap dei tier) è altrimenti invariato.
+>
+> **Nuovo pool TEMPORANEO `gpua100`** (mail HPC, nodi NVIDIA A100 `gnode[03-04]`, riassegnati
+> dalla partizione studenti per l'estate, **tornano a settembre 2026** — non farci affidamento
+> per training che dovrebbero girare oltre quella data): `gpua100` (1 giorno), `medium_gpua100`
+> (6h10), `short_gpua100` (1h10), `debug_gpua100` (15min). Utile come pool alternativo se
+> `gpuh200`/`gpunew` sono congestionati, solo per lavoro di questa estate.
+>
+> **⚠️ Manutenzione FULL-CLUSTER lunedì 27 luglio 2026, 09:00–18:00 CEST (tentativo).** Login e
+> compute node, filesystem BeeGFS/NFS (`/home`,`/data`,`/scratch`) e Slurm stesso non saranno
+> disponibili. Ogni job che si sovrapporrebbe alla finestra resta PD con motivo
+> `ReqNodeNotAvail, Reserved for maintenance` (i nodi coinvolti appaiono in stato `maint` su
+> `sinfo`) e va **ri-sottomesso dopo**; un job **in esecuzione** che si sovrappone viene
+> **cancellato** (non ripreso) e va ri-sottomesso. **Prima di lanciare un training lungo (12–14h)
+> vicino a quella data, calcolare se finirebbe prima delle 09:00 di lunedì o dopo le 18:00** —
+> altrimenti aspettarsi la cancellazione e pianificare il rilancio post-manutenzione.
+>
+> **Nuova policy di pulizia `/scratch` (dal 5 agosto 2026): retention ridotta da 90 a 30
+> giorni.** Il 5/8 vengono cancellati i file non toccati dal 6/7/2026 in poi; da allora, pulizia
+> automatica giornaliera dei file più vecchi di 30 giorni. Questo progetto vive sotto `~/` (home,
+> non `/scratch`), quindi non dovrebbe essere toccato direttamente — ma se una chat futura sposta
+> output pesanti in `/scratch` per qualunque motivo, tenerne conto (nessuna azione necessaria ora).
 
 - Partizioni GPU H200: `gpuh200`, `long_gpuh200`,
   `debug_gpuh200` (15 min, serve `--qos=debug`). H100: `gpunew`/`long_gpunew`/
@@ -3324,6 +3370,33 @@ questa sessione (tutto smoke-testato su un checkpoint giocattolo locale, mai sal
 json (`asym_chains.json` × 2 per il sanity-check, `multiway_split.json` × 4 per A.4) e scrivere le
 sezioni corrispondenti nel `.tex` con i dati veri. Se il sanity-check conferma $n=46$, procedere con
 A.1/A.2/A.3/A.5/B.1 (tutti ancora da disegnare in dettaglio/implementare) sempre a $n=46$.
+
+### 16.7 Primo lancio reale (2026-07-25): 2/3 job falliti per la partizione `gpunew` sparita, fix fatto
+
+**Cosa è successo.** L'utente ha lanciato i tre sbatch di §16.6. **`scripts/r9_a4_multiway_n40.sbatch`
+(Thread A.4, CPU) è partito correttamente**, `Submitted batch job 604793` — nessuna azione necessaria,
+in attesa che finisca. **I due training $n{=}46$ (`scripts/r9_n46_sanity_seed{1000,2000}.sbatch`) sono
+FALLITI alla sottomissione stessa** (`sbatch: error: Batch job submission failed: User's group not
+permitted to use this partition`, nessun job ID assegnato) — causa: la partizione `gpunew` **nuda**
+usata da entrambi gli script non esiste più su questo cluster (errore 68/§6, scoperto proprio da questo
+fallimento). **Fix fatto**: `--partition=gpunew` → `--partition=gpuh200` in entrambi gli script (stessa
+identica riga, nessun altro cambiamento — stesso `--time=14:00:00`, ampiamente dentro il cap di 1 giorno
+di `gpuh200`). Nessun altro file toccato.
+
+**Da rilanciare (l'utente), dopo il pull della fix:**
+```
+sbatch scripts/r9_n46_sanity_seed1000.sbatch
+sbatch scripts/r9_n46_sanity_seed2000.sbatch
+```
+Il job `604793` (Thread A.4) non va ri-lanciato, è già in coda/esecuzione con la configurazione giusta.
+
+**Nota sulla manutenzione full-cluster del 27 luglio (§6):** questi due training richiedono fino a 14h;
+se lanciati abbastanza in anticipo rispetto a lunedì 27/7 09:00 CEST finiranno prima della finestra di
+manutenzione, altrimenti verranno cancellati a metà e andranno ri-sottomessi da capo dopo — controllare
+la tempistica al momento del rilancio.
+
+**File toccati questa sessione**: `scripts/r9_n46_sanity_seed{1000,2000}.sbatch` (fix partizione),
+`istruzioni.md` (errore 68, aggiornamento §6, questo paragrafo).
 
 ---
 
