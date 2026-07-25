@@ -1,0 +1,13 @@
+seed=3000 checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed3000/last.pt
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  k=5 small= 2 long=32 exact=0.153 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.5439
+  k=5 small= 3 long=28 exact=0.987 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.9998
+  k=5 small= 4 long=24 exact=0.983 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.9997
+  k=5 small= 5 long=20 exact=0.983 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.9998
+  k=6 small= 2 long=30 exact=0.000 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.0
+  k=6 small= 3 long=25 exact=0.030 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.8884
+  k=6 small= 4 long=20 exact=0.040 reach_long=1.000 far(>18)=1.0 cut(long,small)=1.000 cut(small,small)=0.9094
+  k=7 small= 2 long=28 exact=0.000 reach_long=1.000 far(>18)=1.0 cut(long,small)=0.999 cut(small,small)=0.0
+  k=7 small= 3 long=22 exact=0.000 reach_long=1.000 far(>18)=1.0 cut(long,small)=0.995 cut(small,small)=0.2746
+  saved -> runs/report9/multiway_split/n40_pathunion_seed3000/multiway_split.json
