@@ -32,11 +32,17 @@
 # CPU-only (no GPU needed for any of these three -- pure forward passes, plus a handful of
 # small backward passes for the exact-contribution step): medium_cpu is ample.
 #
-# MUST be gated on the two training jobs finishing (afterany, not afterok -- a training job
-# that ends for any reason still leaves a checkpoint to evaluate, and afterok would leave this
-# stuck PD forever if either training job's exit status is non-zero for an unrelated reason):
+# EACH seed's eval is gated ONLY on that seed's own training job, not on both together -- the
+# two trainings finish at different times, and there is no reason to make seed 1000's eval wait
+# on seed 2000's training (or vice versa). This is the SAME array script (SEEDS=(1000 2000),
+# index 0/1) submitted TWICE, each time overriding --array to a single index and --dependency to
+# that seed's own training job ID (a command-line --array overrides the #SBATCH default above;
+# afterany, not afterok -- errore 44: a training job that ends for any reason still leaves a
+# checkpoint to evaluate, and afterok would leave this stuck PD forever on a non-zero exit for
+# an unrelated reason):
 #
-#   sbatch --dependency=afterany:604831:604832 scripts/r9_n46_mechbattery.sbatch
+#   sbatch --dependency=afterany:604831 --array=0 scripts/r9_n46_mechbattery.sbatch   # seed 1000
+#   sbatch --dependency=afterany:604832 --array=1 scripts/r9_n46_mechbattery.sbatch   # seed 2000
 #
 # (replace the two job IDs if the training jobs were resubmitted under different IDs by the
 # time this runs -- check with `squeue -u $(whoami)`).

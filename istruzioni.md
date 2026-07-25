@@ -3474,11 +3474,16 @@ VII/VIII, **nessuna modifica di codice**, solo argomenti CLI diversi:
    backward pass, economico a prescindere.
 Output: `runs/report9/{mechanistic,heatmaps,stagewise}/n46_pathunion_seed{1000,2000}/`.
 
-**Da lanciare (l'utente), DOPO aver pushato lo script nuovo** (i job ID sono quelli visti in
-`squeue`, verificare che siano ancora quelli giusti prima di lanciare):
+**Corretto su richiesta dell'utente: gate PER SEED, non su entrambi insieme.** L'eval di ogni seed
+parte non appena FINISCE IL SUO PROPRIO training, non deve aspettare l'altro. Stesso script array
+(`SEEDS=(1000 2000)`, indice 0/1), sottomesso DUE VOLTE, ogni volta con `--array` forzato a un solo
+indice (un flag da riga di comando sovrascrive il default `#SBATCH --array=0-1` dello script) e la
+propria dipendenza:
 ```
-sbatch --dependency=afterany:604831:604832 scripts/r9_n46_mechbattery.sbatch
+sbatch --dependency=afterany:604831 --array=0 scripts/r9_n46_mechbattery.sbatch   # seed 1000
+sbatch --dependency=afterany:604832 --array=1 scripts/r9_n46_mechbattery.sbatch   # seed 2000
 ```
+(job ID da riverificare con `squeue -u $(whoami)` prima di lanciare, se sono cambiati).
 **STATO: preparato, NON lanciato.** Nessun dato ancora (né dal training n=46 né da questa batteria).
 
 **Nota per dopo (plotting locale)**: `plot_mechanistic_asym_chains.py` e
