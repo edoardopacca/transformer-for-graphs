@@ -3498,5 +3498,171 @@ altrove; non ancora fatto, non blocca il lancio su HPC (che scrive comunque i da
 
 ---
 
+### 16.10 Grande giro di implementazione (2026-07-25): rescale layerwise geometry + battery
+K-way (5/6/7) + tre nuovi training a un seed (2-chains, 1+2-path, 2-cycles)
+
+**Richiesta dell'utente, cinque pezzi in un colpo solo** (trascritta/riassunta, il verbatim
+completo resta nel messaggio utente di questa sessione):
+1. Ricolorare TUTTE le figure "layerwise similarity geometry" (in ogni report) con
+   $Z=\mathrm{scale}\cdot\cos+\mathrm{bias}$ invece del coseno grezzo, così il confine
+   connesso/disconnesso è sempre esattamente a $0$ (col coseno grezzo il confine è a
+   $\cos\approx0.146$, i colori non si distinguono bene).
+2. Sui 4 checkpoint $n{=}40$ path\_union-similarity già esistenti: la stessa batteria del
+   Report~8 (Tabella~1, Figura~1, attention scores, layerwise similarity geometry) ma
+   testata su unioni di **5, 6, 7** path (il Thread~A.4 del piano, ora con la batteria
+   meccanicistica completa, non solo il comportamento base già scritto in §16.8). **CPU.**
+3. Un nuovo training $n{=}46$, **1 solo seed**, su **soli 2-chains a split casuale**
+   (readout similarity, stesso setup solito), testato in-distribuzione con tutta la solita
+   batteria (tabella, Figura~1, attention, layerwise geometry) come in
+   `scratch_n46_seed1000.pdf`.
+4. Un nuovo training $n{=}46$, **1 solo seed**, su una miscela di **1-path (una sola catena
+   da 46 nodi) e 2-path (split casuale)**, stessa batteria.
+5. Un ultimo training, **1 solo seed**, su **2-cicli a split diversi** (stesso training
+   "base" ma chiudendo le catene a cerchio), stessa batteria — per vedere se gli estremi
+   sono davvero necessari o se anche i cicli, allenati per bene, imparano qualcosa di
+   simile.
+
+Tutto con le stesse caratteristiche di sempre (RoBERTa $L{=}2$/single-head/$d_{512}$,
+readout similarity, $10^6$ step online, batch $1000$).
+
+**(1) Rescale — FATTO, codice cambiato, dati esistenti da rigenerare.**
+`stagewise_diagnostics.py` ora salva `scale`/`bias` (due scalari, letti direttamente da
+`model.sim_scale`/`model.sim_bias`) dentro `stagewise_geometry.npz` — nessun'altra modifica
+alla logica esistente (che già calcolava `Z=scale*G+bias` per le metriche, solo non lo
+salvava per l'heatmap). `plot_stagewise_diagnostics.py::fig_cosine_heatmaps` ora carica
+`scale`/`bias` dal npz e plotta $Z$ invece di $G$ (fallback automatico al coseno grezzo con
+un warning se un npz vecchio non ha ancora `scale`/`bias`); titolo/colorbar aggiornati di
+conseguenza. **Aggiunto anche `--report_root` a `plot_stagewise_diagnostics.py`** (era
+hardcoded su `report8`, serviva per leggere i dati `report9`), stesso pattern già usato in
+`plot_mechanistic_asym_chains.py`/`plot_mechanistic_heatmaps.py`, retrocompatibile (default
+`report8` invariato). Smoke-testato su un checkpoint giocattolo (verificato visivamente: la
+colorbar passa da $[-1,1]$ a $[-\mathrm{scale}{+}\mathrm{bias},\,\mathrm{scale}{+}\mathrm{bias}]$
+esattamente come atteso).
+**I dati ESISTENTI però non hanno ancora `scale`/`bias`** (le run precedenti salvavano solo
+`G`): serve un RE-RUN, cosa economica dato che `stagewise_diagnostics.py` non fa backward
+pass (~6-7s/seed, già misurato in Report~8). Nuovo sbatch
+`scripts/r9_stagewise_rescale_refresh.sbatch` (CPU, `short_cpu`, array di 6): rigenera
+`stagewise_geometry.npz` per i 4 seed chain $n{=}40$ (Report~8), il seed cycle $n{=}40$
+(Report~8), e il seed $n{=}46$ (Report~9) — stessi identici checkpoint/split/topology delle
+run originali, quindi metrics/margins/deltaz CSV escono identici, cambia solo l'npz.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_stagewise_rescale_refresh.sbatch
+```
+**Dopo il pull**: rigenerare le figure con `plot_stagewise_diagnostics.py` per ciascuna
+condizione (report8 chain: `--tag_glob "n40_pathunion_seed*"`, default `--report_root
+report8`; report8 cycle: `--tag_glob "n40_pathunion_cycle_seed*" --suffix _cycle`; report9:
+`--tag_glob "n46_pathunion_seed*" --report_root report9`) e, per il Report~8, SOSTITUIRE le
+figure `fig:r8stagecosine4/20` e `fig:r8cyclestagecosine4/20` già nel `.tex` (stesso
+contenuto concettuale, solo l'asse colore cambia — nessuna modifica di testo necessaria a
+meno che i numeri descritti in prosa facciano riferimento a valori di coseno specifici, da
+controllare quando si rigenera).
+
+**(2) Thread A.4, battery meccanicistica completa — codice pronto, smoke-testato, NON
+lanciato.** Tre file nuovi, tutti eval-only, che riusano SENZA MODIFICARLI i building block
+generici già validati (nessun rischio per i Report~7/8 già finiti):
+- `mechanistic_kway.py` (NUOVO): behavioural sweep + logit coseno grezzo per celle
+  $(K,\text{small\_size})$ — l'analogo diretto di Tabella~1/Figura~1 del Report~8, ma con
+  **una lunga + $(K{-}1)$ corte compattate (pool) in un unico indice "corto"** invece del
+  singolo split a due vie. Riusa `_device`/`_selftest`/`weights_geometry_similarity` da
+  `mechanistic_asym_chains.py` (import, zero modifiche) e `default_small_sizes`/
+  `generate_multi_path_split_graph` da `eval_multiway_split.py`/`data.py` (Thread~A.4
+  comportamentale di §16.8). Celle derivate in automatico: $K{=}5{:}\{2,3,4,5\}$,
+  $K{=}6{:}\{2,3,4\}$, $K{=}7{:}\{2,3\}$ (stessa feasibility di §16.8).
+- `mechanistic_kway_heatmaps.py` (NUOVO): attention scores/$\alpha$/Q/K/V reali (Figura~3
+  equivalente) per le stesse celle — riusa `run_with_cache`/`exact_contribution`
+  (`mechanistic_asym_chains.py`) e `raw_weights` (`mechanistic_heatmaps.py`), import puro.
+- `stagewise_kway.py` (NUOVO): layerwise cosine geometry per le stesse celle — riusa
+  `run_with_stages`/`_cosine_batch`/`MAIN_STAGES`/`SUBBLOCKS`/`_selftest` da
+  `stagewise_diagnostics.py` (import puro; **include già il fix (1)**, salva
+  `scale`/`bias` dal primo lancio, nessun refresh necessario in futuro per questi dati).
+  ⚠️ **Bug trovato e fissato durante lo smoke-test**: la prima stesura importava per errore
+  `_selftest` da `mechanistic_asym_chains.py` (valida `run_with_cache`, che questo script
+  non usa) invece che da `stagewise_diagnostics.py` (valida `run_with_stages`, quello
+  davvero usato) — corretto prima di girare su qualunque checkpoint reale.
+- `plot_mechanistic_kway.py` (NUOVO, locale no-GPU): tabella aggregata per (K, small\_size)
+  su console (mean±std sui seed) + tre figure — sweep/logit sfaccettato per $K$ (un pannello
+  per $K=5,6,7$, asse-x = taglia della componente corta), attention scores $\alpha$ (celle
+  scelte via `--attn_cells`), layerwise cosine geometry (una cella scelta via
+  `--cosine_cell`, con il fix (1) già incorporato). Tutti e tre gli script smoke-testati
+  end-to-end su un checkpoint giocattolo con 2 "seed" finti (aggregazione verificata) prima
+  di toccare pesi reali; nessun artefatto di test lasciato nel repo (girato in una working
+  dir separata sotto `/tmp`).
+- **Nuovo sbatch `scripts/r9_kway_n40_battery.sbatch`** (CPU-only, `medium_cpu`, array di 4
+  seed, le 9 celle sopra passate esplicitamente a heatmaps/stagewise): **CPU per scelta
+  esplicita dell'utente** — comunque coerente con la logica già usata per il Thread~A.4
+  comportamentale (§16.6/§16.9): tutto qui è forward-only o backward economico a
+  `contrib_n_graphs=8` di default, nessun bisogno di GPU.
+  **Da lanciare (l'utente):**
+  ```
+  sbatch scripts/r9_kway_n40_battery.sbatch
+  ```
+  **STATO: preparato, NON lanciato.** Output atteso in
+  `runs/report9/{mechanistic_kway,heatmaps_kway,stagewise_kway}/n40_pathunion_seed{S}[_kway]/`.
+
+**(3)(4)(5) Tre nuovi training a un seed, $n=46$, readout similarity — codice pronto, NON
+lanciato.**
+- `experiments2/train_families_n20.py` **esteso con due nuove famiglie nominate**
+  (principio dati §13.2, mai un mixed opaco): `split_chains` (uno split casuale a due vie
+  ogni campione, `short_len` uniforme $1..n{-}1$, via `data.py::generate_split_chains_graph`
+  — NUOVO rispetto alla `2chains` già esistente, che è sempre lo split bilanciato fisso
+  $n/2$) e `split_cycles` (stesso split casuale ma chiudendo ogni segmento a ciclo,
+  `short_len` uniforme $3..n{-}3$, via `generate_split_cycles_graph`). Lista famiglie note
+  estesa di conseguenza. **Fix collaterale** (scoperto smoke-testando in locale):
+  `DataLoader(prefetch_factor=..., persistent_workers=True)` va in errore con
+  `--num_workers 0` (errore 37, mai durevolmente risolto in questo file) — ora
+  `prefetch_factor`/`persistent_workers` sono passati solo se `--num_workers>0`,
+  retrocompatibile (default 16 su HPC, invariato).
+- Smoke-testato in locale (CPU, `--train_steps 8 --num_workers 0`): `split_chains`,
+  `split_cycles`, e la lista esplicita `1chain,split_chains` (tag risultante
+  `1chain+split_chains`) girano tutti senza errori.
+- **`scripts/r9_n46_splitchains_seed1000.sbatch`** (NUOVO, seed $3$): train
+  `--families split_chains --n_nodes 46 --readout similarity` (stesso $10^6$ step/batch
+  $1000$ di sempre), poi in automatico `eval_asym_chains.py` +
+  `mechanistic_asym_chains.py --attn_splits 4 23` + `mechanistic_heatmaps.py --splits 4 23`
+  + `stagewise_diagnostics.py --splits 4 23` (nessuno script nuovo necessario: `split_chains`
+  produce comunque uno split a due vie, quindi la batteria chain esistente si applica senza
+  modifiche).
+- **`scripts/r9_n46_onetwopath_seed1000.sbatch`** (NUOVO): train
+  `--families 1chain,split_chains ...`, stessa batteria di eval del punto sopra.
+- **`scripts/r9_n46_splitcycles_seed1000.sbatch`** (NUOVO): train `--families split_cycles
+  ...`, poi `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py`/`stagewise_diagnostics.py`
+  tutti con `--topology cycle` (già supportato, Report~8) — **`eval_asym_chains.py` è
+  saltato apposta** (costruito solo per catene aperte; lo sweep di
+  `mechanistic_asym_chains.py` copre comunque la stessa tabella per i cicli).
+  ⚠️ **Assunzione da confermare con l'utente**: la richiesta non specificava $n$ per questo
+  training ("uguale al training base... chiudendo le chain") — assunto $n{=}46$ per
+  coerenza col resto della sessione; se l'utente intendeva $n{=}40$ (il canvas dei
+  Report~6/7/8 originali) va corretto.
+- Tutti e tre gli script sono un solo job (training GPU + eval nello stesso allocation, non
+  gateato separatamente): dato che è un singolo seed esplorativo per ciascuno, non vale la
+  complessità di due job dipendenti come nel sanity-check a due semi (§16.6/§16.7).
+  Partizione `gpuh200` (NON `gpunew`, sparita — errore 68), `--time=16:00:00` (margine sopra
+  le 14h di training + l'eval).
+  **Da lanciare (l'utente):**
+  ```
+  sbatch scripts/r9_n46_splitchains_seed1000.sbatch
+  sbatch scripts/r9_n46_onetwopath_seed1000.sbatch
+  sbatch scripts/r9_n46_splitcycles_seed1000.sbatch
+  ```
+  **STATO: preparati, NON lanciati.**
+
+**Cosa NON è stato ancora fatto** (nessuna scrittura nel `.tex` del Report~9 o in un nuovo
+scratch pdf): tutti e cinque i pezzi sopra restano dati-in-arrivo. Una volta tornati i
+risultati, seguire lo stesso pattern già rodato con `scratch_n46_seed1000.pdf` (§messaggi
+precedenti di questa sessione) — uno scratch `.tex`/`.pdf` per condizione (o uno unico con
+più sezioni), MAI scritto direttamente nel Report~9 finché i dati non sono confermati.
+
+**File nuovi/toccati questa sessione**: `stagewise_diagnostics.py`,
+`plot_stagewise_diagnostics.py`, `experiments2/train_families_n20.py` (modificati);
+`mechanistic_kway.py`, `mechanistic_kway_heatmaps.py`, `stagewise_kway.py`,
+`plot_mechanistic_kway.py` (nuovi); `scripts/r9_stagewise_rescale_refresh.sbatch`,
+`scripts/r9_kway_n40_battery.sbatch`, `scripts/r9_n46_splitchains_seed1000.sbatch`,
+`scripts/r9_n46_onetwopath_seed1000.sbatch`, `scripts/r9_n46_splitcycles_seed1000.sbatch`
+(nuovi sbatch); `istruzioni.md`. Nessun checkpoint toccato (tutto smoke-testato su
+checkpoint giocattolo locali, mai salvati nel repo).
+
+---
+
 *Per aggiungere questo file a git (lo fa l'utente):*
 `git add istruzioni.md && git commit -m "Update project handoff instructions" && git push origin main`

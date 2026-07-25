@@ -119,7 +119,7 @@ def _cosine_batch(arr):
     return np.einsum("gid,gjd->gij", normed, normed)
 
 
-def stagewise_probe(model, dev, n, splits, rng, n_graphs, cap=9):
+def stagewise_probe(model, dev, n, splits, rng, n_graphs, cap=9, topology="chain"):
     if model.readout_kind != "similarity":
         raise NotImplementedError("this script is specific to the similarity read-out "
                                    "(report/8 sec:setup standardizes on it)")
@@ -127,7 +127,7 @@ def stagewise_probe(model, dev, n, splits, rng, n_graphs, cap=9):
     bias = float(model.sim_bias.detach().cpu())
     out = {}
     for a in splits:
-        base_adj = _build_split_graph(n, a, "chain")
+        base_adj = _build_split_graph(n, a, topology)
         base_y = compute_connectivity_matrix(base_adj).astype(np.int8)
         base_dist = compute_all_pairs_shortest_paths(base_adj)
         seg0, seg1 = np.arange(0, a), np.arange(a, n)
@@ -223,6 +223,9 @@ def main():
     ap.add_argument("--cap", type=int, default=9)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--skip_selftest", action="store_true")
+    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
+                    help="chain (default, every two-chain result since Report VI) or cycle "
+                         "(report/8 sec:cycles -- each segment closed into a ring)")
     args = ap.parse_args()
 
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
@@ -236,9 +239,15 @@ def main():
         _selftest(model, dev, n)
 
     rng = np.random.default_rng(args.seed)
-    probe = stagewise_probe(model, dev, n, args.splits, rng, args.n_graphs, cap=args.cap)
+    probe = stagewise_probe(model, dev, n, args.splits, rng, args.n_graphs, cap=args.cap,
+                            topology=args.topology)
 
-    npz_dict = {}
+    # Saved once per checkpoint (a single global scalar, not per split/stage) so the plot
+    # script can render scale*cos+bias -- the model's own decision boundary at 0 -- instead
+    # of raw cosine, whose "connected" threshold sits at an arbitrary cos>-bias/scale and
+    # makes a cosine-centred diverging colormap misleading (istruzioni.md, Report IX request).
+    npz_dict = {"scale": np.float64(float(model.sim_scale.detach().cpu())),
+                "bias": np.float64(float(model.sim_bias.detach().cpu()))}
     metrics_rows, margin_rows, deltaz_rows = [], [], []
     for a_key, d in probe.items():
         for X, mat in d["G"].items():

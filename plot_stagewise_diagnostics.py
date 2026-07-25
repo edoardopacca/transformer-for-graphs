@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 ROOT = Path("runs/report8/stagewise")
 OUT = Path("runs/report8/report8_figs")
+FIG_PREFIX = "r8"   # reset from --report_root in main() (e.g. "r9" for report9)
 STAGES = ["H0", "Hattn1", "H1", "Hattn2", "H2"]
 STAGE_LABELS = [r"$H^{(0)}$", r"$H_{\mathrm{attn}}^{(1)}$", r"$H^{(1)}$",
                 r"$H_{\mathrm{attn}}^{(2)}$", r"$H^{(2)}$"]
@@ -37,7 +38,21 @@ def fig_cosine_heatmaps(tag_glob, seed, split, suffix):
     if f"{key}__G_H0" not in d.files:
         print(f"split a={split} not found in {seed_dir.name}"); return
     S = d[f"{key}__short_idx"]
-    mats = [d[f"{key}__G_{X}"] for X in STAGES]
+    raw = [d[f"{key}__G_{X}"] for X in STAGES]
+    # Plot scale*cos+bias (the model's own trained decision boundary, at exactly 0) instead
+    # of raw cosine: raw cosine's "connected" threshold sits at an arbitrary cos>-bias/scale
+    # (e.g. 0.146), which a cosine-centred diverging colormap hides -- rescaling puts the
+    # actual decision boundary at the colormap's centre, at every stage.
+    if "scale" in d.files and "bias" in d.files:
+        scale, bias = float(d["scale"]), float(d["bias"])
+        mats = [scale * m + bias for m in raw]
+        title_quantity = (r"$Z^X_{ij}=\mathrm{scale}\cdot\cos(x_i,x_j)+\mathrm{bias}$ "
+                          r"(connected $>0$, disconnected $<0$ at every stage)")
+    else:
+        print(f"  [warn] no scale/bias in {seed_dir.name}/stagewise_geometry.npz -- "
+              f"falling back to raw cosine (rerun stagewise_diagnostics.py to fix)")
+        mats = raw
+        title_quantity = r"$G^X_{ij}=\cos(x_i,x_j)$"
     vmax = max(abs(m).max() for m in mats)
     fig, axes = plt.subplots(1, 5, figsize=(22, 4.6))
     for ax, m, lab in zip(axes, mats, STAGE_LABELS):
@@ -45,12 +60,12 @@ def fig_cosine_heatmaps(tag_glob, seed, split, suffix):
         ax.axvline(len(S) - 0.5, color="k", ls="--", lw=1)
         ax.axhline(len(S) - 0.5, color="k", ls="--", lw=1)
         ax.set_title(lab, fontsize=11)
-    fig.suptitle(f"Layerwise cosine geometry $G^X_{{ij}}=\\cos(x_i,x_j)$ -- "
+    fig.suptitle(f"Layerwise similarity geometry {title_quantity} -- "
                  f"{seed_dir.name}, split $a$={split}")
     fig.tight_layout(rect=[0, 0, 0.93, 0.90])
     cbar_ax = fig.add_axes([0.945, 0.12, 0.012, 0.72])
     fig.colorbar(im, cax=cbar_ax)
-    p = OUT / f"r8_stagewise_cosine_a{split}{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_stagewise_cosine_a{split}{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -105,7 +120,7 @@ def fig_deltaz_heatmaps(tag_glob, seed, split, suffix):
     fig.tight_layout(rect=[0, 0, 0.93, 0.86])
     cbar_ax = fig.add_axes([0.945, 0.12, 0.014, 0.68])
     fig.colorbar(im, cax=cbar_ax)
-    p = OUT / f"r8_stagewise_deltaz_a{split}{suffix}.png"
+    p = OUT / f"{FIG_PREFIX}_stagewise_deltaz_a{split}{suffix}.png"
     fig.savefig(p, dpi=150); plt.close(fig); print("saved", p)
 
 
@@ -131,6 +146,7 @@ def table_deltaz_categories(tag_glob, splits):
 
 
 def main():
+    global ROOT, OUT, FIG_PREFIX
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag_glob", default="n40_pathunion_seed*")
     ap.add_argument("--heatmap_seed", type=int, default=1000)
@@ -138,7 +154,13 @@ def main():
     ap.add_argument("--curve_splits", type=int, nargs="+", default=[4, 7, 8, 10, 14, 20])
     ap.add_argument("--suffix", default="")
     ap.add_argument("--title_tag", default="disjoint-paths-trained")
+    ap.add_argument("--report_root", default="report8",
+                    help="runs/<report_root>/{stagewise,<report_root>_figs} -- "
+                         "e.g. report9 for a different report's stagewise data")
     args = ap.parse_args()
+    ROOT = Path(f"runs/{args.report_root}/stagewise")
+    OUT = Path(f"runs/{args.report_root}/{args.report_root}_figs")
+    FIG_PREFIX = args.report_root.replace("report", "r")
     OUT.mkdir(parents=True, exist_ok=True)
 
     for a in args.heatmap_splits:
@@ -148,11 +170,11 @@ def main():
     fig_stage_curve(args.tag_glob, args.heatmap_splits, "value", "stagewise_metrics.csv",
                      "metric", "reach_long_far", "far reach (within-long, dist $>9$)",
                      f"Far reach vs. stage -- {args.title_tag}",
-                     f"r8_stagewise_far_reach{args.suffix}.png")
+                     f"{FIG_PREFIX}_stagewise_far_reach{args.suffix}.png")
     fig_stage_curve(args.tag_glob, args.heatmap_splits, "value", "stagewise_margins.csv",
                      "quantity", "M_far", "margin $M_{\\mathrm{far}}$ (mean cos, far-long $-$ cross)",
                      f"Far margin vs. stage -- {args.title_tag}",
-                     f"r8_stagewise_margin{args.suffix}.png")
+                     f"{FIG_PREFIX}_stagewise_margin{args.suffix}.png")
 
     print(f"\n=== stagewise reach/margin summary (mean over seeds), {args.tag_glob} ===")
     table_deltaz_categories(args.tag_glob, args.heatmap_splits)

@@ -40,7 +40,8 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_two_cliques_graph, generate_one_cycle_graph,
                   generate_two_cycles_graph, generate_one_chain_graph,
                   generate_path_union_graph, generate_blocks_graph,
-                  generate_bridged_cliques_graph, generate_split_cliques_graph)
+                  generate_bridged_cliques_graph, generate_split_cliques_graph,
+                  generate_split_chains_graph, generate_split_cycles_graph)
 from model import (GraphConnectivityTransformer, RobertaGraphTransformer,
                    ModelConfig, laplacian_smoothness)
 from utils import ensure_dir, get_device, save_json, set_seed
@@ -66,6 +67,16 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "1chain":      a = generate_one_chain_graph(n)
     elif kind == "bridged":     a = generate_bridged_cliques_graph(n, rng, int(rng.integers(2, n // 2 + 1)))
     elif kind == "split":       a = generate_split_cliques_graph(n, rng, int(rng.integers(2, n // 2 + 1)))
+    # Report IX: a RANDOM two-way split every sample (not the fixed balanced n//2 of
+    # "2chains"/"2cycle" above) -- the clean single-shape training distribution behind the
+    # sanity checks of whether the endpoint-completion signal needs the richer 1..4-path
+    # path_union stream, or is learned just as well from a narrower, explicitly-named one.
+    elif kind == "split_chains":
+        short_len = int(rng.integers(1, n))                    # 1..n-1
+        a = generate_split_chains_graph(n, short_len)
+    elif kind == "split_cycles":
+        short_len = int(rng.integers(3, n - 2))                 # 3..n-3, each cycle needs >=3
+        a = generate_split_cycles_graph(n, short_len)
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -170,7 +181,8 @@ def main():
         families = ["er"]; fam_tag = "er"
     else:
         families = [f.strip() for f in args.families.split(",") if f.strip()]
-        unknown = [f for f in families if f not in (MIXED_FAMILIES + ["bridged", "split"])]
+        unknown = [f for f in families
+                   if f not in (MIXED_FAMILIES + ["bridged", "split", "split_chains", "split_cycles"])]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
                              f"{MIXED_FAMILIES + ['bridged', 'split']}")
@@ -206,9 +218,14 @@ def main():
     cq_x, cq_y = build_fixed_test(["2cliques"], n, 5000, 23456, p)
 
     stream = OnlineFamilyStream(families, n, args.seed + 7, p)
-    loader = DataLoader(stream, batch_size=args.batch_size, num_workers=args.num_workers,
-                        collate_fn=_collate, pin_memory=True, prefetch_factor=4,
-                        persistent_workers=True)
+    # prefetch_factor/persistent_workers require num_workers>0 (multiprocessing-only options);
+    # only pass them when workers are actually requested, so --num_workers 0 (local debug on a
+    # laptop, no multiprocessing) still works instead of crashing (istruzioni.md errore 37).
+    loader_kwargs = dict(batch_size=args.batch_size, num_workers=args.num_workers,
+                         collate_fn=_collate, pin_memory=True)
+    if args.num_workers > 0:
+        loader_kwargs.update(prefetch_factor=4, persistent_workers=True)
+    loader = DataLoader(stream, **loader_kwargs)
 
     eye = torch.eye(n, device=device)
     hist: Dict[str, Any] = {"steps": [], "train_loss": [], "bce": [], "lap": [],
