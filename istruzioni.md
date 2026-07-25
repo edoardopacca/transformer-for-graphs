@@ -3398,6 +3398,99 @@ la tempistica al momento del rilancio.
 **File toccati questa sessione**: `scripts/r9_n46_sanity_seed{1000,2000}.sbatch` (fix partizione),
 `istruzioni.md` (errore 68, aggiornamento §6, questo paragrafo).
 
+### 16.8 Thread A.4 SCRITTO con dati veri (2026-07-25): reach generalizza, il "cut fra più altre
+componenti" no — un nuovo asse di fallimento
+
+**Dati pullati e verificati** (job `604793`, 4 seed, 9 celle ciascuno, tutti i `.out` puliti, nessuno
+skip) — letti dai json grezzi, mai a memoria (regola §4 errore 2). Risultato scritto in
+§sec:planA/paragrafo A.4 del `.tex`, con `tab:r9a4` (dati per-seed, mai collassati, regola 4/20/62).
+
+**Esito, in breve:**
+- **Il reach oltre-muro generalizza PERFETTAMENTE al numero di componenti mai visto in training.**
+  Su tutte le $36$ combinazioni (cella × seed): reach nella componente lunga esattamente $1.000$ ---
+  aggregato, nei tre bucket $\le9$/$9$–$18$/$>18$, e come block-exact. Stesso per le componenti
+  corte. Zero eccezioni. Il training vede solo $1$–$4$ componenti totali; qui si arriva a $K=7$ senza
+  che il reach vacilli mai.
+- **Il fallimento è tutto nel *cut*, e si spacca in due pezzi con soglie diverse.** `cut(long,short)`
+  (distinguere la lunga da UNA corta) resta $\ge0.994$ per 2 semi su 4 fino a $K=7$; gli altri 2 semi
+  scivolano già a $K=5,s{=}5$ ($0.22$–$0.36$) e peggiorano. `cut(short,short)` (distinguere DUE
+  componenti corte diverse fra loro) è molto più fragile: quasi intatto a $K=5$ ($0.54$–$1.00$) ma
+  **collassa per OGNI seme entro $K=6$ o $K=7$** --- inclusi i due semi (1000, 3000) il cui
+  `cut(long,short)` non fallisce mai: seed 1000 dà $0.000$ già a $K{=}6,s{=}2$ e a entrambe le celle
+  $K{=}7$; seed 3000 dà $0.000$ a $K{=}6,s{=}2$. L'exact-match segue qualunque dei due cut collassi per
+  primo.
+- **Lettura**: il reach oltre-capacità compone bene con un numero arbitrario di componenti attorno; ma
+  tenere DISTINTE fra loro più componenti "altre" simultanee non è la stessa skill di tenere distinta
+  UNA sola componente grande da tutto il resto (il three-way falsification test di Report VII testava
+  solo quest'ultima, a $K=3$). È un asse di generalizzazione genuinamente diverso da ogni risultato
+  basato sulla distanza in questo progetto: degrada nel **numero di componenti simultanee**, non nel
+  diametro di una singola componente, e fallisce anche per checkpoint che non mostrano nessun'altra
+  debolezza.
+
+**Fix di layout**: la tabella (7 colonne, numeri "a/b/c" per cella) era overfull di 9.7pt in `\small`
+di default — risolto con `\setlength{\tabcolsep}{4pt}` sulla stessa tabella (nessun altro cambiamento).
+Verificato anche visivamente (`pdftoppm` + ispezione, non solo il log) che la tabella stia dentro la
+pagina. Abstract e §Status aggiornati per riflettere che A.4 ha dati veri (non più "[Data pending]").
+Compila pulito, **7 pagine**, 0 errori, 0 ref indefinite, 0 overfull.
+
+**Cosa resta aperto**: il sanity-check $n=46$ (§16.6/§16.7, rilanciato dall'utente dopo il fix di
+partizione, ancora nessun dato tornato) e tutto il resto del piano (A.1, A.2, A.3, A.5, B.1, B.2) —
+invariato rispetto a §16.6.
+
+**File toccati questa sessione**: `report/9/transformer_for_graphs_9.{tex,pdf}` (A.4 scritta con dati
+veri, abstract/status aggiornati), `istruzioni.md`. Nessun file di codice toccato (solo lettura dei
+json già pullati).
+
+---
+
+### 16.9 Battery meccanicistica anche per il sanity-check n=46 (2026-07-25), gateata sul training
+
+**Richiesta dell'utente**: i due job di training $n{=}46$ (§16.6/§16.7, `604831` seed 1000 in
+esecuzione, `604832` seed 2000 in coda) fanno solo il training + lo sweep comportamentale base
+(`eval_asym_chains.py`, già incluso). L'utente vuole ANCHE, sugli stessi due checkpoint risultanti:
+la Tabella 1/Figura 1 del Report 8 (sweep + logit), la Figura 3 (attention scores/alpha), e la
+layerwise cosine geometry (probe stagewise) — cioè la stessa identica batteria meccanicistica già
+validata su $n=40$ nei Report VII/VIII, ora su $n=46$.
+
+**Non si ri-lancia il training** (i due job già in coda/esecuzione restano intatti — cancellarli e
+rifarli sprecherebbe i 40+ minuti già spesi da `604831`; inoltre lo script sbatch di un job già
+sottomesso è comunque congelato da Slurm al momento della sottomissione, modificarlo ora non
+cambierebbe nulla per quei due job). Invece: **nuovo sbatch eval-only, gateato sui due job di
+training con `--dependency=afterany`** (non `afterok`, errore 44), che parte automaticamente non
+appena entrambi i training finiscono (comunque vada).
+
+**Nuovo file `scripts/r9_n46_mechbattery.sbatch`** (CPU-only, `medium_cpu`, array di 2 = i due
+seed, `--time=02:00:00`): per ogni seed, sugli stessi tre script già usati/validati in Report
+VII/VIII, **nessuna modifica di codice**, solo argomenti CLI diversi:
+1. `mechanistic_asym_chains.py --attn_splits 4 23` (il pair rappresentativo "4, n//2" per $n=46$,
+   l'analogo diretto di "4, 20" a $n=40$) → `metrics.csv`+`readout.csv` (Tabella 1/Figura 1). Lo
+   sweep comportamentale pieno resta sul range di default (`1..n//2`=`1..23`) — è puro forward,
+   economico indipendentemente dal numero di split; solo l'`attn_splits` (che innesca il Jacobiano
+   della exact-contribution) è ristretto per restare economico.
+2. `mechanistic_heatmaps.py --splits 4 23` (attention scores/alpha reali, Figura 3) — lasciati i
+   default economici dello script (`contrib_n_graphs=8`, `n_graphs=80`), non i 64 usati per le
+   figure finali del Report 8 (qui è un sanity-check, non un numero da pubblicare).
+3. `stagewise_diagnostics.py --splits 4 23 --n_graphs 64` (layerwise cosine geometry) — nessun
+   backward pass, economico a prescindere.
+Output: `runs/report9/{mechanistic,heatmaps,stagewise}/n46_pathunion_seed{1000,2000}/`.
+
+**Da lanciare (l'utente), DOPO aver pushato lo script nuovo** (i job ID sono quelli visti in
+`squeue`, verificare che siano ancora quelli giusti prima di lanciare):
+```
+sbatch --dependency=afterany:604831:604832 scripts/r9_n46_mechbattery.sbatch
+```
+**STATO: preparato, NON lanciato.** Nessun dato ancora (né dal training n=46 né da questa batteria).
+
+**Nota per dopo (plotting locale)**: `plot_mechanistic_asym_chains.py` e
+`plot_mechanistic_heatmaps.py` supportano già `--report_root` (quindi `--report_root report9`
+funziona senza modifiche). `plot_stagewise_diagnostics.py` invece ha `ROOT`/`OUT` **hardcoded** su
+`runs/report8/...` — se si vuole rigenerare quella figura per il Report 9 servirà o un piccolo
+edit locale (stesso pattern `--report_root` degli altri due) o puntare temporaneamente lo script
+altrove; non ancora fatto, non blocca il lancio su HPC (che scrive comunque i dati grezzi in
+`runs/report9/stagewise/...`, indipendenti dallo script di plot).
+
+**File nuovi questa sessione**: `scripts/r9_n46_mechbattery.sbatch`, `istruzioni.md`.
+
 ---
 
 *Per aggiungere questo file a git (lo fa l'utente):*
