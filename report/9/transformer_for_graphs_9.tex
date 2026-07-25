@@ -1,0 +1,341 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em
+
+% Figures live in the repo's runs/ directory; this file sits in report/9/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Empirical Analysis of Transformers on Graph Connectivity \\
+       \large Part IX: Beyond the Diameter --- Out-of-Distribution Path Generalization
+       and the Role of Endpoints}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% =====================================================================
+% DRAFT / PLAN ONLY (2026-07-24). No experiments have been run yet and no
+% code beyond what already exists from Reports VI--VIII has been written for
+% this report. This file lays out the questions, the recap of what is already
+% established, and the two planned experiment threads (A: out-of-distribution
+% path generalization, B: the same training regime applied to cycles).
+% Every \subsection below under "Planned experiments" is a STUB: it states the
+% question and the planned setup, with an explicit "[Data pending --- not yet
+% run]" marker in place of results. Do NOT fill in numbers, tables, or figures
+% until the corresponding experiment has actually been run on real checkpoints
+% and the data has been pulled from HPC (see istruzioni.md, error 2 in the
+% error log and the general reading rule at the top of that file).
+%
+% Design rules carried over unchanged from Reports IV--VIII (istruzioni.md
+% §4, especially errors 21, 55--60, 61, 62):
+%  - every caption states MODEL + TRAINING SET + TEST SET + METRIC, no analysis;
+%  - no code/file/path/flag names in the rendered text (keep them in % comments);
+%  - no 'advisor' attributions, no chronological "we re-ran" story;
+%  - error bars (std over seeds) on every curve that aggregates seeds;
+%  - when a discrete sweep shows something interesting at one point, evaluate
+%    the immediately neighbouring points too, not just the next planned one;
+%  - every experiment trains on a single, explicitly named distribution, never
+%    an opaque random mixture (principle introduced in Report VI, istruzioni.md
+%    §13.2).
+%  - NEW for this report (explicit instruction from the user, istruzioni.md
+%    §16.4): every new training in this report uses canvas size n=46 (not the
+%    n=40 used throughout Reports VI--VIII), everything else identical
+%    (disjoint-paths distribution where applicable, similarity read-out, same
+%    step/sample budget, same RoBERTa-faithful L=2/d512/single-head model).
+%    Reuse the existing training/eval code (already parametric in the canvas
+%    size), do not reimplement anything from scratch.
+% =====================================================================
+
+\begin{abstract}
+\noindent Report~VIII showed a standard connectivity transformer, trained on unions of
+disjoint paths and evaluated with a similarity read-out, resolving an unbalanced
+two-component split far beyond the doubled distance wall $2\cdot 3^L$, and collapsing to
+``everything connected'' on a structurally different two-component graph (two cycles) that
+the same training distribution never contains. Both results are measured \emph{inside} a
+training distribution that already covers every two-segment split of the canvas, so neither
+one distinguishes a genuinely general mechanism (the two open \emph{endpoints} of a path)
+from plain in-distribution coverage. This report is a plan for two threads that separate the
+two readings: (A) a search for a case of path learning that generalises to structure the
+model was \emph{never} trained on, and (B) the same systematic training regime applied to
+\emph{cycles} (which have no endpoints at all), to test whether endpoints are truly
+load-bearing or whether cycles, trained properly, are simply another counterexample to
+``the diameter is the difficulty measure.'' No experiment in this report has been run yet;
+this document states the questions, the established background, and the planned setups.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{What Reports I--VIII established}
+\label{sec:recap}
+
+We treat the following as established (documented, multi-seed, in Reports~I--VIII); the new
+work in this report must stay consistent with them.
+
+\begin{itemize}\setlength\itemsep{0.2em}
+  \item \textbf{There is a sharp, architectural distance wall at $3^L$} ($=9$ at $L=2$),
+        which moves with depth and appears even on graph families seen $\sim10^8$ times in
+        training (Reports~III--IV).
+  \item \textbf{The model computes distance-bounded matrix powering, not a bounded
+        traversal}, and a soft, learned ``node budget'' on dense structure is a removable
+        data prior, not a second capacity (Report~V).
+  \item \textbf{Parallel routes and repeated local structure both help, within capacity, in
+        data-shaped ways} rather than architecturally for free (Report~VI).
+  \item \textbf{A similarity read-out} ($z_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$)
+        \textbf{doubles the single-route reach to $2\cdot 3^L$} and makes behaviour far more
+        robust to the trunk's imperfect, graded cross-component mixing than the linear
+        read-out (Report~IV, confirmed mechanistically in Report~VII).
+  \item \textbf{An unbalanced two-component split resolves far beyond the distance wall; a
+        balanced split does not, with the same weights} (Report~VI, Thread~B) --- opening the
+        trunk (Report~VII) showed why: on a graph with exactly two components, once one is
+        small enough to resolve completely, the model gets an extra, graded completion signal
+        for the \emph{other} component, built by the same two-layer attention machinery that
+        does ordinary beyond-capacity reach, not a separate circuit.
+  \item \textbf{Report~VIII collected the full mechanistic battery under the now-standard
+        similarity read-out} (behavioural sweep, read-in geometry, attention scores, the exact
+        node-to-node contribution, a new causal edge-ablation contribution, layer ablation,
+        the three-component falsification test) on the disjoint-paths-trained, $n{=}40$
+        checkpoints, and added a stagewise probe locating \emph{where} in the forward pass the
+        completion signal is assembled: attention layer~2, not either feed-forward step,
+        builds most of the far-reach; MLP~2's distinctive job is sharpening the \emph{cut}.
+  \item \textbf{Report~VIII also tested two \emph{cycles} in place of two chains}, on the same
+        disjoint-paths-trained checkpoints (which never saw a cycle in training): the model
+        collapsed to predicting the entire graph connected at \emph{every} split and every
+        seed (predicted-positive rate exactly $1.000$, cut exactly $0.000$) --- read as a
+        generic out-of-distribution collapse on an unfamiliar canvas, not a clean test of
+        whether path endpoints specifically matter, since the training distribution never
+        contained a cycle of any kind.
+  \item \textbf{The training distribution behind every two-component result since Report~VI}
+        is \texttt{path\_union}-style: an online stream of unions of $1$--$4$ disjoint paths
+        that, together, partition all $n$ canvas nodes. Crucially, this stream already
+        contains \emph{every} two-segment split of the canvas as a special case (Report~VII,
+        \S sec:intro there) --- so any result showing the model resolving a particular
+        two-component split is, by construction, an in-distribution result, not evidence of
+        generalisation to unseen structure.
+\end{itemize}
+
+\subsection{The new question: is the diameter always the right measure, and are path endpoints
+load-bearing?}
+\label{sec:question}
+
+Report~VIII's two-cycles result and the underlying two-chain completion signal (Report~VI/VII)
+together suggest that \emph{diameter alone} is not always the right notion of difficulty: a
+model can resolve pairs far beyond $2\cdot 3^L$ on one graph shape and fail completely on a
+same-size, same-split graph of a different shape. But every demonstration of ``beyond the
+wall'' so far sits \emph{inside} a training distribution that already covers the test
+structure. This report asks two questions in sequence, each stated as a plan of experiments to
+be run in a later session, not results already in hand.
+
+\begin{enumerate}\setlength\itemsep{0.15em}
+  \item \textbf{Is there a case of path learning that is genuinely out-of-distribution?} All
+        the evidence so far only shows that, \emph{in distribution}, the model learns beyond
+        the doubled wall by using the two open endpoints of a path. Is that a general skill
+        that transfers to structure never seen in training (a different diameter cutoff, a
+        different number of components, a different internal density), or is it tied to
+        having seen exactly this kind of structure during training?
+  \item \textbf{Are the two open endpoints of a path truly load-bearing, or is the two-cycles
+        failure of Report~VIII simply an artefact of never having trained on a cycle at all?}
+        Repeating the same systematic training regime used for paths, but on cycles, and
+        reading the identical mechanistic battery, would settle whether cycles are
+        architecturally unlearnable in this respect or whether they are simply unfamiliar ---
+        in which case cycles become a \emph{second} counterexample to ``the diameter is the
+        difficulty measure,'' on equal footing with the path result, rather than evidence that
+        endpoints are special.
+\end{enumerate}
+
+\subsection{Two candidate readings, stated before running anything}
+\label{sec:hypotheses}
+
+As in every previous report, we state the candidate readings up front so the planned
+experiments are genuine tests, not a search for evidence of an assumed answer.
+
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{Reading 1 --- endpoints are load-bearing.} The completion signal is tied
+        specifically to the existence of an open, degree-$1$ endpoint; a structure without one
+        (a cycle) cannot support it no matter how it is trained, and a path structure stripped
+        of its usual training coverage (e.g.\ capped diameter, fewer path counts) loses the
+        skill on genuinely unseen splits.
+  \item \textbf{Reading 2 --- endpoints are incidental; coverage/familiarity is what matters.}
+        Given a training distribution that systematically exposes the model to a given
+        two-component shape (paths \emph{or} cycles) across a range of splits, the model
+        acquires an analogous completion signal regardless of whether the shape has open
+        endpoints; the two-cycles failure of Report~VIII is then simply because cycles were
+        never trained on, not because they lack endpoints.
+\end{itemize}
+
+Neither reading is assumed; the point of Threads~A and~B below (\S\ref{sec:plan}) is to produce
+evidence that could support either one.
+
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Model.} The same base model as Reports~III--VIII: the RoBERTa-faithful standard
+transformer, $L=2$, single head, $d_{\mathrm{model}}=512$, normalised-ReLU attention. As in
+Report~VIII, we standardise on the \textbf{similarity} read-out
+($z_{ij}=\mathrm{scale}\cdot\cos(h_i,h_j)+\mathrm{bias}$) throughout this report, for the same
+reason given there: it makes behaviour far more robust to the trunk's imperfect, graded
+cross-component mixing than the linear read-out, without removing the underlying mechanistic
+signal (Report~VII, \S sec:res-similarity).
+
+\paragraph{Canvas size: $n=46$.} Every new training run in this report uses $n=46$ nodes, not
+the $n=40$ used throughout Reports~VI--VIII. Everything else about the training setup is kept
+identical to the disjoint-paths condition of Report~VIII (same online distribution family
+where applicable, same number of training steps/samples, same architecture, same read-out).
+This is an explicit, non-negotiable instruction (\S\ref{sec:plan} restates it per thread where
+relevant); the training/evaluation code from Reports~VI--VIII is already parametric in the
+canvas size and is reused unchanged, not rewritten.
+% NOTE for implementation (not for the rendered report): every existing script that trains or
+% evaluates on this project's disjoint-paths / two-chain / cycle families already accepts an
+% explicit node-count argument. When Thread A/B experiments are implemented, launch them with
+% that argument set to 46 instead of 40; do not hardcode a new value anywhere.
+
+\paragraph{Test graphs.} Each planned experiment below (\S\ref{sec:plan}) specifies its own
+test construction (a capped-diameter path union, a two-chain graph with an edge removed to
+create a third component, unions of $5$--$7$ disjoint paths, a chain-plus-clique graph, a
+two-component cycle graph, and others). No test graphs have been generated yet; the exact
+generators to reuse or add are noted in \S\ref{sec:plan} as implementation notes, to be
+resolved when each experiment is actually built.
+
+\section{Plan of experiments}
+\label{sec:plan}
+
+This report is organised around two threads, in the order the open question in
+\S\ref{sec:question} states them. \textbf{No experiment below has been run.} Every subsection
+states a question, a planned setup, and stops at a ``\emph{[Data pending --- experiment not yet
+implemented]}'' marker; nothing here should be read as a result.
+
+\subsection{Preliminary check --- does canvas size $n=46$ reproduce the effect at all?}
+\label{sec:planpre}
+
+Before committing every training run in this report to $n=46$ (\S\ref{sec:setup}), we first
+check, on two seeds, that the disjoint-paths/similarity condition at $n=46$ reproduces the same
+endpoint-completion signature already established at $n=40$ (Report~VI/VII): a small split
+should resolve the long component far past the distance wall, a balanced split should not, with
+the same weights. Two independent training runs (seeds $1000$ and $2000$), identical in every
+respect to the Report~VIII disjoint-paths condition except the canvas size, followed by the same
+split-sweep evaluation used throughout Reports~VI--VIII. \emph{[Data pending --- training
+launched by the user, not yet returned; code prepared and reused unchanged from
+Reports~VI--VIII.]}
+
+\subsection{Thread A --- out-of-distribution generalisation for path-trained models}
+\label{sec:planA}
+
+Thread~A is the more important of the two (explicitly, in the request behind this report): find
+at least one case where a path-trained model's completion signal is tested on structure it
+provably never saw, rather than on a special case already covered by its training stream.
+
+\paragraph{A.1 --- Train with a capped diameter, test beyond it.} Train on a union-of-paths
+distribution restricted to a maximum diameter (e.g.\ two-chain splits that never exceed
+diameter $18$, the doubled wall $2\cdot 3^L$), then evaluate on two-chain splits whose diameter
+\emph{exceeds} that cap --- structure the training stream never produced by construction. This
+is the most direct test of whether the completion signal generalises past what the model has
+been shown, or whether it is bounded exactly by what was covered in training.
+\emph{[Data pending --- not yet implemented.]}
+
+\paragraph{A.2 --- Less variety in the training distribution.} The current disjoint-paths
+stream (unions of $1$--$4$ path components) may be more varied than necessary for the model to
+acquire the endpoint-completion skill. Train instead on a narrower distribution (e.g.\ only
+two-chain splits, never $3$ or $4$ components) and test whether the completion signal still
+appears. If it does, the phenomenon does not depend on the richness of the training
+distribution (a more general, more interesting result); if it does not, the phenomenon is
+specific to the richer stream (a narrower but still reportable result).
+\emph{[Data pending --- not yet implemented.]}
+
+\paragraph{A.3 --- Genuinely unseen three-component test.} Train \emph{only} on two-chain
+splits (never three or more components), then evaluate on a graph built by removing one
+internal edge from a two-chain test graph, producing three components that were never a
+possibility under this training distribution (unlike the three-component test already run in
+Reports~VII--VIII, whose training distribution could already produce three or four components).
+\emph{[Data pending --- not yet implemented.]}
+
+\paragraph{A.4 --- Existing checkpoints on 5/6/7-component unions.} Using the already-trained
+path\_union checkpoints (which only ever see $1$--$4$ components in training), evaluate on
+unions of $5$, $6$, and $7$ disjoint paths --- component counts never produced during training
+--- to see whether the endpoint-completion skill generalises to a number of components beyond
+what was covered. One long component plus $K{-}1$ short ones, with the short-component size
+chosen so the long component's internal diameter exceeds $18$ (the doubled wall), so a failure
+cannot be attributed to the ordinary distance wall alone. This experiment is eval-only on
+existing $n{=}40$ checkpoints and is the one exception to the $n{=}46$ rule of
+\S\ref{sec:setup} (no retraining involved). \emph{[Data pending --- eval code implemented and
+smoke-tested, launched by the user, not yet returned.]}
+
+\paragraph{A.5 --- Two-chain-trained checkpoints on targeted structures.} Train (four seeds, as
+throughout this project) on a range of two-chain splits only, confirm the endpoint-completion
+signal reappears, then evaluate the resulting checkpoints on structures chosen to isolate what
+actually matters: (i) a graph made of one chain and one clique (two components, only one of
+them with a genuine open endpoint); (ii) a two-component graph shaped like a two-chain split but
+where the \emph{internal} (non-endpoint) nodes of each component carry additional edges among
+themselves, so the two components stay separate and still have clearly identifiable endpoints
+but are internally denser. The goal is to separate ``needs the exact path shape'' from ``needs
+two components with recognisable endpoints.''
+\emph{[Data pending --- not yet implemented.]}
+
+\subsection{Thread B --- are endpoints truly necessary? The analogous experiment on cycles}
+\label{sec:planB}
+
+Thread~B asks the mirror question directly: instead of treating the two-cycles collapse of
+Report~VIII as evidence that endpoints are necessary, train the model on cycles the same
+systematic way paths were trained, and see whether an analogous completion signal appears.
+
+\paragraph{B.1 --- The same training regime as paths, applied to cycles.} Repeat, with cycles
+in place of paths, the same kind of systematic training distribution used for the path results
+of Reports~VI--VIII (an explicit, named distribution over cycle unions/splits, not an opaque
+mixture --- consistent with the data principle introduced in Report~VI, \S13.2 of the project
+instructions), sweeping the split the same way, and evaluate \emph{in-distribution} (the same
+kind of evaluation the path results received, as opposed to the purely out-of-distribution
+two-cycles test of Report~VIII, where the training stream never contained any cycle at all).
+The aim is to see whether, and how, the model learns to handle cycles when they are not a
+foreign structure.
+\emph{[Data pending --- not yet implemented.]}
+
+\paragraph{B.2 --- The full Report~VIII mechanistic battery, repeated on cycle-trained
+checkpoints.} On the resulting cycle-trained checkpoints, repeat the entire battery assembled in
+Report~VIII: the general behavioural results, the read-in geometry analysis, the attention
+scores, the exact node-to-node contribution, the layer ablation, a three-cycles falsification
+test (the structural analogue of the three-component split test), a two-cycles split sweep, and
+the layerwise cosine geometry (stagewise probe). The purpose is to determine, before concluding
+that path endpoints are important or that cycles are intrinsically harder than other graph
+shapes, whether cycles --- trained on properly --- can \emph{also} serve as a counterexample to
+``the diameter is the difficulty measure,'' on the same footing as the path result.
+\emph{[Data pending --- not yet implemented.]}
+
+\section{Status}
+\label{sec:status}
+
+Most of \S\ref{sec:plan} is still unimplemented. Two exceptions, both code-complete and
+smoke-tested but with no real data back yet: the preliminary $n{=}46$ check
+(\S\ref{sec:planpre}, two training runs) and Thread~A.4 (\S\ref{sec:planA}, an eval-only test on
+existing $n{=}40$ checkpoints). Everything else in this document exists to fix the questions,
+the established background, and the exact planned setups before any further code is written, so
+that the next session can proceed thread by thread --- one experiment at a time, each
+smoke-tested on a toy checkpoint before touching real weights, with every number in a future
+revision of this report pulled from real data on real checkpoints, never written from memory or
+from partial output.
+
+\end{document}

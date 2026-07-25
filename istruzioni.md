@@ -14,128 +14,48 @@ questo progetto. Leggere **tutto** prima di agire.
 
 ---
 
-> **🟥🟥 STATO ATTUALE (AGGIORNATO, leggere PRIMA di quanto segue) — Report 1–7 CONGELATI
-> (consegnati). IN CORSO IL REPORT 8** (`report/8/transformer_for_graphs_8.tex`, da `report/8/`).
-> **Poco tempo, obiettivo: concludere il paper.** Tema: capire DOVE e COME l'informazione di
-> connettività viene combinata nel trunk (forse nell'MLP), dopo che il Report 7 ha trovato il segnale
-> di completamento ma non ha guardato h^(1)/h^(2) direttamente né l'attention output. **Standard
-> d'ora in poi: readout SIMILARITY** (funziona molto meglio, Report 7 §sec:res-similarity). Piano
-> completo, indicazioni verbatim della prof, stato e goal in **§15 (leggere PRIMA di agire)**. Stato
-> sintetico: §sec:battery del Report 8 (la batteria meccanicistica unita, n40 path\_union, similarity)
-> è SCRITTA con dati reali (riusa dati/figure già esistenti del Report 7, zero calcolo nuovo); il test
-> a due cicli (§sec:cycles, endpoint del path sono causali o incidentali?) è implementato e
-> smoke-testato. **NUOVO (2026-07-22, §15.4): la nuova contribution CAUSALE (edge-ablation su A', non
-> più Jacobiano su h^(0)) è stata specificata dalla prof e IMPLEMENTATA** (`edge_ablation_contribution.py`
-> + `plot_edge_ablation.py`, smoke-testati) — la vecchia contribution NON è stata tolta, resta come
-> misura di sensibilità interna. **DUE sbatch pronti, NESSUNO ancora lanciato**:
-> `sbatch scripts/r8_edge_contrib_n40_pathunion.sbatch` (condizione chain/batteria) e
-> `sbatch scripts/r8_two_cycles.sbatch` (condizione cycle, ora include anche l'edge-ablation). Idee
-> ancora NON implementate (§15/outlook): il controllo chord per l'edge-ablation, plot diretto di
-> h^(1)/h^(2), plot dell'attention output. **NUOVO (2026-07-22, §15.5): Priorità 1 del filone "dove si
-> combina l'informazione" IMPLEMENTATA** — `stagewise_diagnostics.py` + `plot_stagewise_diagnostics.py`
-> (5 stadi per layer: H0, dopo attention, dopo MLP, per ciascuno dei 2 layer; cosine geometry,
-> intermediate read-out, margin threshold-free, ΔZ per sotto-blocco), smoke-testati (2 bug di layout
-> matplotlib trovati e corretti). **Sbatch pronto, NON lanciato**: `sbatch
-> scripts/r8_stagewise_n40_pathunion.sbatch`. Priorità 2 (Q/K/V/message-contribution/causal masking) e
-> Priorità 3 (stagewise edge ablation/chord/PCA) NON ancora iniziate — vedi §15.5 per l'ordine esatto.
-
-> **🟥 STATO ATTUALE (storico, Report 7) — LEGGI PRIMA DI TUTTO.** Report 1–6 **CONGELATI** (consegnati). In corso il
-> **REPORT 7** (`report/7/transformer_for_graphs_7.tex`, da `report/7/`). Tema: **aprire il "trunk" del
-> modello a livello meccanicistico** per spiegare il puzzle del Report 6 Thread B — perché uno split
-> two-chains sbilanciato (es. 4+36) viene risolto perfettamente mentre uno bilanciato (17+23, 20+20) no,
-> stesso modello, stessi pesi. Piano + ipotesi + dettaglio in **§14** (leggere PRIMA di agire).
-> **Stato al 2026-07-14 (fine 5a sessione), il più aggiornato:**
-> - **NUOVO (5a sessione): §sec:res-similarity SCRITTA con dati veri** (§14.12) — confronto
->   readout linear-vs-similarity, entrambe le distribuzioni, $n{=}40$. Risposta: il segnale di
->   completamento a due componenti **non dipende dal readout** (il trunk lo mostra anche con
->   similarity), ma il readout **decide quanto quel segnale può nuocere** — col similarity il
->   floor duro del reach lineare sparisce e il cut resta robusto (anche per ER, che falliva
->   clamorosamente col lineare allo stesso canvas). Aggiunta anche una figura standalone della
->   matrice $C_{ik}$ pura sotto la Figura 3/§sec:res-attention (§14.11).
-> - Report ora **38 pagine**, 0 ref indefinite, 0 overfull.
-> - **Il "rollout" $\alpha_2\alpha_1$ (Tier 1/2 originali, sessioni 1–3) è stato SOSTITUITO** con lo
->   Jacobiano esatto $C_{ik}=\|\partial h_i^{(2)}/\partial h_k^{(0)}\|_F$ (autograd reale attraverso
->   $V,W_O$, residuo, MLP, LayerNorm — l'utente ha bocciato il proxy grezzo). Vedi **§14.7**. Tutte le
->   figure/numeri di attention e heatmap nel `.tex` sono ora su questa base, NON sul vecchio rollout.
-> - **La sezione activation-patching è stata RIMOSSA dal report** su richiesta utente (§14.7) — restava
->   "esplorativa/inconcludente" e la confusione su cosa facesse davvero ha portato a toglierla piuttosto
->   che tenerla. Script/dati restano su disco, solo non più citati nel `.tex`.
-> - **Ogni filone (§4.1 sweep, §4.4 geometria read-out, §4.5 attention/leak, §4.6 falsificazione a 3
->   componenti, §4.7 heatmap, §4.8 ablation) è ora scritto in COPPIA "a"/"b"**: "a" = path_union (come
->   prima), "b" = **stesso identico esperimento su un modello n=40 allenato SOLO su ER** (§14.8). PIÙ
->   una **nuova sottosezione §sec:res-n20** (dopo §sec:res-n64): stessa batteria su **n=20**, path_union
->   E ER (§14.9) — terza taglia canvas, dove la capacità non può mai essere superata.
-> - **⚠️ CORREZIONE IMPORTANTE al Verdetto** (era scritta in modo sbagliato prima di questa sessione):
->   NON è vero che "il modello ER non mostra mai il merge grezzo a nessuna taglia" — a **n=40 il
->   modello ER mostra il merge grezzo ESATTAMENTE come path_union a n=64** (cut(L1,L2)=0.01–0.09 a
->   small piccolo). La lettura corretta: il merge grezzo (ipotesi 2 in forma cruda) non è legato a
->   quale distribuzione di training, ma a se QUEL checkpoint ha sviluppato una tendenza a
->   sovra-connettere oltre-capacità — path_union la sviluppa solo a n64, ER solo a n40. A **n=20**
->   (dove niente supera mai la capacità 3^L=9) ENTRAMBE le distribuzioni restano pulite — conferma che
->   è un fallimento specificamente oltre-capacità.
-> - Il meccanismo "a doppio taglio" (stessa attention che costruisce reach e over-connessione,
->   spegnerla fixa cut e distrugge reach) è ora confermato **sia a n64 (path_union) sia a n40 (ER)** —
->   proprietà generale dell'architettura quando un checkpoint sovra-connette, non un artefatto di canvas.
-> - **Nuovo, verificato numericamente**: l'estremità lontana di ogni path è una sorgente di contributo
->   3–4× sopra la media (non un ricevitore) — ma **solo nel modello path_union**, assente in quello ER:
->   un pezzo del meccanismo che LA distribuzione insegna specificamente, a differenza del trade-off
->   reach/cut generale.
-> - Report **compila pulito, 28 pagine**, 0 ref indefinite.
-> Report 6 rimane il riferimento per **tutte** le regole operative sotto (caption 21, 55–60, niente
-> "mixed" random, niente commit da Claude). **Claude PUÒ fare `git pull`** (non commit/push): i
-> risultati HPC vanno committati lato HPC dall'utente, poi Claude pulla in locale. **Report 6, riassunto
-> finale** (per riferimento): Thread A (multipath, parallelismo regge+meccanismo), Thread B (split
-> asimmetrico, puzzle poi risolto dal Report 7), Thread C (bridged cliques a catena, compone solo
-> debolmente) — tutti ANALIZZATI e SCRITTI, verdetto in §sec:verdict del `.tex`, dettaglio storico in
-> §13.7 (A), §13.8 (B), §13.9 (C) qui sotto.
-
-> **🟩 NOVITÀ 16a sessione (2026-06-30) — VARIANTE SIMILARITY READ-OUT (Threads A/B/C), LANCIATA.** Prima di
-> analizzare il Thread C (linear, lo fa un'altra chat), abbiamo creato il **gemello similarity** degli
-> esperimenti A/B/C: stessi run, **solo `--readout similarity`**, output in cartelle `*_sim` separate (non
-> tocca il filone linear). 7 nuovi sbatch `scripts/r6_{a1_train,a1_eval,a2_samples,a3_truncated,b_eval,
-> c_train,c_eval}_sim.sbatch` (pushati, commit `2d782eb`). **STATO LANCIO:** ✅ A1-sim train sottomesso
-> (job **551389** n10 [0-7], **551390** n20 pu [8-11], **551391** n40 pu [12-15], **551392** n64 [16-23],
-> tutti `%4`) + eval gateati **551400** (r6_a1_eval_sim, afterany su tutti e 4) e **551401** (r6_b_eval_sim,
-> afterany su 551390:551391:551392). ⚪ **NON ancora lanciati:** Onda 2 = **C-sim** (`r6_c_train_sim` +
-> `r6_c_eval_sim`); Onda 3 = **A2/A3-sim** (`r6_a2_samples_sim` + `r6_a3_truncated_sim`). Dettaglio completo,
-> mappa output e comandi residui in **§13.10**. È un **confronto similarity-vs-linear esplorativo**: NON c'è
-> ancora uno stub `.tex`; l'analisi (e se entra nel report) viene dopo.
-
-> **🟦 NOVITÀ 6a sessione (2026-07-17) — Report 7 ricompilato/verificato dopo un blocco disco
-> temporaneo; CAMBIO DI DESTINAZIONE DEL REPORT (leggere, cambia le priorità d'ora in poi).**
-> - **Verifica tecnica:** la sessione precedente si era interrotta per `ENOSPC` sul disco
->   temporaneo della sandbox (`/private/tmp/claude-501/...`) — non un problema del repo. In
->   questa sessione il disco è risultato libero al primo comando di prova; ricompilato
->   `report/7/transformer_for_graphs_7.tex` (2 passate `pdflatex` da `report/7/`): **38 pagine,
->   0 errori, 0 ref indefinite, 0 overfull** (`grep -iE "error|undefined|overfull"` sul log =
->   vuoto). Verificate **visivamente** via `pdftoppm` le due modifiche fatte in una sessione
->   precedente e mai confermate a schermo: **Figura 4** (§sec:res-attention, pag. 12, coppia
->   path_union — e i suoi gemelli ER/similarity altrove nel report) e **Figura/Tabella 9**
->   (geometria read-out/read-in, pag. 18) ora hanno il campo `Test set:` esplicito in caption
->   (regola 21); su Figura 9, che non valuta nessun grafo, il campo dice esplicitamente *"Test
->   set: none — static properties of the trained weights, not evaluated on any graph"*.
-> - **⚠️ CAMBIO IMPORTANTE comunicato dall'utente in questa sessione: da ora in poi il Report 7
->   NON è più il materiale mostrato direttamente alla prof.** L'utente costruirà **a mano** un
->   PowerPoint per la prof **a partire dal contenuto del report**. Il report stesso diventa
->   quindi **un documento di lavoro/riferimento per l'utente**, non più il deliverable finale che
->   la prof legge direttamente. **Non è stato chiesto di rilassare nessuna regola di scrittura**
->   (§3, regole 20/21/55-60: niente codice/path nel testo renderizzato, caption complete
->   Model+Training+Test+Metric, tono da studente, niente riferimenti storici/cronologici) — finché
->   l'utente non lo dice esplicitamente, **continuare a seguirle tutte**: restano un buon standard
->   per un documento di riferimento chiaro, ed è proprio da questo testo che l'utente estrarrà le
->   slide. Se in futuro l'utente chiede di rilassare una regola specifica "tanto non la vede la
->   prof direttamente", è coerente con questo cambio, non una sorpresa — chiedere comunque conferma
->   prima di allentare qualcosa (es. rimettere path/nomi-funzione nel testo) perché il report resta
->   comunque la fonte da cui l'utente copia i numeri per le slide, quindi la chiarezza conta ancora.
-
-> **🟨 NOVITÀ (stessa sessione, dopo aver mostrato il PPT alla prof) — due nuove regole NON NEGOZIABILI,
-> §14.14, errori 61/62.** (1) **Ogni grafico che aggrega su seed deve avere error bars** — mancavano sulla
-> Figura 1 del Report 7 e le sue gemelle, ora FIXATE (rigenerate in locale, nessun nuovo dato). (2) **Uno
-> sweep discreto va sempre infittito intorno a un punto interessante trovato** — la Figura 3 (leak-fraction)
-> aveva un buco (`a=11,12,13`) proprio dopo lo spike ad `a=10`; fix nel codice fatto (default `attn_splits`
-> + merge logic), **sbatch pronto ma non ancora lanciato**: `sbatch scripts/r7_leak_splits_11_12_13.sbatch`
-> (poi pull + rigenerare la figura). Le gemelle di Figura 3 (ER/n64/n20/similarity) hanno lo stesso buco,
-> non ancora corrette (non richiesto). Dettagli completi in §14.14.
+> **🟥 STATO ATTUALE (AGGIORNATO 2026-07-25) — Report 1–8 CHIUSI. Report 9 APERTO: il PIANO è scritto
+> (§16); DUE pezzi ora hanno CODICE PRONTO e smoke-testato (il sanity-check n=46 e il Thread A.4),
+> ma NESSUN DATO REALE è ancora tornato** — gli `sbatch` sono preparati in **§16.6**, non ancora
+> lanciati (Claude non lancia mai `sbatch`, solo l'utente). Onboarding standard per la nuova chat:
+> questo file per intero + tutti i `.tex` dei report, incluso `report/9/transformer_for_graphs_9.tex`
+> (piano/scheletro + le due sezioni ora "code pronto, dati in arrivo"), come da regola di lettura in
+> cima al file.
+>
+> **Perché nasce il Report 9 (dettaglio completo, richiesta VERBATIM della prof, in §16.0 — leggerlo
+> per intero prima di qualunque altra cosa).** Il Report 8 (path\_union-trained, readout similarity,
+> n40) ha mostrato uno split sbilanciato risolto ben oltre il muro raddoppiato $2\cdot3^L=18$ — ma
+> quel successo è misurato **dentro** la stessa distribuzione di training (le disjoint-paths coprono
+> già ogni split a due segmenti), quindi non distingue un meccanismo genuinamente generale (gli
+> estremi/endpoints) da una semplice copertura in-distribution. Il Report 9 punta a isolare un caso di
+> **vera generalizzazione OOD** su path (Thread A, §16.3) e a ripetere lo stesso esperimento sui
+> **cicli** (Thread B) per capire se gli estremi sono davvero necessari o se anche i cicli, allenati
+> per bene, possono contraddire "il diametro è la misura di difficoltà" — prima di concludere che
+> l'architettura non impara proprio i cicli. Piano completo, sette esperimenti pianificati (A.1–A.5,
+> B.1–B.2), in **§16.3**.
+>
+> **⚠️ Nota canvas size, NON negoziabile per OGNI training di questo report**: si usa **n=46** (non
+> n40) — stesso identico setup del Report 8 (disjoint-paths training, readout similarity, stesso
+> numero di sample, stesso modello RoBERTa-faithful $L{=}2$/$d_{\mathrm{model}}{=}512$/single-head),
+> **cambia solo la dimensione del canvas**. Riusare il codice esistente (già parametrico in
+> `--n_nodes`/`--n`, vedi §5/§9/§14/§15), non reimplementare da zero. Dettaglio in **§16.4**.
+>
+> **Stato Report 8 (INVARIATO, solo per riferimento — non toccarlo se non richiesto esplicitamente):**
+> `report/8/transformer_for_graphs_8.tex`, compila pulito, **22 pagine**, 0 ref indefinite, 0 overfull —
+> tema: dove/come l'informazione di connettività viene combinata nel trunk; readout **similarity**
+> standard. Dettaglio completo in **§15** (**§15.6** = risultati finali del filone principale, **§15.8**
+> = chiusura più recente, con le due nuove figure sui cicli e la scoperta MLP2-cancella-la-separazione).
+> Restavano aperti per l'8 (nessun cambiamento, non richiesti per il 9 a meno di dirlo esplicitamente):
+> Priorità 2/3 del filone stagewise, il controllo chord dell'edge-ablation, l'estensione di ogni sezione
+> a ER/n64/n20, il plot `cosine_raw_examples` mai lanciato su dati reali, i 3 seed mancanti per le curve
+> aggregate dei cicli.
+>
+> **Regole operative valide dal Report 6 in poi restano tutte in vigore** (caption 21, 55–60, niente
+> "mixed" random, niente commit/push/scancel/sbatch da Claude — solo `git pull`). Dal Report 7 (sessione
+> 2026-07-17) il report **non è più mostrato direttamente alla prof**: è materiale di lavoro da cui
+> l'utente estrae le slide a mano — questo NON allenta nessuna regola di scrittura (vedi memoria
+> `project_report7_audience_change`). Dettaglio storico completo di Report 6/7/8 (thread A/B/C, variante
+> similarity, ricompilazioni, cambio destinazione) è in **§13/§14/§15**, non ripetuto qui.
 
 ---
 
@@ -638,6 +558,53 @@ standard da cui l'utente estrarrà le slide.
     nodo-query — quando se ne aggiungono altri). REGOLA GENERALE: un valore isolato "interessante" in uno sweep
     discreto non è mai sufficiente da solo — verificarne la forma locale con almeno 2-3 punti vicini prima di
     scriverlo nel report come una scoperta robusta. Dettagli/stato del fix in §14.14.
+63. **Violata la regola 56 (niente nomi di file/funzioni nel testo renderizzato) DUE VOLTE nella stessa
+    sessione (Report 8), nonostante fosse già nota e già corretta la prima volta.** È successo scrivendo
+    `\texttt{generate_split_cycles_graph}` e poi, in una sezione diversa dello stesso report,
+    `\texttt{stagewise_diagnostics.py}`. Sapere la regola non basta: dopo OGNI blocco di prosa nuovo in un
+    report, prima di considerarlo finito fare subito
+    `grep -n "texttt\|\.py\b\|\.sbatch" file.tex | grep -v "^[0-9]*:%"` (o equivalente) — non aspettare la
+    verifica finale di fine sessione, il rischio è scriverne un'altra nel frattempo.
+64. **Preparato uno sbatch (`r8_two_cycles.sbatch`) con `--time=05:00:00` ricalcando il default di altri
+    script del progetto, SENZA controllare prima i tempi storici REALI di quella stessa identica
+    computazione.** `mechanistic_asym_chains.py` con `contrib_n_graphs=64` aveva già impiegato fino a
+    8h23m in un job precedente (`r7simn40`, con 3/8 task in TIMEOUT esattamente a quel limite di 5h,
+    documentato in §14.7/§14.10) — l'ho scoperto solo perché l'utente ha chiesto "sei sicuro?" e mi ha
+    fatto controllare `sacct`. REGOLA: quando un nuovo sbatch rilancia una computazione già documentata
+    altrove nel progetto (stesso script/stessa quantità), cercare PRIMA il tempo storico reale (grep in
+    istruzioni.md, o `sacct` se disponibile) e calibrare `--time` su quello — non riusare il default di
+    un altro sbatch per inerzia.
+65. **Due bug di layout matplotlib, validi in generale per ogni script di plotting di questo progetto.**
+    (a) Un `\` seguito da spazio FUORI da un blocco `$...$` (es. `"vs.\\ stage"` in una stringa Python)
+    viene renderizzato letteralmente da matplotlib invece di sparire come farebbe in LaTeX vero — nei
+    titoli/label matplotlib usare `"vs. stage"` semplice, il backslash-spazio ha senso solo dentro
+    `$...$`. (b) `fig.colorbar(im, ax=lista_di_assi, ...)` insieme a `fig.tight_layout()` e un `suptitle`
+    su più righe produce sovrapposizioni (titoli dei pannelli coperti dal suptitle, colorbar sopra
+    l'ultimo pannello) — matplotlib avvisa ("Axes not compatible with tight_layout") ma **il warning da
+    solo non basta**, va guardata la figura. Fix: `fig.tight_layout(rect=[0,0,W,H])` per riservare lo
+    spazio, POI un colorbar-axis dedicato via `fig.add_axes([...])` — mai lasciare che `colorbar` rubi
+    spazio da una lista di assi dopo un `tight_layout` con `rect`. REGOLA GENERALE (già nello spirito
+    della skill `verify`, qui applicata ai plot): dopo aver scritto un plot script, SEMPRE generare e
+    **guardare** la figura (via `Read` sull'immagine) prima di considerarlo finito, non fermarsi
+    all'assenza di errori/eccezioni Python.
+66. **Leggere un grafico invece dei numeri grezzi ha quasi portato a riportare nel report una conclusione
+    SBAGLIATA (invertita) per il test a due cicli del Report 8.** Nella figura del comportamento, ho letto
+    "exact match ≈1.0 ovunque" perché la curva nera (exact) e quella magenta (cut) erano ENTRAMBE
+    esattamente a y=0 e si sovrapponevano perfettamente (una disegnata sopra l'altra, stesso valore),
+    nascondendo che exact fosse a 0 e non a 1. Solo incrociando con il CSV grezzo ho scoperto che il
+    modello collassava a "tutto connesso" — l'opposto di quanto stavo per scrivere. REGOLA: quando una
+    lettura visiva di un grafico sembra "troppo pulita" o sorprendentemente positiva (specialmente se
+    contraddice l'ipotesi attesa in modo favorevole), verificare SEMPRE con i numeri grezzi (CSV/json)
+    prima di scriverla nel report — più linee possono sovrapporsi esattamente allo stesso valore e
+    nascondersi a vicenda.
+67. **Comprimere una tabella copiata/adattata da un report precedente ha fatto sparire una colonna
+    necessaria a capirla.** La tabella del falsification test nel Report 8, adattata da quella del
+    Report 7, teneva solo la colonna `small` (dimensione della componente piccola) e aveva tolto
+    `|L1|`/`|L2|` (le dimensioni delle due componenti grandi) — resa incomprensibile da sola (l'utente
+    l'ha segnalato, giustamente infastidito: "che cazzo fai che metti solo quella dello small"). REGOLA:
+    quando si copia/adatta una tabella da un report precedente, NON abbreviare le colonne che servono a
+    capire il contesto sperimentale (dimensioni, split, condizioni) solo perché sembrano ridondanti — la
+    leggibilità stand-alone della tabella conta più della sua compattezza.
 
 ---
 
@@ -917,54 +884,21 @@ grafo a meno di permutazione → viste ~10⁸ volte ripermutate. ER trainato: a 
 
 ## 11. Stato attuale e compito corrente
 
-**Report 1–5 CONGELATI (consegnati).** Il Report 5 è stato mostrato alla prof ed è chiuso: non si
-tocca più, salvo richiesta esplicita. Esito Report 5 (= verdetto §6, qui per riferimento): il
-transformer L=2 risolve la connettività con **matrix-powering distance-bounded** (muro a 3^L=9), NON
-una traversata bounded; DFS rifiutato; il "node budget" ~6–7 sui bridged è un'**euristica
-soft/data-prior** (si sposta col read-out, sparisce coi bridged in training con transfer a blocchi
-held-out, NON cresce con la profondità). Dettagli nel `.tex` e in §1.
+**Report 1–7 CONGELATI (consegnati/chiusi).** Il Report 8 è **sostanzialmente completo** (vedi banner
+in cima al file e §15, specialmente §15.6): tutte le sezioni sono scritte con dati reali, il `.tex`
+compila pulito. **Non c'è un "compito corrente" aperto in questo momento** — la fase attiva ora è
+l'utente che costruisce a mano un PowerPoint per la prof a partire dal Report 8; eventuali richieste di
+modifica al report arriveranno probabilmente da una nuova chat Claude (che farà l'onboarding leggendo
+questo file + tutti i `.tex`, come da regola di lettura in cima).
 
-**>>> COMPITO CORRENTE: REPORT 6** (`report/6/transformer_for_graphs_6.tex`, compilare da
-`report/6/`). Tema: **"simulare una path di ragionamento" — quali dati servono per imparare un
-ragionamento; sequenzialità vs parallelismo.** È il **report conclusivo**: **pochi esperimenti,
-puntuali, vendibili in un paper.** **Indicazioni complete della prof + piano + tesi + mindset in
-§13** (leggerlo PRIMA di agire). Vincolo nuovo: **niente mixed random in training** (§13).
+Se in futuro riparte lavoro attivo su un nuovo report (Report 9+), aggiornare questa sezione con lo
+stesso schema usato per i report precedenti (tema, stato per thread/sezione, cosa resta aperto),
+lasciando lo storico di Report 6/7/8 nelle rispettive sezioni (§13 Report 6, §14 Report 7, §15
+Report 8) invece di sovrascriverlo qui.
 
-**STATO al 2026-06-30 (fine 18a sessione). REPORT 6 SOSTANZIALMENTE COMPLETO** (19 pp, compila pulito da
-`report/6/`, 0 ref indefinite, 0 overfull), in attesa di revisione utente. Stato per thread:
-- **Thread A — ANALIZZATO e SCRITTO** (§13.7 + lezioni). §sec:res-multipath-clean (A.1), -samples (A.2),
-  -truncated (A.3). **Revisione 18a sess.**: A.1 "where the rescue breaks down" (tab:a1n64) corretto — NON
-  "mette tutto disconnesso" ma **over-connessione** (re-eval n64 con campi conn/disc-pair, vedi §13.9).
-- **Thread B — ANALIZZATO e SCRITTO** (§13.8). §sec:res-asym-chains: SOLO risultati (sbilanciato facile,
-  bilanciato no). **Il *perché* dello split resta DOMANDA APERTA**. **Revisione 18a sess.**: aggiunta
-  tab:basplit_n64 per-seed (esempio dello "spread" a n64).
-- **Thread C — ANALIZZATO e SCRITTO** (§13.9). §sec:res-chain-cliques (C.1, catene) + §sec:res-thick-bridges
-  (C.2, catene di ponti spessi per-seed + blocchi ER). Esito: tesi 4 "un ponte compone" SOLO forma debole.
-- **Thread D (alberi)**: **RIMOSSO dal report** (richiesta utente, 18a sess.). Non più nel piano §13.5.
-- **VERDETTO §sec:verdict — SCRITTO** (18a sess.): sintesi sulle 4 tesi §1.3 (1 regge+meccanismo, 2 regge
-  modesto, 3 regge, 4 solo debole), tie a Report V (propagazione parallela within-capacity, budget soft),
-  limiti onesti (comportamentale, seed lottery, over-connessione) + Thread B come puzzle aperto.
-- **Variante SIMILARITY read-out (A/B/C)**: esplorativa, NON entrata nel report. Onda 1 (A1-sim) lanciata su
-  HPC (job 551389–551392 + 551400/551401); Onda 2 (C-sim) e Onda 3 (A2/A3-sim) DA LANCIARE. Tutto in **§13.10**.
-
-**Lavoro eventualmente aperto (il report è completo, questi sono extra a discrezione utente):** (a) il
-*perché* dello split di B (§13.8); (b) probe meccanicistici (attention/embedding) per trasformare "somiglia
-a MP" in "calcola A^{3^L}"; (c) la variante similarity (§13.10) se l'utente decide di lanciarla/analizzarla;
-(d) eventuali nuovi esperimenti.
-
-**Note git (la modalità):** Claude NON committa/pusha, **PUÒ** `git pull`. Lo scrittura `.tex`/figure/json si
-committa in locale sul Mac (lista file per ogni sessione in §13.9). Verificare con `git status` prima.
-
-**Riuso da Report 4/5 (punti di partenza del Report 6):** Thread A (multipath) parte da
-`eval_parallel_paths_clean.py` + `generate_parallel_paths_graph(n, n_paths, path_len)` (Report 4
-§4.4); Thread C (bridged iterate) da `generate_bridged_cliques_graph`/`generate_split_cliques_graph`
-+ `eval_bridged_cliques.py` e dai "bridged dense blocks" del Report 5 §5.6 (blocchi ER densi p≈0.6 +
-ponte). Training puliti via `train_families_n20.py` (`--families`, `--n_nodes`, `--p`,
-`--include_bridged`, `--n_layers`), **ma con UNA famiglia/distribuzione esplicita per run, non il
-mixed**. Per i nomi-cartella e i path-output vedi §5.
-
-**Idee future già citate (NON ora):** probe meccanicistico (`attention_maps`/`embeddings`) per
-trasformare "somiglia a MP" in "calcola A^{3^L}".
+**Note git (la modalità, valida per tutti i report):** Claude NON committa/pusha (né lancia
+sbatch/scancel), **PUÒ** `git pull`. La scrittura `.tex`/figure/json si committa in locale sul Mac,
+i risultati HPC li committa l'utente lato HPC. Verificare sempre con `git status` prima.
 
 ---
 
@@ -2955,6 +2889,441 @@ questo ordine quando si riprende.
    ablation, chord control, PCA) — nessuna delle due iniziata.
 4. Restano aperti anche i punti già noti: il controllo chord di §15.4/outlook, l'estensione di
    §sec:battery/§sec:cycles/§sec:stagewise a ER/n64/n20.
+
+### 15.6 Entrambi i job tornati, sezioni completate con dati reali — 2026-07-22 (stessa sessione)
+
+**Tempi reali (utili per calibrare `--time` in futuro):** `r8_two_cycles.sbatch` (job 598932, rilanciato
+su `compute` dopo il timeout a 5h su `medium_cpu` — vedi sopra) ha impiegato **5h33m–6h32m per seed**
+(stessa scala di `mechanistic_asym_chains.py`/Jacobiano esatto già vista per il Report 7, §14.7/§14.10);
+`r8_stagewise_n40_pathunion.sbatch` (job 599790) ha impiegato **~6–7 secondi per seed** — confermato
+economico come previsto (nessun backward pass).
+
+**§sec:cycles (test due-cicli) SCRITTA — risultato SORPRENDENTE, diverso da entrambe le letture
+pre-registrate.** Non "risolve come le chain" né "degrada". Il modello, ad **ogni** split da `a=3` a
+`a=20` e **ogni** seed, predice l'**intero grafo connesso** (predicted-positive rate = 1.000 esatto,
+cut = 0.000 esatto, exact = 0.000 esatto — identico a 3 decimali su tutti gli split e seed). La lettura
+meccanicistica si spacca in due: la vecchia contribution (Jacobiano) resta quasi perfettamente
+block-diagonal (leak ≈0 da `a=7` in poi — separazione interna pulita), mentre la nuova edge-ablation
+mostra un leak che sale fino a ~0.48 (più alto che per le chain) con matrici quasi uniformemente alte
+su TUTTO il 40×40, senza taglio al confine — coerente con un readout che ha smesso di discriminare le
+componenti. **Limite onesto aggiunto esplicitamente**: il training è SOLO su unions di path (mai un
+ciclo), quindi chiudere in cerchio non isola "togliere gli estremi" — cambia anche il grado locale di
+ogni nodo (tutti grado 2) ed è una struttura mai vista. Il collasso uniforme assomiglia di più
+all'over-connessione OOD già documentata su canvas non familiari (Report VI Thread A a n64, Report VII
+§res-n64) che a un test pulito sull'ipotesi degli estremi. **Prossimo passo pulito indicato nel testo
+(non implementato)**: chiudere in cerchio SOLO una delle due componenti, lasciando l'altra aperta, per
+separare "collasso locale alla forma non familiare" da "collasso globale alla vista di un ciclo
+qualsiasi".
+
+**§sec:stagewise (probe Priorità 1) SCRITTA — risultato chiaro, corregge l'ipotesi pre-registrata su
+QUALE stadio fa il lavoro.** La cosine geometry mostra una banda locale stretta fino a $H^{(1)}$, poi
+un allargamento drastico a un blocco denso su tutta la componente **fra $H^{(1)}$ e $H_{\mathrm{attn}}^{(2)}$**
+— costruito dall'**attention layer 2**, non dall'MLP. Il far-reach (accuracy soglia-dipendente) conferma:
+≤0.10 fino a $H^{(1)}$, salta a 0.72 ($a=4$)/0.99 ($a=20$) a $H_{\mathrm{attn}}^{(2)}$, rifinito da MLP2 a
+1.00/0.98. **Nota onesta**: il margine threshold-free $M_{\mathrm{far}}$ CONCORDA con questa lettura ad
+`a=20` (salta anch'esso a $H_{\mathrm{attn}}^{(2)}$) ma NON ad `a=4` (resta basso fino a MLP2) — le due
+misure (soglia vs. margine medio) divergono in un caso, riportato onestamente invece di scegliere quella
+più pulita. La scomposizione $\Delta Z$ per sotto-blocco aggiunge il pezzo mancante: attention 2 alza la
+similarità in modo abbastanza indiscriminato (all'interno di qualunque componente un nodo si trovi), ma
+è **MLP 2** il sotto-blocco che separa nettamente connesso/disconnesso (a `a=4`: within-long-far +11.2,
+cross −16.3, il valore più estremo di tutta la tabella). **Verdetto sull'ipotesi pre-dichiarata**: parzialmente
+sbagliata — "attention 2 alza la similarità delle coppie lontane nello specifico" è troppo stretto (la alza
+in modo generico, non selettivo); "MLP 2 converte la geometria nella decisione finale" è vero ma
+specificamente per il **cut**, non per il completamento (che attention 2 ha già quasi risolto).
+
+**Report**: entrambe le sezioni ora scritte con dati reali (non più "[Data pending]"). Compila pulito,
+**21 pagine**, 0 ref indefinite, 0 overfull (verificato anche visivamente pagina per pagina).
+
+**File da pushare (in più rispetto a §15.4/§15.5):** `report/8/transformer_for_graphs_8.tex` +
+`.pdf` aggiornati, tutte le nuove figure in `runs/report8/report8_figs/` (sweep/leak/heatmap per il
+test due-cicli, cosine/ΔZ/curve per lo stagewise probe).
+
+**Resta aperto (nessun cambiamento rispetto a §15.4/§15.5)**: Priorità 2/3 del filone stagewise, il
+controllo chord dell'edge-ablation, l'estensione di tutte le sezioni a ER/n64/n20, e il follow-up
+"chiudi solo una componente" suggerito sopra per il test due-cicli.
+
+Dopo questo punto, due piccole revisioni tabellari a richiesta utente (nessun nuovo calcolo): Tabella 4
+(`tab:r8ablation`) integrata con il blocco "reach (componente corta)" oltre a "reach (componente lunga)"
+e "cut"; Tabella 5 (`tab:r8threeway`) integrata con le colonne `|L1|`/`|L2|` (dimensioni delle due
+componenti grandi, prima mancanti — la tabella era illeggibile senza, vedi errore 67 in §4).
+
+### 15.7 Handoff di chiusura — Report 8 sostanzialmente finito (2026-07-23)
+
+**Stato a questo punto**: il Report 8 è considerato dall'utente **sostanzialmente concluso**. Tutte le
+sezioni (§sec:battery, §sec:battery-edge, §sec:cycles, §sec:stagewise) sono scritte con dati reali, il
+`.tex` compila pulito (21 pagine, 0 ref indefinite, 0 overfull), le due tabelle segnalate dall'utente
+(Tabella 4 e Tabella 5) sono state corrette. **Non ci sono altri task noti in sospeso su questo report.**
+
+**Cosa succede ora**: l'utente costruisce a mano un PowerPoint per la prof a partire dal contenuto del
+Report 8 (stesso pattern già seguito per il Report 7, vedi cambio banner in cima al file e memoria
+`project_report7_audience_change`). Questa chat non proseguirà il lavoro sul report a meno di richiesta
+esplicita; per lo stesso motivo (chat troppo lunga) eventuali modifiche future potrebbero arrivare da
+una **nuova chat Claude**, che farà l'onboarding leggendo questo file per intero + tutti i `.tex` dei
+report (regola di lettura in cima al file) — non serve altro contesto per ripartire.
+
+**Per la prossima chat, in sintesi**: leggere il banner in cima, poi questo §15 per intero (in
+particolare §15.6 per i risultati finali), poi il `.tex` del Report 8. Le §13/§14 restano lo storico
+completo di Report 6/7 se serve contesto più profondo su thread precedenti (es. l'origine del puzzle
+Report 6 Thread B che il Report 7 ha risolto). Gli errori 1–67 in §4 vanno riletti per intero prima di
+scrivere qualunque cosa, come da regola di lettura non negoziabile in cima al file.
+
+**(SUPERATO da §15.8 sotto — la sessione del 2026-07-24 ha aggiunto altro contenuto reale al Report 8,
+quindi questa non è più la chiusura finale. Lasciato qui come storico di come si è arrivati fin lì.)**
+
+### 15.8 Sessione di rifinitura post-chiusura (2026-07-24) — Q&A + nuove figure meccanicistiche sui
+due cicli. Handoff finale prima di aprire una NUOVA chat per il Report 9.
+
+**Contesto**: dopo la chiusura di §15.7, l'utente ha riaperto la stessa chat (non ancora una nuova) per
+una serie di domande di comprensione sul Report 8 già scritto, che hanno prodotto piccoli fix e — alla
+fine — due nuove figure reali con un risultato nuovo. **Questa è la chiusura AGGIORNATA**: la prossima
+chat sarà una chat NUOVA e lavorerà su un **Report 9** (argomento non ancora specificato dall'utente in
+questa sessione — va chiesto/deciso all'apertura di quella chat, non assumerlo).
+
+**Cosa è stato fatto, in ordine:**
+
+1. **Tabella 5 (`tab:r8threeway`, il falsification test a 3 componenti) — aggiunta la colonna `exact`.**
+   L'utente ha chiesto exact-match accuracy per riga; letta direttamente dal campo `exact` già presente
+   in `runs/report7/three_way/n40_pathunion_similarity_seed{1000..4000}/three_way_split.json` (verificato
+   PRIMA che le altre colonne — reach/cut — combaciassero esattamente coi valori già pubblicati, prova
+   di essere sulla tabella giusta). Risultato: exact molto più basso a `small=1,2` (0.012, 0.380)
+   nonostante reach/cut già ≥0.988 lì — spiegato in una frase nel corpo (statistica congiunta su 300+
+   coppie, converge da `small=4` in poi). **Confermato via codice** (non solo dati): esistono SOLO
+   queste 6 combinazioni `(small, L1, L2)` — `eval_three_way_split.py:115-125` ha un default hardcoded
+   `(1,2,4,7,8,10)` e lo sbatch che ha lanciato questo run (`scripts/r7_similarity_n40.sbatch`) non passa
+   `--small_lens`, quindi non esiste già da qualche parte uno sweep più fitto — andrebbe rilanciato con
+   `--small_lens` esplicito se mai richiesto.
+2. **Figura 9 (`fig:r8cyclesweep`, sweep due-cicli) — aggiunta la soglia di decisione coseno.** L'utente
+   ha chiesto conferma che il readout similarity classifica "connesso" sse
+   `cos(h_i,h_j) > -bias/scale` (confermato leggendo `model.py:112-145/314-347`: il logit è
+   `scale·cos+bias`, soglia a logit`>0`). Poi ha chiesto di disegnare quella soglia sul grafico.
+   **Fatto in codice**: nuova `load_cos_threshold(tag_glob)` in `plot_mechanistic_asym_chains.py` (legge
+   `sim_scale`/`sim_bias` da `weights_summary.json`, media sui seed), `fig_sweep_and_logit()` ora accetta
+   `cos_threshold` e disegna una linea tratteggiata nel pannello inferiore quando il readout è
+   similarity; `main()` la calcola e la passa. Rigenerata `r8_sweep_and_logit_n40_pathunion_cycle.png` —
+   la linea (≈0.146) mostra visivamente perché il cut è sempre 0.000: anche la curva cross-cycle (cut)
+   sta sempre ben sopra la soglia (0.72–0.90). Caption aggiornata nel `.tex`.
+3. **Chiarito nel testo cosa vuol dire "far" in `M_far` (§sec:stagewise).** L'utente ha notato che la
+   definizione ("pairs beyond capacity, d>9, dentro la componente lunga" — la stessa `F(i)` della
+   sezione edge-ablation) stava in un paragrafo precedente e non era ripetuta dove si introduce `M_far`.
+   Aggiunto un richiamo inline esplicito nel paragrafo "A threshold-free margin".
+4. **Chiarite due domande di comprensione, nessuna modifica di codice**: (a) il range teorico di `M_far`
+   è `[-2,2]` (differenza di due coseni, ciascuno in `[-1,1]`), i valori osservati (0.03–0.9) restano
+   ben dentro; (b) negli heatmap `C^{edge}`/`C^{logit}`/`C^{far}` (Figura `r8edgeheat`) l'asse x è `k`
+   (nodo ablato, cresce andando a destra) e l'asse y è `i` (nodo query) ma con `origin='upper'` di
+   matplotlib di default — quindi **andando verso l'alto `i` DECRESCE** (riga 0 in cima), l'opposto della
+   convenzione cartesiana; nessun `origin=`/`extent=` esplicito nello script, quindi vale il default.
+5. **Perché il readout similarity ha `scale`/`bias` e non il coseno nudo — spiegato, nessuna modifica.**
+   Il coseno grezzo in `[-1,1]` passato a una sigmoide non potrebbe mai esprimere confidenza vicina a
+   0/1 (serve per l'exact-match su centinaia di coppie); `scale` (impara fino a ≈32.6) allarga il range,
+   `bias` libera la soglia di decisione da un vincolo arbitrario `cos=0`. Non è una scelta "meno
+   corretta" del coseno puro, è lo standard (come il temperature scaling di ArcFace/CosFace/contrastive
+   heads) — senza, la loss non potrebbe mai scendere vicino a zero.
+6. **NUOVO script `plot_cosine_raw_examples.py`** (scritto, smoke-testato su checkpoint giocattolo
+   similarity — sia il fix iniziale delle chiavi `model_config`/`model_state_dict` di `load_model`, sia
+   il fix del layout colorbar+tight_layout, stesso pattern errore 65b — **MAI ancora lanciato su dati
+   reali**, resta un task aperto). Scopo: matrice di cosine similarity GREZZA (non mediata su tante
+   relabelling come le altre heatmap) per pochi grafi individuali a un dato split, colorata rispetto
+   alla soglia di decisione (rosso sopra = predetto connesso, blu sotto = predetto disconnesso) così gli
+   errori del modello si vedono direttamente confrontando col confine di componente. Uso preparato:
+   `python plot_cosine_raw_examples.py --checkpoint /tmp/r8_ckpt/seed1000.pt --n 40 --split_a 20
+   --n_examples 5 --out runs/report8/report8_figs/r8_cosine_raw_examples_a20.png` (checkpoint già
+   scaricato in questa sessione, vedi punto 8).
+7. **`stagewise_diagnostics.py` esteso con `--topology {chain,cycle}`** (stesso pattern già usato in
+   `mechanistic_asym_chains.py`/`mechanistic_heatmaps.py`/`edge_ablation_contribution.py`): la funzione
+   `stagewise_probe()` ora prende un parametro `topology` invece di avere `"chain"` hardcoded al posto
+   di chiamare `_build_split_graph`. Smoke-testato su checkpoint giocattolo (chain retrocompatibile +
+   cycle), poi **lanciato per davvero** su HPC→locale: checkpoint reale
+   `runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt` scaricato via `scp` in
+   `/tmp/r8_ckpt/seed1000.pt` (VPN Bocconi, comando dato all'utente), poi
+   `python stagewise_diagnostics.py --checkpoint /tmp/r8_ckpt/seed1000.pt --output_dir
+   runs/report8/stagewise/n40_pathunion_cycle_seed1000 --topology cycle --splits 4 20 --n_graphs 64`
+   girato **in locale sul Mac** (economico, nessun backward pass, pochi secondi — stessa scala già nota
+   dal caso chain, §15.6). **Un solo seed (1000), non tutti e 4** — se in futuro serve estendere le
+   curve margin/far-reach/deltaz aggregate con error bars (regola 61) per i cicli, servono anche i seed
+   2000/3000/4000 (stesso comando, altro checkpoint).
+8. **Nuove figure aggiunte al `.tex` in §sec:cycles** (dopo il paragrafo "Two mechanistic readings...",
+   prima di "Honest limits"):
+   - **Figura `fig:r8cycleattnscores`**: le attention scores/α reali layer 0/1 per `a=4,20` sui cicli —
+     riusa un file **già calcolato** in una sessione precedente (`r8_two_cycles.sbatch` aveva già girato
+     `mechanistic_heatmaps.py --topology cycle`) ma **mai mostrato nel `.tex`** (stesso pattern già visto
+     per la chain condition in §sec:battery-attn, errore-tipo già noto). Nuovo paragrafo: layer 0
+     identico al caso chain (banda locale + banda di wrap-around del ciclo); layer 1 mostra un pattern a
+     scacchiera dovuto alla periodicità, e l'`α` reale resta quasi zero cross-ciclo **anche ad `a=20`**
+     (l'attenzione grezza non attraversa il confine più che nel caso chain).
+   - **Figure `fig:r8cyclestagecosine4`/`20`**: le due heatmap layerwise cosine geometry generate al
+     punto 7 (dati REALI, seed 1000).
+   - **Nuovo paragrafo con la scoperta chiave** (numeri letti da
+     `runs/report8/stagewise/n40_pathunion_cycle_seed1000/stagewise_margins.csv`, non a memoria): ad
+     `a=20`, allo stadio `H_attn^{(2)}` (dopo attention 2, PRIMA di MLP 2) il modello separerebbe quasi
+     perfettamente i due cicli — `mu_long_far=0.790`, `mu_cross=-0.118` (**negativo**), margine
+     `M_far=0.908`, dieci volte la soglia di decisione (0.146). **MLP 2 poi cancella quasi tutto**: a
+     `H^{(2)}` `mu_cross` salta a `0.929` (quasi quanto `mu_long_far=0.964`), il margine crolla a
+     `0.034`, producendo il collasso "tutto connesso". È l'**opposto esatto** di quanto MLP 2 fa sulle
+     chain (dove *rifinisce* il cut, §sec:stagewise/§15.6) — qui lo **distrugge**. Ad `a=4` lo stesso
+     ordine qualitativo ma molto più debole (margine 0.036 a `H_attn^{(2)}`, 0.133 a `H^{(2)}`).
+   Ricompilato: **22 pagine** (era 21), 0 errori, 0 ref indefinite, 0 overfull — verificato anche
+   visivamente pagina per pagina (`pdftoppm` + ispezione, non solo il log).
+
+**File toccati/nuovi in questa sessione** (oltre a `istruzioni.md`): `report/8/transformer_for_graphs_8.
+{tex,pdf}`; `plot_mechanistic_asym_chains.py` (soglia coseno); `stagewise_diagnostics.py` (`--topology`);
+`plot_cosine_raw_examples.py` (NUOVO, mai lanciato su dati reali); `runs/report8/stagewise/
+n40_pathunion_cycle_seed1000/*` (nuovo, dati reali, un solo seed); `runs/report8/report8_figs/
+r8_sweep_and_logit_n40_pathunion_cycle.png` (rigenerata con soglia), `r8_stagewise_cosine_a{4,20}_cycle.
+png` (nuove, nel report), `r8_stagewise_{deltaz_a4,deltaz_a20,far_reach,margin}_cycle.png` (nuove,
+generate come sottoprodotto ma **non ancora messe nel `.tex`** — solo un seed, niente error bars).
+
+**⚠️ Checkpoint ancora in `/tmp/r8_ckpt/seed1000.pt` — NON cancellato a fine sessione** (a differenza
+della regola standard §13.7/§14.5: scarica in `/tmp`, usa, cancella subito). È rimasto lì perché
+`plot_cosine_raw_examples.py` (punto 6) non è ancora stato lanciato e potrebbe servire ancora nella
+stessa sessione. **Se una chat futura lo trova ancora lì e non sa perché**: è sicuro da cancellare
+(`rm -rf /tmp/r8_ckpt`), è solo una copia locale di un checkpoint che vive comunque su HPC.
+
+**Cosa resta aperto per il Report 8** (nessun cambiamento rispetto a §15.6, +2 nuovi):
+- Il plot `cosine_raw_examples` (punto 6) non ancora generato su dati reali.
+- Le curve margin/far-reach/deltaz aggregate per i cicli servono altri 3 seed per avere error bars.
+- Tutto il resto invariato da §15.6: Priorità 2/3 del filone stagewise, il controllo chord
+  dell'edge-ablation, l'estensione di ogni sezione a ER/n64/n20, il follow-up "chiudi solo una
+  componente" per il test due-cicli.
+
+**⚠️ Per la PROSSIMA chat (sarà una chat NUOVA — l'utente lo ha detto esplicitamente in questa
+sessione): il lavoro sarà un Report 9, argomento NON ancora specificato.** Non assumere il topic — va
+chiesto o atteso dall'utente all'apertura di quella chat. Onboarding standard: banner in cima al file +
+questo intero §15 (specialmente questo §15.8) + il `.tex` del Report 8, come da regola di lettura in
+cima al file. Se il Report 9 riprende uno dei fili "resta aperto" sopra, va scritto come `report/9/...`
+nuovo (non innestato dentro l'8) seguendo lo stesso schema di apertura degli altri report (recap
+Reports I–VIII in un elenco puntato, poi la nuova domanda).
+
+---
+
+## 16. Report 9 — Oltre il diametro: generalizzazione OOD su path, e il ruolo degli estremi
+
+> Blocco aggiunto all'apertura del Report 9 (2026-07-24, stessa sessione che ha chiuso il Report 8 in
+> §15.8). **Resta valido per OGNI nuova chat sul Report 9.** In questa sessione si scrive SOLO il piano
+> (questo blocco + lo scheletro `report/9/transformer_for_graphs_9.tex`) — **nessun esperimento,
+> nessun training, nessuno script nuovo**: l'utente ha chiesto esplicitamente "non creare ancora gli
+> esperimenti. quello lo facciamo alla nuova domanda". Non implementare nulla di §16.3 finché l'utente
+> non lo chiede esplicitamente, thread per thread.
+
+### 16.0 Richiesta originale dell'utente (trascritta VERBATIM — leggere prima di tutto)
+
+Come già fatto per i Report 7/8 (§14.0/§15.0), l'utente ha chiesto di incollare qui **parola per
+parola, senza cambiare niente**, il testo ricevuto, così una chat futura può rileggerlo per intero
+invece che affidarsi a un riassunto:
+
+```
+quello che vorremmo dire è che il diametro non è veramente la misura che dobbiamo sempre guardare perchè ad esempio c’è il caso delle path che può essere imparato oltre il 2*3^L. il problema è che questa cosa delle path è in distribution perchè il disjoint path ha anche ogni split di 2 segmenti nel training set. sarebbe interessante fare training set sempre path, però fare test su path che non sono in training. perchè al momento sembra che non riusciamo a generalizzare sui 2 cycles. 
+primo esperimento (il piu importante) : cercare qualche esempio di path learning che sia out of distribution, perchè al momento riusciamo a dire solo che in distribution impara oltre il diametro di 2*9 perchè usa gli ednopoitns. 
+ad esempio training set di union path, però includendoli solo fino ad un certo diametro tipo split di 2 chains senza andare oltre il diametro di 18 e vedere se generalizza oltre , cioè test set 2chains con diametro oltre 18
+
+il training set cosi vario (disjoint path da 1 a 4) come lo abbiamo ora per lei sembra too much, forse non abbiamo bisiogno.  per me invece forse non riesce a capire questa cosa dell’utilizzo degli endpoints se non ha questa distribuzione di 1,2,3,4 chains, però è da testare sicurmaente per vedere cosa fa con meno tipologie di path. anche perchè se l’imparare sta cosa degli endpoints è specifica del training set, allora diventa meno interessante, si può comunque scrivere. 
+un altro esperimento è che potremmo avere solo vari split di 2 chains, e poi faccio test sulle 2 chains togliendo un edge cioe diventano 3 chains non viste nel training (perchè al momento anche le tre chains le aveva gia viste per l’esperimento fatto ora). 
+
+poi dobbiamo pensare ad altri esesmpi di training su path e test su path, capire come farli però. 
+ad esempio potrei testare i chckpoints che già ho su 5/6/7 chains che sono OOD e vedere se è stato sufficiente aver imparato questa cosa degli endpoints
+
+
+oppure vedo se i checkpoints trainati sui 2 chains (tra l’altro come al solito voglio 4 seeds) hanno imparato di nuovo sta cosa degli endpoints e in caso li testo su delle distribuioni particolari tipo 1 chain e 1 cliques, oppure 2 sorte di chains però i nodi all’interno delle chains (non gli endpoints) hanno anche degli edges tra di loro, in modo che rimangano 2 componenti che hanno degli estremi
+
+secondo esperimento serve per verificare se questi estremi sono effettivamente necessari e quindi il nostro modello di trasnformer i cycles non li riesce proprio ad imparare oppure è solo una caratteristica specifica delle path
+fare direttamente uguale il training che ho fatto sulle path, ma farlo anche per i cycles con i vari split per vedere cosa succede e come impara (test in disitrubtion). noi vogliamo studiare infatti settings in cui il modello impara e vogliamo capire perchè lo fa, il che è una cosa che non è stata tanto fatta.
+quindi voglio un esperimento analogo a quello fatto per i path, ma fatto sui cycles. quindi prima di dire che gli endpoints sono importanti/che i cycles sono davvero piu difficili degli altri grafi oppure se anche loro possano essere un esempio che contraddice un po’ il diametro.
+vedere anche qui un po’ gli attention score e i similiarity geometry per i vari step. insomma voglio che fai(leggi attentamente il pwp del report 8 (Empirical Analysis of Transformers on Graph Connectivity part 8.pdf)): general results, analisi del read in, attention scores, node to node contribution, layer ablation, 3 cycles test, 2 chains split test, layerwise cosine geometry 
+
+
+mi ha detto di provare a fare training uguale a prima con le disjoint path e il test uguale (quindi diciamo il report 8) anche con n46 uguale ad adesso con similarity readout e lo stesso numero di samples e stesso identico modello ad adesso uguale, cambia solo n46 anzichè n40. riusa i codici. direttamente tutti i training che dovrai fare in questo nuovo report falli con n46. 
+```
+
+### 16.1 Da dove nasce la domanda
+
+Il Report 8 (§15, in particolare §15.6/§15.8) ha stabilito che il modello path\_union-trained (readout
+similarity, $n{=}40$) risolve uno split sbilanciato ben oltre il muro raddoppiato $2\cdot3^L=18$,
+grazie a un segnale di completamento legato agli estremi (endpoints) di path — e che lo stesso modello
+**collassa a "tutto connesso"** sul test a due cicli (§sec:cycles del Report 8), dove gli estremi non
+esistono. Il problema, notato dalla prof: tutta questa evidenza di "generalizzazione oltre il muro" è
+misurata **dentro** la distribuzione di training — `generate_path_union_graph` (§14.1) genera online
+unioni di $1$–$4$ path che **coprono già ogni split a due segmenti possibile**, quindi un test a due
+componenti non è mai davvero out-of-distribution nella sua *struttura*, solo eventualmente nella sua
+*taglia esatta*. Il Report 9 nasce per separare due cose che finora sono rimaste intrecciate: (a) il
+modello ha imparato un meccanismo generale legato agli estremi, che dovrebbe generalizzare a strutture
+genuinamente mai viste; oppure (b) il modello ha semplicemente interpolato dentro una distribuzione di
+training che già copre lo spazio dei test. Il secondo filone (cicli) chiede inoltre se il fallimento sui
+cicli sia dovuto specificamente all'assenza di estremi, o se sia semplicemente che i cicli non sono mai
+stati allenati nello stesso modo sistematico dei path.
+
+### 16.2 Le due tesi centrali che il report vuole sostenere/verificare
+
+1. **Il diametro non è sempre la misura giusta di difficoltà — ma va isolato un esempio pulito.** Il
+   Report 8 suggerisce che un modello può imparare oltre $2\cdot3^L$, ma finché il test resta
+   in-distribution questo non prova nulla di nuovo rispetto al muro. Serve un esperimento in cui il
+   training è esplicitamente **limitato** in diametro/struttura e il test genuinamente lo supera.
+2. **Gli estremi sono davvero necessari (load-bearing), o è una caratteristica del training sui path
+   specificamente?** Se un training analogo sui cicli (che non hanno estremi) produce un fenomeno
+   analogo di generalizzazione oltre il muro, allora gli estremi non sono la spiegazione causale, e i
+   cicli diventano un secondo controesempio a "il diametro conta". Se invece i cicli restano
+   inapprendibili anche con un training dedicato, l'ipotesi degli estremi si rafforza (ma resta da
+   escludere che sia semplicemente un limite architetturale sui cicli indipendente dagli estremi).
+
+### 16.3 Piano esperimenti — TUTTI da implementare in una sessione/richiesta successiva (NON ora)
+
+#### Thread A — Generalizzazione OOD per i path (esperimento 1, il più importante)
+
+- **A.1 — Training troncato in diametro, test oltre.** Allenare su path/union-di-path limitati a un
+  diametro massimo esplicito (es. split di 2-chains senza mai superare diametro $18$), poi testare su
+  2-chains con diametro **oltre** $18$, mai visto in training. Questo è il test decisivo per isolare la
+  generalizzazione OOD dal completamento in-distribution.
+- **A.2 — Meno varietà nel training set.** La distribuzione attuale (unione di $1$–$4$ path disgiunti)
+  è, secondo la prof, "too much" — forse non necessaria. Allenare con **meno tipologie** (es. solo split
+  di 2-chains, non $1$–$4$ componenti) e verificare se il modello impara comunque il completamento via
+  estremi. Se sì: il fenomeno non dipende dalla ricchezza/varietà della distribuzione (più generale, più
+  interessante). Se no: è specifico di quella distribuzione ricca (meno interessante, ma comunque un
+  risultato da scrivere onestamente).
+- **A.3 — 3-chains genuinamente OOD.** Allenare **solo** su vari split di 2-chains (mai $3+$
+  componenti), poi testare togliendo un edge interno a una delle due componenti — che diventano così 3
+  componenti **mai viste in training** (a differenza dell'esperimento già fatto finora, dove le 3-chains
+  erano comunque già state viste in qualche forma dalla distribuzione $1$–$4$).
+- **A.4 — Checkpoint esistenti su 5/6/7-chains OOD.** Usare i checkpoint già allenati (path\_union, che
+  arriva solo a $4$ componenti) e testarli su unioni con $5,6,7$ componenti, mai viste in training, per
+  vedere se il trucco degli estremi generalizza al *numero* di componenti oltre a quanto già coperto.
+- **A.5 — Checkpoint 2-chains, test su distribuzioni mirate.** Allenare (4 seed, come sempre) su vari
+  split di 2-chains puri, verificare che il modello impari di nuovo il segnale degli estremi, poi
+  testarlo su strutture scelte per isolare cosa conta davvero: (i) un grafo con **1 chain + 1 clique**
+  (due componenti con un solo estremo "vero" da un lato); (ii) due "chain" dove i nodi **interni** (non
+  gli estremi) hanno anche archi fra loro, restando comunque 2 componenti con estremi ben definiti ma
+  internamente più dense — per capire se serve la forma esatta di path o basta avere due componenti con
+  estremi riconoscibili.
+
+*(Nota: A.4/A.5 richiedono di identificare/riusare i checkpoint giusti già su HPC — path\_union $n{=}40$
+di Report 6/7/8 per A.4; i nuovi checkpoint 2-chains-puri di A.5 vanno allenati a $n{=}46$, §16.4. Da
+decidere in dettaglio quando si implementa il thread, non ora.)*
+
+#### Thread B — Gli estremi sono davvero necessari? L'esperimento analogo sui cicli (esperimento 2)
+
+- **B.1 — Stesso training dei path, ma sui cicli.** Ripetere esattamente lo stesso schema di training
+  usato per i path (stesso spirito del Report 8: distribuzione esplicita, non un mixed opaco) ma con
+  cicli al posto dei path, con vari split, e valutare **in-distribution** (analogo a come i path sono
+  stati valutati) — capire se/come il modello impara a gestire i cicli quando li vede sistematicamente
+  in training, invece di vederli solo come test OOD (come nel test a due-cicli del Report 8, dove il
+  training non conteneva mai un ciclo).
+- **B.2 — Ripetere l'intera batteria meccanicistica del Report 8 sui cicli-trained.** Rileggendo
+  attentamente le slide del Report 8 (il PDF del PowerPoint), riprodurre sui checkpoint cicli-trained
+  la stessa batteria: risultati comportamentali generali, analisi del read-in, attention scores, node-
+  to-node contribution, layer ablation, il test di falsificazione a 3 cicli (analogo del three-way
+  split test), il test di split a 2 cicli, e la layerwise cosine geometry (il probe stagewise).
+
+Obiettivo di B: prima di concludere che gli estremi sono la causa del fallimento sui cicli (o che i
+cicli sono intrinsecamente più difficili di altri grafi), verificare se un training dedicato e
+sistematico (analogo a quello dei path) permette al modello di imparare un fenomeno simile sui cicli —
+nel qual caso i cicli diventerebbero un **secondo controesempio** a "il diametro è l'unica misura di
+difficoltà", non un limite architetturale legato specificamente all'assenza di estremi.
+
+### 16.4 Nota tecnica non negoziabile: canvas size $n=46$
+
+Riportata testualmente dalla richiesta (§16.0, ultimo paragrafo): **ogni training nuovo di questo
+report va fatto a $n=46$** (non $n=40$) — stesso identico setup del Report 8 (training sulle
+disjoint-paths, readout **similarity**, stesso numero di sample/step, stesso modello RoBERTa-faithful
+$L{=}2$, single head, $d_{\mathrm{model}}{=}512$) — **cambia solo la dimensione del canvas**. Riusare il
+codice di training/eval già esistente (già parametrico in `--n_nodes`/`--n`, vedi §5/§9/§14/§15), non
+reimplementare nulla da zero. Questo vale per **tutti** i training del Report 9, inclusi quelli dei
+Thread A e B sopra (A.1, A.2, A.3, A.5 — training nuovi — e B.1 — training nuovo sui cicli), non solo
+per un'eventuale ripetizione 1:1 del Report 8. A.4 resta un'eccezione naturale: è eval-only su
+checkpoint **già esistenti** a $n=40$ (path\_union di Report 6/7/8), quindi non si ri-allena a $n=46$.
+
+### 16.5 Cosa NON fare ancora (stato della sessione di apertura, 2026-07-24)
+
+Su richiesta esplicita dell'utente, la sessione di apertura del Report 9 (2026-07-24) ha prodotto
+**solo** il piano (questo §16) e lo scheletro `report/9/transformer_for_graphs_9.tex`
+(struttura/domande/paragrafi "planned", **nessun dato, nessuna tabella, nessuna figura reale**). Nessun
+generatore dati nuovo, nessuno script di eval, nessun training, nessun `sbatch` in quella sessione.
+**Superato in parte da §16.6 sotto**: la sessione successiva (2026-07-25) ha implementato codice per due
+punti specifici del piano su richiesta diretta dell'utente. Tutto il resto del piano segue comunque lo
+stesso pattern già rodato nei Report 5–8: un esperimento alla volta, codice smoke-testato su un
+checkpoint/modello giocattolo prima di toccare pesi reali, dati reali pullati da HPC prima di scrivere
+qualunque numero nel `.tex` (regola §4 errore 2), caption complete (regola 21), niente nomi di
+file/codice nel testo renderizzato (regola 56), niente riferimenti a "advisor"/cronologia (regola 57),
+error bars su ogni curva aggregata sui seed (regola 61), e verificare i punti vicini a ogni segnale
+interessante in uno sweep discreto (regola 62).
+
+### 16.6 Prima implementazione (2026-07-25): sanity-check $n=46$ + Thread A.4 (5/6/7-chain OOD)
+
+**Richiesta dell'utente questa sessione**: partire con due esperimenti concreti prima del resto del
+piano — (1) un sanity-check a due seed della condizione $n=46$ (per decidere se usarlo per tutto il
+resto del report), (2) il test A.4 (checkpoint $n=40$ esistenti su unioni di 5/6/7 path). L'utente ha
+anche chiesto esplicitamente se il test A.4 ha più senso su GPU o CPU — risposto e motivato sotto.
+
+**(1) Sanity-check $n=46$ — due seed, due sbatch separati (come richiesto, non un array).** Training
+IDENTICO alla condizione disjoint-paths di Report~VIII (famiglia \texttt{path\_union}, RoBERTa-faithful
+$L{=}2$/single-head/$d_{\mathrm{model}}{=}512$, readout similarity, $10^6$ step, batch $1000$), unica
+differenza $n{=}40\to46$. Riusato **senza modifiche** `experiments2/train_families_n20.py` (già
+parametrico in `--n_nodes`), stessi iperparametri/tempo del run $n{=}40$ analogo di Report~VI ("Onda 1",
+`gpunew`, 12h — qui alzato a 14h per margine, $n{=}46$ è solo leggermente più costoso). Dopo il training,
+ogni sbatch lancia in automatico `eval_asym_chains.py` (esistente, non modificato) sul checkpoint appena
+allenato — lo sweep split diretto che mostra/non mostra la firma di completamento (split piccolo risolto
+ben oltre il muro, split bilanciato fermo al muro). Nuovi file:
+`scripts/r9_n46_sanity_seed1000.sbatch`, `scripts/r9_n46_sanity_seed2000.sbatch` (due file separati,
+job-name `r9n46s1`/`r9n46s2`). Output: checkpoint in
+`runs/report9/n46_train/n46_path_union_roberta_similarity_lam0_seed{1000,2000}/`, eval in
+`runs/report9/asym_chains_n46/n46_pathunion_seed{1000,2000}/asym_chains.json`.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_n46_sanity_seed1000.sbatch
+sbatch scripts/r9_n46_sanity_seed2000.sbatch
+```
+**STATO: preparato, NON lanciato.** Nessun dato ancora. Se il segnale riappare a $n=46$ come atteso, il
+resto del piano (A.1, A.2, A.3, A.5, B.1) può procedere a $n=46$ senza ulteriori dubbi; se non riappare,
+va discusso con l'utente prima di proseguire (potrebbe indicare che $n=46$ non è equivalente a $n=40$ per
+qualche motivo non ovvio, es. feasibility degli split o tempo di convergenza).
+
+**(2) Thread A.4 — nuovo generatore + nuovo eval, eval-only sui checkpoint $n=40$ già esistenti.**
+- `data.py::generate_multi_path_split_graph(n, sizes)` (NUOVO): generalizza
+  `generate_split_chains_graph`/`generate_three_way_split_graph` a un numero arbitrario $K=$
+  `len(sizes)` di path disgiunti che partizionano tutti gli $n$ nodi, date le dimensioni ordinate dei
+  componenti (`sizes`, che devono sommare a $n$). Nessuna modifica ai generatori esistenti.
+- `eval_multiway_split.py` (NUOVO, eval-only): per $K\in\{5,6,7\}$ (il numero di path componenti — lo
+  stream di training ne pesca solo $1$–$4$) costruisce **una componente lunga + $K{-}1$ corte**, con la
+  dimensione delle componenti corte scelta in automatico (funzione `default_small_sizes`, sweep su
+  poche taglie candidate `2..8`, filtrate) così che il diametro interno della componente lunga
+  **superi $18$** (il muro raddoppiato) — override possibile via `--small_sizes`/`--dist_cutoff`.
+  Metriche per cella (mai collassate): exact-match; reach nella componente lunga (aggregato +
+  per-distanza, con i tre bucket espliciti $\le9$/$9$–$18$/$>18$ — quest'ultimo è quello decisivo);
+  reach nelle componenti corte (aggregato, se hanno coppie interne); **cut lungo-corte** e **cut
+  corta-corta** (aggregato su TUTTE le coppie di componenti corte diverse — la generalizzazione diretta
+  della colonna decisiva `cut(L1,L2)` del test di falsificazione a tre vie, ora con più di due "altre"
+  componenti mai viste insieme in training). Smoke-testato su un checkpoint giocattolo
+  (`RobertaGraphTransformer`, similarity, $n{=}40$) prima di toccare pesi reali — verificato che per
+  $n{=}40$ le taglie corte automaticamente feasibili sono $\{2,3,4,5\}$ ($K{=}5$), $\{2,3,4\}$
+  ($K{=}6$), $\{2,3\}$ ($K{=}7$), tutte con diametro-lungo $>18$ per costruzione.
+- **GPU o CPU? Risposta: CPU.** Questo è un eval **puramente forward** (nessun backward/Jacobiano, a
+  differenza degli script meccanicistici di Report~VII/VIII) su un modello piccolo ($L{=}2$,
+  $d_{\mathrm{model}}{=}512$) — stesso genere di `eval_asym_chains.py`/`eval_three_way_split.py`, che in
+  passato hanno girato anche su GPU (`short_gpuh200`) quando non c'era altro in coda. Qui però ci sono
+  **contemporaneamente** i due training $n{=}46$ sopra, che hanno bisogno di GPU e competono per il tetto
+  di 4 GPU-concorrenti-per-utente (§6) — mettere anche questo eval su GPU sottrarrebbe uno slot ai
+  training senza bisogno reale, dato che un forward-only su questo modello è già economico su CPU (pochi
+  minuti per ~2700 forward pass totali, 9 celle × 300 grafi). **Scelta: `short_cpu`**, `--cpus-per-task=8`
+  con BLAS multi-thread abilitato (pattern degli script CPU-only di Report VII, non quello a 1 thread
+  degli script GPU). Nuovo file `scripts/r9_a4_multiway_n40.sbatch` (array di 4, un task per seed, sui
+  checkpoint `runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed{1000..4000}/last.pt`).
+  Output: `runs/report9/multiway_split/n40_pathunion_seed{S}/multiway_split.json`.
+  **Da lanciare (l'utente):**
+  ```
+  sbatch scripts/r9_a4_multiway_n40.sbatch
+  ```
+  **STATO: preparato, NON lanciato.** Nessun dato ancora.
+
+**Report `.tex` aggiornato**: nuova §\ref{sec:planpre} ("Preliminary check") prima del Thread~A per il
+sanity-check $n=46$; il paragrafo A.4 aggiornato per riflettere che il codice esiste (in attesa di
+risultati); §Status aggiornata di conseguenza. Compila pulito, **5 pagine**, 0 errori, 0 ref indefinite,
+0 overfull.
+
+**File nuovi/toccati questa sessione**: `data.py` (nuovo generatore), `eval_multiway_split.py` (nuovo),
+`scripts/r9_n46_sanity_seed{1000,2000}.sbatch` (nuovi), `scripts/r9_a4_multiway_n40.sbatch` (nuovo),
+`report/9/transformer_for_graphs_9.{tex,pdf}`, `istruzioni.md`. Nessun checkpoint toccato/scaricato in
+questa sessione (tutto smoke-testato su un checkpoint giocattolo locale, mai salvato nel repo).
+
+**Da fare in una chat futura**: lanciare i tre sbatch sopra (l'utente), poi `git pull`, poi leggere i
+json (`asym_chains.json` × 2 per il sanity-check, `multiway_split.json` × 4 per A.4) e scrivere le
+sezioni corrispondenti nel `.tex` con i dati veri. Se il sanity-check conferma $n=46$, procedere con
+A.1/A.2/A.3/A.5/B.1 (tutti ancora da disegnare in dettaglio/implementare) sempre a $n=46$.
 
 ---
 
