@@ -3857,3 +3857,648 @@ git commit -m "Update project handoff instructions"
 
 git push origin main
 ```
+
+### 16.14 Risultati tornati: split\_cycles $a=8$ + Thread A.3 (tutte le 176 combinazioni), scritti
+nello scratch (2026-07-26)
+
+**Pull**: `runs/report9/{heatmaps,stagewise}/n46_splitcycles_seed1000/` aggiornati (ora con
+$a{=}4,8,23$) e `runs/report9/threeway_splitchains/n46_splitchains_seed1000/threeway_split.csv`
+(nuovo, $176$ righe) arrivati dall'HPC.
+
+**split\_cycles $a=8$**: rigenerate `r9_stagewise_cosine_a8_n46_splitcycles.png` (via
+`plot_stagewise_diagnostics.py --heatmap_splits 4 8 23`) e una nuova figura di attention scores
+`r9_heatmap_attention_scores_n46_splitcycles_a8.png` (via `plot_mechanistic_heatmaps.py --pair 8
+23 --suffix _n46_splitcycles_a8`, per non sovrascrivere quella esistente a $(4,23)$). Entrambe
+aggiunte allo scratch `scratch_n46_singleseed_experiments.tex` accanto (non al posto di) le
+figure $a=4$ già presenti. A $a=8$ (dentro il plateau pulito $a{=}6$--$11$, exact$=1.000$) il
+$dZ_{\mathrm{mlp2}}$ sul blocco cross resta negativo ($-13.49$, corregge correttamente verso
+"disconnesso"), qualitativamente come $a=4$ ($-24.34$) ma più debole — un punto di riferimento
+"prima del break" onesto, a differenza di $a=4$ che era borderline (exact$=0.51$).
+
+**Thread A.3 (tutte le $176$ combinazioni $s_1\le s_2\le s_3$, $s_1{+}s_2{+}s_3{=}46$)** — nuovo
+script di plotting `plot_threeway_splitchains.py` (due figure: heatmap dei tre cut per ogni
+$(s_1,s_2)$, e curva riassuntiva per $s_1$), scritto nello scratch come nuova
+Sezione~4. **Risultato centrale, molto pulito**: whole-graph exact match è $0.000$ in TUTTE le
+$176$ celle (introdurre una vera terza componente rompe l'exact match sempre), ma reach resta
+$\ge0.95$ quasi ovunque — il fallimento è **sempre concentrato in UNO SOLO dei tre cut a coppie**,
+non un collasso generico. Pattern dominante: cut(comp$_2$,comp$_3$) (le due componenti NON più
+piccole) fallisce quasi ovunque ECCETTO quando $s_1{=}1$ (un nodo isolato) — cioè il modello
+riesce a distinguere due componenti "vere" fra loro solo se esiste anche una componente
+banale/priva di struttura ($s_1{=}1$) a fare da ancora; è la generalizzazione diretta, a $K{=}3$,
+del collasso short-vs-short del Thread~A.4. Anomalia degna di nota: a $s_1{=}2$ (un singolo
+edge) il pattern si INVERTE — fallisce cut(comp$_1$,comp$_3$) invece di cut(comp$_2$,comp$_3$).
+Per $s_1\gtrsim12$ (taglie quasi bilanciate) tutti e tre i cut degradano insieme.
+
+Presentate all'utente 4 celle candidate per il prossimo passo (attention scores/layerwise cosine
+geometry, ancora da fare): $(1,22,23)$ baseline pulita; $(4,15,27)$/$(7,15,24)$ caso tipico
+2-su-3 cut ok; $(2,10,34)$ l'anomalia $s_1{=}2$; $(15,15,16)$ regime bilanciato-tutto-fallisce.
+**In attesa dell'indicazione dell'utente su quali celle scegliere.**
+
+**File nuovi/toccati questa sessione**: `plot_threeway_splitchains.py` (nuovo);
+`report/9/scratch_n46_singleseed_experiments/scratch_n46_singleseed_experiments.tex` (+pdf,
+nuova Sezione~4, figure $a{=}8$ aggiunte alla Sezione~3, fix `\usepackage{amssymb}` per
+`\gtrsim`); `runs/report9/report9_figs/` (nuove figure: `r9_stagewise_cosine_a8_n46_splitcycles`,
+`r9_heatmap_attention_scores_n46_splitcycles_a8`, `r9_threeway_cut_heatmaps_...`,
+`r9_threeway_exact_and_cut_by_s1_...`, più alcuni sottoprodotti QKV/pesi non usati nel testo);
+`istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add runs/report9/report9_figs/
+git commit -m "Report IX: figures for split_cycles a=8 and the Thread A.3 three-way split-size sweep"
+
+git add plot_threeway_splitchains.py
+git commit -m "Report IX: plotting script for the Thread A.3 three-way split-size sweep"
+
+git add report/9/scratch_n46_singleseed_experiments/
+git commit -m "Report IX scratch: add split_cycles a=8 figures and Thread A.3 three-way split results"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.15 Stesso test Thread A.3, ripetuto sul checkpoint 1chain+split\_chains (2026-07-26)
+
+**Richiesta dell'utente**: ripetere IDENTICO il test del Thread~A.3 (tutte le $176$ combinazioni
+di taglie a 3 componenti, §16.13/§16.14) ma sul checkpoint $n{=}46$ trainato su
+`1chain+split_chains` (condizione (4) di questo report, mai vista con $3+$ componenti nemmeno
+lei) invece che su `split_chains`-only — per capire se il pattern trovato (exact sempre $0$,
+fallimento concentrato in un solo cut, il nodo isolato $s_1{=}1$ come unica ancora affidabile) è
+specifico della distribuzione di training più stretta o vale anche per la miscela più ricca.
+
+**Nessuna modifica di codice necessaria**: `eval_threeway_splitchains.py` è già generico
+(prende `--checkpoint` come argomento). Nuovo sbatch, identico a
+`scripts/r9_a3_splitchains_threeway_test.sbatch` a parte checkpoint e output dir:
+`scripts/r9_a3_onetwopath_threeway_test.sbatch` — checkpoint
+`runs/report9/n46_train/n46_1chain+split_chains_roberta_similarity_lam0_seed1000/last.pt`,
+output `runs/report9/threeway_splitchains/n46_onetwopath_seed1000/threeway_split.csv`. Stessi
+$176$ celle, `--n_graphs 200`, CPU-only.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_a3_onetwopath_threeway_test.sbatch
+```
+**STATO: preparato, NON lanciato.** Dopo il pull, prossimo passo: rigenerare le due figure con
+`plot_threeway_splitchains.py --tag n46_onetwopath_seed1000 --report_root report9` e confrontare
+con il pattern già visto per split\_chains-only.
+
+**File nuovi questa sessione**: `scripts/r9_a3_onetwopath_threeway_test.sbatch`, `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add scripts/r9_a3_onetwopath_threeway_test.sbatch
+git commit -m "Report IX Thread A.3: same three-way split-size test, on the 1chain+split_chains checkpoint"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.16 Thread A.3 mechanistico: attention scores + layerwise cosine geometry sulle 5 celle
+candidate (2026-07-26)
+
+**Richiesta dell'utente**: il passo successivo esplicitamente rimandato in §16.14 — attention
+scores e layerwise cosine geometry sulle celle candidate presentate ($(1,22,23)$, $(4,15,27)$ e
+$(7,15,24)$, $(2,10,34)$, $(15,15,16)$), sul checkpoint split\_chains-only.
+
+**Tre script nuovi**, generici (nessuna modifica a codice esistente), analoghi a
+`mechanistic_kway_heatmaps.py`/`stagewise_kway.py` ma per TRE componenti SEPARATE di taglia
+arbitraria (non pooled long/short come nel caso K-way):
+- `mechanistic_threeway_heatmaps.py`: attention scores/$\alpha$/Q/K/V reali per celle
+  $(s_1,s_2,s_3)$ arbitrarie (riusa `run_with_cache`/`exact_contribution` da
+  `mechanistic_asym_chains.py`, `raw_weights` da `mechanistic_heatmaps.py`, costruzione grafo via
+  `generate_multi_path_split_graph`).
+- `stagewise_threeway.py`: layerwise cosine geometry, stesse celle (riusa
+  `run_with_stages`/`_cosine_batch`/`MAIN_STAGES`/`SUBBLOCKS`/`_selftest` da
+  `stagewise_diagnostics.py`); metriche per cella: `exact`, `reach_1/2/3`, `cut_12/13/23` (stessa
+  nomenclatura di `eval_threeway_splitchains.py`, niente bucket near/far dato che le tre taglie
+  sono arbitrarie e non c'è un "long" canonico).
+- `plot_mechanistic_threeway.py` (locale, no-GPU): una figura di attention scores + una di
+  layerwise geometry PER cella (non una coppia comparativa come nel caso K-way, dato che ogni
+  cella qui è stata scelta per essere interessante di per sé), con due linee tratteggiate di
+  confine (tre blocchi, non uno).
+
+Tutti e tre smoke-testati end-to-end su un checkpoint giocattolo ($n{=}15$, celle $(1,5,9)$ e
+$(3,4,8)$) in una working dir separata sotto `/private/tmp/.../scratchpad` prima di toccare pesi
+reali; verificata visivamente la figura di layerwise geometry del checkpoint giocattolo (tre
+blocchi diagonali puliti alle taglie giuste). Nessun artefatto lasciato nel repo.
+
+**Nuovo sbatch `scripts/r9_a3_splitchains_threeway_mechanistic.sbatch`** (CPU-only,
+`short_cpu`, un solo job): checkpoint
+`runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt` (lo stesso
+del test comportamentale), le 5 celle `1,22,23 4,15,27 7,15,24 2,10,34 15,15,16` passate a
+entrambi gli script.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_a3_splitchains_threeway_mechanistic.sbatch
+```
+**STATO: preparato, NON lanciato.** Output atteso in
+`runs/report9/{heatmaps_threeway,stagewise_threeway}/n46_splitchains_seed1000/`. Dopo il pull,
+plotting locale:
+```
+python plot_mechanistic_threeway.py --tag n46_splitchains_seed1000 --report_root report9
+```
+
+**File nuovi questa sessione**: `mechanistic_threeway_heatmaps.py`, `stagewise_threeway.py`,
+`plot_mechanistic_threeway.py`, `scripts/r9_a3_splitchains_threeway_mechanistic.sbatch`,
+`istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add mechanistic_threeway_heatmaps.py stagewise_threeway.py plot_mechanistic_threeway.py \
+        scripts/r9_a3_splitchains_threeway_mechanistic.sbatch
+git commit -m "Report IX Thread A.3: attention-scores + layerwise-geometry battery for arbitrary three-way split sizes"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.17 Thread A.3 comportamentale ripetuto su 1chain+split\_chains: stessa storia, ma più
+pulita (2026-07-26)
+
+**Pull**: `runs/report9/threeway_splitchains/n46_onetwopath_seed1000/threeway_split.csv` (job
+606795) arrivato. Rigenerate le due figure con `plot_threeway_splitchains.py --tag
+n46_onetwopath_seed1000 --report_root report9`, aggiunte come nuova sottosezione~4.1 dello
+scratch subito dopo la Sezione~4 (split\_chains-only).
+
+**Risultato**: exact match ancora $0.000$ in tutte le $176$ celle. La storia centrale è
+identica (cut(comp$_2$,comp$_3$) fallisce quasi ovunque), ma **cut(1,2)/cut(1,3) sono
+nettamente più robusti** su questo checkpoint (media $0.75$--$1.0$ per $s_1{=}1$--$11$, contro
+$0.5$--$0.7$ e più rumoroso per split\_chains-only; es.\ cut(1,2)$=0.999$ a $s_1{=}11$ contro
+$0.538$) — vedere anche training singole catene intere ($k{=}1$) sembra rendere il modello
+migliore nel distinguere una componente non banale da una piccola, pur non avendo mai visto $3$
+componenti nemmeno lui. **L'anomalia $s_1{=}2$ (Headline 4) NON si ripete qui**
+(cut(1,3)$=0.947$, nessuna inversione) — suggerisce che è una proprietà specifica del checkpoint
+split\_chains-only/seed, non una regola strutturale generale. Il collasso a taglie bilanciate
+($s_1\gtrsim12$) resta invece identico su entrambi i checkpoint.
+
+Job `r9a3threemech` (606823, battery meccanicistica sulle 5 celle candidate,
+split\_chains-only) ancora in esecuzione a fine sessione — non ancora analizzato.
+
+**File toccati questa sessione**: `report/9/scratch_n46_singleseed_experiments/` (+pdf, nuova
+sottosezione~4.1); `runs/report9/report9_figs/` (`r9_threeway_cut_heatmaps_n46_onetwopath...`,
+`r9_threeway_exact_and_cut_by_s1_n46_onetwopath...`); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add report/9/scratch_n46_singleseed_experiments/ runs/report9/report9_figs/
+git commit -m "Report IX scratch: Thread A.3 three-way split-size results on the 1chain+split_chains checkpoint"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.18 Thread B: la cosine geometry di split\_cycles predice davvero "tutto connesso" o
+riconosce il nodo piccolo? Aggiunto pred\_positive\_rate + test a 3 cicli (2026-07-26)
+
+**Richiesta dell'utente**: (1) aggiungere alla Tabella~3 (sweep comportamentale $2$-cicli) la
+percentuale di predizioni positive (pred\_positive\_rate); (2) capire se il checkpoint
+split\_cycles-only ha davvero imparato "riconosci il nodo/ciclo piccolo e metti tutto il resto
+connesso" oppure collassa genuinamente a "tutto connesso" -- un test a 2 componenti non può
+distinguere le due ipotesi (con pred\_positive\_rate$=1.000$ da $a{=}12$ in poi, TUTTE le coppie
+sono predette connesse, comprese quelle dentro ogni componente, che sono banalmente corrette).
+Serve un test a 3 cicli.
+
+**(1) FATTO subito, dati già locali** (nessun nuovo job necessario): `pred_positive_rate` era già
+in `runs/report9/mechanistic/n46_splitcycles_seed1000/metrics.csv` (modo `random`, lo stesso
+usato per le altre colonne). Aggiunta colonna a Tabella~3 nello scratch: $0.88, 0.851, 0.824$ per
+$a{=}3,4,5$, media $0.701$ per $a{=}6$--$11$, poi **esattamente $1.000$ da $a{=}12$ in poi** --
+prova diretta che oltre il break il modello non fa una selettiva collasso del cut ma predice
+LETTERALMENTE ogni singola coppia del grafo (tutte le $n^2$) come connessa.
+
+**(2) Preparato codice + sbatch per il test a 3 cicli, NON ancora lanciato.** Nuova funzione
+`generate_multi_cycle_split_graph(n, sizes)` in `data.py` (analoga a
+`generate_multi_path_split_graph` ma chiudendo ogni segmento a ciclo, ogni taglia $\ge3$).
+Aggiunto `--topology {chain,cycle}` (default `chain`, retrocompatibile) a
+`eval_threeway_splitchains.py` (che ora calcola anche `pred_positive_rate` per cella, aggiunta
+richiesta esplicitamente dall'utente e utile anche per il caso chain) e a
+`stagewise_threeway.py`. Entrambi smoke-testati su un checkpoint giocattolo $n{=}18$ con
+`--topology cycle` prima di toccare pesi reali.
+
+**Nuovo sbatch `scripts/r9_b_splitcycles_threeway_test.sbatch`** (CPU-only, `short_cpu`, un solo
+job): checkpoint
+`runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed1000/last.pt`. Due passi:
+- `eval_threeway_splitchains.py --topology cycle` (min\_size$=3$ automatico): sweep
+  comportamentale COMPLETO su ogni partizione di $46$ in $3$ cicli $\ge3$ nodi ciascuno
+  ($\sim150$ celle), con `pred_positive_rate` per cella -- risponde direttamente alla domanda:
+  se il modello avesse solo imparato "piccolo vs non-piccolo", cut(1,2)/cut(1,3) dovrebbero
+  restare alti (correttamente disconnesso) mentre cut(2,3) dovrebbe fallire (i due cicli "veri"
+  confusi fra loro) -- l'esatta generalizzazione del risultato Thread~A.3 (§16.13/16.14) ai
+  cicli.
+- `stagewise_threeway.py --topology cycle` su due celle rappresentative: $(3,21,22)$ (ancora
+  banale + due cicli "veri" comparabili) e $(15,15,16)$ (bilanciato, nessuna ancora banale), per
+  layerwise cosine geometry.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_b_splitcycles_threeway_test.sbatch
+```
+**STATO: preparato, NON lanciato.** Output atteso in
+`runs/report9/threeway_splitchains/n46_splitcycles_seed1000/threeway_split.csv` e
+`runs/report9/stagewise_threeway/n46_splitcycles_seed1000/`.
+
+**Nota separata (job precedente)**: `r9a3threemech` (606823, battery meccanicistica sulle 5
+celle candidate split\_chains-only, §16.16) è COMPLETATO lato utente ma NON ancora pushato/pullato
+-- va pushato dall'HPC prima di poterlo analizzare (vedi comandi git sotto per l'output atteso in
+`runs/report9/{heatmaps_threeway,stagewise_threeway}/n46_splitchains_seed1000/`).
+
+**File nuovi/toccati questa sessione**: `data.py`, `eval_threeway_splitchains.py`,
+`stagewise_threeway.py` (modificati); `scripts/r9_b_splitcycles_threeway_test.sbatch` (nuovo);
+`report/9/scratch_n46_singleseed_experiments/scratch_n46_singleseed_experiments.tex` (+pdf,
+Tabella~3 aggiornata); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+# (a) Output del job 606823 già completato (battery meccanicistica split_chains-only, 5 celle)
+git add runs/report9/heatmaps_threeway/n46_splitchains_seed1000/ \
+        runs/report9/stagewise_threeway/n46_splitchains_seed1000/
+git commit -m "Report IX Thread A.3: attention-scores + layerwise-geometry results, 5 candidate cells"
+
+# (b) Codice nuovo/modificato per il test a 3 cicli + Tabella 3 aggiornata
+git add data.py eval_threeway_splitchains.py stagewise_threeway.py \
+        scripts/r9_b_splitcycles_threeway_test.sbatch \
+        report/9/scratch_n46_singleseed_experiments/
+git commit -m "Report IX Thread B: pred_positive_rate + three-cycle test for the split_cycles checkpoint"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.19 Thread A.3 meccanicistico scritto: collasso universale a $H_{\mathrm{attn}}^{(2)}$,
+selettivamente disfatto dalla seconda MLP (2026-07-26)
+
+**Pull**: `runs/report9/{heatmaps_threeway,stagewise_threeway}/n46_splitchains_seed1000/` (job
+606823) arrivati. Generate le 10 figure con `plot_mechanistic_threeway.py --tag
+n46_splitchains_seed1000 --report_root report9`, aggiunte come nuova sottosezione~4.2 dello
+scratch.
+
+**Risultato centrale, molto pulito**: le $5$ celle candidate passano TUTTE per un collasso
+totale IDENTICO a $H_{\mathrm{attn}}^{(2)}$ -- ogni coppia del grafo, incrociata o interna,
+predetta "connessa", esattamente pred\_positive\_rate$=1.000$ e i tre cut esattamente $0.000$,
+indipendentemente dalle taglie specifiche. Quello che cambia da cella a cella è SOLO cosa la
+seconda MLP (transizione a $H^{(2)}$) riesce a disfare: per baseline/celle tipiche rescue di
+cut(1,2)/cut(1,3) (cut(2,3) resta a $0$); per l'anomalia $s_1{=}2$ rescue di cut(1,2)/cut(2,3)
+(cut(1,3) resta a $0$, l'inversione già vista nel comportamentale); per la cella bilanciata
+$(15,15,16)$ nessun rescue completo ($0.19$--$0.25$ su tutti e tre). Stessa identica meccanica già
+stabilita in Report~VIII/Thread~A.4 (attention alza la connettività ovunque indiscriminatamente,
+la seconda MLP corregge selettivamente) -- qui dimostrata come la spiegazione letterale, cella
+per cella, di quale cut fallisce nel caso a 3 componenti.
+
+**File toccati questa sessione**: `report/9/scratch_n46_singleseed_experiments/` (+pdf, nuova
+sottosezione~4.2, 23 pagine); `runs/report9/report9_figs/` ($10$ nuove figure
+`r9_threeway_{attention,stagewise_cosine}_s*_n46_splitchains_seed1000.png`); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add report/9/scratch_n46_singleseed_experiments/ runs/report9/report9_figs/
+git commit -m "Report IX Thread A.3: mechanistic dive (attention + layerwise geometry) on the 5 candidate cells"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.20 Thread B risolto: split\_cycles-only riconosce davvero il ciclo piccolo, ma solo sotto
+una soglia di taglia identica al break del sweep a 2 cicli (2026-07-26)
+
+**Pull**: `runs/report9/{threeway_splitchains,stagewise_threeway}/n46_splitcycles_seed1000/`
+(job 607062) arrivati. Analizzato e scritto come nuova Sezione~4 dello scratch, subito dopo la
+Sezione~3 (2-cicli), come richiesto.
+
+**Risposta alla domanda originale**: split\_cycles-only training PRODUCE un meccanismo
+selettivo, non un collasso puro. Per $s_1=3$--$11$ cut(1,3) è notevolmente robusto
+($0.83$ medio a $s_1{=}3$--$5$, poi \emph{esattamente} $1.000$ per $s_1{=}6$--$11$), mentre
+cut(2,3) resta basso ($0$--$0.39$) -- il modello isola correttamente un ciclo genuinamente
+piccolo dagli altri due, pur continuando a confondere i due cicli "veri" fra loro, ESATTAMENTE
+come già trovato per le catene (Thread~A.3). **Ma a $s_1{=}12$ esatto tutto collassa
+totalmente e permanentemente** (tutti e tre i cut a $0.000$, pred\_positive\_rate a $1.000$) --
+la STESSA soglia esatta del break già visto nel semplice sweep a 2 cicli (Tabella~3, $a{=}12$),
+suggerendo che qualunque cosa determini "componente abbastanza piccola da essere riconosciuta"
+in questo checkpoint sia legata a una soglia di taglia assoluta ($\approx12$ nodi), indipendente
+dal numero di altre componenti presenti.
+
+**Meccanicisticamente**: stessa meccanica universale collasso-poi-rescue-selettivo già vista per
+le catene, ma il collasso avviene UN LAYER PRIMA -- già a $H_{\mathrm{attn}}^{(1)}$ (non
+$H_{\mathrm{attn}}^{(2)}$ come per le catene) tutto satura a pred\_positive\_rate$=1.000$ esatto,
+e resta saturo per due stage in più prima che la seconda MLP faccia il rescue selettivo (cella
+$(3,21,22)$: rescue di cut(1,2)/cut(1,3); cella $(15,15,16)$, bilanciata: nessun rescue). Coerente
+con la lettura candidata già proposta nella Sezione~3 (l'embedding di lettura di un ciclo dà a
+ogni nodo la stessa firma locale grado-2, quindi meno struttura distintiva per resistere alla
+spinta positiva broad di attention).
+
+**File toccati questa sessione**: `report/9/scratch_n46_singleseed_experiments/` (+pdf, nuova
+Sezione~4, 26 pagine, fix `\sloppypar` per un overfull hbox); `runs/report9/report9_figs/` (4
+nuove figure `r9_threeway_{cut_heatmaps,exact_and_cut_by_s1,stagewise_cosine_s3_21_22,
+stagewise_cosine_s15_15_16}_n46_splitcycles_seed1000.png`); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add report/9/scratch_n46_singleseed_experiments/ runs/report9/report9_figs/
+git commit -m "Report IX Thread B: three-cycle test analysis, written into the scratch document"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.21 Debito da §16.10 saldato: il rescale layerwise-cosine-geometry del Report VIII era
+rimasto incompleto -- ora fatto (2026-07-26)
+
+**L'utente ha notato** che il rescale $Z=\mathrm{scale}\cdot\cos+\mathrm{bias}$ deciso in §16.10
+non era mai stato applicato alle figure del Report~VIII stesso -- solo al sanity-check $n{=}46$
+e al K-way di Report~IX. Verificato: il job array `r9_stagewise_rescale_refresh.sbatch` aveva
+$6$ task (indici $0$--$5$); solo l'indice $5$ (n46 pathunion, Report~IX) era stato completato,
+gli indici $0$--$4$ (le $4$ catene + il ciclo di Report~VIII) non erano mai stati rilanciati.
+Confermato via controllo diretto dei npz (`scale`/`bias` assenti in tutti e 5 i
+`runs/report8/stagewise/.../stagewise_geometry.npz`).
+
+**Rilanciato e completato**: `sbatch --array=0-4 scripts/r9_stagewise_rescale_refresh.sbatch`
+(job 607137), pushato/pullato. ⚠️ **Conflitto minore risolto**: al pull, una vecchia copia
+LOCALE non tracciata di `runs/report8/stagewise/n40_pathunion_cycle_seed1000/` (dati pre-rescale,
+mai committata, probabilmente residuo di una sessione precedente) confliggeva con i file in
+arrivo -- spostata via (non cancellata) prima del pull, poi eliminata dopo aver confermato che i
+file pullati erano quelli corretti (con `scale`/`bias`).
+
+**Rigenerate le 4 figure** con `plot_stagewise_diagnostics.py` (catene: `--tag_glob
+"n40_pathunion_seed*" --report_root report8`; ciclo: `--tag_glob "n40_pathunion_cycle_seed*"
+--report_root report8 --suffix _cycle`) -- verificate visivamente, ora mostrano
+$Z=\mathrm{scale}\cdot\cos+\mathrm{bias}$ con lo sfondo colore corretto. **Aggiornate le 2
+didascalie** in `report/8/transformer_for_graphs_8.tex` (Figure~11/13, quella cita
+$G^X_{ij}=\cos(x_i,x_j)$, ora $Z^X_{ij}=\mathrm{scale}\cdot\cos(x_i,x_j)+\mathrm{bias}$) --
+Figure~12/14 ereditano automaticamente la descrizione via "Model/test/metric as in Figure~X".
+**Nessun numero in prosa da correggere**: i margini $M_{\mathrm{far}}$/medie di coseno citate nel
+testo (es.\ $0.790$, $-0.118$, $0.908$ ecc.) sono calcolate sul coseno grezzo indipendentemente
+dal fix (lo erano già prima), quindi restano identiche -- confermato anche dal principio
+originale di §16.10 ("stessi identici checkpoint/split/topology... metrics/margins/deltaz CSV
+escono identici, cambia solo l'npz"). Ricompilato pulito, 22 pagine, 0 errori, verificato
+visivamente.
+
+**File toccati questa sessione**: `report/8/transformer_for_graphs_8.tex` (+pdf, 2 didascalie);
+`runs/report8/report8_figs/` (12 figure rigenerate: `r8_stagewise_{cosine,deltaz}_a{4,20}
+{,_cycle}.png`, `r8_stagewise_{far_reach,margin}{,_cycle}.png`); `runs/report8/stagewise/` (5
+npz aggiornati, già pushati dall'utente prima di questa sessione di analisi); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add report/8/transformer_for_graphs_8.tex report/8/transformer_for_graphs_8.pdf \
+        runs/report8/report8_figs/r8_stagewise_cosine_a4.png \
+        runs/report8/report8_figs/r8_stagewise_cosine_a20.png \
+        runs/report8/report8_figs/r8_stagewise_cosine_a4_cycle.png \
+        runs/report8/report8_figs/r8_stagewise_cosine_a20_cycle.png \
+        runs/report8/report8_figs/r8_stagewise_deltaz_a4.png \
+        runs/report8/report8_figs/r8_stagewise_deltaz_a20.png \
+        runs/report8/report8_figs/r8_stagewise_deltaz_a4_cycle.png \
+        runs/report8/report8_figs/r8_stagewise_deltaz_a20_cycle.png \
+        runs/report8/report8_figs/r8_stagewise_far_reach.png \
+        runs/report8/report8_figs/r8_stagewise_far_reach_cycle.png \
+        runs/report8/report8_figs/r8_stagewise_margin.png \
+        runs/report8/report8_figs/r8_stagewise_margin_cycle.png
+git commit -m "Report VIII: rescale layerwise cosine geometry figures to Z=scale*cos+bias (completes the §16.10 rescale plan)"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.22 Nuova ablazione: retrain split\_chains-only SENZA scale/bias nel readout similarity
+(2026-07-26)
+
+**Richiesta dell'utente**: ripetere l'esperimento a 3 componenti di §5.2 dello scratch (Thread
+A.3), ma con un RETRAIN identico in tutto tranne che nel readout: togliere scale e bias,
+lasciando SOLO $\cos(h_i,h_j)$ come logit (niente trasformazione affine, imparata o no).
+
+**Codice modificato (minimo, massimo riuso)**: nuovo campo `ModelConfig.sim_learnable: bool =
+True` in `model.py`. Quando `False` (solo rilevante per `readout=="similarity"`), `sim_scale`/
+`sim_bias` vengono creati con `requires_grad=False` e inizializzati a $1.0$/$0.0$ (invece di
+$10.0$/$0.0$) e non vengono MAI aggiornati durante il training -- quindi il logit resta
+ESATTAMENTE $\cos(h_i,h_j)$ per tutta la durata. Applicato a ENTRAMBE le classi
+(`RobertaGraphTransformer` e `GraphConnectivityTransformer`, stesso pattern in entrambe).
+Nuovo flag `--sim_fixed` in `experiments2/train_families_n20.py` (valido solo con `--readout
+similarity`), che passa `sim_learnable=not args.sim_fixed`; il tag nel run-name diventa
+`similarityfixed` invece di `similarity` così i checkpoint restano distinguibili.
+
+**Perché questo è sufficiente, zero modifiche agli script di analisi esistenti**: `sim_scale`/
+`sim_bias` restano veri parametri nn.Parameter (solo con gradiente disattivato) e vengono
+salvati/caricati nel checkpoint esattamente come prima -- `eval_families.py::load_model` li
+legge direttamente dal checkpoint (qui $1.0$/$0.0$), quindi `mechanistic_asym_chains.py`,
+`mechanistic_heatmaps.py`, `stagewise_diagnostics.py`, `eval_threeway_splitchains.py` ecc.
+funzionano TUTTI senza modifiche -- il caso `sim\_fixed` è semplicemente il caso speciale
+$Z=1\cdot\cos+0=\cos$ delle stesse formule già scritte.
+
+**Smoke-testato end-to-end** in una working dir separata sotto `/private/tmp/.../scratchpad`:
+verificato che `requires_grad=False` blocchi davvero l'aggiornamento (backward + `AdamW.step()`
+non spostano scale/bias da $1.0$/$0.0$), un training giocattolo di 8 step completa senza
+errori, il checkpoint salvato ha `sim_learnable=False` nel `model_config` e
+`sim_scale=1.0,sim_bias=0.0` nel `model_state_dict`, e `eval_families.load_model` lo carica
+correttamente (`readout="similarity"`, valori giusti). Nessun artefatto lasciato nel repo.
+
+**Nuovo sbatch `scripts/r9_n46_splitchains_simfixed_seed1000.sbatch`** (GPU per il training,
+poi eval CPU-cheap sulla stessa allocation, come l'originale): stesso identico setup di
+`scripts/r9_n46_splitchains_seed1000.sbatch` (famiglia `split_chains`, $n{=}46$, seed $1000$,
+$10^6$ step/batch $1000$) più `--sim_fixed`. Testing: la STESSA batteria dell'originale
+(`eval_asym_chains.py` + `mechanistic_asym_chains.py --attn_splits 4 23` +
+`mechanistic_heatmaps.py --splits 4 23` + `stagewise_diagnostics.py --splits 4 23`) PIÙ
+`eval_threeway_splitchains.py` (il test a 3 componenti di §5.2, tutte le $176$ combinazioni) --
+esattamente l'esperimento richiesto. Il deep-dive meccanicistico (attention scores/layerwise
+geometry su celle specifiche a 3 componenti) NON è incluso qui -- va fatto come passo separato
+dopo aver visto questi numeri comportamentali, come per il checkpoint originale.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_n46_splitchains_simfixed_seed1000.sbatch
+```
+**STATO: preparato, NON lanciato.** Output atteso in
+`runs/report9/n46_train/n46_split_chains_roberta_similarityfixed_lam0_seed1000/`,
+`runs/report9/{asym_chains_n46,mechanistic,heatmaps,stagewise,threeway_splitchains}/
+n46_splitchains_simfixed_seed1000/`.
+
+**File nuovi/toccati questa sessione**: `model.py`, `experiments2/train_families_n20.py`
+(modificati); `scripts/r9_n46_splitchains_simfixed_seed1000.sbatch` (nuovo); `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add model.py experiments2/train_families_n20.py scripts/r9_n46_splitchains_simfixed_seed1000.sbatch
+git commit -m "Report IX ablation: frozen scale=1/bias=0 similarity readout (--sim_fixed), sbatch to retrain split_chains-only + full battery"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.23 Grande giro pre-manutenzione HPC (27 luglio, 09:00-18:00 CEST, tutto il cluster giù):
+17 nuovi sbatch + 3 nuove famiglie controllate + generalizzazione parziale a L layers +
+script AUROC/clustering (2026-07-26)
+
+**Contesto**: l'utente parte domani senza portatile; la mamma lancerà i job via SSH dal
+telefono/altro dispositivo, quindi serve una lista di comandi `sbatch ...` completamente
+copia-incollabili, uno per riga, senza alcuna logica condizionale. Ogni sbatch quindi
+DEVE essere completamente autosufficiente (training + tutto il testing bundled in un solo
+script, stesso pattern già usato tutta la sessione).
+
+**Job cancellato dall'utente**: 607225 (il retrain sim\_fixed originale) non sarebbe partito
+prima della finestra di manutenzione (tutto il cluster riservato lunedì 27/7 09:00-18:00
+CEST) -- verrà rilanciato dalla lista sotto.
+
+**(1) Codice nuovo/generalizzato, tutto smoke-testato su checkpoint giocattolo prima di
+toccare pesi reali:**
+- `data.py`: tre nuovi generatori --
+  `generate_split_cliques_asym_graph(n, short_len)` (due clique COMPLETE di taglie
+  asimmetriche, copre tutti gli n nodi -- diverso da `generate_split_cliques_graph` che ha
+  taglia fissa uguale + padding isolato);
+  `generate_chorded_cycles_graph(n, short_len)` (due cicli con UN chord ciascuno, esattamente
+  2 nodi di grado 3 per ciclo, richiede taglia $\ge4$);
+  `generate_split_regular_graph(n, d, short_len, rng)` (due grafi $d$-regolari CONNESSI via
+  `networkx.random_regular_graph` + retry su sconnessione, ogni blocco deve avere taglia pari
+  e $>d$ per $d=3$). Profilata la velocità di `networkx` (~0.07ms/chiamata) -- nessun problema
+  di performance per lo stream online.
+- `experiments2/train_families_n20.py`: tre nuove famiglie nominate --
+  `split_cliques`/`chorded_cycles`/`split_regular3` (stesso pattern di
+  `split_chains`/`split_cycles`: uno split casuale ogni campione). Aggiornata la lista
+  famiglie note per la validazione CLI.
+- `mechanistic_asym_chains.py`: `_TOPOLOGY_GENERATORS` esteso con le 3 nuove topologie (più
+  `_split_regular3` wrapper a seed fisso $12345$, dato che il generatore è intrinsecamente
+  random e va reso un singolo grafo canonico per split come le altre topologie); `--topology`
+  choices estese; **fix di feasibility**: `min_a`/lo split-range di default ora dipendono
+  dalla topologia (`chorded_cycles`/`split_regular3` richiedono $\ge4$; `split_regular3`
+  richiede ANCHE taglie pari -- prima usava lo stesso `range(1, n//2+1)` di chain, che
+  avrebbe fatto crashare il default sweep su queste due topologie).
+- `mechanistic_heatmaps.py`: ora importa `_TOPOLOGY_GENERATORS` da `mechanistic_asym_chains.py`
+  invece di duplicarlo (elimina la doppia fonte di verità); stesse choices estese;
+  **generalizzato da `for li in (0, 1)` (hardcoded 2 layer) a `for li in
+  range(len(model.blocks))`** -- verificato che per L=2 l'output resta identico (nessuna
+  regressione) e per L=3 ora salva correttamente tutti e 3 i layer.
+- `stagewise_diagnostics.py`: stesse choices `--topology` estese (il dict è condiviso via
+  import, nessun'altra modifica). **NON generalizzato a L layers**: `MAIN_STAGES`/`SUBBLOCKS`
+  restano hardcoded per $L=2$ -- per un checkpoint a 3 layer chiamarlo produrrebbe un H2
+  etichettato erroneamente come "finale" quando in realtà è solo uno stage intermedio. Non
+  urgente (è locale/no-GPU, si può fare con calma quando il checkpoint L3 esiste).
+- `auroc_cluster_probe.py` (NUOVO): "the components are encoded but not decoded" --
+  AUROC (within vs cross cosine, senza soglia), soglia ottimale cercata direttamente vs.
+  accuratezza della soglia REALE del modello sulle stesse coppie, e K-means (K noto) sugli
+  embedding finali confrontato via adjusted Rand index contro le label vere delle componenti.
+  Generico: `--topology X --split a` (2 componenti, ogni topologia registrata) oppure
+  `--sizes s1 s2 ... --kway_topology chain|cycle` (K componenti arbitrarie). Puramente
+  locale/CPU, NON richiede il cluster -- può girare in qualsiasi momento su QUALSIASI
+  checkpoint già esistente, non solo su quelli nuovi di questa sessione.
+
+**(2) 17 nuovi sbatch, tutti smoke-testati (sintassi bash + dry-run dei componenti Python),
+NON lanciati:**
+
+*A. Semi aggiuntivi su esperimenti già esistenti (stessa architettura/batteria di prima):*
+- `r9_n46_splitchains_simfixed_seed2000.sbatch` -- sim\_fixed (niente scale/bias), secondo
+  seed, stessa batteria del seed1000 originale (compreso il test a 3 componenti di sec 5.2).
+- `r9_n46_pathunion_seed3000.sbatch` / `..._seed4000.sbatch` -- $2$ semi in più per il
+  sanity-check base $n{=}46$ path\_union (che finora ne aveva solo $2$), stavolta con la
+  BATTERIA COMPLETA fin da subito (a differenza dei primi due semi, che inizialmente avevano
+  solo il quick-check e la batteria completa fu aggiunta dopo a mano).
+- `r9_n46_splitchains_seed{2000,3000,4000}.sbatch` -- $3$ semi in più per split\_chains-only.
+- `r9_n46_splitcycles_seed{2000,3000,4000}.sbatch` -- $3$ semi in più per split\_cycles-only.
+
+*B. split\_chains-only, $n\_layers{=}3$ invece di 2, $2$ semi:*
+- `r9_n46_splitchains_L3_seed{1000,2000}.sbatch` -- stesso training di
+  `r9_n46_splitchains_seed1000.sbatch` con `--n_layers 3`. Testing: batteria propria (own
+  family) CON attention scores (ora generalizzate a $L$ layer) PIÙ test OOD sui 2-cicli (mai
+  visti in training, stesso pattern del test di falsificazione originale di Report~VIII).
+  **Layerwise cosine geometry NON inclusa** (richiederebbe generalizzare
+  `stagewise_diagnostics.py` a $L$ layer, non ancora fatto -- vedi sopra).
+
+*C. Tre nuove distribuzioni controllate, $2$ semi ciascuna ($6$ job), ordine di lettura
+suggerito clique $\to$ chorded\_cycles $\to$ split\_regular3:*
+- `r9_n46_split_cliques_seed{1000,2000}.sbatch` -- due clique di taglie diverse (il grado
+  rivela banalmente la taglia della componente).
+- `r9_n46_chorded_cycles_seed{1000,2000}.sbatch` -- due cicli con un chord ciascuno (landmark
+  che rompe la simmetria, ma niente endpoint aperto).
+- `r9_n46_split_regular3_seed{1000,2000}.sbatch` -- due grafi 3-regolari connessi (nessun
+  grado distintivo, nessun landmark, nessun endpoint -- il controllo più pulito).
+
+**STATO: tutti e 17 preparati, smoke-testati, NON lanciati.**
+
+**Da lanciare (la mamma dell'utente, via SSH, semplice copia-incolla riga per riga, nessuna
+attesa fra un job e l'altro -- sono tutti indipendenti):**
+```
+sbatch scripts/r9_n46_splitchains_simfixed_seed2000.sbatch
+sbatch scripts/r9_n46_pathunion_seed3000.sbatch
+sbatch scripts/r9_n46_pathunion_seed4000.sbatch
+sbatch scripts/r9_n46_splitchains_seed2000.sbatch
+sbatch scripts/r9_n46_splitchains_seed3000.sbatch
+sbatch scripts/r9_n46_splitchains_seed4000.sbatch
+sbatch scripts/r9_n46_splitcycles_seed2000.sbatch
+sbatch scripts/r9_n46_splitcycles_seed3000.sbatch
+sbatch scripts/r9_n46_splitcycles_seed4000.sbatch
+sbatch scripts/r9_n46_splitchains_L3_seed1000.sbatch
+sbatch scripts/r9_n46_splitchains_L3_seed2000.sbatch
+sbatch scripts/r9_n46_split_cliques_seed1000.sbatch
+sbatch scripts/r9_n46_split_cliques_seed2000.sbatch
+sbatch scripts/r9_n46_chorded_cycles_seed1000.sbatch
+sbatch scripts/r9_n46_chorded_cycles_seed2000.sbatch
+sbatch scripts/r9_n46_split_regular3_seed1000.sbatch
+sbatch scripts/r9_n46_split_regular3_seed2000.sbatch
+```
+Nota: la coda `gpuh200` risultava già molto occupata (job di altri utenti in attesa anche
+fuori dalla finestra di manutenzione) -- questi 17 job accoderanno e partiranno quando le
+risorse si liberano dopo la manutenzione, non serve fare nulla di speciale.
+
+**`auroc_cluster_probe.py` NON è nella lista sopra** -- non serve l'HPC, gira ovunque su
+checkpoint già esistenti; da usare con calma quando si torna, non urgente stasera.
+
+**File nuovi/toccati questa sessione**: `data.py`, `mechanistic_asym_chains.py`,
+`mechanistic_heatmaps.py`, `stagewise_diagnostics.py`, `experiments2/train_families_n20.py`
+(modificati); `auroc_cluster_probe.py` (nuovo); 17 nuovi sbatch in `scripts/`; `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente, PRIMA che la mamma li lanci -- gli sbatch
+devono essere committati e pushati e poi pullati sull'HPC prima di poter essere lanciati):*
+```
+git add data.py mechanistic_asym_chains.py mechanistic_heatmaps.py stagewise_diagnostics.py \
+        experiments2/train_families_n20.py auroc_cluster_probe.py \
+        scripts/r9_n46_splitchains_simfixed_seed2000.sbatch \
+        scripts/r9_n46_pathunion_seed3000.sbatch scripts/r9_n46_pathunion_seed4000.sbatch \
+        scripts/r9_n46_splitchains_seed2000.sbatch scripts/r9_n46_splitchains_seed3000.sbatch \
+        scripts/r9_n46_splitchains_seed4000.sbatch \
+        scripts/r9_n46_splitcycles_seed2000.sbatch scripts/r9_n46_splitcycles_seed3000.sbatch \
+        scripts/r9_n46_splitcycles_seed4000.sbatch \
+        scripts/r9_n46_splitchains_L3_seed1000.sbatch scripts/r9_n46_splitchains_L3_seed2000.sbatch \
+        scripts/r9_n46_split_cliques_seed1000.sbatch scripts/r9_n46_split_cliques_seed2000.sbatch \
+        scripts/r9_n46_chorded_cycles_seed1000.sbatch scripts/r9_n46_chorded_cycles_seed2000.sbatch \
+        scripts/r9_n46_split_regular3_seed1000.sbatch scripts/r9_n46_split_regular3_seed2000.sbatch
+git commit -m "Report IX: pre-maintenance batch -- 17 sbatch (extra seeds, 3-layer ablation, 3 controlled-distribution families) + AUROC/clustering probe"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+*Poi sull'HPC (git pull prima di lanciare):*
+```
+git pull
+```
