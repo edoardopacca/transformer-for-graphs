@@ -156,6 +156,10 @@ def main():
     ap.add_argument("--families", default="mixed", help="'er' (Set A) or 'mixed' (Set B)")
     ap.add_argument("--arch", choices=["roberta", "minimal"], default="roberta")
     ap.add_argument("--readout", choices=["linear", "similarity"], default="linear")
+    ap.add_argument("--sim_fixed", action="store_true",
+                    help="only with --readout similarity: freeze scale=1/bias=0 for the "
+                         "whole training (no affine transform, logit = raw cos(h_i,h_j)) "
+                         "instead of learning them (Report IX ablation)")
     ap.add_argument("--lambda_lap", type=float, default=0.0)
     ap.add_argument("--lap_warmup_start", type=int, default=50_000)
     ap.add_argument("--lap_warmup_ramp", type=int, default=50_000)
@@ -190,9 +194,12 @@ def main():
     if args.include_bridged:
         families = families + ["bridged", "split"]
         fam_tag = fam_tag + "br"
+    if args.sim_fixed and args.readout != "similarity":
+        raise ValueError("--sim_fixed only makes sense with --readout similarity")
     lam_tag = f"lam{args.lambda_lap:g}" if args.lambda_lap > 0 else "lam0"
     L_tag = "" if args.n_layers == 2 else f"_L{args.n_layers}"
-    run_name = f"n{n}_{fam_tag}_{args.arch}_{args.readout}_{lam_tag}{L_tag}_seed{args.seed}"
+    readout_tag = f"{args.readout}fixed" if args.sim_fixed else args.readout
+    run_name = f"n{n}_{fam_tag}_{args.arch}_{readout_tag}_{lam_tag}{L_tag}_seed{args.seed}"
     out_dir = Path(args.output_root) / run_name
     ensure_dir(out_dir)
 
@@ -202,12 +209,13 @@ def main():
     mcfg = ModelConfig(n=n, d_model=512, n_heads=1, d_ff=2048, n_layers=args.n_layers,
                        dropout=0.1 if is_roberta else 0.0, attn_kind="normalized_relu",
                        norm_style="post" if is_roberta else "pre",
-                       layer_norm_eps=1e-5, init_std=0.02, readout=args.readout)
+                       layer_norm_eps=1e-5, init_std=0.02, readout=args.readout,
+                       sim_learnable=not args.sim_fixed)
     Cls = RobertaGraphTransformer if is_roberta else GraphConnectivityTransformer
     model = Cls(mcfg).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"== {run_name} ==\n device={device} arch={args.arch} readout={args.readout} "
-          f"lambda={args.lambda_lap} params={n_params:,}", flush=True)
+          f"sim_fixed={args.sim_fixed} lambda={args.lambda_lap} params={n_params:,}", flush=True)
 
     opt = AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     criterion = nn.BCEWithLogitsLoss()

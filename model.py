@@ -32,6 +32,12 @@ class ModelConfig:
     #   "similarity" -> R_ij = scale * <h_i_norm, h_j_norm> + bias  (spectral /
     #                   Laplacian-style: connectivity == embedding similarity).
     readout: str = "linear"
+    # Only relevant when readout == "similarity". Default True: scale/bias are learned
+    # parameters (init 10.0/0.0). False (Report IX ablation): scale/bias are FROZEN at
+    # 1.0/0.0 for the entire training, so the logit is exactly cos(h_i,h_j), no affine
+    # transform at all -- tests whether the model needs a learnable decision margin or can
+    # solve the task with the raw cosine range [-1,1] as its logit.
+    sim_learnable: bool = True
 
 
 class MultiHeadSelfAttention(nn.Module):
@@ -111,8 +117,10 @@ class GraphConnectivityTransformer(nn.Module):
         self.readout_kind = getattr(config, "readout", "linear")
         if self.readout_kind == "similarity":
             # connectivity == cosine similarity of node embeddings
-            self.sim_scale = nn.Parameter(torch.tensor(10.0))
-            self.sim_bias = nn.Parameter(torch.tensor(0.0))
+            learnable = getattr(config, "sim_learnable", True)
+            init_scale = 10.0 if learnable else 1.0
+            self.sim_scale = nn.Parameter(torch.tensor(init_scale), requires_grad=learnable)
+            self.sim_bias = nn.Parameter(torch.tensor(0.0), requires_grad=learnable)
         else:
             self.read_out = nn.Linear(config.d_model, config.n)
 
@@ -313,8 +321,10 @@ class RobertaGraphTransformer(nn.Module):
         self.readout_kind = getattr(config, "readout", "linear")
         if self.readout_kind == "similarity":
             # connectivity == cosine similarity of node embeddings (spectral view)
-            self.sim_scale = nn.Parameter(torch.tensor(10.0))
-            self.sim_bias = nn.Parameter(torch.tensor(0.0))
+            learnable = getattr(config, "sim_learnable", True)
+            init_scale = 10.0 if learnable else 1.0
+            self.sim_scale = nn.Parameter(torch.tensor(init_scale), requires_grad=learnable)
+            self.sim_bias = nn.Parameter(torch.tensor(0.0), requires_grad=learnable)
         else:
             self.read_out = nn.Linear(config.d_model, config.n)
         self.apply(self._init_weights)
