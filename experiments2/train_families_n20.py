@@ -41,7 +41,9 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_two_cycles_graph, generate_one_chain_graph,
                   generate_path_union_graph, generate_blocks_graph,
                   generate_bridged_cliques_graph, generate_split_cliques_graph,
-                  generate_split_chains_graph, generate_split_cycles_graph)
+                  generate_split_chains_graph, generate_split_cycles_graph,
+                  generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
+                  generate_split_regular_graph)
 from model import (GraphConnectivityTransformer, RobertaGraphTransformer,
                    ModelConfig, laplacian_smoothness)
 from utils import ensure_dir, get_device, save_json, set_seed
@@ -77,6 +79,21 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "split_cycles":
         short_len = int(rng.integers(3, n - 2))                 # 3..n-3, each cycle needs >=3
         a = generate_split_cycles_graph(n, short_len)
+    # Report IX controlled-distribution battery (2026-07-26): three narrow, explicitly-named
+    # families isolating WHICH structural cue lets asymmetric splits get solved -- global
+    # degree (split_cliques), a single symmetry-breaking landmark short of an open endpoint
+    # (chorded_cycles), or neither (split_regular3, every node identical degree everywhere).
+    elif kind == "split_cliques":
+        short_len = int(rng.integers(1, n))                     # 1..n-1
+        a = generate_split_cliques_asym_graph(n, short_len)
+    elif kind == "chorded_cycles":
+        short_len = int(rng.integers(4, n - 3))                 # 4..n-4, each cycle needs >=4
+        a = generate_chorded_cycles_graph(n, short_len)
+    elif kind == "split_regular3":
+        feasible = [s for s in range(4, n - 3)
+                    if s % 2 == 0 and (n - s) % 2 == 0 and (n - s) > 3]
+        short_len = int(rng.choice(feasible))
+        a = generate_split_regular_graph(n, 3, short_len, rng)
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -185,11 +202,12 @@ def main():
         families = ["er"]; fam_tag = "er"
     else:
         families = [f.strip() for f in args.families.split(",") if f.strip()]
-        unknown = [f for f in families
-                   if f not in (MIXED_FAMILIES + ["bridged", "split", "split_chains", "split_cycles"])]
+        known_extra = ["bridged", "split", "split_chains", "split_cycles",
+                       "split_cliques", "chorded_cycles", "split_regular3"]
+        unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
-                             f"{MIXED_FAMILIES + ['bridged', 'split']}")
+                             f"{MIXED_FAMILIES + known_extra}")
         fam_tag = "+".join(families)
     if args.include_bridged:
         families = families + ["bridged", "split"]

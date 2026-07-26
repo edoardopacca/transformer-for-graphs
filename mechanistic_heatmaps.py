@@ -32,15 +32,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import add_self_loops, generate_split_chains_graph, generate_split_cycles_graph
+from data import add_self_loops
 from eval_families import load_model
-from mechanistic_asym_chains import run_with_cache, exact_contribution
-
-# Report VIII: same --topology dispatch as mechanistic_asym_chains.py, so the
-# heatmap probe (weights, attention scores/alpha, exact contribution) can be
-# run on the two-cycles graphs with no other code change.
-_TOPOLOGY_GENERATORS = {"chain": generate_split_chains_graph,
-                        "cycle": generate_split_cycles_graph}
+from mechanistic_asym_chains import run_with_cache, exact_contribution, _TOPOLOGY_GENERATORS
 
 
 def _device():
@@ -77,7 +71,7 @@ def heatmap_probe(model, dev, n, splits, rng, n_graphs, contrib_n_graphs=8, topo
             return o.mean(0)
 
         d = {}
-        for li in (0, 1):
+        for li in range(len(model.blocks)):
             q, k, v = cache[f"layer{li}_q"], cache[f"layer{li}_k"], cache[f"layer{li}_v"]
             alpha = cache[f"layer{li}_alpha"]
             wo_v = cache[f"layer{li}_wo_v"]
@@ -142,9 +136,13 @@ def main():
                          "(Jacobian norm) -- kept small, it is O(n) backward passes/graph")
     ap.add_argument("--splits", type=int, nargs="+", default=None,
                     help="representative splits; default 1,4,7,8,10,14,17,20")
-    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
+    ap.add_argument("--topology",
+                    choices=["chain", "cycle", "split_cliques", "chorded_cycles", "split_regular3"],
+                    default="chain",
                     help="chain = two disjoint paths (Report VI/VII); cycle = two "
-                         "disjoint cycles, same split, no path endpoints (Report VIII)")
+                         "disjoint cycles, same split, no path endpoints (Report VIII); "
+                         "split_cliques/chorded_cycles/split_regular3 = Report IX "
+                         "controlled-distribution battery")
     ap.add_argument("--seed", type=int, default=12345)
     args = ap.parse_args()
 

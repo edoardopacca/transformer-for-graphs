@@ -51,8 +51,19 @@ import torch.nn.functional as F
 
 from data import (add_self_loops, compute_connectivity_matrix,
                   compute_all_pairs_shortest_paths, generate_split_chains_graph,
-                  generate_split_cycles_graph)
+                  generate_split_cycles_graph, generate_split_cliques_asym_graph,
+                  generate_chorded_cycles_graph, generate_split_regular_graph)
 from eval_families import load_model
+
+
+def _split_regular3(n, a):
+    """Fixed-seed wrapper so the (random) 3-regular generator fits the (n, a) ->
+    adjacency signature every other topology here uses -- ONE canonical 3-regular
+    pair of blocks per split size, permuted for relabelling like every other
+    topology, not a fresh random draw per call (this is a mechanistic PROBE on a
+    representative graph, not the online training stream)."""
+    return generate_split_regular_graph(n, 3, a, np.random.default_rng(12345))
+
 
 # Report VIII: --topology cycle swaps every "two disjoint paths, split (a, n-a)"
 # graph in this script for "two disjoint CYCLES, split (a, n-a)" (same split
@@ -60,8 +71,13 @@ from eval_families import load_model
 # Kept as a single dispatch point so every downstream function (behavioural
 # sweep, readout decomposition, attention probe) works unchanged for either
 # topology, rather than duplicating this whole file for one graph-generator swap.
+# Report IX (controlled-distribution battery): three more topologies added the
+# same way -- split_cliques/chorded_cycles/split_regular3.
 _TOPOLOGY_GENERATORS = {"chain": generate_split_chains_graph,
-                        "cycle": generate_split_cycles_graph}
+                        "cycle": generate_split_cycles_graph,
+                        "split_cliques": generate_split_cliques_asym_graph,
+                        "chorded_cycles": generate_chorded_cycles_graph,
+                        "split_regular3": _split_regular3}
 
 
 def _build_split_graph(n, a, topology):
@@ -533,10 +549,15 @@ def main():
                     help="split range for the dense behavioural/readout sweep; default 1..n//2")
     ap.add_argument("--attn_splits", type=int, nargs="+", default=None,
                     help="representative splits for the (heavier) attention probe")
-    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
+    ap.add_argument("--topology",
+                    choices=["chain", "cycle", "split_cliques", "chorded_cycles", "split_regular3"],
+                    default="chain",
                     help="chain = two disjoint paths, split (a, n-a) (Report VI/VII); "
                          "cycle = the same split but each segment closed into a cycle, "
-                         "so neither component has a degree-1 path endpoint (Report VIII)")
+                         "so neither component has a degree-1 path endpoint (Report VIII); "
+                         "split_cliques/chorded_cycles/split_regular3 = Report IX controlled-"
+                         "distribution battery (degree signature / single landmark / no "
+                         "landmark at all controls)")
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--skip_selftest", action="store_true")
     args = ap.parse_args()
@@ -553,9 +574,18 @@ def main():
         _selftest(model, dev, n)
         _selftest_exact_contribution(dev)
 
-    # a cycle needs >= 3 nodes per component; a chain's smallest component is 1 node.
-    min_a = 3 if args.topology == "cycle" else 1
-    splits = args.splits if args.splits is not None else list(range(min_a, n // 2 + 1))
+    # a cycle needs >= 3 nodes per component; a chorded cycle / 3-regular block needs >= 4;
+    # a chain's smallest component is 1 node. split_regular3 additionally requires EVEN
+    # block sizes (d*size must be even for d=3) -- filtered out of every candidate list below.
+    _MIN_A = {"cycle": 3, "chorded_cycles": 4, "split_regular3": 4}
+    min_a = _MIN_A.get(args.topology, 1)
+
+    def _feasible(candidates):
+        if args.topology == "split_regular3":
+            return [s for s in candidates if s % 2 == 0 and (n - s) % 2 == 0]
+        return list(candidates)
+
+    splits = args.splits if args.splits is not None else _feasible(range(min_a, n // 2 + 1))
     # 11, 12, 13 added (istruzioni.md errore 62): the leak-fraction spike found at a=10
     # (Report VII fig:r7attn) was left unresolved because the next probed split jumped
     # straight to 14 -- always probe the immediate neighbours of an interesting point in
@@ -568,7 +598,8 @@ def main():
     rows = behavioural_sweep(model, dev, n, splits, rng, args.n_graphs, fixed_label=False,
                               topology=args.topology)
     print("\n== fixed-label comparison (identity permutation, confirmatory only) ==")
-    fixed_splits = sorted({s for s in (1, 4, 7, 8, 10, 17, n // 2) if min_a <= s <= n // 2})
+    fixed_splits = sorted({s for s in _feasible((1, 4, 7, 8, 10, 17, n // 2))
+                           if min_a <= s <= n // 2})
     rows += behavioural_sweep(model, dev, n, fixed_splits, rng, args.n_graphs, fixed_label=True,
                               topology=args.topology)
     with (out / "metrics.csv").open("w", newline="") as f:

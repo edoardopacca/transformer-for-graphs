@@ -223,9 +223,12 @@ def main():
     ap.add_argument("--cap", type=int, default=9)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--skip_selftest", action="store_true")
-    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain",
-                    help="chain (default, every two-chain result since Report VI) or cycle "
-                         "(report/8 sec:cycles -- each segment closed into a ring)")
+    ap.add_argument("--topology",
+                    choices=["chain", "cycle", "split_cliques", "chorded_cycles", "split_regular3"],
+                    default="chain",
+                    help="chain (default, every two-chain result since Report VI), cycle "
+                         "(report/8 sec:cycles), or the Report IX controlled-distribution "
+                         "battery: split_cliques/chorded_cycles/split_regular3")
     args = ap.parse_args()
 
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)

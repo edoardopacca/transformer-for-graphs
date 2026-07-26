@@ -153,6 +153,91 @@ def generate_multi_cycle_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarr
     return adj
 
 
+def generate_split_cliques_asym_graph(n: int, short_len: int) -> np.ndarray:
+    """Two disjoint COMPLETE cliques partitioning ALL n nodes into components of size
+    ``short_len`` and ``n - short_len`` -- the clique analogue of
+    ``generate_split_chains_graph``/``generate_split_cycles_graph`` (Report IX, controlled-
+    distribution battery). Unlike ``generate_split_cliques_graph`` (fixed EQUAL clique size,
+    isolated padding for the remainder), this covers every node and allows an asymmetric
+    split, so the (a, n-a) sweep used throughout this project applies unchanged. Every node's
+    DEGREE immediately reveals its component's size (degree = component size - 1) -- the
+    control this family is FOR: if imbalanced splits are solved easily here, the model can be
+    using a trivial global degree signature, not anything endpoint- or landmark-specific.
+    Requires each clique to have >=1 node (a size-1 clique is an isolated node, no internal
+    edges). No self-loops; node order NOT permuted (permute at the call site)."""
+    if not 1 <= short_len <= n - 1:
+        raise ValueError(f"split requires 1 <= short_len <= n-1, got {short_len} (n={n})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in ((0, short_len), (short_len, n)):
+        idx = np.arange(a, b)
+        adj[np.ix_(idx, idx)] = 1.0
+    np.fill_diagonal(adj, 0.0)
+    return adj
+
+
+def generate_chorded_cycles_graph(n: int, short_len: int) -> np.ndarray:
+    """Two disjoint CYCLES partitioning ALL n nodes into components of size ``short_len``
+    and ``n - short_len``, EACH with one additional CHORD edge connecting two
+    (approximately) opposite nodes within that cycle -- Report IX's middle rung between
+    plain cycles (no distinguishing landmark at all) and paths (two degree-1 endpoints):
+    exactly 2 nodes per cycle get degree 3 (a landmark that breaks the cycle's rotational
+    symmetry) while every other node keeps degree 2 and neither cycle has an open endpoint.
+    Isolates whether ANY symmetry-breaking landmark is enough for the completion signal, or
+    whether path ENDPOINTS specifically are needed. Each cycle needs >=4 nodes (the smallest
+    cycle with a non-adjacent pair to chord). No self-loops; node order NOT permuted (permute
+    at the call site)."""
+    if short_len < 4 or n - short_len < 4:
+        raise ValueError(f"each chorded cycle needs >=4 nodes, got short_len={short_len}, "
+                          f"n-short_len={n - short_len} (n={n})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in ((0, short_len), (short_len, n)):
+        size = b - a
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+        adj[a, b - 1] = 1.0                  # close the cycle
+        adj[b - 1, a] = 1.0
+        chord_j = a + size // 2              # ~opposite node, always non-adjacent for size>=4
+        adj[a, chord_j] = 1.0
+        adj[chord_j, a] = 1.0
+    return adj
+
+
+def generate_split_regular_graph(n: int, d: int, short_len: int,
+                                 rng: np.random.Generator) -> np.ndarray:
+    """Two disjoint, CONNECTED, ``d``-regular random graphs partitioning ALL n nodes into
+    components of size ``short_len`` and ``n - short_len`` -- Report IX's cleanest control:
+    every node has the SAME degree ``d`` everywhere (no endpoints, no chords, no degree
+    signature of component size at all), so if imbalanced splits are still solved more easily
+    than balanced ones, the effect cannot be attributed to any local landmark or global degree
+    cue -- it would have to come from the component-SIZE asymmetry itself. Uses
+    ``networkx.random_regular_graph`` per block (retried on the rare disconnected draw --
+    connectivity is not guaranteed by construction for d>=3). Each block size must be >d and
+    ``d*size`` even (the standard random-regular-graph feasibility condition); with ``d=3``
+    (this project's default) both ``short_len`` and ``n-short_len`` must be even and >=4. No
+    self-loops; node order NOT permuted (permute at the call site)."""
+    import networkx as nx
+    if not 1 <= short_len <= n - 1:
+        raise ValueError(f"split requires 1 <= short_len <= n-1, got {short_len} (n={n})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    for a, b in ((0, short_len), (short_len, n)):
+        size = b - a
+        if size <= d or (d * size) % 2 != 0:
+            raise ValueError(f"infeasible d-regular block: size={size}, d={d} "
+                              f"(need size>d and d*size even)")
+        for _attempt in range(50):
+            g = nx.random_regular_graph(d, size, seed=int(rng.integers(0, 2**31 - 1)))
+            if nx.is_connected(g):
+                break
+        else:
+            raise RuntimeError(f"could not draw a CONNECTED {d}-regular graph on {size} "
+                               f"nodes in 50 attempts")
+        block_adj = nx.to_numpy_array(g, nodelist=sorted(g.nodes()))
+        idx = np.arange(a, b)
+        adj[np.ix_(idx, idx)] = block_adj
+    return adj
+
+
 def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     if n != 2 * k:
         raise ValueError(f"TwoCliques requires n == 2*k, got n={n}, k={k}")
