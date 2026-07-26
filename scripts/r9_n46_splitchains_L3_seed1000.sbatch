@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=r9L3s1
 #SBATCH --account=3352759
-#SBATCH --partition=gpuh200
+#SBATCH --partition=long_gpuh200
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=40G
