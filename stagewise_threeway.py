@@ -15,7 +15,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import compute_connectivity_matrix, add_self_loops, generate_multi_path_split_graph
+from data import (compute_connectivity_matrix, add_self_loops,
+                  generate_multi_path_split_graph, generate_multi_cycle_split_graph)
 from eval_families import load_model
 from mechanistic_asym_chains import _device
 from stagewise_diagnostics import run_with_stages, _cosine_batch, MAIN_STAGES, SUBBLOCKS, _selftest
@@ -23,14 +24,15 @@ from stagewise_diagnostics import run_with_stages, _cosine_batch, MAIN_STAGES, S
 PAIRS = [((0, 1), "12"), ((0, 2), "13"), ((1, 2), "23")]
 
 
-def stagewise_probe_threeway(model, dev, n, cells, rng, n_graphs):
+def stagewise_probe_threeway(model, dev, n, cells, rng, n_graphs, topology="chain"):
     if model.readout_kind != "similarity":
         raise NotImplementedError("specific to the similarity read-out (Report VIII/IX standard)")
+    build = generate_multi_cycle_split_graph if topology == "cycle" else generate_multi_path_split_graph
     scale = float(model.sim_scale.detach().cpu())
     bias = float(model.sim_bias.detach().cpu())
     out = {}
     for sizes in cells:
-        base_adj = generate_multi_path_split_graph(n, sizes)
+        base_adj = build(n, sizes)
         base_y = compute_connectivity_matrix(base_adj).astype(np.int8)
         bounds = [0]
         for s in sizes:
@@ -116,6 +118,7 @@ def main():
     ap.add_argument("--n_graphs", type=int, default=64)
     ap.add_argument("--cells", type=str, nargs="+", required=True,
                     help="s1,s2,s3 triples summing to n, e.g. --cells 1,22,23 4,15,27")
+    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain")
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--skip_selftest", action="store_true")
     args = ap.parse_args()
@@ -124,7 +127,8 @@ def main():
     dev = _device()
     model, mcfg, arch, readout = load_model(args.checkpoint, dev)
     n = mcfg.n
-    print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev}")
+    print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev} "
+          f"topology={args.topology}")
     if arch != "roberta":
         raise NotImplementedError("this script targets the RobertaGraphTransformer only")
     if not args.skip_selftest:
@@ -134,8 +138,11 @@ def main():
     for c in cells:
         if sum(c) != n:
             raise ValueError(f"cell {c} does not sum to n={n}")
+        if args.topology == "cycle" and min(c) < 3:
+            raise ValueError(f"cell {c} has a component <3 nodes, infeasible for cycle topology")
     rng = np.random.default_rng(args.seed)
-    probe, scale, bias = stagewise_probe_threeway(model, dev, n, cells, rng, args.n_graphs)
+    probe, scale, bias = stagewise_probe_threeway(model, dev, n, cells, rng, args.n_graphs,
+                                                   topology=args.topology)
 
     npz_dict = {"scale": np.float64(scale), "bias": np.float64(bias)}
     metrics_rows, margin_rows = [], []

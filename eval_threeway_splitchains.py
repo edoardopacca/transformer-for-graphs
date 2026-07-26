@@ -18,7 +18,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import (add_self_loops, compute_connectivity_matrix, generate_multi_path_split_graph)
+from data import (add_self_loops, compute_connectivity_matrix,
+                  generate_multi_path_split_graph, generate_multi_cycle_split_graph)
 from eval_families import load_model, predict
 
 
@@ -40,8 +41,9 @@ def all_three_way_sizes(n, min_size=1):
     return out
 
 
-def eval_cell(model, dev, n, sizes, rng, n_graphs):
-    base_adj = generate_multi_path_split_graph(n, sizes)
+def eval_cell(model, dev, n, sizes, rng, n_graphs, topology="chain"):
+    build = generate_multi_cycle_split_graph if topology == "cycle" else generate_multi_path_split_graph
+    base_adj = build(n, sizes)
     base_y = compute_connectivity_matrix(base_adj).astype(np.int8)
 
     bounds = [0]
@@ -81,13 +83,15 @@ def eval_cell(model, dev, n, sizes, rng, n_graphs):
     cut_12 = cross(comps[0], comps[1])
     cut_13 = cross(comps[0], comps[2])
     cut_23 = cross(comps[1], comps[2])
+    pred_positive_rate = float(pred.mean())
 
     return {"s1": sizes[0], "s2": sizes[1], "s3": sizes[2], "n_graphs": ng,
             "exact": round(exact, 4),
             "reach_1": (None if reach[0] is None else round(reach[0], 4)),
             "reach_2": (None if reach[1] is None else round(reach[1], 4)),
             "reach_3": (None if reach[2] is None else round(reach[2], 4)),
-            "cut_12": round(cut_12, 4), "cut_13": round(cut_13, 4), "cut_23": round(cut_23, 4)}
+            "cut_12": round(cut_12, 4), "cut_13": round(cut_13, 4), "cut_23": round(cut_23, 4),
+            "pred_positive_rate": round(pred_positive_rate, 4)}
 
 
 def main():
@@ -95,27 +99,33 @@ def main():
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--output_dir", required=True)
     ap.add_argument("--n_graphs", type=int, default=200)
-    ap.add_argument("--min_size", type=int, default=1)
+    ap.add_argument("--min_size", type=int, default=None,
+                    help="default: 1 for chain topology, 3 for cycle topology")
+    ap.add_argument("--topology", choices=["chain", "cycle"], default="chain")
     ap.add_argument("--seed", type=int, default=12345)
     args = ap.parse_args()
+    min_size = args.min_size if args.min_size is not None else (3 if args.topology == "cycle" else 1)
 
     out = Path(args.output_dir); out.mkdir(parents=True, exist_ok=True)
     dev = _device()
     model, mcfg, arch, readout = load_model(args.checkpoint, dev)
     n = mcfg.n
-    print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev}")
+    print(f"checkpoint={args.checkpoint}\n  arch={arch} readout={readout} n={n} device={dev} "
+          f"topology={args.topology}")
     rng = np.random.default_rng(args.seed)
 
-    sizes_list = all_three_way_sizes(n, args.min_size)
-    print(f"testing {len(sizes_list)} distinct 3-way size combinations (partitions of {n})")
+    sizes_list = all_three_way_sizes(n, min_size)
+    print(f"testing {len(sizes_list)} distinct 3-way size combinations (partitions of {n}, "
+          f"min_size={min_size})")
 
     rows = []
     for sizes in sizes_list:
-        c = eval_cell(model, dev, n, sizes, rng, args.n_graphs)
+        c = eval_cell(model, dev, n, sizes, rng, args.n_graphs, topology=args.topology)
         rows.append(c)
         print(f"  sizes={sizes} exact={c['exact']:.3f} "
               f"reach=({c['reach_1']},{c['reach_2']},{c['reach_3']}) "
-              f"cut=({c['cut_12']},{c['cut_13']},{c['cut_23']})", flush=True)
+              f"cut=({c['cut_12']},{c['cut_13']},{c['cut_23']}) "
+              f"pos_rate={c['pred_positive_rate']:.3f}", flush=True)
 
     with (out / "threeway_split.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))

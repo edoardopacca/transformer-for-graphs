@@ -130,6 +130,29 @@ def generate_multi_path_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarra
     return adj
 
 
+def generate_multi_cycle_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarray:
+    """``len(sizes)`` disjoint CYCLES partitioning ALL n nodes into components of the given
+    ordered sizes (``sum(sizes) == n``) -- the cycle analogue of
+    ``generate_multi_path_split_graph``, generalising ``generate_split_cycles_graph`` (K=2) to
+    K=3,4,... . Every component size must be >=3 (the smallest simple cycle). No self-loops;
+    node order NOT permuted (permute at the call site, as in every other generator here)."""
+    if any(s < 3 for s in sizes):
+        raise ValueError(f"every cycle needs >=3 nodes, got {sizes}")
+    if sum(sizes) != n:
+        raise ValueError(f"sizes must sum to n={n}, got {sizes} (sum={sum(sizes)})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    bounds = [0]
+    for s in sizes:
+        bounds.append(bounds[-1] + s)
+    for a, b in zip(bounds[:-1], bounds[1:]):
+        for i in range(a, b - 1):
+            adj[i, i + 1] = 1.0
+            adj[i + 1, i] = 1.0
+        adj[a, b - 1] = 1.0
+        adj[b - 1, a] = 1.0
+    return adj
+
+
 def generate_two_cliques_graph(n: int, k: int) -> np.ndarray:
     if n != 2 * k:
         raise ValueError(f"TwoCliques requires n == 2*k, got n={n}, k={k}")
