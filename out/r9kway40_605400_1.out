@@ -1,0 +1,64 @@
+seed=2000 checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+== mechanistic_kway.py (sweep + logit -> Table 1 / Figure 1) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  cells: [(5, 2), (5, 3), (5, 4), (5, 5), (6, 2), (6, 3), (6, 4), (7, 2), (7, 3)]
+
+== behavioural sweep (Table 1 / Figure 1, top panel) ==
+  k=5 s= 2 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000
+  k=5 s= 3 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000
+  k=5 s= 4 exact=0.645 reach_long=1.000 reach_short=0.991 cut=0.999
+  k=5 s= 5 exact=0.000 reach_long=1.000 reach_short=0.650 cut=0.216
+  k=6 s= 2 exact=0.695 reach_long=1.000 reach_short=0.996 cut=0.943
+  k=6 s= 3 exact=0.375 reach_long=1.000 reach_short=0.981 cut=0.936
+  k=6 s= 4 exact=0.000 reach_long=1.000 reach_short=0.791 cut=0.614
+  k=7 s= 2 exact=0.000 reach_long=1.000 reach_short=0.498 cut=0.285
+  k=7 s= 3 exact=0.000 reach_long=1.000 reach_short=0.123 cut=0.067
+  saved -> runs/report9/mechanistic_kway/n40_pathunion_seed2000_kway/metrics.csv
+
+== readout decomposition cos(h_i,h_j) (Figure 1, bottom panel) ==
+  readout(similarity) k=5 s= 2 done
+  readout(similarity) k=5 s= 3 done
+  readout(similarity) k=5 s= 4 done
+  readout(similarity) k=5 s= 5 done
+  readout(similarity) k=6 s= 2 done
+  readout(similarity) k=6 s= 3 done
+  readout(similarity) k=6 s= 4 done
+  readout(similarity) k=7 s= 2 done
+  readout(similarity) k=7 s= 3 done
+  saved -> runs/report9/mechanistic_kway/n40_pathunion_seed2000_kway/readout.csv
+
+== W_in geometry (similarity read-out has no W_out) ==
+  saved -> runs/report9/mechanistic_kway/n40_pathunion_seed2000_kway/weights_summary.json
+== mechanistic_kway_heatmaps.py (attention scores/alpha -> Figure 3) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+== attention/Q/K/V heatmap probe (K-way) ==
+  heatmap probe k=5 s= 2 done
+  heatmap probe k=5 s= 3 done
+  heatmap probe k=5 s= 4 done
+  heatmap probe k=5 s= 5 done
+  heatmap probe k=6 s= 2 done
+  heatmap probe k=6 s= 3 done
+  heatmap probe k=6 s= 4 done
+  heatmap probe k=7 s= 2 done
+  heatmap probe k=7 s= 3 done
+  saved -> runs/report9/heatmaps_kway/n40_pathunion_seed2000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report9/heatmaps_kway/n40_pathunion_seed2000/raw_weights.npz
+== stagewise_kway.py (layerwise cosine geometry) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise k=5 s= 2 done (M_far H0=0.045, H2=0.787)
+  stagewise k=5 s= 3 done (M_far H0=0.023, H2=0.834)
+  stagewise k=5 s= 4 done (M_far H0=0.011, H2=0.822)
+  stagewise k=5 s= 5 done (M_far H0=0.002, H2=0.520)
+  stagewise k=6 s= 2 done (M_far H0=0.042, H2=0.728)
+  stagewise k=6 s= 3 done (M_far H0=0.020, H2=0.713)
+  stagewise k=6 s= 4 done (M_far H0=0.005, H2=0.733)
+  stagewise k=7 s= 2 done (M_far H0=0.039, H2=0.580)
+  stagewise k=7 s= 3 done (M_far H0=0.015, H2=0.516)
+  saved -> runs/report9/stagewise_kway/n40_pathunion_seed2000/stagewise_{geometry.npz,metrics.csv,margins.csv,deltaz.csv}
+done seed 2000
