@@ -3662,7 +3662,135 @@ più sezioni), MAI scritto direttamente nel Report~9 finché i dati non sono con
 (nuovi sbatch); `istruzioni.md`. Nessun checkpoint toccato (tutto smoke-testato su
 checkpoint giocattolo locali, mai salvati nel repo).
 
+### 16.11 Tutti e cinque i risultati di §16.10 sono tornati e scritti (2026-07-26): Thread A.4
+meccanicistico nel Report ufficiale, tre training a un seed in uno scratch nuovo
+
+**Richiesta dell'utente**: dei cinque pezzi preparati in §16.10, analizzare (2) — il Thread A.4
+meccanicistico coi 4 checkpoint $n{=}40$ path\_union testati su $K{=}5,6,7$ — direttamente
+dentro il Report~9 ufficiale (dato multi-seed, 4 seed); e analizzare (3)(4)(5) — i tre training
+a un seed $n{=}46$ (split\_chains, 1chain+split\_chains, split\_cycles) — in un NUOVO file
+scratch `.tex`/`.pdf`, non nel report ufficiale, perché restano a un solo seed.
+
+**(2) — SCRITTO nel Report~9 ufficiale.** `report/9/transformer_for_graphs_9.tex`: nuovo
+paragrafo "Where in the network this happens..." con tre figure (`r9_kway_sweep_and_logit`,
+`r9_kway_heatmap_attention`, `r9_kway_stagewise_cosine_k7s3`, tutte `_n40_pathunion`).
+Headline: reach\_long resta architettonicamente perfetto (1.000, zero eccezioni, 4 seed × 9
+celle); cut(short,short) collassa con $K$ crescente mentre cut(long,short) è più robusto ma
+seed-dipendente. Meccanismo: attention layer 2 alza la similarità su TUTTI i blocchi
+indiscriminatamente (long-long $Z\approx21.0$, short-short $Z\approx24.3$, cross
+$Z\approx16.4$); il secondo feed-forward corregge selettivamente solo il blocco cross
+($16.4\to-9.4$) ma NON il blocco short-short ($24.3\to15.7$, resta positivo/"connesso").
+Compilato pulito, 9 pagine, 0 error/overfull, verificato visivamente pagina per pagina.
+
+⚠️ **Trovato e risolto un problema**: il comando di pulizia `rm -rf
+runs/report9/report9_figs/*` (lanciato più tardi nella sessione per pulire le figure scratch
+di split\_chains/onetwopath/split\_cycles) aveva cancellato ANCHE i tre file `r9_kway_*.png`
+appena usati nel report ufficiale. Verificato che `runs/report9/report9_figs/` non era mai
+stata tracciata in git (`git ls-files` non la elenca — nulla perso a livello di repository),
+solo file locali generati e non ancora committati. Dati grezzi sottostanti
+(`runs/report9/{mechanistic_kway,heatmaps_kway,stagewise_kway}/n40_pathunion_seed*_kway/`)
+intatti. Rigenerate tutte e tre le figure con `plot_mechanistic_kway.py --tag_glob
+"n40_pathunion_seed*_kway" --report_root report9 --heatmap_seed 1000 --suffix
+"_n40_pathunion" --cosine_cell "7,3"` (il default cosine\_cell è `7,2`, va sovrascritto per
+matchare esattamente il nome file già referenziato nel `.tex`). Report ricompilato dopo,
+verificato di nuovo pulito e verificato visivamente che la pagina con le tre figure corrisponda
+al testo.
+
+**(3)(4)(5) — Scritti in un NUOVO scratch**,
+`report/9/scratch_n46_singleseed_experiments/scratch_n46_singleseed_experiments.tex`
+(+ `figs/`, 12 immagini copiate da `report9_figs/` prima della pulizia sopra), banner rosso di
+avvertimento standard, un seed (1000) per condizione. Tre sezioni + una sezione di takeaway
+cross-esperimento:
+- **split\_chains-only**: riproduce il segnale di completamento identico a path\_union (stesso
+  break esatto $a=12$), ma con **cut più pulito** (resta $\ge0.96$ per tutto lo sweep, mai sotto
+  come path\_union che scende a $\approx0.63$ al balanced split).
+- **1chain+split\_chains**: quasi identico a split\_chains-only (stesso break $a=12$, cut
+  $\ge0.95$ ovunque) — la miscela più ricca 1-4 path NON è necessaria per il fenomeno.
+- **split\_cycles**: risultato qualitativamente DIVERSO, non solo più debole/forte. Reach resta
+  **esattamente 1.000 per tutto lo sweep** (nessun calo al break, a differenza di ogni
+  condizione a catena); ma cut collassa **esattamente e permanentemente a 0.000** da $a=12$ in
+  poi (mai un floor morbido come nelle catene). Lettura meccanicistica candidata (una immagine,
+  un seed, da verificare): il blocco cross-componente è già debolmente positivo ("connesso") fin
+  da $H^{(0)}$, prima di qualunque attention — plausibilmente perché ogni nodo di un ciclo ha lo
+  stesso intorno locale (grado 2, nessun estremo), quindi l'embedding di lettura non ha di per sé
+  un segnale distintivo di componente come invece l'ha la distanza-da-estremo in una catena.
+- Risposta diretta alla domanda del Thread B (gli estremi sono davvero necessari?): allenare
+  SPECIFICAMENTE sui cicli (rimuovendo il confondimento "non li ha mai visti" del Report~VIII)
+  NON risolve il collasso del cut oltre soglia — quindi il fallimento OOD del Report~VIII non era
+  puro artefatto di distribuzione.
+- Compilato pulito (pdflatex ×2, 12 pagine, 0 error/overfull/underfull), verificato visivamente
+  pagine 1, 4, 10.
+
+**Cosa manca ancora prima che questi tre risultati possano entrare nel Report~9 ufficiale**: più
+seed per tutte e tre le condizioni (esplicitamente il motivo per cui sono in uno scratch e non
+nel report); per split\_cycles, uno sweep più fitto fra $a=5$ e $a=12$ per localizzare
+precisamente il punto di rottura del cut (i punti $a=3,4,5$ sono rumorosi, non approfondito);
+verificare la lettura meccanicistica candidata su più split/seed prima di trattarla come
+conclusione.
+
+**File nuovi/toccati questa sessione**: `report/9/transformer_for_graphs_9.tex` (+ pdf/aux/out,
+nuovo paragrafo A.4 meccanicistico), `report/9/scratch_n46_singleseed_experiments/` (nuovo,
+`.tex`+`.pdf`+`figs/`), `runs/report9/report9_figs/r9_kway_*.png` (rigenerate, mai tracciate in
+git), `istruzioni.md`.
+
 ---
 
-*Per aggiungere questo file a git (lo fa l'utente):*
-`git add istruzioni.md && git commit -m "Update project handoff instructions" && git push origin main`
+*Per aggiungere questi file a git (lo fa l'utente), in DUE commit separati come da regola
+standard (mai `git add -A`):*
+
+```
+# (a) Report ufficiale + le sue figure K-way
+git add report/9/transformer_for_graphs_9.tex report/9/transformer_for_graphs_9.pdf \
+        runs/report9/report9_figs/r9_kway_sweep_and_logit_n40_pathunion.png \
+        runs/report9/report9_figs/r9_kway_heatmap_attention_n40_pathunion.png \
+        runs/report9/report9_figs/r9_kway_stagewise_cosine_k7s3_n40_pathunion.png
+git commit -m "Report IX: mechanistic battery for K=5/6/7 path-union OOD (Thread A.4)"
+
+# (b) Nuovo scratch doc, tre training a un seed
+git add report/9/scratch_n46_singleseed_experiments/
+git commit -m "Report IX scratch: split_chains-only, 1chain+split_chains, split_cycles (1 seed each)"
+
+# (c) istruzioni.md
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.12 split\_cycles: aggiunto $a=8$ come punto di riferimento "risolto" più onesto di $a=4$
+(2026-07-26)
+
+**Richiesta dell'utente**: nello scratch split\_cycles, $a=4$ non è un buon riferimento "prima
+del break" perché lì l'exact match è solo $0.51$ (borderline, non chiaramente risolto — vedi
+§16.11) — aggiungere attention scores e layerwise geometry anche per $a=8$ (che sta nel
+plateau pulito $a=6..11$, exact$=1.000$), **senza togliere** le figure $a=4$ già presenti.
+
+**Preparato, NON lanciato** — nuovo sbatch eval-only, CPU, `scripts/r9_n46_splitcycles_add_a8.sbatch`:
+rigira `mechanistic_heatmaps.py`/`stagewise_diagnostics.py` sullo STESSO checkpoint
+(`runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed1000/last.pt`) con
+`--splits 4 8 23` (non solo `8`, così i dati $a=4$/$a=23$ restano nello stesso npz insieme al
+nuovo $a=8$), sovrascrivendo le stesse directory di output
+(`runs/report9/{heatmaps,stagewise}/n46_splitcycles_seed1000`). Nessun training, nessuna
+modifica di codice — solo un rerun più ricco degli stessi due script eval già usati.
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_n46_splitcycles_add_a8.sbatch
+```
+
+**Dopo il pull**, i comandi di plotting locali (nessuna modifica di codice necessaria, i due
+script generici già supportano più split):
+```
+python plot_stagewise_diagnostics.py --tag_glob "n46_splitcycles_seed*" \
+    --report_root report9 --heatmap_seed 1000 --heatmap_splits 4 8 23 \
+    --suffix _n46_splitcycles --title_tag "split_cycles-trained, n=46"
+python plot_mechanistic_heatmaps.py --tag_prefix n46_splitcycles --report_root report9 \
+    --seed 1000 --pair 8 23 --suffix _n46_splitcycles_a8
+```
+Il secondo comando usa un suffix DIVERSO (`_a8`) apposta, perché `fig_attention_scores_alpha`
+mostra solo una coppia di split per figura e altrimenti sovrascriverebbe il file
+`r9_heatmap_attention_scores_n46_splitcycles.png` già esistente per la coppia $(4,23)$ — il
+risultato finale nello scratch sarà quindi DUE figure di attention scores per split\_cycles
+($a{=}4$ vs $a{=}23$, esistente; $a{=}8$ vs $a{=}23$, nuova) più una terza figura di layerwise
+geometry per $a{=}8$ (oltre alle due già presenti per $a{=}4$/$a{=}23$).
+
+**STATO: sbatch preparato, NON lanciato.**
