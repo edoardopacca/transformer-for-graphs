@@ -3794,3 +3794,66 @@ risultato finale nello scratch sarà quindi DUE figure di attention scores per s
 geometry per $a{=}8$ (oltre alle due già presenti per $a{=}4$/$a{=}23$).
 
 **STATO: sbatch preparato, NON lanciato.**
+
+### 16.13 Thread A.3, prima parte: test comportamentale-solo su TUTTE le combinazioni di
+3-way split del checkpoint split\_chains-only (2026-07-26)
+
+**Richiesta dell'utente**: testare il checkpoint $n{=}46$ trainato SOLO su 2-chains
+(`split_chains`, seed $1000$, §16.10/§16.11) togliendo un edge interno casuale da una delle due
+componenti, ottenendo così 3 componenti — mai viste in training da questo checkpoint (a
+differenza dei test a 3 componenti dei Report~VII/VIII, la cui distribuzione di training copriva
+già 3-4 componenti). Vedere per quali combinazioni di taglie il modello impara ancora — **tutte
+le combinazioni**, esplicitamente richiesto perché interessante. Solo un test comportamentale
+"easy" per ora (niente attention scores/layerwise geometry — quelli arrivano dopo, sulle celle
+specifiche che l'utente sceglierà guardando questi numeri).
+
+Questo è esattamente il Thread~A.3 del piano (\S sec:planA del Report~9 ufficiale), finora
+`[Data pending]`.
+
+**Nuovo script `eval_threeway_splitchains.py`** (eval-only, riusa `add_self_loops`/
+`compute_connectivity_matrix`/`generate_multi_path_split_graph` da `data.py` e `load_model`/
+`predict` da `eval_families.py`, nessuna modifica a codice esistente): enumera OGNI tripla
+distinta $(s_1\le s_2\le s_3)$ di interi positivi con $s_1+s_2+s_3=n$ (ogni partizione di $n$ in
+3 parti — a $n{=}46$ sono $176$ celle, non solo la forma canonica "una lunga + due corte
+uguali" già usata per il K-way del Thread~A.4), costruisce il grafo con
+`generate_multi_path_split_graph`, e per ciascuna cella riporta: exact match dell'intero grafo,
+reach dentro ciascuna delle tre componenti (`reach_1/2/3`, `None` se la componente ha un solo
+nodo), e cut fra ciascuna delle tre coppie di componenti (`cut_12/13/23`) — CSV con una riga per
+cella. Smoke-testato end-to-end su un checkpoint giocattolo ($n{=}12$, $12$ celle) in una working
+dir separata sotto `/private/tmp/.../scratchpad` (mai nella repo reale); nessun artefatto
+lasciato nel repo.
+
+**Nuovo sbatch `scripts/r9_a3_splitchains_threeway_test.sbatch`** (CPU-only, `short_cpu`, un solo
+job): checkpoint
+`runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt` (lo stesso
+già usato per il resto della batteria split\_chains di §16.11), `--n_graphs 200 --min_size 1`
+(tutte le $176$ celle, incluse quelle con una componente di taglia $1$ = nodo isolato). Solo
+forward pass, nessun training, costo trascurabile (stesso ordine di grandezza delle altre
+batterie CPU-only di questo report).
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_a3_splitchains_threeway_test.sbatch
+```
+**STATO: preparato, NON lanciato.** Output atteso in
+`runs/report9/threeway_splitchains/n46_splitchains_seed1000/threeway_split.csv`. Dopo il pull,
+prossimo passo: leggere il CSV, presentare i risultati (probabilmente come un'heatmap 2D taglie
+o una tabella ordinata), e aspettare l'indicazione dell'utente su quali celle specifiche
+meritano attention scores/layerwise cosine geometry (mechanistic\_heatmaps.py/
+stagewise\_diagnostics.py, entrambi già generici e riusabili senza modifiche, basta puntarli al
+checkpoint sopra con lo split/topology giusti).
+
+**File nuovi questa sessione**: `eval_threeway_splitchains.py`,
+`scripts/r9_a3_splitchains_threeway_test.sbatch`, `istruzioni.md`.
+
+---
+
+*Per aggiungere questi file a git (lo fa l'utente):*
+```
+git add eval_threeway_splitchains.py scripts/r9_a3_splitchains_threeway_test.sbatch
+git commit -m "Report IX Thread A.3: eval-only script + sbatch, all 3-way split-size combinations on the split_chains-only checkpoint"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
