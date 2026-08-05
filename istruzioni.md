@@ -4502,3 +4502,341 @@ git push origin main
 ```
 git pull
 ```
+
+### 16.24 Partizione cambiata a `long_gpuh200` su tutti i 18 job pendenti (2026-07-26)
+
+**Richiesta dell'utente**: nessuna fretta, mettere tutti i job pendenti su `long_gpuh200`
+(2 nodi dedicati gnode15-16, cap 3 giorni, condivide i nodi fisici con `gpuh200` ma meno
+conteso) invece di `gpuh200` (cap 1 giorno, più conteso). Cambiato `--partition=gpuh200` ->
+`--partition=long_gpuh200` in tutti e 18 gli sbatch pendenti (i 17 nuovi di §16.23 PIÙ
+`r9_n46_splitchains_simfixed_seed1000.sbatch`, il job originale cancellato dall'utente in
+questa sessione perché non sarebbe partito prima della manutenzione -- va ri-sottomesso anche
+lui). `--time=16:00:00` invariato (ben dentro il cap di 3 giorni di `long_gpuh200`).
+
+⚠️ **Promemoria per l'utente**: esiste un cap `QOSMaxGRESPerUser=4` (max 4 GPU
+contemporaneamente per utente, §sezione partizioni sopra) -- sottomettendo tutti e 18 i job in
+una volta, solo 4 gireranno alla volta, gli altri restano PD in coda finché non si libera una
+GPU. Nessuna azione necessaria, è solo per non stupirsi vedendo `squeue` con 14 job ancora PD.
+
+**File toccati**: i 17 sbatch di §16.23 + `r9_n46_splitchains_simfixed_seed1000.sbatch`
+(solo la riga `--partition`); `istruzioni.md`.
+
+---
+
+*Per pushare (lo fa l'utente):*
+```
+git add scripts/r9_n46_splitchains_simfixed_seed1000.sbatch \
+        scripts/r9_n46_splitchains_simfixed_seed2000.sbatch \
+        scripts/r9_n46_pathunion_seed3000.sbatch scripts/r9_n46_pathunion_seed4000.sbatch \
+        scripts/r9_n46_splitchains_seed2000.sbatch scripts/r9_n46_splitchains_seed3000.sbatch \
+        scripts/r9_n46_splitchains_seed4000.sbatch \
+        scripts/r9_n46_splitcycles_seed2000.sbatch scripts/r9_n46_splitcycles_seed3000.sbatch \
+        scripts/r9_n46_splitcycles_seed4000.sbatch \
+        scripts/r9_n46_splitchains_L3_seed1000.sbatch scripts/r9_n46_splitchains_L3_seed2000.sbatch \
+        scripts/r9_n46_split_cliques_seed1000.sbatch scripts/r9_n46_split_cliques_seed2000.sbatch \
+        scripts/r9_n46_chorded_cycles_seed1000.sbatch scripts/r9_n46_chorded_cycles_seed2000.sbatch \
+        scripts/r9_n46_split_regular3_seed1000.sbatch scripts/r9_n46_split_regular3_seed2000.sbatch
+git commit -m "Report IX: move all pending sbatch to long_gpuh200 (no rush, less contended partition)"
+
+git add istruzioni.md
+git commit -m "Update project handoff instructions"
+
+git push origin main
+```
+
+### 16.25 HANDOFF per la prossima sessione: 17 job del giro pre-manutenzione sono tornati,
+vanno pushati/pullati/analizzati e portati nel Report~9 UFFICIALE (2026-07-30)
+
+**Contesto per chi legge questo section a freddo**: l'utente era partito senza portatile; la
+madre ha lanciato dal telefono via SSH tutti i $18$ sbatch preparati in §16.23/§16.24 (lista
+completa lì). Al rientro (30/7), `sacct` mostra $17$ di quei $18$ job `COMPLETED`.
+
+**AGGIORNAMENTO 2026-07-30 (stesso giorno, poco dopo la stesura iniziale di questa sezione)**:
+- **Push dall'HPC + pull qui: FATTO.** Tutti e 17 i job completati sono ora presenti in locale
+  (verificato: le $17$ directory di checkpoint attese esistono sotto `runs/report9/n46_train/`,
+  più i relativi output di eval sotto `mechanistic/`, `heatmaps/`, `stagewise/`,
+  `asym_chains_n46/` — inclusi `n46_splitchains_L3_seed{1000,2000}_oodcycle` per il test OOD sui
+  2-cicli del checkpoint a 3 layer). Nessun nuovo commit su `threeway_splitchains/`,
+  `heatmaps_threeway/`, `stagewise_threeway/` rispetto a prima — il job misterioso (2) sotto non
+  sembra aver toccato/sovrascritto nulla di rilevante.
+- **`r9_n46_splitchains_simfixed_seed1000.sbatch` (anomalia 1) è stato RILANCIATO dall'utente**
+  (comando `sbatch scripts/r9_n46_splitchains_simfixed_seed1000.sbatch` eseguito il 30/7) ed è
+  **IN CORSO** al momento della stesura di questa sezione (non ancora `COMPLETED`, tempo limite
+  fino a 16h). **Verificare con l'utente/`sacct` se è finito prima di usarlo**: se sì, va
+  pushato da HPC e pullato qui separatamente (stesso pattern: `git add runs/report9/n46_train/
+  runs/report9/mechanistic/ runs/report9/heatmaps/ runs/report9/stagewise/
+  runs/report9/asym_chains_n46/ runs/report9/threeway_splitchains/` sull'HPC); se no, l'ablazione
+  "senza scale/bias" (§16.22) resta a **UN SOLO seed (2000)** fino a quando non arriva.
+
+**⚠️ Una anomalia NON ancora risolta, da controllare prima di considerare il giro completo:**
+1. **Job `609827`** (nome troncato `r9a3three+`, $1$ minuto, eseguito 29/7 alle 14:48) non fa
+   parte dei $18$ pianificati — il nome coincide (per troncamento) sia con
+   `r9_a3_splitchains_threeway_test.sbatch` (job-name `r9a3threeway`) sia con
+   `r9_a3_splitchains_threeway_mechanistic.sbatch` (job-name `r9a3threemech`), entrambi già
+   completati in precedenza (606552, 606823). Sembra una riesecuzione accidentale di un test
+   già fatto — quasi certamente innocuo (è solo eval, sovrascrive output identici sullo stesso
+   checkpoint), ma verificare l'output (`out/r9a3three+_609827.out` o simile) prima di
+   assumerlo.
+
+**Mappa completa job-completato -> script -> esperimento** (tutti $n{=}46$, RoBERTa
+$d_{512}$/single-head, readout similarity salvo dove indicato, $10^6$ step/batch $1000$, salvo
+dove indicato):
+
+| job (sacct) | script | famiglia/condizione | seed | NOTE |
+|---|---|---|---|---|
+| 609704 `r9splchfx2` | `r9_n46_splitchains_simfixed_seed2000.sbatch` | split\_chains-only, **`--sim_fixed`** (scale=1/bias=0 congelati, logit = puro $\cos$) | 2000 | vedi anomalia (1) sopra: manca il gemello seed1000 |
+| 609713 `r9pu3` | `r9_n46_pathunion_seed3000.sbatch` | path\_union (1-4 path, il training "base" di Report VI-VIII) | 3000 | 3° seed, oltre ai 2 già ufficiali nel report |
+| 609802 `r9pu4` | `r9_n46_pathunion_seed4000.sbatch` | path\_union | 4000 | 4° seed |
+| 609811 `r9splch2` | `r9_n46_splitchains_seed2000.sbatch` | split\_chains-only (con scale/bias normale) | 2000 | seed in più oltre al seed1000 già in `scratch_n46_singleseed_experiments.tex` §1 |
+| 609812 `r9splch3` | `r9_n46_splitchains_seed3000.sbatch` | split\_chains-only | 3000 | id. |
+| 609813 `r9splch4` | `r9_n46_splitchains_seed4000.sbatch` | split\_chains-only | 4000 | id. |
+| 609814 `r9splcyc2` | `r9_n46_splitcycles_seed2000.sbatch` | split\_cycles-only | 2000 | seed in più oltre al seed1000 già in `scratch_...` §3/§4 (incluso il test a 3 cicli) |
+| 609815 `r9splcyc3` | `r9_n46_splitcycles_seed3000.sbatch` | split\_cycles-only | 3000 | id. |
+| 609816 `r9splcyc4` | `r9_n46_splitcycles_seed4000.sbatch` | split\_cycles-only | 4000 | id. |
+| 609817 `r9L3s1` | `r9_n46_splitchains_L3_seed1000.sbatch` | split\_chains-only, **`--n_layers 3`** (invece di 2) | 1000 | ESPERIMENTO NUOVO, mai scritto da nessuna parte finora; batteria propria + test OOD su 2-cicli, NIENTE layerwise geometry (script non generalizzato a L=3, vedi §16.23) |
+| 609818 `r9L3s2` | `r9_n46_splitchains_L3_seed2000.sbatch` | id., seed 2000 | 2000 | id. |
+| 609819/609820 `r9splitcl2`/`r9splitcl1` | `r9_n46_split_cliques_seed{1,2}000.sbatch` | **NUOVA famiglia** `split_cliques`: due clique complete di taglie asimmetriche (il grado rivela banalmente la taglia della componente) | 1000, 2000 | ESPERIMENTO NUOVO, mai scritto da nessuna parte finora; 2 seed fin da subito |
+| 609822/609823 `r9chorded1`/`r9chorded2` | `r9_n46_chorded_cycles_seed{1,2}000.sbatch` | **NUOVA famiglia** `chorded_cycles`: due cicli con un chord ciascuno (un solo landmark che rompe la simmetria, niente endpoint aperto) | 1000, 2000 | ESPERIMENTO NUOVO, 2 seed fin da subito |
+| 609824/609825 `r9splitre2`/`r9splitre1` | `r9_n46_split_regular3_seed{1,2}000.sbatch` | **NUOVA famiglia** `split_regular3`: due grafi 3-regolari CONNESSI (nessun grado distintivo, nessun landmark, nessun endpoint — il controllo più pulito) | 1000, 2000 | ESPERIMENTO NUOVO, 2 seed fin da subito |
+
+**Cosa deve fare la prossima sessione, in ordine:**
+
+1. ~~Push dall'HPC + pull in locale~~ **FATTO** (vedi AGGIORNAMENTO 2026-07-30 sopra) -- tutti e
+   $17$ i job sono ora disponibili in locale.
+2. **Verificare se `simfixed_seed1000` (rilanciato) è nel frattempo finito** (chiedere
+   all'utente o controllare `sacct`/richiedere un nuovo push+pull se sì) e **verificare l'output
+   del job misterioso 609827** prima di scrivere conclusioni "confermate" che coinvolgono questi
+   due casi specifici.
+3. **Confrontare i nuovi seed contro i risultati a singolo seed già scritti** in
+   `report/9/scratch_n46_singleseed_experiments/scratch_n46_singleseed_experiments.tex` (le
+   Sezioni 1/2/3/4 di quel file: split\_chains-only, 1chain+split\_chains, 2-cicli, il test a 3
+   cicli) — verificare che il pattern osservato con un seed solo (break point identico, stesso
+   collasso a soglia, stesso meccanismo attention-poi-MLP2, ecc.) regga anche con i seed nuovi
+   (mean$\pm$std come già fatto per il sanity-check path\_union in
+   §sec:planpre/Tabella~1/Figura~1 del report ufficiale — quello È il template esatto da
+   replicare).
+4. **Portare tutto nel Report~9 UFFICIALE** (`report/9/transformer_for_graphs_9.tex`), seguendo
+   ESATTAMENTE lo stesso pattern già usato due volte in quel documento (§sec:planpre per il
+   path\_union sanity-check, §sec:planA per il Thread~A.4 K-way): stesse identiche figure già
+   presenti negli scratch (tabella comportamentale, Figura~1 sweep+logit, attention scores,
+   layerwise cosine geometry) ma ora con mean$\pm$std sui seed multipli invece di un singolo
+   seed, spostando ogni condizione da "preliminare, un seed, scratch" a "confermato, sezione
+   ufficiale". **L'utente è stato esplicito**: vuole vedere ESATTAMENTE le stesse figure già
+   presenti negli scratch, non un redesign — solo ora multi-seed e quindi promuovibili
+   nell'ufficiale.
+5. Gli esperimenti NUOVI senza precedente scratch a singolo seed (L3, le tre famiglie
+   controllate `split_cliques`/`chorded_cycles`/`split_regular3`) partono già a 2 seed — vanno
+   scritti per la prima volta, probabilmente ANCORA in un nuovo scratch (solo 2 seed, non 4
+   come path\_union/split\_chains/split\_cycles) prima di eventualmente promuoverli
+   all'ufficiale in una sessione successiva, salvo diverso parere dell'utente da chiedere
+   esplicitamente quando si arriva a quel punto.
+6. Aggiornare `istruzioni.md` con una nuova sezione a fine lavoro, come da convenzione del
+   progetto, e dare all'utente i comandi git esatti per pushare (mai eseguirli).
+
+**File di riferimento da leggere per capire cosa cercare** (non serve rileggere tutta la
+conversazione, questi bastano): `report/9/scratch_n46_singleseed_experiments/
+scratch_n46_singleseed_experiments.tex` (i risultati a singolo seed da confermare/estendere),
+`report/9/transformer_for_graphs_9.tex` (§sec:planpre e §sec:planA come TEMPLATE ESATTO di come
+si scrive un risultato multi-seed nell'ufficiale), le sezioni §16.10-§16.24 di questo file
+(cronologia completa di come sono nati tutti questi esperimenti e perché).
+
+---
+
+*Nessun file di codice toccato in questa sessione (solo lettura/organizzazione); il push
+riguarda esclusivamente i dati generati dall'HPC, che l'utente deve pushare da lì.*
+
+### 16.26 Analisi dei 17 job del giro pre-manutenzione (2026-08-05) — nessun file di codice
+toccato, solo lettura dei dati già pullati. Scoperta principale: seed-lottery su split\_cycles.
+
+**Cosa è stato fatto**: letti gli script/sbatch dei 17 job di §16.23-25 per sapere cosa aspettarsi,
+poi analizzati i CSV/JSON grezzi (mai a memoria) in `runs/report9/{mechanistic,heatmaps,stagewise,
+asym_chains_n46,threeway_splitchains}/...`. Nessuna scrittura nel report ufficiale o nello scratch
+in questa sessione — solo analisi, riportata in chat. Risultati chiave da portare in una sessione
+futura nel report/scratch:
+
+- **path\_union (4 seed) e split\_chains-only (4 seed)**: confermano quanto già scritto (break
+  esatto ad `a=12` per entrambi). **Novità**: split\_chains-only ha **cut=1.000±0.000 a OGNI split,
+  tutti e 4 i semi** — ancora più pulito del singolo seed già nello scratch (che diceva "≥0.96").
+- **split\_cycles (4 seed) — SCOPERTA IMPORTANTE, rivede la lettura del Thread B.** Il break
+  comportamentale è identico (`a=12`) per tutti, ma **3 dei 4 semi collassano permanentemente a
+  "tutto connesso"** (cut=0, come il seed1000 già scritto), mentre **il seed 3000 risolve quasi
+  perfettamente ad OGNI split fino al pieno bilanciamento `a=23/23`** (cut=1.000, exact≈0.99).
+  Tracciato meccanicisticamente nei CSV stagewise: a `a=23`, `dZ_mlp2` sul blocco cross è **−18.1**
+  per il seed 3000 (correzione fortemente selettiva) contro solo **−5.2** per il seed 1000 (quasi
+  uguale alla correzione degli altri blocchi, cioè non selettiva). **Conclusione da rivedere**: i
+  cicli SONO imparabili da questa architettura — non è un'incapacità architetturale — ma
+  l'addestramento specifico sui cicli è molto più instabile/seed-dipendente di quanto lo sia mai
+  per le catene (dove 4/4 semi riescono in modo pulito). La frase nello scratch ("training sui
+  cicli non risolve il collasso") vale per 3 semi su 4, il quarto la smentisce.
+- **L=3 layer (split\_chains, 2 seed)**: own-family exact=1.000 ovunque, 2/2 semi identici — ma
+  poco informativo: a L=3 la capacità grezza `3³=27` supera già il diametro massimo possibile a
+  `n=46` (44), quindi non serve nessun trucco di completamento per nessuno split. Test OOD sui
+  2-cicli: **collasso totale identico a L=2** (pred\_positive\_rate=1.000, cut=0.000, exact=0.000,
+  ovunque, 2/2 semi) — la profondità non compra generalizzazione alla topologia mai vista
+  (coerente con Report V, il node-budget non scala con la profondità).
+- **Le tre nuove famiglie controllate (2 seed ciascuna)**: `split_cliques` banale (exact=1.000
+  ovunque); `chorded_cycles` (un solo landmark) mostra un **terzo regime genuino** — niente
+  collasso catastrofico (cut non scende mai sotto ~0.6) ma nemmeno il cut≈1.0 pulito delle catene,
+  un floor morbido attorno a 0.6–0.7; `split_regular3` (nessun landmark, grado 3 uniforme) quasi
+  sempre risolto (exact≈1.0 fino quasi al bilanciamento) **MA confondato**: verificato coi diametri
+  reali (script one-off, non salvato) che i blocchi 3-regolari hanno diametro ~4 contro ~6-7 di
+  chorded\_cycles e ~22 di split\_chains alla stessa taglia — la densità crea rotte ridondanti
+  (meccanismo Thread A "più cammini aiutano") che schiaccia la distanza effettiva. NON prova che
+  "l'asimmetria da sola, senza landmark, basta" — è un test diverso, non un gradino più pulito
+  della scala landmark→no-landmark. `chorded_cycles` resta il confronto pulito.
+- **sim\_fixed (scale=1/bias=0), primo dato reale, seed 2000**: a differenza della versione normale
+  (cut≈1.000 sempre), **il cut degrada gradualmente da 1.0 a ~0.80** bilanciando lo split, e
+  reach\_long mostra il floor-e-recupero tipico del read-out lineare (0.80→0.91). Conferma diretta
+  che è la trasformazione affine imparabile (scale/bias) a rendere il cut robusto col read-out
+  similarity (Report VII) — toglierla riporta una fragilità simile al lineare, specificamente sul
+  cut.
+- **Anomalia NON risolta**: manca `runs/report9/threeway_splitchains/n46_splitchains_simfixed_
+  seed2000/` (il test Thread A.3 a 176 combinazioni), pur essendo l'ultimo step del job e il job
+  segnato COMPLETED — i log `.out` di questo giro (job ID ~609xxx) non sono mai stati pullati
+  localmente (`out/` si ferma ai job ~605xxx), quindi non è verificabile se quello step sia
+  fallito silenziosamente o se manchi solo il push. Da controllare quando si hanno i log.
+- **Ancora mancante**: `simfixed_seed1000` (l'ablation originale, ri-lanciata il 30/7) non è
+  ancora tornata al momento di questa sessione — è "l'ultimo esperimento ancora in corso" di cui
+  parlava l'utente.
+
+**Prossimo passo (non fatto qui)**: portare questi risultati (soprattutto la scoperta sui cicli)
+nello scratch/report ufficiale con le tabelle per-seed appropriate, seguendo lo stesso pattern già
+rodato (§16.25 punto 4).
+
+### 16.27 Feedback della prof via mail (2026-07-27) + quattro nuovi esperimenti preparati
+(2026-08-05). Codice nuovo, cinque sbatch pronti, NESSUNO lanciato.
+
+**Mail della prof (trascritta VERBATIM, come da convenzione — leggere prima di tutto):**
+```
+Ciao Edoardo,
+
+grazie per la mail e per l'analisi dettagliata degli esperimenti.
+
+Ci sono alcune cose che mi piacerebbe capire meglio:
+
+- Nei casi in cui il Transformer riesce a risolvere grafi (in particolare paths) con diametro
+maggiore di (2*3^L), vorrei capire se si tratta semplicemente di una forma di memorizzazione,
+dovuta al fatto che lo stesso grafo era presente nel training set, oppure se abbiamo evidenza che
+il modello abbia effettivamente imparato un meccanismo che funziona anche a quel diametro.
+
+Forse avevi già fatto un esperimento con training solo su ER, e test su chains? Altrimenti potresti
+provare ad addestrare il modello su grafi con una short path di lunghezza 3, 5, 7 e 9 e la
+corrispondente long path, di lunghezza maggiore di (2*3^L), e poi testarlo su grafi con short path
+di lunghezza 4, 6, 8 e 10 e la corrispondente long path. In questo modo saremmo sicuri di non
+testare esattamente sulle stesse configurazioni viste durante il training.
+
+- Un'altra cosa da provare é usare soft-max invece che ReLU. Inoltre, per i cycles/paths, si
+potrebbe provare a trainare tutto il transformer su 2 paths e 2 cycles, e poi fare qualche step di
+fine-tuning sulla distribuzione test (ad esempio, 3 o piu paths) solo del readout.
+
+- mi ricordo che avevi fatto degli esperimenti su grafi con paths parallele, e la presenza di più
+paths sembrava rendere l'accuratezza migliore rispetto al caso con singola path. Potresti
+visualizzare gli attention scores imparati in questi casi? Così da confrontare con il caso delle
+single paths. Se mi ricordo bene però il training era su ER, quindi bisognerebbe confrontare con
+training sugli stessi grafi.
+
+- Per quanto riguarda il barbell, invece, se non ricordo male il Transformer non generalizzava se
+trainato su ER, ma se trainato su grafi barbel in distribution allora imparava bene. Confermi?
+
+Per il workshop, possiamo provare a sottomettere in ogni caso. In questo tipo di workshop si
+possono mandare anche lavori in corso, osservazioni sperimentali interessanti e risultati
+preliminari che motivino studi futuri. Non posso sapere adesso quanto sarà competitivo, perché
+dipende dalle submissions che si ricevono.
+
+A presto,
+Elisabetta
+```
+(La mail dell'utente a cui la prof rispondeva — il riassunto degli esperimenti n=46/split\_chains/
+split\_cycles/K-way già fatti, e i dubbi sulla direzione generale del progetto — non è ripetuta qui
+per esteso: è la sintesi di quanto già documentato in §16.6-§16.25. La domanda sul barbell resta
+APERTA, non affrontata in questa sessione.)
+
+**Richiesta dell'utente in chat (VERBATIM, riassunta)**: implementare SUBITO (senza aspettare la
+telefonata del 7 con la prof) quattro esperimenti, tutti solo PREPARATI per HPC, non lanciati:
+1. Due seed dell'esperimento memorizzazione-vs-meccanismo (griglia train {3,5,7,9} / test
+   {4,6,8,10}).
+2. Un esperimento "uguale sulle 2 paths" ma a `n=64` con **softmax** invece di normalized-ReLU.
+3. Pretrain su 2 paths + 2 cycles, poi fine-tuning di **soli step, solo readout**, sulla
+   distribuzione test (3+ paths).
+4. Visualizzare gli attention scores imparati negli esperimenti multipath (Report VI Thread A),
+   k=1 vs k>1, confrontando un checkpoint mai allenato su multipath con uno allenato direttamente
+   sugli stessi grafi.
+
+**(1) — `split_chains_grid` (nuova famiglia in `train_families_n20.py`).** `short_len` pescato
+SOLO da `{3,5,7,9}` (non dal continuo 1..n-1 di `split_chains`) via `data.py::
+generate_split_chains_graph` riusato senza modifiche. Eval-side: **nessun codice nuovo** — lo
+sweep di default di `mechanistic_asym_chains.py`/`eval_asym_chains.py` (1..23) copre già i punti
+interleaved `{4,6,8,10}` mai visti (fino a relabelling) in training. `n=46`, readout similarity,
+$10^6$ step, come ogni altro training di questo report. Due sbatch separati (seed 1000/2000):
+`scripts/r9_n46_splitchains_grid_seed{1000,2000}.sbatch` — batteria completa (eval\_asym\_chains +
+mechanistic\_asym\_chains con `--attn_splits 3 4 5 6 7 8 9 10 11 12 23` + mechanistic\_heatmaps +
+stagewise\_diagnostics con `--splits 4 8 10 23`).
+
+**(2) — `--attn_kind {normalized_relu,softmax}` (nuovo flag in `train_families_n20.py`).**
+`ModelConfig.attn_kind` ora passato da CLI invece di essere hardcoded a `"normalized_relu"`; tag
+di run aggiornato (`_softmax` quando non-default). **Nessuna modifica necessaria a NESSUNO script
+di eval**: `eval_families.load_model` legge già `attn_kind` dal checkpoint
+(`c.get("attn_kind", "normalized_relu")`), e ogni script meccanicistico (`mechanistic_asym_
+chains.py::run_with_cache`, `stagewise_diagnostics.py::run_with_stages`) già ramifica su
+`att.attn_kind` invece di assumere normalized-ReLU — verificato con uno smoke-test reale (un
+checkpoint softmax allenato/ricaricato/valutato: `row_mass1 mean=1.000`, cioè le righe di $\alpha$
+sommano a 1 come deve fare una softmax). Sbatch `scripts/r9_n64_splitchains_softmax_seed1000.sbatch`
+(1 seed, esplorativo): stesso `split_chains`-only ma `n=64`, `--attn_kind softmax`, batteria
+completa (`--attn_splits` include 17,18,19,20,21 per non perdere la zona del muro raddoppiato
+$2\cdot3^L=18$ se si sposta rispetto a `n=46`).
+
+**(3) — pretrain misto (nessun codice nuovo, già supportato) + `finetune_readout_only.py`
+(NUOVO).** Pretrain: `--families split_chains,split_cycles` (lista esplicita già supportata dal
+principio-dati §13.2, nessuna modifica). Fine-tuning: nuovo script che carica un checkpoint,
+congela OGNI parametro tranne il read-out (per similarity: le due scalari `sim_scale`/`sim_bias`;
+per linear: `read_out.weight/bias`), e fa poche migliaia di step su uno stream `generate_
+path_union_graph(..., min_paths=3)` (parametro `min_paths` NUOVO, aggiunto a quel generatore in
+`data.py`, retrocompatibile default=1). **Verificato con uno smoke-test reale**: dopo il
+fine-tuning, SOLO 2 tensori su 38 nello state\_dict sono cambiati (`sim_scale`, `sim_bias`) — il
+trunk resta byte-per-byte identico. Sbatch `scripts/r9_n46_pretrain_2path2cycle_finetune_
+readout_seed1000.sbatch` (1 seed, esplorativo, un solo job con tre stadi): pretrain → eval OOD
+K=5/6/7 PRIMA del fine-tuning (riusa `eval_multiway_split.py` già esistente, nessuna modifica) →
+fine-tuning (3000 step, batch 500, lr 1e-3) → stesso eval OOD K=5/6/7 DOPO, più sanity-check
+own-family (chain via `eval_asym_chains.py`, cycle via `mechanistic_asym_chains.py --topology
+cycle`) su entrambi i checkpoint per verificare che toccare 2 scalari non rompa il comportamento
+in-distribution.
+
+**(4) — `mechanistic_multipath_heatmaps.py` + `plot_mechanistic_multipath.py` (NUOVI, eval-only,
+nessun training).** Costruisce UN grafo multipath canonico per ogni `k` richiesto (`data.py::
+generate_multipath_graph`, deterministico dato `n/k/ell/term_deg`), media le matrici REALI di
+attention score/$\alpha$ (layer 0/1) su molte relabelling indipendenti rimappate all'ordine base
+— stesso pattern di `mechanistic_heatmaps.py::heatmap_probe`, di cui riusa `run_with_cache`
+(import, zero duplicazione). Verificato con uno smoke-test reale (route\_bounds/n\_active
+combaciano coi conti a mano; figura generata e ispezionata visivamente, linee di confine-route
+disegnate correttamente). Sbatch `scripts/r9_multipath_attention_viz.sbatch` (CPU, `short_cpu`,
+eval-only su TRE checkpoint Report VI già esistenti, nessun training, pattern `find_ckpt` come
+`scripts/r6_a1_eval.sbatch` per robustezza): (a) ER-trained $n{=}64$ (`runs/report6/a1_train/
+n64_er_roberta_linear_lam0_seed1000/last.pt`, $k{\in}\{1,2,3,4\}$, $\ell{=}13$) — mai vista
+struttura a path in training; (b) path\_union-trained $n{=}40$ (`runs/report6/a1_train/
+n40_path_union_roberta_linear_lam0_seed1000/last.pt`, $k{\in}\{1,2,3\}$, $\ell{=}13$) — vede path
+singoli ma mai $>1$ route; (c) multipath-trained $n{=}40$, $k{=}2/\ell{=}13$ (`runs/report6/
+multipath_train/n40_k2_ell13_clean_roberta_linear_seed1000/last.pt`, $k{\in}\{1,2,3\}$) — allenato
+DIRETTAMENTE sullo stesso $(k,\ell)$, la lettura in-distribuzione che la prof ha chiesto per il
+confronto. $\ell{=}13$ ovunque (oltre capacità, condizione più pulita del rescue in Report VI,
+Tabella `tab:a1rescue`/`a1_profile_far.png`); `need`-fit verificato a mano per ciascuna cella
+(es. $n{=}40,k{=}3,\ell{=}13$: need$=40$, esattamente al limite).
+
+**STATO: tutti e 5 gli sbatch preparati, smoke-testati, NESSUNO lanciato.**
+**Da lanciare (l'utente):**
+```
+sbatch scripts/r9_n46_splitchains_grid_seed1000.sbatch
+sbatch scripts/r9_n46_splitchains_grid_seed2000.sbatch
+sbatch scripts/r9_n64_splitchains_softmax_seed1000.sbatch
+sbatch scripts/r9_n46_pretrain_2path2cycle_finetune_readout_seed1000.sbatch
+sbatch scripts/r9_multipath_attention_viz.sbatch
+```
+
+**Domanda della prof NON ancora affrontata**: il barbell (train ER vs train in-distribution) — non
+richiesta esplicitamente dall'utente in questa sessione, resta aperta per una sessione futura.
+
+**File nuovi/toccati questa sessione**: `data.py` (`generate_path_union_graph` + `min_paths`),
+`experiments2/train_families_n20.py` (`split_chains_grid`, `--attn_kind`); `finetune_readout_
+only.py`, `mechanistic_multipath_heatmaps.py`, `plot_mechanistic_multipath.py` (nuovi);
+`scripts/r9_n46_splitchains_grid_seed{1000,2000}.sbatch`, `scripts/r9_n64_splitchains_softmax_
+seed1000.sbatch`, `scripts/r9_n46_pretrain_2path2cycle_finetune_readout_seed1000.sbatch`,
+`scripts/r9_multipath_attention_viz.sbatch` (nuovi sbatch); `istruzioni.md`.
