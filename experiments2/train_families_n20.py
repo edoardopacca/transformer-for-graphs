@@ -76,6 +76,14 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "split_chains":
         short_len = int(rng.integers(1, n))                    # 1..n-1
         a = generate_split_chains_graph(n, short_len)
+    # Report IX (prof's memorisation-vs-mechanism question): short_len drawn only from a
+    # SPARSE, FIXED grid rather than the continuous 1..n-1 of "split_chains" above -- so
+    # a test at an interleaved short_len never appears verbatim (up to relabelling) in
+    # training, isolating whether the completion signal is real generalisation between
+    # nearby split sizes or memorisation of the exact split sizes seen.
+    elif kind == "split_chains_grid":
+        short_len = int(rng.choice([3, 5, 7, 9]))
+        a = generate_split_chains_graph(n, short_len)
     elif kind == "split_cycles":
         short_len = int(rng.integers(3, n - 2))                 # 3..n-3, each cycle needs >=3
         a = generate_split_cycles_graph(n, short_len)
@@ -187,6 +195,11 @@ def main():
     ap.add_argument("--seed", type=int, default=1000)
     ap.add_argument("--n_layers", type=int, default=2,
                     help="depth L (Report V depth-sweep on bridged cliques uses 1/2/3)")
+    ap.add_argument("--attn_kind", choices=["normalized_relu", "softmax"], default="normalized_relu",
+                    help="normalized_relu (default, this project's standard, "
+                         "alpha=(1/n)*ReLU(QK^T/sqrt(d_h))) or the classical softmax "
+                         "attention (Report IX, prof's question: does the completion "
+                         "signal depend on the ReLU variant specifically?)")
     ap.add_argument("--include_bridged", action="store_true",
                     help="augment the mixed stream with bridged+split cliques "
                          "(random clique size) -- Report V data-prior test")
@@ -202,7 +215,7 @@ def main():
         families = ["er"]; fam_tag = "er"
     else:
         families = [f.strip() for f in args.families.split(",") if f.strip()]
-        known_extra = ["bridged", "split", "split_chains", "split_cycles",
+        known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
                        "split_cliques", "chorded_cycles", "split_regular3"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
@@ -216,8 +229,9 @@ def main():
         raise ValueError("--sim_fixed only makes sense with --readout similarity")
     lam_tag = f"lam{args.lambda_lap:g}" if args.lambda_lap > 0 else "lam0"
     L_tag = "" if args.n_layers == 2 else f"_L{args.n_layers}"
+    attn_tag = "" if args.attn_kind == "normalized_relu" else f"_{args.attn_kind}"
     readout_tag = f"{args.readout}fixed" if args.sim_fixed else args.readout
-    run_name = f"n{n}_{fam_tag}_{args.arch}_{readout_tag}_{lam_tag}{L_tag}_seed{args.seed}"
+    run_name = f"n{n}_{fam_tag}_{args.arch}_{readout_tag}_{lam_tag}{L_tag}{attn_tag}_seed{args.seed}"
     out_dir = Path(args.output_root) / run_name
     ensure_dir(out_dir)
 
@@ -225,7 +239,7 @@ def main():
     device = get_device("auto")
     is_roberta = args.arch == "roberta"
     mcfg = ModelConfig(n=n, d_model=512, n_heads=1, d_ff=2048, n_layers=args.n_layers,
-                       dropout=0.1 if is_roberta else 0.0, attn_kind="normalized_relu",
+                       dropout=0.1 if is_roberta else 0.0, attn_kind=args.attn_kind,
                        norm_style="post" if is_roberta else "pre",
                        layer_norm_eps=1e-5, init_std=0.02, readout=args.readout,
                        sim_learnable=not args.sim_fixed)
@@ -233,7 +247,8 @@ def main():
     model = Cls(mcfg).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"== {run_name} ==\n device={device} arch={args.arch} readout={args.readout} "
-          f"sim_fixed={args.sim_fixed} lambda={args.lambda_lap} params={n_params:,}", flush=True)
+          f"attn_kind={args.attn_kind} sim_fixed={args.sim_fixed} lambda={args.lambda_lap} "
+          f"params={n_params:,}", flush=True)
 
     opt = AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     criterion = nn.BCEWithLogitsLoss()

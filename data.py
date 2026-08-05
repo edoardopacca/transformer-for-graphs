@@ -411,14 +411,22 @@ def generate_one_chain_graph(n: int) -> np.ndarray:
 
 
 def generate_path_union_graph(n: int, rng: np.random.Generator,
-                              max_paths: int = 4) -> np.ndarray:
-    """Disjoint union of 1..max_paths paths that partition all n nodes.
+                              max_paths: int = 4, min_paths: int = 1) -> np.ndarray:
+    """Disjoint union of min_paths..max_paths paths that partition all n nodes.
 
     Designed to exercise long-range reachability: with k=1 the graph is a single
     path of n nodes (shortest-path distances up to n-1), while k>1 introduces
     genuine cross-component disconnections so the model cannot trivially predict
-    "all connected". Node order is NOT permuted here (do it at the call site)."""
-    k = int(rng.integers(1, max_paths + 1))
+    "all connected". Node order is NOT permuted here (do it at the call site).
+
+    ``min_paths`` (Report IX, readout-only fine-tuning experiment): raising it above
+    the default 1 restricts the stream to graphs with at least that many components
+    -- e.g. min_paths=3 gives a "3-or-more-paths" distribution genuinely disjoint
+    from the k in {1,2} cases a 2-chain-trained model already saw."""
+    if not 1 <= min_paths <= max_paths:
+        raise ValueError(f"require 1 <= min_paths <= max_paths, got min_paths={min_paths}, "
+                         f"max_paths={max_paths}")
+    k = int(rng.integers(min_paths, max_paths + 1))
     if k == 1:
         bounds = [0, n]
     else:
