@@ -1,0 +1,33 @@
+== mechanistic_parallel_paths_isolated.py, seed 1000 ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 attn_kind=normalized_relu device=cpu
+  k=1 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=12/46)
+  k=2 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=22/46)
+  k=3 path_len=11: term_connect=1.000 reach_route=0.694 isolation_acc=0.052 pred_pos=0.915 (n_active=32/46)
+  k=4 path_len=11: term_connect=1.000 reach_route=0.693 isolation_acc=0.046 pred_pos=0.915 (n_active=42/46)
+  saved -> runs/report9/parallel_paths_isolated/n46_splitchains_seed1000/parallel_paths_isolated.json (+ _attn.npz)
+== mechanistic_parallel_paths_isolated.py, seed 2000 ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=46 attn_kind=normalized_relu device=cpu
+  k=1 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=12/46)
+  k=2 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=22/46)
+  k=3 path_len=11: term_connect=1.000 reach_route=0.694 isolation_acc=0.052 pred_pos=0.915 (n_active=32/46)
+  k=4 path_len=11: term_connect=1.000 reach_route=0.693 isolation_acc=0.046 pred_pos=0.915 (n_active=42/46)
+  saved -> runs/report9/parallel_paths_isolated/n46_splitchains_seed2000/parallel_paths_isolated.json (+ _attn.npz)
+== mechanistic_parallel_paths_isolated.py, seed 3000 ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=46 attn_kind=normalized_relu device=cpu
+  k=1 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=12/46)
+  k=2 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=22/46)
+  k=3 path_len=11: term_connect=1.000 reach_route=0.694 isolation_acc=0.052 pred_pos=0.915 (n_active=32/46)
+  k=4 path_len=11: term_connect=1.000 reach_route=0.693 isolation_acc=0.046 pred_pos=0.915 (n_active=42/46)
+  saved -> runs/report9/parallel_paths_isolated/n46_splitchains_seed3000/parallel_paths_isolated.json (+ _attn.npz)
+== mechanistic_parallel_paths_isolated.py, seed 4000 ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=46 attn_kind=normalized_relu device=cpu
+  k=1 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=12/46)
+  k=2 path_len=11: term_connect=1.000 reach_route=1.000 isolation_acc=0.000 pred_pos=1.000 (n_active=22/46)
+  k=3 path_len=11: term_connect=1.000 reach_route=0.694 isolation_acc=0.052 pred_pos=0.915 (n_active=32/46)
+  k=4 path_len=11: term_connect=1.000 reach_route=0.693 isolation_acc=0.046 pred_pos=0.915 (n_active=42/46)
+  saved -> runs/report9/parallel_paths_isolated/n46_splitchains_seed4000/parallel_paths_isolated.json (+ _attn.npz)
+done: parallel-paths-isolated battery, split_chains-only n=46, seeds 1000/2000/3000/4000

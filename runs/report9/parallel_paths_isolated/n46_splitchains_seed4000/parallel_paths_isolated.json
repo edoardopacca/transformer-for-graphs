@@ -1,0 +1,41 @@
+{
+  "checkpoint": "runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed4000/last.pt",
+  "arch": "roberta",
+  "readout": "similarity",
+  "n": 46,
+  "path_len": 11,
+  "cells": [
+    {
+      "k": 1,
+      "term_connect": 1.0,
+      "reach_route": 1.0,
+      "isolation_acc": 0.0,
+      "pred_positive_rate": 1.0,
+      "n_active": 12
+    },
+    {
+      "k": 2,
+      "term_connect": 1.0,
+      "reach_route": 1.0,
+      "isolation_acc": 0.0,
+      "pred_positive_rate": 1.0,
+      "n_active": 22
+    },
+    {
+      "k": 3,
+      "term_connect": 1.0,
+      "reach_route": 0.6938775510204082,
+      "isolation_acc": 0.05194805194805195,
+      "pred_positive_rate": 0.914975845410628,
+      "n_active": 32
+    },
+    {
+      "k": 4,
+      "term_connect": 1.0,
+      "reach_route": 0.6934865900383141,
+      "isolation_acc": 0.04597701149425287,
+      "pred_positive_rate": 0.914975845410628,
+      "n_active": 42
+    }
+  ]
+}
