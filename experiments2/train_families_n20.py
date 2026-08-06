@@ -87,6 +87,11 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "split_cycles":
         short_len = int(rng.integers(3, n - 2))                 # 3..n-3, each cycle needs >=3
         a = generate_split_cycles_graph(n, short_len)
+    # Report IX (prof's memorisation-vs-mechanism question, cycle analogue of
+    # "split_chains_grid" above): same sparse fixed grid {3,5,7,9}, now for split_cycles.
+    elif kind == "split_cycles_grid":
+        short_len = int(rng.choice([3, 5, 7, 9]))
+        a = generate_split_cycles_graph(n, short_len)
     # Report IX controlled-distribution battery (2026-07-26): three narrow, explicitly-named
     # families isolating WHICH structural cue lets asymmetric splits get solved -- global
     # degree (split_cliques), a single symmetry-breaking landmark short of an open endpoint
@@ -216,7 +221,7 @@ def main():
     else:
         families = [f.strip() for f in args.families.split(",") if f.strip()]
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
-                       "split_cliques", "chorded_cycles", "split_regular3"]
+                       "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
