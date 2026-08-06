@@ -1,0 +1,13 @@
+== stagewise_threeway.py, seed 1000, cell (7,15,24) ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarityfixed_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu topology=chain
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise sizes=(7, 15, 24) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=0.858/0.992/0.154)
+  saved -> runs/report9/stagewise_threeway/n46_splitchains_simfixed_seed1000/stagewise_{geometry.npz,metrics.csv,margins.csv}
+== stagewise_threeway.py, seed 2000, cell (7,15,24) ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarityfixed_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu topology=chain
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise sizes=(7, 15, 24) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=0.818/0.979/0.216)
+  saved -> runs/report9/stagewise_threeway/n46_splitchains_simfixed_seed2000/stagewise_{geometry.npz,metrics.csv,margins.csv}
+done: sim_fixed three-way stagewise, cell (7,15,24), both seeds
