@@ -1,0 +1,23 @@
+== (a) ER-trained, n=64 (never saw any path structure) ==
+checkpoint=runs/report6/a1_train/n64_er_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=64 attn_kind=normalized_relu device=cpu
+  multipath probe k=1 ell=13 done (n_active=20/64)
+  multipath probe k=2 ell=13 done (n_active=30/64)
+  multipath probe k=3 ell=13 done (n_active=40/64)
+  multipath probe k=4 ell=13 done (n_active=50/64)
+  saved -> runs/report9/heatmaps_multipath/n64_er_seed1000/multipath_heatmap_data.npz
+== (b) path_union-trained, n=40 (single long paths, never >1 route) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=40 attn_kind=normalized_relu device=cpu
+  multipath probe k=1 ell=13 done (n_active=20/40)
+  multipath probe k=2 ell=13 done (n_active=30/40)
+  multipath probe k=3 ell=13 done (n_active=40/40)
+  saved -> runs/report9/heatmaps_multipath/n40_pathunion_seed1000/multipath_heatmap_data.npz
+== (c) multipath-trained, n=40, k=2/ell=13 (in-distribution reading) ==
+checkpoint=runs/report6/multipath_train/n40_k2_ell13_clean_roberta_linear_seed1000/last.pt
+  arch=roberta readout=linear n=40 attn_kind=normalized_relu device=cpu
+  multipath probe k=1 ell=13 done (n_active=20/40)
+  multipath probe k=2 ell=13 done (n_active=30/40)
+  multipath probe k=3 ell=13 done (n_active=40/40)
+  saved -> runs/report9/heatmaps_multipath/n40_multipath_k2ell13_seed1000/multipath_heatmap_data.npz
+done: multipath attention visualisation (a)+(b)+(c)
