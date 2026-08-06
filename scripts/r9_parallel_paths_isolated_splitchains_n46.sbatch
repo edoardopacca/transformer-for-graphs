@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=r9ppiso
 #SBATCH --account=3352759
-#SBATCH --partition=short_cpu
+#SBATCH --partition=medium_cpu
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --output=out/%x_%A.out
 #SBATCH --error=out/%x_%A.out
 #
