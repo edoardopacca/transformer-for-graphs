@@ -1,0 +1,203 @@
+\documentclass{article}
+% \usepackage{times}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[affil-it]{authblk} 
+\input{setting}
+\title{Connectivity}
+\author{}
+\date{}
+
+\begin{document}
+
+\begin{abstract}
+    
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\begin{itemize}
+    \item Motivation of studying how Transformers learn connectivity: Connectivity as a testbed for algorithmic reasoning. References to Ye et al.,2026 and Sanford et al.,2024, Abbe et al., 2024. 
+    \item Central question: \textit{How do Transformers learn connectivity? Which architectural features are needed for a given graph structure? }
+    \item Previous works study relationship between depth of Transformer and graph diameter for expressivity: Sanford: study depth needed worst cases over graphs and show that depth $O(\log(n))$ is needed, where $n$ is number of nodes. Ye et al. show that depth $ 3^L $ is sufficient and needed, where $L$ is graph diameter. 
+    % They consider generalization after training on ER graphs.
+    \item We study whether graph diameter is indeed a bottleneck. We restrict to specific graph families: paths, ...  
+\end{itemize}
+
+\paragraph{Our Contributions.}
+
+\section{Related Work}
+
+\begin{itemize}
+    \item \href{https://arxiv.org/pdf/2405.18512}{Understanding Transformer Reasoning Capabilities
+via Graph Algorithms}.
+    \item \href{https://arxiv.org/pdf/1307.4884}{Smoothed analysis on connected graphs}: random perturbation of the edge set of an arbitrary (adversarial) graph, makes the diameter to be $O(\log(n))$ with high probability.
+\end{itemize}
+
+\section{Setting}
+\begin{itemize}
+    \item description of architecture.
+\end{itemize}
+
+
+\section{Expressivity with Similarity Readout}
+
+\begin{theorem}
+\label{thm:similarity_readout_doubles_radius}
+Let $G=(V,E)$ be an undirected graph on $n$ vertices and let
+$A\in\{0,1\}^{n\times n}$ be its self-loop-augmented adjacency matrix,
+i.e.\ $A_{ij}=1$ if and only if $i=j$ or $\{i,j\}\in E$. Let $d_G$ denote
+shortest-path distance in $G$, with $d_G(i,j)=\infty$ if $i,j$ lie in
+distinct connected components. Fix $R\geq 1$ and suppose
+\[
+H(A)=p_R(A)=\sum_{r=0}^{R}\alpha_r A^r,
+\qquad \alpha_r\geq 0 \text{ for all } r,\quad \alpha_R>0 .
+\]
+Let $H_i(A)$ denote the $i$-th row of $H(A)$ and define
+\[
+s_{ij}(A)=\frac{\langle H_i(A),H_j(A)\rangle}
+{\|H_i(A)\|_2\,\|H_j(A)\|_2}.
+\]
+Then $s_{ij}(A)$ is well defined for all $i,j$, and
+\[
+s_{ij}(A)>0 \quad\Longleftrightarrow\quad d_G(i,j)\leq 2R .
+\]
+Consequently, thresholding $s_{ij}(A)$ at $0$ computes all-pairs
+connectivity exactly on every graph whose connected components have
+diameter at most $2R$.
+\end{theorem}
+
+
+\section{Experimental Results}
+
+\subsection{Path graphs: connectivity can be learned beyond the $2*3^L$ threshold}
+
+\begin{itemize}
+    \item odd training. Unbalanced case (exact match perfect), balanced case (exact match not perfect). 
+\end{itemize}
+
+
+\subsection{Difference between paths and cycles}
+\begin{itemize}
+    \item Motivation: In the attention score, extreme points are important. We compare with cycles, where diameter is the same but no extreme points. 
+    \item Paths tend to make far points disconnected, cycles tend to connect disconnected points. 
+\end{itemize}
+
+\subsection{Generalization to three paths, finetuning??}
+
+
+\subsection{Other graph structures: multi-path, barbel}
+\begin{itemize}
+    \item If somehow helps making the point that diameter is not the right measure. 
+    \item If experimental setting is consistent with the previous sections. 
+\end{itemize}
+
+
+\section{Conclusion}
+
+
+\appendix
+
+\section{Proof of Theorem~\ref{thm:similarity_readout_doubles_radius}}
+
+\begin{proof}
+\emph{Step 1: walk characterization of powers of $A$.}
+We claim that for every $k\geq 0$ and all $i,j\in V$,
+\begin{equation}\label{eq:power_support}
+(A^k)_{ij}>0 \quad\Longleftrightarrow\quad d_G(i,j)\leq k .
+\end{equation}
+The entry $(A^k)_{ij}$ counts walks of length $k$ from $i$ to $j$ in the
+augmented graph $G^{\circ}$ obtained from $G$ by adding a self-loop at
+every vertex; since all entries of $A$ are nonnegative, $(A^k)_{ij}>0$
+if and only if such a walk exists.
+
+($\Leftarrow$) If $d_G(i,j)=\ell\leq k$, take a shortest path
+$i=v_0,v_1,\dots,v_\ell=j$ in $G$ and prepend $k-\ell$ traversals of the
+self-loop at $i$; this yields a walk of length exactly $k$ in
+$G^{\circ}$ from $i$ to $j$.
+
+($\Rightarrow$) Conversely, given a walk of length $k$ from $i$ to $j$
+in $G^{\circ}$, delete every self-loop step; the result is a walk in $G$
+from $i$ to $j$ of length at most $k$, whence $d_G(i,j)\leq k$.
+
+\emph{Step 2: support of the embeddings.}
+Since $\alpha_r\geq 0$ and every $A^r$ is entrywise nonnegative, $H(A)$
+is entrywise nonnegative, and
+\[
+H_{im}(A)=\sum_{r=0}^{R}\alpha_r (A^r)_{im}>0
+\quad\Longleftrightarrow\quad
+\exists\, r\in\{0,\dots,R\}:\ \alpha_r>0 \text{ and } (A^r)_{im}>0 .
+\]
+We show this holds if and only if $d_G(i,m)\leq R$. If $H_{im}(A)>0$,
+then $(A^r)_{im}>0$ for some $r\leq R$, so by \eqref{eq:power_support}
+we get $d_G(i,m)\leq r\leq R$. Conversely, if $d_G(i,m)\leq R$, then
+$(A^R)_{im}>0$ by \eqref{eq:power_support}, and since $\alpha_R>0$ the
+corresponding term is strictly positive. Hence
+\begin{equation}\label{eq:ball_support}
+\operatorname{supp}\bigl(H_i(A)\bigr)
+= B_R(i) := \{m\in V:\ d_G(i,m)\leq R\}.
+\end{equation}
+Note that $\alpha_R>0$ alone suffices: no positivity is required of the
+lower-order coefficients.
+
+\emph{Step 3: well-posedness.}
+For every $i$ we have $d_G(i,i)=0\leq R$, so $i\in B_R(i)$ and
+$H_{ii}(A)>0$ by \eqref{eq:ball_support}. Hence $\|H_i(A)\|_2>0$ for all
+$i$ and $s_{ij}(A)$ is well defined. Moreover, since the denominator is
+strictly positive, $s_{ij}(A)$ and $\langle H_i(A),H_j(A)\rangle$ have
+the same sign.
+
+\emph{Step 4: sign of the inner product.}
+By nonnegativity of $H(A)$,
+\[
+\langle H_i(A),H_j(A)\rangle
+= \sum_{m\in V} H_{im}(A)\,H_{jm}(A) > 0
+\quad\Longleftrightarrow\quad
+\exists\, m\in V:\ H_{im}(A)>0 \text{ and } H_{jm}(A)>0,
+\]
+i.e., by \eqref{eq:ball_support},
+\begin{equation}\label{eq:ball_intersect}
+\langle H_i(A),H_j(A)\rangle>0
+\quad\Longleftrightarrow\quad
+B_R(i)\cap B_R(j)\neq\emptyset .
+\end{equation}
+
+\emph{Step 5: ball intersection iff distance at most $2R$.}
+If $m\in B_R(i)\cap B_R(j)$, then $i$ and $j$ lie in the same connected
+component and, by the triangle inequality,
+\[
+d_G(i,j)\leq d_G(i,m)+d_G(m,j)\leq 2R .
+\]
+Conversely, suppose $d_G(i,j)=\ell\leq 2R$ and let
+$i=v_0,v_1,\dots,v_\ell=j$ be a shortest path. Set
+$m=v_{\lceil \ell/2\rceil}$. Along a shortest path,
+$d_G(v_0,v_t)=t$ and $d_G(v_t,v_\ell)=\ell-t$ for every $t$, so
+\[
+d_G(i,m)=\lceil \ell/2\rceil\leq \lceil 2R/2\rceil = R,
+\qquad
+d_G(m,j)=\ell-\lceil \ell/2\rceil=\lfloor \ell/2\rfloor\leq R,
+\]
+whence $m\in B_R(i)\cap B_R(j)$. Therefore
+\begin{equation}\label{eq:distance_iff}
+B_R(i)\cap B_R(j)\neq\emptyset
+\quad\Longleftrightarrow\quad
+d_G(i,j)\leq 2R .
+\end{equation}
+
+\emph{Conclusion.}
+Combining Steps~3--5,
+\[
+s_{ij}(A)>0
+\quad\Longleftrightarrow\quad
+\langle H_i(A),H_j(A)\rangle>0
+\quad\Longleftrightarrow\quad
+d_G(i,j)\leq 2R .
+\]
+If every connected component of $G$ has diameter at most $2R$, then
+$d_G(i,j)\leq 2R$ if and only if $d_G(i,j)<\infty$, i.e.\ if and only if
+$i$ and $j$ are connected; disconnected pairs have $d_G(i,j)=\infty>2R$
+and hence $s_{ij}(A)=0$. Thus $\mathbf{1}\{s_{ij}(A)>0\}$ is exactly the
+connectivity matrix of $G$.
+\end{proof}
+
+\end{document}

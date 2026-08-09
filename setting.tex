@@ -1,0 +1,136 @@
+%%Packages
+\usepackage{latexsym, amsthm, amscd, amsfonts, mathrsfs, amsmath, amssymb, stmaryrd, tikz-cd, mathrsfs, bbm, url, esint, mathtools, enumerate, caption, subcaption}
+\usepackage{dsfont}
+\usepackage{blkarray}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}  
+%%algorithm
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{comment}
+
+
+
+
+
+
+%%Commands and operators
+\newcommand{\tr}{\mathrm{Tr}}
+\newcommand{\He}{\mathrm{He}}
+\newcommand{\Corr}{\mathrm{corr}}
+\newcommand{\cmin}{c_{\min}}
+\newcommand{\Cov}{\mathrm{cov}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\pr}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\DeclareMathOperator{\CP}{CP}
+\DeclareMathOperator{\Var}{Var}
+\newcommand{\Prr}{\mathop{\rm Pr}\nolimits}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\argmax}{argmax}
+\DeclareMathOperator{\Maj}{Maj}
+\DeclareMathOperator{\Ramp}{Ramp}
+\DeclareMathOperator{\ReLU}{ReLU}
+\DeclareMathOperator{\Unif}{Unif}
+\DeclareMathOperator{\Rad}{Rad}
+\DeclareMathOperator{\INAL}{INAL}
+\DeclareMathOperator{\sign}{sgn}
+\DeclareMathOperator{\erf}{erf}
+\DeclareMathOperator{\erfc}{erfc}
+\DeclareMathOperator{\orb}{orb}
+\DeclareMathOperator{\Span}{span}
+\DeclareMathOperator{\NS}{NS}
+\DeclareMathOperator{\NN}{NN}
+\DeclareMathOperator{\SBM}{SBM}
+\DeclareMathOperator{\poly}{poly}
+\DeclareMathOperator{\TV}{TV}
+\DeclareMathOperator{\Inf}{Inf}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bI}{\mathbb{I}}
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\bS}{\mathbb{S}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\indep}{\perp\!\!\!\perp}
+
+
+
+
+%%Colors
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+  \hypersetup{ %
+    colorlinks=true,
+    linkcolor=mydarkblue,
+    citecolor=mydarkblue,
+    filecolor=mydarkblue,
+    urlcolor=mydarkblue,
+    }
+\definecolor{DSgray}{cmyk}{0,0,0,0.7}
+\definecolor{DSred}{cmyk}{0,0.7,0,0.7}
+
+
+%%Author notes
+\newcommand{\Authornote}[2]{\noindent{\small\textcolor{DSgray}{\sf{
+\textcolor{purple}{[#1: #2]}}}}}
+\newcommand{\Authornoteo}[2]{\noindent{\small\textcolor{DSgray}{\sf{
+\textcolor{orange}{[#1: #2]\marginpar{\textcolor{orange}{\fbox{\Large !}}}}}}}}
+\newcommand{\Authornotec}[2]{\noindent{\small\textcolor{DSgray}{\sf{
+\textcolor{blue}{[#1: #2]\marginpar{\textcolor{blue}{\fbox{\Large !}}}}}}}}
+\newcommand{\enote}{\Authornote{Elisabetta}}
+\newcommand{\anote}{\Authornote{Aryo}}
+
+
+%%Theorem styles
+\theoremstyle{plain}
+\newtheorem{definition}{Definition}%[section]
+\theoremstyle{plain}
+\newtheorem{assumption}{Assumption}%[section]
+\newtheorem{ass}{Assumption}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}%[section]
+\theoremstyle{plain}
+\newtheorem{informaltheorem}{Informal Theorem}%[section]
+\theoremstyle{plain}
+\newtheorem{exe}{Exercise}%[section]
+\theoremstyle{plain}
+\newtheorem{example}{Example}%[section]
+\theoremstyle{plain}
+\newtheorem{fact}{Fact}%[section]
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}%[section]
+\theoremstyle{plain}
+\newtheorem{claim}{Claim}%[section]
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}%[section]
+\theoremstyle{plain}
+\newtheorem{corollary}{Corollary}%[thm]
+\theoremstyle{plain}
+\newtheorem{conjecture}{Conjecture}%[section]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}%[section]
+\theoremstyle{remark}
+\newtheorem{note}{Note}%[section]
+% \theoremstyle{discussion}
+\newtheorem{discussion}{Discussion}%[section]
+\theoremstyle{plain}
+\newtheorem{conj}{Conjecture}%[section]

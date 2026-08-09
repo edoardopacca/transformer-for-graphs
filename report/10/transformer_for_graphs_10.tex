@@ -1,0 +1,200 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+\raggedbottom
+\emergencystretch=3em
+
+% Figures live in the repo's runs/ directory; this file sits in report/10/,
+% so resolve \includegraphics paths relative to the repository root.
+\graphicspath{{../../}}
+
+% Graceful fallback for figures produced by runs that may not be pulled yet.
+\newcommand{\figorbox}[2]{%
+  \IfFileExists{../../#1}{\includegraphics[width=#2\textwidth]{#1}}{%
+    \fbox{\parbox[c][3.5cm][c]{#2\textwidth}{\centering\itshape
+    \textcolor{gray}{[figure not yet generated --- run the eval and pull it]}}}}}
+
+\title{Working Notes X \\
+       \large \textcolor{red}{PERSONAL WORKING DOCUMENT --- NOT A REPORT FOR THE PROFESSOR,
+       NOT PAPER TEXT} \\
+       Targeted Read-Out Fine-Tuning on Two Held-Out Three-Way Splits}
+\author{Edoardo Paccagnella}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\centering\bfseries
+This document exists so Edoardo can read Claude's analysis of one specific experiment before
+deciding whether/how it goes into the paper (\texttt{idea\_paper\_by\_prof.tex},
+\S5.3 ``Generalization to three paths, finetuning??''). It is not written for the professor and
+is not paper prose --- do not copy sentences from here into the paper without rewriting them to
+the paper's own conventions and evidentiary bar.}}
+\end{center}
+
+% =====================================================================
+% STATUS: SKELETON. The fine-tuning run (scripts/
+% r10_finetune_threeway_splitchains_seed1000.sbatch) has not been launched/pulled yet.
+% Fill in every [PENDING] block below once runs/report10/... has real data, using
+% plot_finetune_readout_threeway.py to regenerate the three figures locally (no GPU
+% needed once the run is pulled).
+% =====================================================================
+
+\section{Where this comes from}
+\label{sec:intro}
+
+Report~IX, Thread~A.3 (\texttt{report/9/transformer\_for\_graphs\_9.tex}, and the mechanistic
+follow-up \texttt{stagewise\_threeway.py}) tested the split-chains-only $n{=}46$ seed-$1000$
+checkpoint on every three-way partition of the canvas. Two cells stood out on inspection of the
+five-stage similarity-geometry heatmaps:
+
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{$(15,15,16)$} --- fully balanced. Every within-component block in the final-stage
+        geometry is already visibly darker/more positive than the cross-component blocks (it
+        \emph{looks} like the model has separated the three components correctly), yet all three
+        pairwise cuts fail and exact match is $0$: the cross-component logits sit just
+        \emph{above} the model's own decision threshold, not far below it.
+  \item \textbf{$(7,15,24)$} --- two of the three cuts succeed, cut$(2,3)$ (middle vs.\ largest)
+        fails; the 24-node component also contains pairs beyond the doubled wall
+        $2\cdot3^L{=}18$.
+\end{itemize}
+
+The question this document answers: does fine-tuning \emph{only} the similarity read-out's two
+global scalars (scale, bias) --- everything else in the trunk frozen --- on a stream containing
+\emph{only these two named cells} fix them, without breaking the ordinary $K{=}2$ split-chains
+behaviour the checkpoint already has? This is narrower than Report~IX's own fine-tuning probe
+(\texttt{report/9/scratch\_prof\_experiments/scratch\_prof\_experiments.tex}, \S6), which trained
+on a generic $K\in\{3,4,5,6\}$ \texttt{path\_union} stream and left $K{\ge}3$ exact match at $0$
+throughout; here the fine-tuning data is exactly the two cells we are asking about, and the
+budget is far longer (tens of thousands of steps rather than $3{,}000$ --- fine-tuning only two
+scalars over a frozen trunk is cheap, so a much longer budget costs little).
+
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Checkpoint.} The unmodified split-chains-only, $n{=}46$, seed-$1000$, similarity
+read-out checkpoint from Report~IX
+(\texttt{runs/report9/n46\_train/n46\_split\_chains\_roberta\_similarity\_lam0\_seed1000/last.pt}) ---
+the same one behind every Report~IX \S A.3 three-way figure.
+
+\paragraph{Fine-tuning.} Every parameter frozen except \texttt{sim\_scale}/\texttt{sim\_bias}
+(2 scalars out of $\sim$6.3M). Training stream: uniformly, either the $(15,15,16)$ or the
+$(7,15,24)$ three-way split-chain graph (\texttt{generate\_multi\_path\_split\_graph}), freshly
+relabelled every sample. $50{,}000$ steps, batch $500$, AdamW lr $10^{-3}$
+(\texttt{finetune\_readout\_threeway.py}).
+
+\paragraph{What is measured.} Before fine-tuning (step $0$) and every $1{,}000$ steps after:
+whole-graph exact match, per-component reach, the three pairwise cuts, and the overall
+predicted-positive rate, on both target cells (so the effect on the \emph{held-out} cell is
+visible even when only the other one dominates gradient updates); for $(7,15,24)$ specifically,
+reach inside the 24-node component split into three shortest-path-distance buckets ---
+within-capacity ($d\le9$), between-the-walls ($9<d\le18$), and beyond the doubled wall
+($d>18$) --- the direct test of whether fine-tuning can push learning past the architectural
+bound, not just recalibrate a threshold within it. Separately, \texttt{eval\_asym\_chains.py} on
+the fine-tuned checkpoint reproduces the ordinary $K{=}2$ split-chains sweep (Report~IX
+Table~3/\S sec:planA), compared against the identical, already-committed sweep on the
+\emph{untouched} checkpoint (\texttt{runs/report9/asym\_chains\_n46/n46\_splitchains\_seed1000/}),
+to check the two-scalar update did not cost anything in distribution.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Does it learn the two target cells?}
+\label{sec:res-curve}
+
+[PENDING --- run \texttt{scripts/r10\_finetune\_threeway\_splitchains\_seed1000.sbatch}, pull
+\texttt{runs/report10/}, then \texttt{python plot\_finetune\_readout\_threeway.py --tag
+n46\_splitchains\_seed1000\_threeway}.]
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_curve_n46_splitchains_seed1000_threeway.png}{0.95}
+    \caption{\emph{Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out
+    checkpoint of Report~IX, fine-tuned as in \S\ref{sec:setup}. \emph{Test set:} the two target
+    cells, $(15,15,16)$ and $(7,15,24)$, $300$ independently relabelled graphs per evaluation.
+    \emph{Metric:} whole-graph exact match, cut$(2,3)$ (the pair that fails at step $0$), and the
+    overall predicted-positive rate, vs.\ fine-tuning step.}
+    \label{fig:r10curve}
+\end{figure}
+
+\subsection{Does it learn past the doubled wall?}
+\label{sec:res-beyond}
+
+[PENDING analysis text.]
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_beyondwall_n46_splitchains_seed1000_threeway.png}{0.72}
+    \caption{\emph{Model/training as in Figure~\ref{fig:r10curve}}. \emph{Test set:} cell
+    $(7,15,24)$, $300$ graphs per evaluation. \emph{Metric:} pairwise reach (target connected)
+    inside the 24-node component, split by shortest-path distance bucket, vs.\ fine-tuning step.}
+    \label{fig:r10beyond}
+\end{figure}
+
+\subsection{Does it forget the $K{=}2$ split-chains behaviour?}
+\label{sec:res-ownfamily}
+
+[PENDING analysis text.]
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_ownfamily_n46_splitchains_seed1000_threeway.png}{0.72}
+    \caption{\emph{Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after this
+    fine-tuning. \emph{Test set:} split-chain graphs at every split $a{=}1..23$, $300$ graphs per
+    split. \emph{Metric:} whole-graph exact match vs.\ split $a$.}
+    \label{fig:r10ownfamily}
+\end{figure}
+
+\subsection{How much did scale/bias actually move?}
+\label{sec:res-scalebias}
+
+[PENDING --- read off \texttt{runs/report10/finetune\_readout\_threeway/
+n46\_splitchains\_seed1000\_threeway/scale\_bias\_summary.json} and comment on the magnitude of
+the shift relative to the pre-fine-tuning values (comparable read-in-geometry tables in
+Reports~VII--IX: scale$\approx$27--33, bias$\approx-5$ to $-8$ across every checkpoint trained on
+this
+distribution family so far).]
+
+\subsection{Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}
+\label{sec:res-mechanistic}
+
+[PENDING --- compare \texttt{runs/report9/heatmaps\_threeway/n46\_splitchains\_seed1000/} and
+\texttt{runs/report9/stagewise\_threeway/n46\_splitchains\_seed1000/} (before, already committed)
+against \texttt{runs/report10/heatmaps\_threeway/n46\_splitchains\_seed1000\_threeway\_post/} and
+\texttt{runs/report10/stagewise\_threeway/n46\_splitchains\_seed1000\_threeway\_post/} (after,
+produced by the same sbatch script): does the fine-tuned decision threshold visibly move the
+final-stage ($H^{(2)}$) heatmap's cross-component blocks from ``barely positive'' to
+``negative'', while leaving the within-component blocks and every earlier stage unchanged (since
+the trunk itself never updates)?]
+
+\section{Reading, once the data is in}
+\label{sec:verdict}
+
+[PENDING --- to be written after \S\ref{sec:res-curve}--\ref{sec:res-mechanistic} have real
+numbers. Questions this section must answer plainly: (1) did it work on $(15,15,16)$; (2) did it
+transfer to $(7,15,24)$ or did the two cells trade off against each other; (3) did any of the
+learning happen on pairs beyond the doubled wall, or only within it; (4) was the $K{=}2$
+behaviour preserved; (5) is the fix a real geometric change (visible in the mechanistic
+comparison) or purely a threshold shift (scale/bias moved, nothing else did --- which, given
+everything but scale/bias is frozen, is definitionally the only thing that \emph{could} move, so
+this question is really about how much of the residual error the geometry itself already
+carries, cf.\ Report~IX \S sec:res-readout's raw-logit reading).]
+
+\end{document}
