@@ -32,7 +32,7 @@
 \title{Working Notes X \\
        \large \textcolor{red}{PERSONAL WORKING DOCUMENT --- NOT A REPORT FOR THE PROFESSOR,
        NOT PAPER TEXT} \\
-       Targeted Read-Out Fine-Tuning on Two Held-Out Three-Way Splits}
+       Read-Out-Only Fine-Tuning on Three-Way Splits: Targeted vs.\ Full-Distribution}
 \author{Edoardo Paccagnella}
 \date{\today}
 
@@ -76,17 +76,31 @@ five-stage similarity-geometry heatmaps:
         $2\cdot3^L{=}18$.
 \end{itemize}
 
-The question this document answers: does fine-tuning \emph{only} the similarity read-out's two
-global scalars (scale, bias) --- everything else in the trunk frozen --- on a stream containing
-\emph{only these two named cells} fix them, without breaking the ordinary $K{=}2$ split-chains
-behaviour the checkpoint already has? This is narrower than Report~IX's own fine-tuning probe
-(\texttt{report/9/scratch\_prof\_experiments/scratch\_prof\_experiments.tex}, \S6), which trained
-on a generic $K\in\{3,4,5,6\}$ \texttt{path\_union} stream and left $K{\ge}3$ exact match at $0$
-throughout; here the fine-tuning data is exactly the two cells we are asking about, and the
-budget is far longer (tens of thousands of steps rather than $3{,}000$ --- fine-tuning only two
-scalars over a frozen trunk is cheap, so a much longer budget costs little).
+This document runs \emph{two} fine-tuning experiments off the same starting checkpoint, asking
+two related but different questions.
 
-\section{Setup}
+\begin{itemize}\setlength\itemsep{0.15em}
+  \item \textbf{Experiment~1 (targeted, \S\ref{sec:setup}--\S\ref{sec:verdict-a}).} Does
+        fine-tuning \emph{only} the similarity read-out's two global scalars (scale, bias) ---
+        everything else in the trunk frozen --- on a stream containing \emph{only these two named
+        cells} fix them, without breaking the ordinary $K{=}2$ split-chains behaviour the
+        checkpoint already has?
+  \item \textbf{Experiment~2 (full distribution, \S\ref{sec:setup-full}--\S\ref{sec:verdict-b}).}
+        Does the same two-scalar fine-tuning, given exposure to \emph{every} three-way split
+        instead of just two cells, and a much longer budget, learn a genuinely \emph{general}
+        three-component rule rather than overfitting the two cells above?
+\end{itemize}
+
+Both are narrower/longer than Report~IX's own fine-tuning probe
+(\texttt{report/9/scratch\_prof\_experiments/scratch\_prof\_experiments.tex}, \S6), which trained
+on a generic $K\in\{3,4,5,6\}$ \texttt{path\_union} stream for only $3{,}000$ steps and left
+$K{\ge}3$ exact match at $0$ throughout. Fine-tuning only two scalars over a frozen trunk is
+cheap, so a much longer budget costs little in either case.
+
+\section{Experiment 1: targeted fine-tuning on the two named cells}
+\label{sec:exp1}
+
+\subsection{Setup}
 \label{sec:setup}
 
 \paragraph{Checkpoint.} The unmodified split-chains-only, $n{=}46$, seed-$1000$, similarity
@@ -113,10 +127,10 @@ Table~3/\S sec:planA), compared against the identical, already-committed sweep o
 \emph{untouched} checkpoint (\texttt{runs/report9/asym\_chains\_n46/n46\_splitchains\_seed1000/}),
 to check the two-scalar update did not cost anything in distribution.
 
-\section{Results}
+\subsection{Results}
 \label{sec:results}
 
-\subsection{Does it learn the two target cells?}
+\subsubsection{Does it learn the two target cells?}
 \label{sec:res-curve}
 
 [PENDING --- run \texttt{scripts/r10\_finetune\_threeway\_splitchains\_seed1000.sbatch}, pull
@@ -134,7 +148,7 @@ n46\_splitchains\_seed1000\_threeway}.]
     \label{fig:r10curve}
 \end{figure}
 
-\subsection{Does it learn past the doubled wall?}
+\subsubsection{Does it learn past the doubled wall?}
 \label{sec:res-beyond}
 
 [PENDING analysis text.]
@@ -148,7 +162,7 @@ n46\_splitchains\_seed1000\_threeway}.]
     \label{fig:r10beyond}
 \end{figure}
 
-\subsection{Does it forget the $K{=}2$ split-chains behaviour?}
+\subsubsection{Does it forget the $K{=}2$ split-chains behaviour?}
 \label{sec:res-ownfamily}
 
 [PENDING analysis text.]
@@ -162,7 +176,7 @@ n46\_splitchains\_seed1000\_threeway}.]
     \label{fig:r10ownfamily}
 \end{figure}
 
-\subsection{How much did scale/bias actually move?}
+\subsubsection{How much did scale/bias actually move?}
 \label{sec:res-scalebias}
 
 [PENDING --- read off \texttt{runs/report10/finetune\_readout\_threeway/
@@ -172,7 +186,7 @@ Reports~VII--IX: scale$\approx$27--33, bias$\approx-5$ to $-8$ across every chec
 this
 distribution family so far).]
 
-\subsection{Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}
+\subsubsection{Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}
 \label{sec:res-mechanistic}
 
 [PENDING --- compare \texttt{runs/report9/heatmaps\_threeway/n46\_splitchains\_seed1000/} and
@@ -184,17 +198,106 @@ final-stage ($H^{(2)}$) heatmap's cross-component blocks from ``barely positive'
 ``negative'', while leaving the within-component blocks and every earlier stage unchanged (since
 the trunk itself never updates)?]
 
-\section{Reading, once the data is in}
-\label{sec:verdict}
+\subsection{Reading, once the data is in}
+\label{sec:verdict-a}
 
 [PENDING --- to be written after \S\ref{sec:res-curve}--\ref{sec:res-mechanistic} have real
-numbers. Questions this section must answer plainly: (1) did it work on $(15,15,16)$; (2) did it
-transfer to $(7,15,24)$ or did the two cells trade off against each other; (3) did any of the
+numbers. Questions this subsection must answer plainly: (1) did it work on $(15,15,16)$; (2) did
+it transfer to $(7,15,24)$ or did the two cells trade off against each other; (3) did any of the
 learning happen on pairs beyond the doubled wall, or only within it; (4) was the $K{=}2$
 behaviour preserved; (5) is the fix a real geometric change (visible in the mechanistic
 comparison) or purely a threshold shift (scale/bias moved, nothing else did --- which, given
 everything but scale/bias is frozen, is definitionally the only thing that \emph{could} move, so
 this question is really about how much of the residual error the geometry itself already
 carries, cf.\ Report~IX \S sec:res-readout's raw-logit reading).]
+
+\section{Experiment 2: fine-tuning on the full $K{=}3$ split distribution}
+\label{sec:exp2}
+
+Experiment~1 asks whether the two-scalar fine-tune can fix two specific cells it is trained
+directly on. It says nothing about whether that fix is a genuinely general three-component rule
+or an overfit to those two cells' particular geometry. Experiment~2 asks the general-rule question
+directly: fine-tune the same two scalars, from the same starting checkpoint, but on \emph{every}
+three-way split instead of two, for a much longer budget.
+
+\subsection{Setup}
+\label{sec:setup-full}
+
+\paragraph{Checkpoint.} Identical starting point to Experiment~1 (\S\ref{sec:setup}): the
+unmodified split-chains-only, $n{=}46$, seed-$1000$ checkpoint.
+
+\paragraph{Fine-tuning.} Every parameter frozen except \texttt{sim\_scale}/\texttt{sim\_bias}, as
+in Experiment~1. Training stream: \texttt{generate\_path\_union\_graph(n, rng, min\_paths{=}3,
+max\_paths{=}3)} --- exactly three components every sample, with both cut points (hence every
+component-size combination) drawn uniformly, freshly relabelled every sample --- instead of only
+the two named cells. $200{,}000$ steps (4$\times$ Experiment~1's budget), batch $500$, AdamW lr
+$10^{-3}$ (\texttt{finetune\_readout\_threeway\_full.py}).
+
+\paragraph{What is measured.} The same per-cell metrics as Experiment~1 on the \emph{same} two
+named cells $(15,15,16)$/$(7,15,24)$ (for a direct, apples-to-apples comparison against
+Experiment~1's curves, Figures~\ref{fig:r10curve}--\ref{fig:r10beyond}), \emph{plus} an aggregate
+exact-match/pairwise-accuracy number over freshly sampled, generic three-component graphs at every
+evaluation (the same style of number Report~IX's own generic-$K{\ge}3$ fine-tuning probe
+reported). The own-family $K{=}2$ sweep and the mechanistic battery (attention, five-stage
+geometry) are reproduced exactly as in Experiment~1, into the \texttt{\_full3way}-tagged output
+directories.
+
+\subsection{Results}
+\label{sec:results-full}
+
+\subsubsection{Does exposure to the full distribution generalise, where the targeted fine-tune
+could only overfit two cells?}
+\label{sec:res-full-aggregate}
+
+[PENDING --- run \texttt{scripts/r10\_finetune\_full3way\_splitchains\_seed1000.sbatch}, pull
+\texttt{runs/report10/}, then \texttt{python plot\_finetune\_readout\_threeway.py --tag
+n46\_splitchains\_seed1000\_full3way --run\_subdir finetune\_readout\_full3way}.]
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_full3way_aggregate_n46_splitchains_seed1000_full3way.png}{0.72}
+    \caption{\emph{Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out
+    checkpoint of Report~IX, fine-tuned as in \S\ref{sec:setup-full}. \emph{Test set:} freshly
+    sampled, generic three-component \texttt{path\_union} graphs, $300$ per evaluation.
+    \emph{Metric:} whole-graph exact match and pairwise accuracy, vs.\ fine-tuning step.}
+    \label{fig:r10fullaggregate}
+\end{figure}
+
+\subsubsection{Same two named cells as Experiment 1 --- does the broader stream do better,
+worse, or the same?}
+\label{sec:res-full-named}
+
+[PENDING --- regenerate Figures~\ref{fig:r10curve}--\ref{fig:r10beyond}-equivalent plots with
+\texttt{--tag n46\_splitchains\_seed1000\_full3way --run\_subdir finetune\_readout\_full3way}
+and compare the resulting curves directly against Experiment~1's, side by side.]
+
+\subsubsection{Own-family retention and scale/bias movement}
+\label{sec:res-full-ownfamily}
+
+[PENDING --- same construction as \S\ref{sec:res-ownfamily}/\S\ref{sec:res-scalebias}, on the
+\texttt{\_full3way}-tagged outputs.]
+
+\subsection{Reading, once the data is in}
+\label{sec:verdict-b}
+
+[PENDING. Central question: does the aggregate K=3 exact match (Figure~\ref{fig:r10fullaggregate})
+move meaningfully above $0$, i.e.\ does read-out-only fine-tuning ever produce a genuinely general
+three-component rule given enough coverage and steps --- or does it plateau near $0$ the way
+Report~IX's shorter, mixed-$K$ probe did, just confirming at higher confidence (longer run, purer
+$K{=}3$ stream) that the representational gap is in the frozen trunk, not the read-out threshold?
+Compare directly against Experiment~1: if the full-distribution run does \emph{worse} on the two
+named cells than the targeted run, that is itself informative (spreading two scalars' worth of
+capacity over the whole $K{=}3$ space costs the two hardest cells something the narrow fine-tune
+did not have to pay).]
+
+\section{Combined verdict}
+\label{sec:verdict}
+
+[PENDING --- write only after both \S\ref{sec:verdict-a} and \S\ref{sec:verdict-b} are filled in.
+This is the section whose conclusion actually matters for the paper's \S5.3: state plainly whether
+\emph{any} amount of read-out-only fine-tuning (targeted or general, $50$k or $200$k steps) gets a
+three-component graph right, and if so under which condition specifically, in one or two
+sentences Edoardo can lift almost verbatim into a conversation with the professor about what
+\S5.3 should claim.]
 
 \end{document}

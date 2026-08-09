@@ -792,7 +792,22 @@ tentativo (l'esperimento 6 usava 3000 step, non 30k — verificato in
 `scripts/r9_n46_pretrain_2path2cycle_finetune_readout_seed*.sbatch`; nessuna run a 30k step
 esiste nel repo, quindi il confronto "non cambiava niente" va verificato di nuovo con lo script
 dedicato). Script: `finetune_readout_threeway.py` (nuovo, vedi il suo docstring per l'uso
-esatto); report di analisi in `report/10/` (in corso).
+esatto); sbatch: `scripts/r10_finetune_threeway_splitchains_seed1000.sbatch`; report di analisi
+in `report/10/` (in corso).
+
+**Secondo esperimento collegato, più ampio**: `finetune_readout_threeway_full.py` (stesso
+metodo — solo `sim_scale`/`sim_bias`, trunk congelato — stesso checkpoint di partenza) ma allena
+sull'**intera distribuzione** degli split a tre componenti
+(`generate_path_union_graph(min_paths=3, max_paths=3)`, ogni combinazione di taglie, non solo le
+due celle nominate), per **200.000 step** (4× il primo esperimento). Domanda diversa da quella
+del fine-tuning mirato: non "riesco a correggere queste due celle specifiche" ma "l'esposizione a
+tutto lo spazio K=3 fa imparare al solo read-out una regola generale a tre componenti?" — la
+stessa domanda del §5.3 del paper, ma con budget molto più lungo del generico K∈{3..6} già
+provato (esperimento 6 di `scratch_prof_experiments.tex`, 3000 step, non aveva funzionato). Traccia
+sia le due celle nominate (per confronto diretto con il primo esperimento) sia una metrica
+aggregata su grafi K=3 generici ad ogni valutazione. Sbatch:
+`scripts/r10_finetune_full3way_splitchains_seed1000.sbatch`. Entrambi gli esperimenti si
+graficano con lo stesso script, `plot_finetune_readout_threeway.py --run_subdir {finetune_readout_threeway,finetune_readout_full3way}`.
 
 **Materiale esplorativo non ufficiale, se qualcuno lo riprende**:
 `report/9/scratch_prof_experiments/scratch_prof_experiments.tex` (18–26 pagine a seconda
