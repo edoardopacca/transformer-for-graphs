@@ -268,6 +268,325 @@ connectivity matrix of $G$.
 - **§5.4 "Other graph structures: multi-path, barbell"** = Report IV/V (parallel-paths, barbell)
   e Report VI (multipath).
 
+### Il compito di Claude da qui in avanti: scrivere il paper (non solo supervisionare)
+
+> Aggiunto 2026-08-20. Da questo momento Claude ha due compiti in parallelo: (1) **supervisionare
+> gli esperimenti** per capire cosa è abbastanza solido da entrare nel paper, (2) **scrivere
+> effettivamente il testo del paper**, sezione per sezione, tenendo sempre a mente il contesto di
+> tutto il resto (non scrivere una sezione come se le altre non esistessero — es. non introdurre in
+> un esperimento un dettaglio di setting mai definito in §Setting).
+
+**Workflow per il file**: Claude **non modifica mai direttamente** `idea_paper_by_prof.tex` né
+`setting.tex` (regola già in §0, ribadita qui). Claude scrive in un **file `.tex` separato**,
+copia di partenza identica a `idea_paper_by_prof.tex` (stesso preambolo, stessa `\input{setting}`),
+che poi Edoardo legge e copia a mano nell'Overleaf della prof. Nome file:
+`paper_draft.tex` (root del repo, accanto a `idea_paper_by_prof.tex`). Ogni volta che si scrive
+un pezzo nuovo, va mantenuta la coerenza col resto del documento già scritto in quel file.
+**Le immagini**: nel report i path `\includegraphics` puntano a file locali (`runs/reportN/...`);
+per il paper su Overleaf le immagini vanno caricate a mano da Edoardo, quindi quando serve una
+figura Claude lo segnala esplicitamente e chiede aiuto per il caricamento, non assume che il path
+locale funzioni lì.
+
+**Cartella di riferimento per lo stile**: `neurips styles/` (root del repo) contiene
+`neurips_2025.tex`/`.sty`/`.pdf` — il template ufficiale della venue a cui il paper è
+destinato. Il file `idea_paper_by_prof.tex` attuale **non** usa ancora la classe `neurips_2025`
+(usa `article` + `setting.tex`); non cambiare la classe di propria iniziativa, è una decisione
+della prof.
+
+**Regole di scrittura (non negoziabili, dette esplicitamente da Edoardo)**:
+- **Linguaggio semplicissimo, comprensibile anche a chi non ha fatto il paper con noi.** Mai
+  termini composti "AI-ish" per abbreviare (es. mai scrivere qualcosa come
+  "constraint-online-notwritten-based method" o "RoBERTa-based model" senza spiegare): se serve
+  nominare una cosa tecnica, **scrivere il termine per esteso e poi spiegarlo subito**, non dare
+  per scontato che il lettore capisca una sigla o un nome proprio (es. non scrivere "RoBERTa-based"
+  e basta — spiegare cosa significa in pratica per l'architettura: quali scelte concrete comporta).
+  Prima di scrivere, informarsi (mentalmente/di prassi) su quali sono le espressioni tipicamente
+  "AI-ish" nei paper di questo campo ed evitarle il più possibile.
+- Il paper ha un **limite di 4 pagine** (single-column), references e appendici escluse (vedi
+  bando sotto) — scrivere con questo vincolo sempre in mente, non gonfiare.
+- **Confronti sperimentali sempre sullo stesso training set**: la prof ha chiesto esplicitamente
+  che gli esperimenti messi a confronto nel paper usino sempre la stessa distribuzione di
+  training, altrimenti per lei il confronto non è valido/leggibile.
+
+**Bando della venue (copiato verbatim da Edoardo, per capire i vincoli di formato/contenuto)**:
+
+> We invite submissions that take principled approaches to advancing the understanding of
+> generative modeling. This understanding may be pursued from diverse perspectives, including
+> mathematical theory, physical modeling, and rigorous empirical analysis. In particular, we
+> encourage contributions that address the following foundational questions:
+> * Model classes and expressivity: What classes of functions, distributions, or algorithms can
+>   modern generative models represent, and how do architectural choices shape this expressive
+>   power? What makes transformers, diffusion models, discrete diffusions, and state-space models
+>   particularly effective at capturing linguistic or visual structures? How do repeated
+>   token-level computations expand the computational capabilities of these models, potentially
+>   enabling general reasoning?
+> * Learning, generalization and inductive bias: How do generative models acquire high-level
+>   structure and capabilities such as in-context learning, compositional generalization, and
+>   reasoning from data? What aspects of structure and skill acquisition are governed by unifying
+>   principles across architectures and modalities, and which are shaped by the specific
+>   inductive biases of data, objective, architecture, and optimization? Are there fundamental
+>   limits to current self-supervised learning paradigms, such as next-token prediction?
+> * Inference-time computation and adaptation: Modern generative systems increasingly rely on
+>   computation performed at inference time, from simple sampling to test-time adaptation. When
+>   and why does additional inference-time computation improve generation quality and reasoning?
+>   What are the statistical and computational limits of adapting generative models to
+>   distribution shifts, and how do these limits depend on model class, data structure, and the
+>   nature of the shift?
+> * Post-training: Which properties of pretrained models enable successful post-training? Does
+>   post-training create new capabilities, reveal latent ones, or reweight behaviors already
+>   present in the pretrained model? What are the fundamental distinctions between supervised
+>   fine-tuning, reinforcement learning, and distillation, and when does each offer genuine
+>   advantages?
+>
+> Submission instructions
+> Submissions are limited to four single-column pages, plus unlimited pages for references and
+> appendices. The reviewing process will be double-blind and all submissions must be anonymized.
+> Please do not include author names, affiliations, acknowledgements, or any other identifying
+> information in your submission. Submissions and reviews of rejected papers will not be made
+> public. All submissions must be made through OpenReview at this link. We ask you to use the
+> standard LaTeX NeurIPS style files. It is not required to fill the NeurIPS checklist.
+> Appendices can be submitted in a the same PDF file as the main text.
+> Note: If you are creating a new OpenReview profile, we strongly recommend using your
+> institutional email address. Profiles created without an institutional email may require a
+> moderation process, which can take up to two weeks.
+
+**Conseguenze pratiche del bando**: 4 pagine per il corpo (no limite per refs/appendici) →
+teorema e dimostrazione lunga possono stare in appendice (già così in `idea_paper_by_prof.tex`);
+submission **anonima/double-blind** → nessun nome, affiliazione, o riferimento identificativo nel
+testo finale (per ora, in fase di bozza, non è un problema urgente, ma va tenuto a mente prima
+della submission vera); usare gli style file NeurIPS standard (cartella `neurips styles/`).
+
+**Scaletta dettagliata data da Edoardo per ogni sezione (appunti suoi, copiati alla lettera —
+usare come guida quando si scrive quella sezione)**:
+
+*1. Introduction.* Iniziare spiegando perché è importante parlare di connectivity per i
+transformer: "Connectivity as a testbed for algorithmic reasoning" / "Neural algorithmic
+reasoning is a field of research dedicated to exploring such capabilities. Algorithmic execution
+is desirable because models use it to generalize out-of-distribution and scale to larger problem
+sizes." Perché connettività per grafi in particolare? Perché simula un ragionamento con
+dipendenze di una rete neurale. Dopo questa introduzione, come fa Ye et al., una scritta in
+**grassetto** con la domanda fondamentale: "How do Transformers learn connectivity? Which
+architectural features are needed for a given graph structure?" Poi, in una frase semplice, cosa
+dicevano i previous work su qual era il bottleneck (relazione fra profondità del transformer e
+diametro del grafo). Poi diciamo che noi invece abbiamo studiato se il diametro era davvero un
+bottleneck. Poi "Our Contributions" — per ora solo l'intestazione, si riempie quando ci sono
+tutti i risultati. Bozza di contenuto per dopo (non ancora da mettere nel testo): se cambiamo in
+similarity readout abbiamo come reference `2·3^L` anziché solo `3^L`; per i path graphs la
+connettività può essere imparata oltre il `2·3^L` bottleneck; grafi tipo split (8,36) sono più
+facili da imparare rispetto a un grafo split (23,23).
+
+*2. Related Work.* Il riferimento allo smoothed analysis (`arxiv.org/pdf/1307.4884`) c'entra
+poco così com'è — potrebbe agganciarsi meglio a nuovi esperimenti OOD (es. allenare solo su
+grafi con aggiunta di nodi e poi testare su altri) o a curriculum learning, ma Edoardo stesso non
+è sicuro che valga la pena — rischio di aggiungere esperimenti inutili solo per far quadrare la
+related work.
+
+*3. Setting.* Descrivere il setup dell'architettura. **La prof vuole che gli esperimenti
+confrontati nel paper usino sempre lo stesso training set** — per lei è l'unico modo per fare un
+confronto valido.
+
+*4. "Similarity Read-out Doubles the Capacity".* Va messo come primo risultato sperimentale/
+teorico (nota: nel file attuale è già §4, prima della sezione Experimental Results) — ha senso
+metterlo lì perché poi tutta la sezione 5 parla di capacità/diametro in termini di `2·3^L`.
+
+*5. Experimental Results — sotto-punti, come pensati da Edoardo:*
+  - **(1) Beyond-threshold (§5.1).** La prof vuole mettere direttamente il caso con training
+    solo sugli split "odd" (dispari) e poi test su tutti gli split, per mostrare che il caso
+    sbilanciato ("unbalanced") viene imparato mentre quello bilanciato ("balanced") no. Mettere
+    sicuramente anche l'immagine della geometria di similarità (stagewise/layerwise cosine
+    geometry).
+  - **(2) Paths vs cycles (§5.2).** Guardando gli attention score si è visto che per i path
+    l'attenzione si concentra sugli estremi (endpoint) — da lì l'idea di testare anche i cicli
+    per vedere se gli estremi erano fondamentali. Non lo sono, ma anche i cicli imparano
+    un'euristica: questa è la prima differenza. La seconda differenza: i path tendono a rendere
+    le coppie lontane disconnesse (di default), i cicli tendono a connettere coppie non connesse
+    (anche se spesso in realtà "capisce" — rimando a §5.3 dove si parla del fine-tuning). Qui
+    mostrare chiaramente le geometry di similarità per il caso bilanciato, con training fatto
+    solo sugli "odd". Le stesse cose vanno rifatte in appendice per gli esperimenti allenati su
+    tutte le combinazioni (non solo odd).
+  - **(3) Generalization to three components / fine-tuning (§5.3).** Mostrare che anche qui
+    spesso il modello "capisce" (nel senso della geometria) pur sbagliando la soglia di
+    decisione, e quindi si è deciso di fare fine-tuning. **Punto ancora confuso per Edoardo
+    stesso**: qui si torna al caso con training su tutte le combinazioni (non solo odd) — va
+    capito come rendere l'intera Sezione 5 coerente rispetto a quale training set si usa dove
+    (vedi anche il vincolo della prof al punto Setting sopra: stesso training set per poter
+    confrontare).
+  - **(4) Other structures: multipath, barbell (§5.4).** Da capire come rendere il setup
+    sperimentale coerente con le sezioni precedenti (stesso training set/condizioni).
+
+*6. Conclusion.* Non ancora sviluppata.
+
+---
+
+### Stato di avanzamento di `paper_draft.tex` (aggiornato 2026-08-23)
+
+> Questa sotto-sezione va tenuta aggiornata ad ogni sessione che tocca `paper_draft.tex` — è lo
+> stato reale del file, non un piano. Prima di scrivere una nuova sezione, leggere per intero
+> `paper_draft.tex` da disco (può essere stato modificato da Edoardo in parallelo — è già successo:
+> ha riscritto a mano il paragrafo "Model" del Setting con le equazioni esplicite mentre Claude
+> lavorava in un'altra parte del file. Nessun conflitto quella volta perché le modifiche erano in
+> punti diversi, ma va sempre verificato).
+
+> **⚠️ Correzione 2026-08-23 (stessa sessione): Claude aveva scritto prosa/tabelle/figure incorporate
+> per §5.1 e un'Appendice B senza che fosse stato chiesto — Edoardo aveva chiesto SOLO di generare i
+> due grafici (curva exact-match vs $a$ + heatmap attention) sulla base della consulenza AI esterna
+> che aveva incollato in chat, non di scriverli nel paper. Tutto quel testo è stato rimosso di nuovo:
+> `paper_draft.tex` è tornato esattamente allo stato lasciato da Edoardo (Introduction, Related Work,
+> Setting riscritta da lui, Teorema 1, il resto ancora placeholder), incluso rimuovere
+> `\usepackage{graphicx}`/`\usepackage{float}` che Claude aveva aggiunto al preambolo. **Lezione
+> operativa**: quando l'utente chiede "generami i grafici", il deliverable è il file immagine, non
+> una sezione di paper — non inferire il permesso di scrivere prosa dal fatto che i dati/l'analisi
+> sono già pronti. Aspettare un'istruzione esplicita tipo "scrivi la sezione" prima di toccare il
+> `.tex` con contenuto narrativo.**
+
+**Scritto e compilante (0 errori, 0 riferimenti indefiniti) al 2026-08-23 — SOLO questo, il resto è
+placeholder originale:**
+- **Introduction**: motivazione (Veličković & Blundell 2021 per neural algorithmic reasoning),
+  perché la connettività (algoritmo esplicito via matrix powering + composizione di implicazioni
+  logiche, con riferimento ad Abbe et al. 2024 sulla syllogism composition), domanda centrale in
+  grassetto, Sanford et al. 2024 (profondità logaritmica, worst-case) e Ye et al. 2026
+  (Disentangled Transformer, capacità $3^L$ esatta), la nostra domanda (il diametro è davvero il
+  collo di bottiglia?). **Regola di stile applicata rigidamente**: mai em-dash (—), termini tecnici
+  sempre scritti per esteso e spiegati subito, mai citazioni "di comodo" fuori contesto.
+- **Related Work**: due paragrafi (`\paragraph`, non elenco puntato) — "Transformer expressivity and
+  graph connectivity" (Sanford et al. 2024, Merrill & Sabharwal 2025) e "From expressivity to
+  learnability" (Abbe et al. 2024 sulla globality, Ye et al. 2026 sul gap data-training). Resta un
+  `\begin{itemize}` con solo il riferimento allo smoothed analysis (Spielman-Teng), da integrare o
+  rimuovere — Edoardo ha detto che così com'è non c'entra molto, forse aggancio a OOD/curriculum
+  futuri, ma "aggiungerei esperimenti inutili solo per farlo quadrare".
+- **Setting** (`\label{sec:setting}`): **riscritta da Edoardo stesso** con equazioni esplicite per
+  $H^{(0)}$, l'attenzione normalized-ReLU, i due residual+LayerNorm — più formale della prima bozza
+  di Claude. Definisce Model, Read-out (similarity, con rimando al Teorema 1), Graph families (two-path,
+  two-cycle, **setting "odd"** — nome ufficiale ora, non più "sparse-grid": training ristretto a
+  $\{3,5,7,9\}$ — e three-path per l'OOD a tre componenti), Evaluation (exact match, reach, cut).
+  **Bug minore non ancora corretto** (di Edoardo, da confermare con lui prima di toccarlo): la riga
+  `${(3,43),(5,41),(7,39),(9,37)}$` manca degli `\{ \}` letterali (servirebbe `\{(3,43),\dots\}$`)
+  — le graffe esterne sono solo raggruppamento LaTeX, quindi in output non compare alcuna parentesi
+  graffa attorno alla lista.
+- **§4 Expressivity with Similarity Readout**: Teorema 1 invariato (già presente in
+  `idea_paper_by_prof.tex`), con la dimostrazione completa in Appendice A.
+- **§5.1–§5.4, Conclusion**: ancora i placeholder `\begin{itemize}` originali di
+  `idea_paper_by_prof.tex`, non toccati.
+
+**Deliverable reale di questa sessione: due file immagine, NON incorporati nel paper**, in
+`paper_figures/` (root del repo), ciascuno in **PDF vettoriale + PNG** di anteprima:
+- `fig_oddtrain_exactmatch_vs_a.{pdf,png}` — curva exact-match vs taglia $a$ del training "odd" a
+  due path (n=46, similarity read-out, seed 1000/2000). Segue la spec esatta data da Edoardo
+  (Opzione 1 della consulenza AI): blu `#0072B2` per dati/media (linea 1.8pt, marker 5pt), grigio
+  `#B0B0B0` per le linee dei singoli seed (0.7pt) — **non azzurro chiaro come nel primo tentativo,
+  errore corretto**; marker pieno=taglia vista in training, vuoto=OOD; linea verticale tratteggiata
+  grigia a $a=11.5$ con etichetta onesta "failure begins at $a=12$" (mai "capacity boundary"); nota
+  in alto "All splits satisfy $D_{\mathrm{long}}>18=2\cdot3^L$" con il "18" in vermiglio `#D55E00`;
+  nota piccola sotto l'asse x "split $=(a,46-a)$"; dimensione 6.2×2.6in (dentro il range 6.1–6.3 ×
+  2.4–2.6 richiesto); solo griglia orizzontale `#DDDDDD`; niente spine alto/destra.
+- `fig_oddtrain_attn_layer2.{pdf,png}` — heatmap dei pesi di attention reali, **solo layer 2** (non
+  $S$, non layer 0), due pannelli $(8,38)$ risolto vs $(23,23)$ fallito, colormap magma, scala
+  colore condivisa clippata al 99.5° percentile congiunto, triangoli arancioni `#E69F00` sui 4
+  endpoint, confini di componente come linee bianche tratteggiate, un'unica colorbar condivisa,
+  assi etichettati genericamente "node position along path" (non "query/attended-to node" come nel
+  primo tentativo), tick solo su 1/confine/46, dimensione 6.1×2.5in con due pannelli quadrati.
+
+**Dati sorgente**: `runs/report9/asym_chains_n46/n46_splitchainsgrid_seed{1000,2000}/asym_chains.json`
+(figura 1) e `runs/report9/heatmaps/n46_splitchainsgrid_seed1000/heatmap_data.npz` (figura 2, campi
+`a8__alpha1`/`a23__alpha1`). **Nota per chi riprende**: i numeri dietro la figura 1 (es.
+$0.998\pm0.002$ ad $a=11$, ricalcolato dai JSON reali) differiscono leggermente dai numeri
+arrotondati riportati nello scratch doc (`report/9/scratch_prof_experiments/scratch_prof_experiments.tex`,
+che diceva $0.995\pm0.005$) — usare sempre i JSON come fonte di verità, non le tabelle degli scratch
+doc. Gli script Python che generano queste due figure vivono solo nella cronologia di questa
+sessione (non ancora promossi a script `.py` dedicati nel repo) — se in futuro Edoardo chiede di
+rigenerarle o di scriverne di analoghe per §5.2/§5.3/§5.4, ricostruire dagli stessi file sorgente
+seguendo le stesse regole di stile sopra, non da un vecchio tentativo con colori diversi.
+
+**Cosa NON è ancora successo**: nessun testo è stato scritto in `paper_draft.tex` oltre a quanto già
+c'era. Il paper è ancora Introduction + Related Work + Setting + Teorema 1 + placeholder. Le due
+figure sono pronte per essere valutate da Edoardo e, solo su sua richiesta esplicita, incorporate in
+una sezione scritta.
+
+### Decisioni di design delle figure (da una consulenza AI esterna di Edoardo, sua trascrizione
+### quasi verbatim — vale come riferimento per §5.2/§5.3/§5.4 quando si arriverà a scriverle)
+
+Punto di partenza concettuale: la figura va progettata **attorno al claim**, non riciclando i
+grafici dei report. Per la sezione beyond-threshold il claim forte è che il modello, allenato solo
+su $\{3,5,7,9\}$, generalizza perfettamente alle taglie interlacciate mai viste, con rottura netta a
+$a=12$ — e che **la rottura non coincide con l'attraversamento di $2\cdot3^L$**: tutti gli split
+mostrati hanno già $D_{\mathrm{long}}>18$, quindi il fenomeno interessante è sbilanciato-vs-bilanciato,
+non un attraversamento di soglia.
+
+**Quattro alternative erano state proposte** (Claude ha implementato solo l'Opzione 1 + la heatmap
+di attention, le due che Edoardo/l'AI consulente hanno indicato come prioritarie "per partire";
+le altre restano disponibili se in futuro serve un taglio diverso):
+1. **Exact match vs short-component size $a$** (quella scelta e implementata): marker pieni/vuoti
+   per trained/OOD, linea spessa=media, linee sottili=seed singoli, soglia verticale tratteggiata
+   con etichetta onesta ("exact match drops from $a=12$", **mai** "capacity boundary" — sarebbe
+   scientificamente sbagliato), annotazione in alto sul fatto che $D_{\mathrm{long}}>2\cdot3^L$.
+   Palette: blu `#0072B2` per dati/media, grigio chiaro per i seed, arancio/vermiglio `#D55E00` per
+   eventuali soglie teoriche. Preferita perché mostra insieme OOD-generalisation, sbilanciato-vs-
+   bilanciato e la rottura netta — e si può riusare identica per i cicli.
+2. **Exact match vs diametro della componente lunga** ($x=D_{\mathrm{long}}$, linea verticale alla
+   soglia teorica $2\cdot3^L$): più aggressiva nel dimostrare "il diametro non è la misura giusta"
+   perché mostra pattern controintuitivo (diametro più grande → più facile in una parte del range),
+   ma comunica meno direttamente il punto sbilanciato/bilanciato. Da tenere in mente per una
+   figura di §5.4 o come figura alternativa/gemella nella stessa sezione.
+3. **Heatmap seed×split** (righe=seed, colonne=$a$, colore=exact match, triangolini sopra le
+   colonne allenate): meno immediata alla prima lettura ma **è la scelta giusta per i cicli**, dove
+   c'è vera seed lottery (3/4 seed collassano, 1/4 risolve sempre nel continuous training) — una
+   media con error bar sarebbe lì fuorviante (viola la regola già in vigore, errore 26 di questo
+   file). Da usare quando si scrive §5.2.
+4. **Schema illustrativo a due grafi** (es. $(8,38)$ vs $(23,23)$ disegnati esplicitamente con
+   l'esito accanto): molto efficace per una talk/intro, ma seleziona solo due esempi — da abbinare
+   all'Opzione 1 come inset, non da usare da sola come evidenza principale.
+
+**Per la heatmap di attention (1.b)**: mostrare **solo** $\alpha$ del layer 2 (non $S$, non il layer
+0, non entrambi i layer) — nei report c'era troppa carne al fuoco per una figura da paper. Due
+pannelli affiancati (split risolto vs split fallito), righe=nodo query $i$, colonne=nodo attenzionato
+$j$ (l'enfasi sugli endpoint deve comparire come **bande verticali**, cioè colonne, non righe).
+Colormap magma o viridis, **mai jet**. Scala colore condivisa fra i due pannelli (altrimenti non si
+può confrontare l'intensità), clippata a un percentile alto comune (99.5°) per non far sparire il
+contrasto per pochi outlier — dichiarare sempre il clip in caption. Confini di componente come linee
+bianche tratteggiate sottili, endpoint marcati con piccoli triangoli sopra la matrice (non linee
+che attraversano tutta la heatmap, sembrerebbero dati).
+
+### Metodologia sui seed: nuova policy per gli esperimenti principali del paper
+
+> Decisione presa 2026-08-23, da applicare da qui in avanti a ogni claim centrale del paper
+> (non ai soli quattro esperimenti nominati sotto, che sono il caso concreto discusso finora).
+
+**Regola**: ogni esperimento comportamentale che sostiene un claim principale del paper va portato
+a **almeno 5 seed indipendenti** (standard usato anche da Sanford et al. 2024, mean±std su 5 seed).
+Per condizioni che mostrano variabilità seed-to-seed sostanziale (finora: i cicli, dove nel
+continuous training 3/4 seed collassano e 1/4 risolve sempre — vera "seed lottery", non rumore),
+salire a **10 seed** per poter quantificare la frazione di seed che risolve, non solo descriverla
+aneddoticamente.
+
+**Come riportare i numeri** (per non nascondere bimodalità dietro una media):
+- L'unità di incertezza è il **seed/modello**, non il singolo grafo di test — mai calcolare uno
+  std "finto" su tutti i $N_{\mathrm{seed}}\times N_{\mathrm{test}}$ grafi insieme.
+- Nei grafici: **linee sottili per seed individuale + una linea spessa per la media**, mai solo la
+  media nuda (questa è già la regola 26 di questo file, qui solo ribadita con lo standard preciso).
+- Se il fenomeno è bimodale (es. cicli), scriverlo esplicitamente in prosa ("3/10 seed risolvono lo
+  split bilanciato, 7/10 collassano") invece di un mean±std che a metà strada sembra un risultato
+  intermedio quando invece nessun singolo modello si comporta così.
+- Tabelle: mean ± std sui seed in una colonna; l'appendice può portare il dettaglio per-seed se
+  interessante (come già fa il progetto per i risultati con seed lottery, es. Report IX Thread B).
+
+**Stato attuale dei seed per i quattro esperimenti principali (verificato 2026-08-23,
+`runs/report9/n46_train/`)**:
+
+| Esperimento | Seed esistenti | Mancano per 5 | Script sbatch pronti |
+|---|---|---|---|
+| Two-path continuous (§app:full-distribution-control) | 1000,2000,3000,4000 | 5000 | `scripts/r9_n46_splitchains_seed5000.sbatch` |
+| Two-cycle continuous | 1000,2000,3000,4000 | 5000 | `scripts/r9_n46_splitcycles_seed5000.sbatch` |
+| Two-path odd/grid (§sec:beyond-threshold, Figure 1/2) | 1000,2000 | 3000,4000,5000 | `scripts/r9_n46_splitchains_grid_seed{3000,4000,5000}.sbatch` |
+| Two-cycle odd/grid | 1000,2000 | 3000,4000,5000 | `scripts/r9_n46_splitcyclesgrid_seed{3000,4000,5000}.sbatch` |
+
+Tutti e 8 gli script sono stati **preparati da Claude per templating** (copiati dagli script già
+esistenti per gli altri seed, solo seed/job-name/path sostituiti) ma **non lanciati** — bloccato
+dall'outage HPC (vedi §11). Quando l'accesso torna, lanciarli con `sbatch scripts/<nome>.sbatch`
+(uno per volta o in blocco, rispettando il tetto job in coda di §6); a fine training rigenerare
+tabella/Figura 1/Figura 2 di `paper_draft.tex` con gli script Python usati sopra (vedi i comandi
+`python3` inline nella sessione che ha prodotto le figure, non ancora promossi a script `plot_*.py`
+dedicati — se questa figura sopravvive nella versione finale del paper vale la pena crearne uno).
+
 ---
 
 ## 1. Obiettivo del progetto
@@ -769,6 +1088,48 @@ row-stocastica, in [0,1]; usare `n_steps=3^L`, MAI `L`).
 
 ## 11. Stato attuale e compito corrente
 
+> **✅ Accesso HPC ripristinato (2026-08-24).** L'outage SSH dal 2026-08-19 è risolto (memoria di
+> progetto e questo callout rimossi). I due job già sottomessi prima dell'outage — Slurm **619502**
+> (`r10ft3way`, fine-tuning mirato) e **619513** (`r10ft3wayfull`, fine-tuning sull'intera
+> distribuzione K=3) — **si analizzano in un secondo momento, su richiesta esplicita di Edoardo**:
+> non controllarli/pull-arli di propria iniziativa in una nuova sessione, la checklist per farlo
+> resta comunque qui sotto per quando servirà.
+>
+> **Priorità immediata invece (2026-08-24): portare a 5 seed i quattro esperimenti principali del
+> paper** (§0, "Metodologia sui seed"). Otto script sbatch sono già pronti in `scripts/` (creati
+> 2026-08-23, mai lanciati):
+> ```
+> scripts/r9_n46_splitchains_seed5000.sbatch
+> scripts/r9_n46_splitcycles_seed5000.sbatch
+> scripts/r9_n46_splitchains_grid_seed3000.sbatch
+> scripts/r9_n46_splitchains_grid_seed4000.sbatch
+> scripts/r9_n46_splitchains_grid_seed5000.sbatch
+> scripts/r9_n46_splitcyclesgrid_seed3000.sbatch
+> scripts/r9_n46_splitcyclesgrid_seed4000.sbatch
+> scripts/r9_n46_splitcyclesgrid_seed5000.sbatch
+> ```
+> **Come lanciarli** (Edoardo, da terminale HPC dopo `git pull`): sono 8 job GPU indipendenti, ognuno
+> ~16h (`long_gpuh200`, vedi §6) — sottometterli tutti insieme è dentro il tetto job-in-coda di §6
+> (~25-30 su QOS `normal`), quindi:
+> ```bash
+> cd ~/transformer-for-graphs && git pull
+> for f in scripts/r9_n46_splitchains_seed5000.sbatch \
+>          scripts/r9_n46_splitcycles_seed5000.sbatch \
+>          scripts/r9_n46_splitchains_grid_seed{3000,4000,5000}.sbatch \
+>          scripts/r9_n46_splitcyclesgrid_seed{3000,4000,5000}.sbatch; do
+>   sbatch "$f"
+> done
+> ```
+> A fine training ciascuno produce da sé tabelle/figure aggiornate nelle stesse cartelle degli altri
+> seed (`runs/report9/asym_chains_n46/`, `heatmaps/`, `mechanistic/`, `stagewise/`) — su HPC
+> `git add runs/report9/ out/*.out && git commit ... && git push`, poi in locale `git pull`.
+> **Dopo**: (a) rigenerare le tre figure di questa sessione (`paper_figures/fig_oddtrain_*`) con i 5
+> seed invece di 2 — stessi script Python descritti sopra, stesse regole di stile/colore, solo
+> estendendo i seed usati; (b) fare lo stesso per l'heatmap sui cicli, dove la seed lottery del
+> continuous training (3/4 collassano, 1/4 risolve) e la variabilità già vista nell'odd-cycle
+> training (2 seed in disaccordo netto) rendono quella heatmap probabilmente il risultato più
+> interessante di tutti una volta a 5 seed.
+
 **Compito aperto (Report 10, documento di lavoro personale — vedi §0): fine-tuning mirato del
 solo read-out su celle a tre componenti specifiche.** Nasce dalla sezione §5.3 del paper
 ("Generalization to three paths, finetuning??", §0) e da un'osservazione della prof sulle
@@ -808,6 +1169,20 @@ sia le due celle nominate (per confronto diretto con il primo esperimento) sia u
 aggregata su grafi K=3 generici ad ogni valutazione. Sbatch:
 `scripts/r10_finetune_full3way_splitchains_seed1000.sbatch`. Entrambi gli esperimenti si
 graficano con lo stesso script, `plot_finetune_readout_threeway.py --run_subdir {finetune_readout_threeway,finetune_readout_full3way}`.
+
+**Checklist per quando l'accesso HPC torna** (vedi il blocco ⚠️ a inizio sezione): (1) su HPC,
+`squeue -u 3352759` per vedere se 619502/619513 sono ancora in coda/running o già finiti; (2)
+`cat out/r10ft3way_619502.out` e `out/r10ft3wayfull_619513.out` per leggere l'esito (occhio ai
+marker `FAILED:` — ogni step della batteria post-finetuning è indipendente e non blocca gli
+altri se fallisce); (3) se completati, su HPC `git add runs/report10/ out/r10ft3way_*.out
+out/r10ft3wayfull_*.out && git commit ... && git push`; (4) in locale `git pull`, poi
+`python plot_finetune_readout_threeway.py --tag n46_splitchains_seed1000_threeway
+--run_subdir finetune_readout_threeway` e lo stesso con `--tag
+n46_splitchains_seed1000_full3way --run_subdir finetune_readout_full3way`; (5) riempire i
+blocchi `[PENDING]` di `report/10/transformer_for_graphs_10.tex` con l'analisi vera, guardando
+sia le curve sia (se interessante quanto visto nei log parziali del job 619502 — vedi cronologia
+chat, non ripetuta qui) l'eventuale trade-off fra le due celle target quando un'unica coppia
+scale/bias condivisa deve correggerle entrambe.
 
 **Materiale esplorativo non ufficiale, se qualcuno lo riprende**:
 `report/9/scratch_prof_experiments/scratch_prof_experiments.tex` (18–26 pagine a seconda
