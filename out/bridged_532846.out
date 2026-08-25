@@ -1,0 +1,337 @@
+== n20_er_seed1000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.094 crossPredConn=0.094
+  [split] exact=0.775 withinA=1.000 withinB=1.000 cross=0.988 crossPredConn=0.012
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.658 disc=0.892 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.296 disc=0.505 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.202 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.131 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.091 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_er_seed1000/bridged_cliques.json
+== n20_er_seed2000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.259 withinB=0.252 cross=0.176 crossPredConn=0.176
+  [split] exact=0.000 withinA=0.150 withinB=0.139 cross=0.923 crossPredConn=0.077
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.845 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.999 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.928 disc=0.909 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.742 disc=0.713 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.698 disc=0.673 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.174 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_er_seed2000/bridged_cliques.json
+== n20_er_seed3000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.620 withinB=0.615 cross=0.040 crossPredConn=0.040
+  [split] exact=0.009 withinA=0.827 withinB=0.824 cross=0.997 crossPredConn=0.003
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.957 disc=0.998 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.410 disc=0.655 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.202 disc=0.503 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.039 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_er_seed3000/bridged_cliques.json
+== n20_er_seed4000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.693 withinB=0.698 cross=0.656 crossPredConn=0.656
+  [split] exact=0.000 withinA=0.544 withinB=0.543 cross=0.454 crossPredConn=0.546
+  discrimination acc=0.650 (bridged->conn 0.92, split->conn 0.62)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.988 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.343 disc=0.605 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.330 disc=0.558 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.617 disc=0.866 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.651 disc=0.671 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_er_seed4000/bridged_cliques.json
+== n20_mixed_seed1000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.003 crossPredConn=0.003
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.982 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.266 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.129 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.064 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.003 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_mixed_seed1000/bridged_cliques.json
+== n40_er_seed1000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.303 withinB=0.300 cross=0.240 crossPredConn=0.240
+  [split] exact=0.000 withinA=0.306 withinB=0.303 cross=0.766 crossPredConn=0.234
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=0.988 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.278 disc=0.522 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.137 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.101 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.085 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.114 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.141 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.188 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.219 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.222 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.223 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.226 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.231 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.241 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.243 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.238 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_er_seed1000/bridged_cliques.json
+== n40_mixed_seed1000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=0.983 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.996 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.813 disc=0.994 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.255 disc=0.505 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.151 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.091 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.070 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.047 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.022 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.007 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.002 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_mixed_seed1000/bridged_cliques.json
+== n20_mixed_seed2000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.005 crossPredConn=0.005
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.899 disc=0.996 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.265 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.130 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.066 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.005 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_mixed_seed2000/bridged_cliques.json
+== n40_er_seed2000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.000 withinB=0.000 cross=0.000 crossPredConn=0.000
+  [split] exact=0.000 withinA=0.001 withinB=0.001 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=0.999 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.863 disc=0.999 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.593 disc=0.859 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.454 disc=0.661 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.359 disc=0.544 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.251 disc=0.501 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.179 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.133 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.096 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.067 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.039 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.017 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.005 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.001 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_er_seed2000/bridged_cliques.json
+== n40_mixed_seed2000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=0.998 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.988 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.687 disc=0.954 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.244 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.140 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.079 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.050 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.025 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.009 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.002 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.001 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_mixed_seed2000/bridged_cliques.json
+== n20_mixed_seed3000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.012 crossPredConn=0.012
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.968 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.266 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.132 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.086 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.012 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_mixed_seed3000/bridged_cliques.json
+== n40_er_seed3000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.964 withinB=0.959 cross=0.934 crossPredConn=0.934
+  [split] exact=0.000 withinA=0.964 withinB=0.960 cross=0.068 crossPredConn=0.932
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=0.992 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.616 disc=0.887 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.244 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.175 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.143 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.109 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.092 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.104 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.150 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.253 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.379 disc=0.550 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.551 disc=0.657 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.719 disc=0.526 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.844 disc=0.501 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.907 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.935 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_er_seed3000/bridged_cliques.json
+== n40_mixed_seed3000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=0.581 disc=0.764 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=0.998 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.822 disc=0.989 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.645 disc=0.925 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.340 disc=0.568 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.196 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.110 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.090 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.074 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.034 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.005 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_mixed_seed3000/bridged_cliques.json
+== n20_mixed_seed4000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.010 crossPredConn=0.010
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.949 disc=0.999 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.268 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.137 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.085 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.010 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_cliques/n20_mixed_seed4000/bridged_cliques.json
+== n40_er_seed4000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=0.025 withinB=0.025 cross=0.003 crossPredConn=0.003
+  [split] exact=0.000 withinA=0.030 withinB=0.030 cross=0.997 crossPredConn=0.003
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=0.997 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.560 disc=0.827 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.243 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.182 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.142 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.103 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.070 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.043 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.025 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.016 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.015 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.014 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.013 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.010 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.007 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.003 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_er_seed4000/bridged_cliques.json
+== n40_mixed_seed4000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.808 disc=0.994 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.261 disc=0.502 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.143 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.093 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.071 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.047 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.017 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.006 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.001 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_cliques/n40_mixed_seed4000/bridged_cliques.json
+bridged-cliques eval done -> runs/report5/bridged_cliques

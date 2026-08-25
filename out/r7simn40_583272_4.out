@@ -1,0 +1,147 @@
+tag=n40_er_similarity_seed1000 checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 1 exact=0.000 reach_long=0.715 reach_short=nan cut=1.000 mode=random
+  a= 2 exact=0.000 reach_long=0.728 reach_short=1.000 cut=1.000 mode=random
+  a= 3 exact=0.000 reach_long=0.741 reach_short=1.000 cut=1.000 mode=random
+  a= 4 exact=0.000 reach_long=0.756 reach_short=1.000 cut=1.000 mode=random
+  a= 5 exact=0.000 reach_long=0.770 reach_short=1.000 cut=1.000 mode=random
+  a= 6 exact=0.000 reach_long=0.784 reach_short=1.000 cut=1.000 mode=random
+  a= 7 exact=0.000 reach_long=0.800 reach_short=1.000 cut=1.000 mode=random
+  a= 8 exact=0.000 reach_long=0.816 reach_short=1.000 cut=1.000 mode=random
+  a= 9 exact=0.000 reach_long=0.831 reach_short=1.000 cut=1.000 mode=random
+  a=10 exact=0.000 reach_long=0.848 reach_short=1.000 cut=1.000 mode=random
+  a=11 exact=0.000 reach_long=0.864 reach_short=1.000 cut=1.000 mode=random
+  a=12 exact=0.000 reach_long=0.881 reach_short=1.000 cut=1.000 mode=random
+  a=13 exact=0.000 reach_long=0.897 reach_short=1.000 cut=1.000 mode=random
+  a=14 exact=0.000 reach_long=0.914 reach_short=1.000 cut=1.000 mode=random
+  a=15 exact=0.000 reach_long=0.930 reach_short=1.000 cut=1.000 mode=random
+  a=16 exact=0.000 reach_long=0.946 reach_short=1.000 cut=1.000 mode=random
+  a=17 exact=0.000 reach_long=0.960 reach_short=1.000 cut=1.000 mode=random
+  a=18 exact=0.000 reach_long=0.974 reach_short=1.000 cut=1.000 mode=random
+  a=19 exact=0.000 reach_long=0.986 reach_short=1.000 cut=1.000 mode=random
+  a=20 exact=0.000 reach_long=0.995 reach_short=0.995 cut=1.000 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 1 exact=0.000 reach_long=0.715 reach_short=nan cut=1.000 mode=fixed
+  a= 4 exact=0.000 reach_long=0.756 reach_short=1.000 cut=1.000 mode=fixed
+  a= 7 exact=0.000 reach_long=0.801 reach_short=1.000 cut=1.000 mode=fixed
+  a= 8 exact=0.000 reach_long=0.817 reach_short=1.000 cut=1.000 mode=fixed
+  a=10 exact=0.000 reach_long=0.848 reach_short=1.000 cut=1.000 mode=fixed
+  a=17 exact=0.000 reach_long=0.960 reach_short=1.000 cut=1.000 mode=fixed
+  a=20 exact=0.000 reach_long=0.995 reach_short=0.995 cut=1.000 mode=fixed
+  saved -> runs/report7/mechanistic/n40_er_similarity_seed1000/metrics.csv
+
+== readout decomposition cos(h_i,h_j) (similarity read-out) ==
+  readout(similarity) a= 1 done
+  readout(similarity) a= 2 done
+  readout(similarity) a= 3 done
+  readout(similarity) a= 4 done
+  readout(similarity) a= 5 done
+  readout(similarity) a= 6 done
+  readout(similarity) a= 7 done
+  readout(similarity) a= 8 done
+  readout(similarity) a= 9 done
+  readout(similarity) a=10 done
+  readout(similarity) a=11 done
+  readout(similarity) a=12 done
+  readout(similarity) a=13 done
+  readout(similarity) a=14 done
+  readout(similarity) a=15 done
+  readout(similarity) a=16 done
+  readout(similarity) a=17 done
+  readout(similarity) a=18 done
+  readout(similarity) a=19 done
+  readout(similarity) a=20 done
+  saved -> runs/report7/mechanistic/n40_er_similarity_seed1000/readout.csv
+
+== W_in geometry (similarity read-out has no W_out) ==
+  saved -> runs/report7/mechanistic/n40_er_similarity_seed1000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 1 done (row_mass1 mean=1.876, exact-contribution over 64 graphs)
+  attention a= 4 done (row_mass1 mean=1.692, exact-contribution over 64 graphs)
+  attention a= 7 done (row_mass1 mean=1.605, exact-contribution over 64 graphs)
+  attention a= 8 done (row_mass1 mean=1.602, exact-contribution over 64 graphs)
+  attention a=10 done (row_mass1 mean=1.597, exact-contribution over 64 graphs)
+  attention a=14 done (row_mass1 mean=1.601, exact-contribution over 64 graphs)
+  attention a=17 done (row_mass1 mean=1.600, exact-contribution over 64 graphs)
+  attention a=20 done (row_mass1 mean=1.593, exact-contribution over 64 graphs)
+  saved -> runs/report7/mechanistic/n40_er_similarity_seed1000/attn_cache.npz
+== mechanistic_heatmaps.py (heatmap probe, exact contribution) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a=20 done
+  saved -> runs/report7/heatmaps/n40_er_similarity_seed1000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report7/heatmaps/n40_er_similarity_seed1000/raw_weights.npz
+== eval_three_way_split.py (falsification test) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  small= 1 large=(19,20) exact=0.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 2 large=(19,19) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 4 large=(18,18) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 7 large=(16,17) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 8 large=(16,16) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small=10 large=(15,15) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  saved -> runs/report7/three_way/n40_er_similarity_seed1000/three_way_split.json
+== ablation_asym_chains.py (layer ablations) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+      baseline a= 1 exact=0.000 reach_long=0.715 reach_short=nan cut=1.000
+      baseline a= 4 exact=0.000 reach_long=0.755 reach_short=1.000 cut=1.000
+      baseline a= 7 exact=0.000 reach_long=0.800 reach_short=1.000 cut=1.000
+      baseline a= 8 exact=0.000 reach_long=0.816 reach_short=1.000 cut=1.000
+      baseline a=10 exact=0.000 reach_long=0.848 reach_short=1.000 cut=1.000
+      baseline a=14 exact=0.000 reach_long=0.914 reach_short=1.000 cut=1.000
+      baseline a=17 exact=0.000 reach_long=0.961 reach_short=1.000 cut=1.000
+      baseline a=20 exact=0.000 reach_long=0.995 reach_short=0.995 cut=1.000
+    zero_attn0 a= 1 exact=0.313 reach_long=0.982 reach_short=nan cut=0.977
+    zero_attn0 a= 4 exact=0.000 reach_long=0.980 reach_short=0.953 cut=0.122
+    zero_attn0 a= 7 exact=0.000 reach_long=0.975 reach_short=0.930 cut=0.083
+    zero_attn0 a= 8 exact=0.000 reach_long=0.974 reach_short=0.944 cut=0.059
+    zero_attn0 a=10 exact=0.000 reach_long=0.974 reach_short=0.944 cut=0.057
+    zero_attn0 a=14 exact=0.000 reach_long=0.967 reach_short=0.957 cut=0.043
+    zero_attn0 a=17 exact=0.000 reach_long=0.968 reach_short=0.955 cut=0.044
+    zero_attn0 a=20 exact=0.000 reach_long=0.964 reach_short=0.964 cut=0.041
+    zero_attn1 a= 1 exact=0.000 reach_long=0.229 reach_short=nan cut=1.000
+    zero_attn1 a= 4 exact=0.000 reach_long=0.248 reach_short=1.000 cut=1.000
+    zero_attn1 a= 7 exact=0.000 reach_long=0.270 reach_short=1.000 cut=1.000
+    zero_attn1 a= 8 exact=0.000 reach_long=0.278 reach_short=0.956 cut=1.000
+    zero_attn1 a=10 exact=0.000 reach_long=0.296 reach_short=0.805 cut=1.000
+    zero_attn1 a=14 exact=0.000 reach_long=0.339 reach_short=0.597 cut=1.000
+    zero_attn1 a=17 exact=0.000 reach_long=0.380 reach_short=0.504 cut=1.000
+    zero_attn1 a=20 exact=0.000 reach_long=0.433 reach_short=0.433 cut=1.000
+     zero_mlp0 a= 1 exact=0.273 reach_long=1.000 reach_short=nan cut=0.426
+     zero_mlp0 a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.004
+     zero_mlp0 a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000
+     zero_mlp0 a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000
+     zero_mlp0 a=10 exact=0.000 reach_long=1.000 reach_short=0.999 cut=0.000
+     zero_mlp0 a=14 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000
+     zero_mlp0 a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000
+     zero_mlp0 a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000
+     zero_mlp1 a= 1 exact=0.000 reach_long=0.916 reach_short=nan cut=0.138
+     zero_mlp1 a= 4 exact=0.000 reach_long=0.941 reach_short=1.000 cut=0.592
+     zero_mlp1 a= 7 exact=0.000 reach_long=0.955 reach_short=1.000 cut=0.633
+     zero_mlp1 a= 8 exact=0.000 reach_long=0.958 reach_short=1.000 cut=0.548
+     zero_mlp1 a=10 exact=0.000 reach_long=0.972 reach_short=1.000 cut=0.420
+     zero_mlp1 a=14 exact=0.000 reach_long=0.988 reach_short=1.000 cut=0.302
+     zero_mlp1 a=17 exact=0.000 reach_long=0.997 reach_short=1.000 cut=0.292
+     zero_mlp1 a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.287
+        bypass a= 1 exact=0.000 reach_long=0.101 reach_short=nan cut=1.000
+        bypass a= 4 exact=0.000 reach_long=0.110 reach_short=0.833 cut=1.000
+        bypass a= 7 exact=0.000 reach_long=0.119 reach_short=0.523 cut=1.000
+        bypass a= 8 exact=0.000 reach_long=0.123 reach_short=0.464 cut=1.000
+        bypass a=10 exact=0.000 reach_long=0.131 reach_short=0.378 cut=1.000
+        bypass a=14 exact=0.000 reach_long=0.151 reach_short=0.275 cut=1.000
+        bypass a=17 exact=0.000 reach_long=0.170 reach_short=0.228 cut=1.000
+        bypass a=20 exact=0.000 reach_long=0.195 reach_short=0.195 cut=1.000
+  saved -> runs/report7/ablation/n40_er_similarity_seed1000/ablation.csv
+done n40_er_similarity_seed1000

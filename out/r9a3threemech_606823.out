@@ -1,0 +1,23 @@
+== mechanistic_threeway_heatmaps.py (attention scores/alpha) ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu
+== attention/Q/K/V heatmap probe (three-way, arbitrary sizes) ==
+  heatmap probe sizes=(1, 22, 23) done
+  heatmap probe sizes=(4, 15, 27) done
+  heatmap probe sizes=(7, 15, 24) done
+  heatmap probe sizes=(2, 10, 34) done
+  heatmap probe sizes=(15, 15, 16) done
+  saved -> runs/report9/heatmaps_threeway/n46_splitchains_seed1000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report9/heatmaps_threeway/n46_splitchains_seed1000/raw_weights.npz
+== stagewise_threeway.py (layerwise cosine geometry) ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise sizes=(1, 22, 23) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/0.000)
+  stagewise sizes=(4, 15, 27) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/0.000)
+  stagewise sizes=(7, 15, 24) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=0.999/0.923/0.000)
+  stagewise sizes=(2, 10, 34) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/0.000/1.000)
+  stagewise sizes=(15, 15, 16) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=0.246/0.198/0.188)
+  saved -> runs/report9/stagewise_threeway/n46_splitchains_seed1000/stagewise_{geometry.npz,metrics.csv,margins.csv}
+done: n46_splitchains_seed1000 (5 cells)

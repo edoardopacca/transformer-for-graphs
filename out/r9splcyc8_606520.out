@@ -1,0 +1,19 @@
+== mechanistic_heatmaps.py (attention scores/alpha, splits 4 8 23, topology=cycle) ==
+checkpoint=runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a= 8 done
+  heatmap probe a=23 done
+  saved -> runs/report9/heatmaps/n46_splitcycles_seed1000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report9/heatmaps/n46_splitcycles_seed1000/raw_weights.npz
+== stagewise_diagnostics.py (layerwise cosine geometry, splits 4 8 23, topology=cycle) ==
+checkpoint=runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cpu
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise a= 4 done (M_far H0=-0.000, H2=0.836)
+  stagewise a= 8 done (M_far H0=0.000, H2=0.369)
+  stagewise a=23 done (M_far H0=-0.000, H2=0.110)
+  saved -> runs/report9/stagewise/n46_splitcycles_seed1000/stagewise_{geometry.npz,metrics.csv,margins.csv,deltaz.csv}
+done: n46_splitcycles_seed1000 (a=8 added)

@@ -1,0 +1,8 @@
+task 4: checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt output=runs/report8/stagewise/n40_pathunion_cycle_seed1000 splits=(4 20) topology=cycle
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise a= 4 done (M_far H0=-0.000, H2=0.133)
+  stagewise a=20 done (M_far H0=-0.001, H2=0.034)
+  saved -> runs/report8/stagewise/n40_pathunion_cycle_seed1000/stagewise_{geometry.npz,metrics.csv,margins.csv,deltaz.csv}
+done task 4

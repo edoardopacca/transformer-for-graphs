@@ -1,0 +1,61 @@
+== mechanistic_asym_chains.py --topology cycle (seed 1000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 3 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 5 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 6 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a= 9 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=11 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=12 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=13 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=14 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=15 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=16 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=18 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=19 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed1000/metrics.csv
+
+== readout decomposition cos(h_i,h_j) (similarity read-out) ==
+  readout(similarity) a= 3 done
+  readout(similarity) a= 4 done
+  readout(similarity) a= 5 done
+  readout(similarity) a= 6 done
+  readout(similarity) a= 7 done
+  readout(similarity) a= 8 done
+  readout(similarity) a= 9 done
+  readout(similarity) a=10 done
+  readout(similarity) a=11 done
+  readout(similarity) a=12 done
+  readout(similarity) a=13 done
+  readout(similarity) a=14 done
+  readout(similarity) a=15 done
+  readout(similarity) a=16 done
+  readout(similarity) a=17 done
+  readout(similarity) a=18 done
+  readout(similarity) a=19 done
+  readout(similarity) a=20 done
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed1000/readout.csv
+
+== W_in geometry (similarity read-out has no W_out) ==
+  saved -> runs/report8/mechanistic/n40_pathunion_cycle_seed1000/weights_summary.json
+
+== attention probe (representative splits) ==
+[2026-07-22T10:13:51.714] error: *** JOB 598926 ON cnode06 CANCELLED AT 2026-07-22T10:13:51 DUE to SIGNAL Terminated ***

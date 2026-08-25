@@ -1,0 +1,89 @@
+seed=3000 checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) ==
+checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 1 exact=0.005 reach_long=0.948 reach_short=nan cut=1.000 mode=random
+  a= 2 exact=0.075 reach_long=0.973 reach_short=1.000 cut=1.000 mode=random
+  a= 3 exact=0.240 reach_long=0.991 reach_short=1.000 cut=1.000 mode=random
+  a= 4 exact=0.710 reach_long=0.999 reach_short=1.000 cut=0.999 mode=random
+  a= 5 exact=0.105 reach_long=1.000 reach_short=1.000 cut=0.968 mode=random
+  a= 6 exact=0.000 reach_long=0.999 reach_short=1.000 cut=0.580 mode=random
+  a= 7 exact=0.000 reach_long=0.991 reach_short=1.000 cut=0.517 mode=random
+  a= 8 exact=0.000 reach_long=0.973 reach_short=1.000 cut=0.534 mode=random
+  a= 9 exact=0.000 reach_long=0.949 reach_short=1.000 cut=0.554 mode=random
+  a=10 exact=0.000 reach_long=0.932 reach_short=1.000 cut=0.494 mode=random
+  a=11 exact=0.000 reach_long=0.930 reach_short=0.996 cut=0.452 mode=random
+  a=12 exact=0.000 reach_long=0.934 reach_short=0.994 cut=0.390 mode=random
+  a=13 exact=0.000 reach_long=0.941 reach_short=0.994 cut=0.315 mode=random
+  a=14 exact=0.000 reach_long=0.943 reach_short=0.990 cut=0.279 mode=random
+  a=15 exact=0.000 reach_long=0.955 reach_short=0.987 cut=0.231 mode=random
+  a=16 exact=0.000 reach_long=0.950 reach_short=0.981 cut=0.205 mode=random
+  a=17 exact=0.000 reach_long=0.957 reach_short=0.976 cut=0.168 mode=random
+  a=18 exact=0.000 reach_long=0.956 reach_short=0.972 cut=0.141 mode=random
+  a=19 exact=0.000 reach_long=0.958 reach_short=0.970 cut=0.120 mode=random
+  a=20 exact=0.000 reach_long=0.962 reach_short=0.966 cut=0.118 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 1 exact=0.000 reach_long=0.978 reach_short=nan cut=1.000 mode=fixed
+  a= 4 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.500 mode=fixed
+  a= 8 exact=0.000 reach_long=0.988 reach_short=1.000 cut=0.504 mode=fixed
+  a=10 exact=0.000 reach_long=0.978 reach_short=0.978 cut=0.520 mode=fixed
+  a=17 exact=0.000 reach_long=0.966 reach_short=0.960 cut=0.178 mode=fixed
+  a=20 exact=0.000 reach_long=0.992 reach_short=0.979 cut=0.064 mode=fixed
+  saved -> runs/report7/mechanistic/n40_er_seed3000/metrics.csv
+
+== readout decomposition h_i^T w_j ==
+  readout a= 1 done
+  readout a= 2 done
+  readout a= 3 done
+  readout a= 4 done
+  readout a= 5 done
+  readout a= 6 done
+  readout a= 7 done
+  readout a= 8 done
+  readout a= 9 done
+  readout a=10 done
+  readout a=11 done
+  readout a=12 done
+  readout a=13 done
+  readout a=14 done
+  readout a=15 done
+  readout a=16 done
+  readout a=17 done
+  readout a=18 done
+  readout a=19 done
+  readout a=20 done
+  saved -> runs/report7/mechanistic/n40_er_seed3000/readout.csv
+
+== W_out / W_in geometry ==
+  saved -> runs/report7/mechanistic/n40_er_seed3000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 1 done (row_mass1 mean=9.218, exact-contribution over 64 graphs)
+  attention a= 4 done (row_mass1 mean=8.528, exact-contribution over 64 graphs)
+  attention a= 7 done (row_mass1 mean=8.179, exact-contribution over 64 graphs)
+  attention a= 8 done (row_mass1 mean=8.152, exact-contribution over 64 graphs)
+  attention a=10 done (row_mass1 mean=8.121, exact-contribution over 64 graphs)
+  attention a=14 done (row_mass1 mean=8.123, exact-contribution over 64 graphs)
+  attention a=17 done (row_mass1 mean=8.137, exact-contribution over 64 graphs)
+  attention a=20 done (row_mass1 mean=8.129, exact-contribution over 64 graphs)
+  saved -> runs/report7/mechanistic/n40_er_seed3000/attn_cache.npz
+== mechanistic_heatmaps.py (heatmap probe, exact contribution) ==
+checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a=20 done
+  saved -> runs/report7/heatmaps/n40_er_seed3000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report7/heatmaps/n40_er_seed3000/raw_weights.npz
+== eval_three_way_split.py (falsification test) ==
+python: can't open file '/home/3352759/transformer-for-graphs/eval_three_way_split.py': [Errno 2] No such file or directory
+== ablation_asym_chains.py (layer ablations) ==
+python: can't open file '/home/3352759/transformer-for-graphs/ablation_asym_chains.py': [Errno 2] No such file or directory
+done seed 3000

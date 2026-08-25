@@ -1,0 +1,46 @@
+tag=n20_pathunion_seed3000 checkpoint=runs/report6/a1_train/n20_path_union_roberta_linear_lam0_seed3000/last.pt
+== eval_three_way_split.py (falsification test) ==
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 device=cpu
+  small= 1 large=(9,10) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 2 large=(9,9) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 4 large=(8,8) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 7 large=(6,7) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 8 large=(6,6) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small=10 large=(5,5) exact=1.000 cut(L1,L2)=1.000 cut(S,L1)=1.000 cut(S,L2)=1.000
+  saved -> runs/report7/three_way/n20_pathunion_seed3000/three_way_split.json
+== ablation_asym_chains.py (layer ablations) ==
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 device=cpu
+      baseline a= 1 exact=1.000 reach_long=1.000 reach_short=nan cut=1.000
+      baseline a= 4 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000
+      baseline a= 7 exact=0.980 reach_long=1.000 reach_short=1.000 cut=1.000
+      baseline a= 8 exact=0.973 reach_long=1.000 reach_short=1.000 cut=1.000
+      baseline a=10 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000
+    zero_attn0 a= 1 exact=0.000 reach_long=0.631 reach_short=nan cut=0.958
+    zero_attn0 a= 4 exact=0.000 reach_long=0.677 reach_short=0.299 cut=0.454
+    zero_attn0 a= 7 exact=0.000 reach_long=0.638 reach_short=0.444 cut=0.346
+    zero_attn0 a= 8 exact=0.000 reach_long=0.609 reach_short=0.506 cut=0.338
+    zero_attn0 a=10 exact=0.000 reach_long=0.577 reach_short=0.567 cut=0.326
+    zero_attn1 a= 1 exact=0.000 reach_long=0.959 reach_short=nan cut=0.525
+    zero_attn1 a= 4 exact=0.000 reach_long=0.956 reach_short=1.000 cut=0.291
+    zero_attn1 a= 7 exact=0.000 reach_long=0.954 reach_short=0.947 cut=0.123
+    zero_attn1 a= 8 exact=0.000 reach_long=0.944 reach_short=0.947 cut=0.115
+    zero_attn1 a=10 exact=0.000 reach_long=0.941 reach_short=0.948 cut=0.105
+     zero_mlp0 a= 1 exact=0.000 reach_long=0.573 reach_short=nan cut=1.000
+     zero_mlp0 a= 4 exact=0.000 reach_long=0.587 reach_short=0.994 cut=0.950
+     zero_mlp0 a= 7 exact=0.000 reach_long=0.671 reach_short=0.865 cut=0.923
+     zero_mlp0 a= 8 exact=0.000 reach_long=0.696 reach_short=0.847 cut=0.912
+     zero_mlp0 a=10 exact=0.000 reach_long=0.776 reach_short=0.774 cut=0.908
+     zero_mlp1 a= 1 exact=0.000 reach_long=0.994 reach_short=nan cut=0.705
+     zero_mlp1 a= 4 exact=0.000 reach_long=0.996 reach_short=0.258 cut=0.542
+     zero_mlp1 a= 7 exact=0.000 reach_long=0.963 reach_short=0.987 cut=0.656
+     zero_mlp1 a= 8 exact=0.000 reach_long=0.977 reach_short=1.000 cut=0.615
+     zero_mlp1 a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.609
+        bypass a= 1 exact=0.000 reach_long=0.438 reach_short=nan cut=0.663
+        bypass a= 4 exact=0.000 reach_long=0.438 reach_short=0.421 cut=0.590
+        bypass a= 7 exact=0.000 reach_long=0.442 reach_short=0.414 cut=0.590
+        bypass a= 8 exact=0.000 reach_long=0.427 reach_short=0.432 cut=0.581
+        bypass a=10 exact=0.000 reach_long=0.443 reach_short=0.430 cut=0.583
+  saved -> runs/report7/ablation/n20_pathunion_seed3000/ablation.csv
+done n20_pathunion_seed3000

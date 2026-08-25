@@ -1,0 +1,257 @@
+== n20_er_seed1000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.925 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.793 vs_dfs=0.833 | BFSvsDFS disagree=0.301 follows_bfs=0.43697618454900006 follows_dfs=0.5630238154509999
+  clique_blocks vs_truth=0.990 vs_mp=0.990 | b=9: vs_bfs=0.866 vs_dfs=0.866 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.995 vs_mp=0.904 | b=9: vs_bfs=0.810 vs_dfs=0.854 | BFSvsDFS disagree=0.054 follows_bfs=0.11753902662993572 follows_dfs=0.8824609733700642
+  2chains       vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.991 vs_dfs=0.991 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.994 vs_mp=0.994 | b=9: vs_bfs=0.984 vs_dfs=0.984 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=1.000 vs_mp=0.947 | b=9: vs_bfs=0.421 vs_dfs=0.623 | BFSvsDFS disagree=0.409 follows_bfs=0.26595744680851063 follows_dfs=0.7340425531914894
+  2cycle        vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.947 vs_dfs=0.973 | BFSvsDFS disagree=0.076 follows_bfs=0.3380211780277962 follows_dfs=0.6619788219722038
+  1chain        vs_truth=1.000 vs_mp=0.711 | b=9: vs_bfs=0.474 vs_dfs=0.585 | BFSvsDFS disagree=0.153 follows_bfs=0.15680521597392014 follows_dfs=0.8431947840260798
+  barbell       vs_truth=0.964 vs_mp=0.800 | b=9: vs_bfs=0.501 vs_dfs=0.588 | BFSvsDFS disagree=0.224 follows_bfs=0.3147114633329613 follows_dfs=0.6852885366670387
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.971 vs_mp=0.904 | b=9: vs_bfs=0.786 vs_dfs=0.847 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_er_seed1000/oracle_families.json
+== n20_er_seed2000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.906 vs_dfs=0.924 | BFSvsDFS disagree=0.091 follows_bfs=0.4055905727596602 follows_dfs=0.5944094272403398
+  er_blocks     vs_truth=0.882 vs_mp=0.882 | b=9: vs_bfs=0.676 vs_dfs=0.715 | BFSvsDFS disagree=0.301 follows_bfs=0.43768152020579204 follows_dfs=0.5623184797942079
+  clique_blocks vs_truth=0.741 vs_mp=0.741 | b=9: vs_bfs=0.621 vs_dfs=0.621 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.905 vs_mp=0.857 | b=9: vs_bfs=0.806 vs_dfs=0.832 | BFSvsDFS disagree=0.054 follows_bfs=0.2743342516069789 follows_dfs=0.7256657483930211
+  2chains       vs_truth=0.780 vs_mp=0.780 | b=9: vs_bfs=0.787 vs_dfs=0.787 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.554 vs_mp=0.554 | b=9: vs_bfs=0.562 vs_dfs=0.562 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.799 vs_mp=0.772 | b=9: vs_bfs=0.508 vs_dfs=0.580 | BFSvsDFS disagree=0.409 follows_bfs=0.4166972364881389 follows_dfs=0.583302763511861
+  2cycle        vs_truth=0.531 vs_mp=0.531 | b=9: vs_bfs=0.507 vs_dfs=0.505 | BFSvsDFS disagree=0.076 follows_bfs=0.5162144275314361 follows_dfs=0.48378557246856385
+  1chain        vs_truth=0.925 vs_mp=0.699 | b=9: vs_bfs=0.515 vs_dfs=0.598 | BFSvsDFS disagree=0.153 follows_bfs=0.2404237978810106 follows_dfs=0.7595762021189894
+  barbell       vs_truth=1.000 vs_mp=0.816 | b=9: vs_bfs=0.469 vs_dfs=0.592 | BFSvsDFS disagree=0.224 follows_bfs=0.23897756446031923 follows_dfs=0.7610224355396807
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.3379030652866242 follows_dfs=0.6620969347133758
+  chain_plus    vs_truth=0.796 vs_mp=0.852 | b=9: vs_bfs=0.834 vs_dfs=0.849 | BFSvsDFS disagree=0.064 follows_bfs=0.38693957115009747 follows_dfs=0.6130604288499025
+  saved -> runs/report5/oracle_families_dfs/n20_er_seed2000/oracle_families.json
+== n20_er_seed3000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.925 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=0.996 vs_mp=0.996 | b=9: vs_bfs=0.790 vs_dfs=0.830 | BFSvsDFS disagree=0.301 follows_bfs=0.4366027715542279 follows_dfs=0.5633972284457721
+  clique_blocks vs_truth=0.947 vs_mp=0.947 | b=9: vs_bfs=0.852 vs_dfs=0.852 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.963 vs_mp=0.894 | b=9: vs_bfs=0.807 vs_dfs=0.850 | BFSvsDFS disagree=0.054 follows_bfs=0.1290174471992654 follows_dfs=0.8709825528007347
+  2chains       vs_truth=0.876 vs_mp=0.876 | b=9: vs_bfs=0.865 vs_dfs=0.865 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.913 vs_mp=0.913 | b=9: vs_bfs=0.905 vs_dfs=0.905 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.998 vs_mp=0.947 | b=9: vs_bfs=0.423 vs_dfs=0.624 | BFSvsDFS disagree=0.409 follows_bfs=0.26653827341648323 follows_dfs=0.7334617265835167
+  2cycle        vs_truth=0.997 vs_mp=0.997 | b=9: vs_bfs=0.945 vs_dfs=0.970 | BFSvsDFS disagree=0.076 follows_bfs=0.3381866313699537 follows_dfs=0.6618133686300464
+  1chain        vs_truth=0.929 vs_mp=0.757 | b=9: vs_bfs=0.545 vs_dfs=0.650 | BFSvsDFS disagree=0.153 follows_bfs=0.17497962510187448 follows_dfs=0.8250203748981255
+  barbell       vs_truth=0.757 vs_mp=0.625 | b=9: vs_bfs=0.630 vs_dfs=0.576 | BFSvsDFS disagree=0.224 follows_bfs=0.61463332961268 follows_dfs=0.38536667038732003
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.960 vs_mp=0.863 | b=9: vs_bfs=0.744 vs_dfs=0.806 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_er_seed3000/oracle_families.json
+== n20_er_seed4000  (runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/density_sweep/p08/n20_er_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.906 vs_dfs=0.924 | BFSvsDFS disagree=0.091 follows_bfs=0.40476842970676896 follows_dfs=0.595231570293231
+  er_blocks     vs_truth=0.917 vs_mp=0.917 | b=9: vs_bfs=0.711 vs_dfs=0.750 | BFSvsDFS disagree=0.301 follows_bfs=0.438386855862584 follows_dfs=0.561613144137416
+  clique_blocks vs_truth=0.813 vs_mp=0.813 | b=9: vs_bfs=0.689 vs_dfs=0.689 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.828 vs_mp=0.854 | b=9: vs_bfs=0.867 vs_dfs=0.857 | BFSvsDFS disagree=0.054 follows_bfs=0.5831037649219467 follows_dfs=0.41689623507805323
+  2chains       vs_truth=0.862 vs_mp=0.862 | b=9: vs_bfs=0.873 vs_dfs=0.873 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.493 vs_mp=0.493 | b=9: vs_bfs=0.487 vs_dfs=0.487 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.400 vs_mp=0.429 | b=9: vs_bfs=0.714 vs_dfs=0.508 | BFSvsDFS disagree=0.409 follows_bfs=0.7387197358767424 follows_dfs=0.2612802641232575
+  2cycle        vs_truth=0.680 vs_mp=0.680 | b=9: vs_bfs=0.709 vs_dfs=0.653 | BFSvsDFS disagree=0.076 follows_bfs=0.8500992720052946 follows_dfs=0.1499007279947055
+  1chain        vs_truth=0.634 vs_mp=0.682 | b=9: vs_bfs=0.712 vs_dfs=0.676 | BFSvsDFS disagree=0.153 follows_bfs=0.6103504482477587 follows_dfs=0.38964955175224125
+  barbell       vs_truth=1.000 vs_mp=0.816 | b=9: vs_bfs=0.468 vs_dfs=0.592 | BFSvsDFS disagree=0.224 follows_bfs=0.23897756446031923 follows_dfs=0.7610224355396807
+  expander      vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.33837579617834396 follows_dfs=0.6616242038216561
+  chain_plus    vs_truth=0.740 vs_mp=0.831 | b=9: vs_bfs=0.900 vs_dfs=0.866 | BFSvsDFS disagree=0.064 follows_bfs=0.7497076023391813 follows_dfs=0.25029239766081873
+  saved -> runs/report5/oracle_families_dfs/n20_er_seed4000/oracle_families.json
+== n20_mixed_seed1000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.925 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.793 vs_dfs=0.833 | BFSvsDFS disagree=0.301 follows_bfs=0.43697618454900006 follows_dfs=0.5630238154509999
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.876 vs_dfs=0.876 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.999 vs_mp=0.902 | b=9: vs_bfs=0.808 vs_dfs=0.852 | BFSvsDFS disagree=0.054 follows_bfs=0.11753902662993572 follows_dfs=0.8824609733700642
+  2chains       vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=1.000 vs_mp=0.947 | b=9: vs_bfs=0.421 vs_dfs=0.623 | BFSvsDFS disagree=0.409 follows_bfs=0.26595744680851063 follows_dfs=0.7340425531914894
+  2cycle        vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.947 vs_dfs=0.973 | BFSvsDFS disagree=0.076 follows_bfs=0.3381866313699537 follows_dfs=0.6618133686300464
+  1chain        vs_truth=1.000 vs_mp=0.711 | b=9: vs_bfs=0.474 vs_dfs=0.585 | BFSvsDFS disagree=0.153 follows_bfs=0.15680521597392014 follows_dfs=0.8431947840260798
+  barbell       vs_truth=0.702 vs_mp=0.886 | b=9: vs_bfs=0.766 vs_dfs=0.842 | BFSvsDFS disagree=0.224 follows_bfs=0.33949101462216763 follows_dfs=0.6605089853778323
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.997 vs_mp=0.900 | b=9: vs_bfs=0.782 vs_dfs=0.843 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_mixed_seed1000/oracle_families.json
+== n40_er_seed1000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=0.998 vs_mp=0.998 | b=9: vs_bfs=0.724 vs_dfs=0.803 | BFSvsDFS disagree=0.392 follows_bfs=0.40118309230352217 follows_dfs=0.5988169076964778
+  er_blocks     vs_truth=0.498 vs_mp=0.498 | b=9: vs_bfs=0.608 vs_dfs=0.601 | BFSvsDFS disagree=0.255 follows_bfs=0.5135426889106968 follows_dfs=0.48645731108930323
+  clique_blocks vs_truth=0.395 vs_mp=0.395 | b=9: vs_bfs=0.469 vs_dfs=0.469 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.833 vs_mp=0.625 | b=9: vs_bfs=0.735 vs_dfs=0.763 | BFSvsDFS disagree=0.047 follows_bfs=0.20680037189533804 follows_dfs=0.7931996281046619
+  2chains       vs_truth=0.591 vs_mp=0.501 | b=9: vs_bfs=0.591 vs_dfs=0.591 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.542 vs_mp=0.542 | b=9: vs_bfs=0.542 vs_dfs=0.542 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.497 vs_mp=0.876 | b=9: vs_bfs=0.813 vs_dfs=0.480 | BFSvsDFS disagree=0.466 follows_bfs=0.8482138071501313 follows_dfs=0.1517861928498687
+  2cycle        vs_truth=0.858 vs_mp=0.876 | b=9: vs_bfs=0.858 vs_dfs=0.858 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=0.892 vs_mp=0.502 | b=9: vs_bfs=0.666 vs_dfs=0.726 | BFSvsDFS disagree=0.124 follows_bfs=0.26173785869181504 follows_dfs=0.738262141308185
+  barbell       vs_truth=0.280 vs_mp=0.553 | b=9: vs_bfs=0.512 vs_dfs=0.409 | BFSvsDFS disagree=0.263 follows_bfs=0.6912114014251781 follows_dfs=0.3087885985748218
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.3152868863704964 follows_dfs=0.6847131136295036
+  chain_plus    vs_truth=0.838 vs_mp=0.594 | b=9: vs_bfs=0.714 vs_dfs=0.752 | BFSvsDFS disagree=0.047 follows_bfs=0.10560660540684512 follows_dfs=0.8943933945931549
+  saved -> runs/report5/oracle_families_dfs/n40_er_seed1000/oracle_families.json
+== n40_mixed_seed1000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed1000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed1000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.40069678077714177 follows_dfs=0.5993032192228582
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.867 vs_dfs=0.870 | BFSvsDFS disagree=0.255 follows_bfs=0.49499509322865554 follows_dfs=0.5050049067713445
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.918 vs_dfs=0.918 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.927 vs_mp=0.745 | b=9: vs_bfs=0.795 vs_dfs=0.835 | BFSvsDFS disagree=0.047 follows_bfs=0.08274671271085138 follows_dfs=0.9172532872891487
+  2chains       vs_truth=0.856 vs_mp=0.992 | b=9: vs_bfs=0.856 vs_dfs=0.856 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=1.000 vs_dfs=1.000 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.462 vs_mp=1.000 | b=9: vs_bfs=0.910 vs_dfs=0.457 | BFSvsDFS disagree=0.466 follows_bfs=0.9735354022618856 follows_dfs=0.02646459773811438
+  2cycle        vs_truth=0.974 vs_mp=1.000 | b=9: vs_bfs=0.974 vs_dfs=0.974 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=1.000 vs_mp=0.404 | b=9: vs_bfs=0.618 vs_dfs=0.731 | BFSvsDFS disagree=0.124 follows_bfs=0.054969993443945736 follows_dfs=0.9450300065560543
+  barbell       vs_truth=0.465 vs_mp=0.788 | b=9: vs_bfs=0.771 vs_dfs=0.591 | BFSvsDFS disagree=0.263 follows_bfs=0.8340736342042755 follows_dfs=0.16592636579572448
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.31528002634250746 follows_dfs=0.6847199736574925
+  chain_plus    vs_truth=0.826 vs_mp=0.748 | b=9: vs_bfs=0.762 vs_dfs=0.777 | BFSvsDFS disagree=0.047 follows_bfs=0.34978026368357973 follows_dfs=0.6502197363164203
+  saved -> runs/report5/oracle_families_dfs/n40_mixed_seed1000/oracle_families.json
+== n20_mixed_seed2000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.924 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.793 vs_dfs=0.833 | BFSvsDFS disagree=0.301 follows_bfs=0.43697618454900006 follows_dfs=0.5630238154509999
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.876 vs_dfs=0.876 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.999 vs_mp=0.902 | b=9: vs_bfs=0.808 vs_dfs=0.852 | BFSvsDFS disagree=0.054 follows_bfs=0.11753902662993572 follows_dfs=0.8824609733700642
+  2chains       vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=1.000 vs_mp=0.947 | b=9: vs_bfs=0.421 vs_dfs=0.623 | BFSvsDFS disagree=0.409 follows_bfs=0.26595744680851063 follows_dfs=0.7340425531914894
+  2cycle        vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.947 vs_dfs=0.973 | BFSvsDFS disagree=0.076 follows_bfs=0.3381866313699537 follows_dfs=0.6618133686300464
+  1chain        vs_truth=1.000 vs_mp=0.711 | b=9: vs_bfs=0.474 vs_dfs=0.585 | BFSvsDFS disagree=0.153 follows_bfs=0.15680521597392014 follows_dfs=0.8431947840260798
+  barbell       vs_truth=0.710 vs_mp=0.895 | b=9: vs_bfs=0.758 vs_dfs=0.840 | BFSvsDFS disagree=0.224 follows_bfs=0.32643152137515347 follows_dfs=0.6735684786248465
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.997 vs_mp=0.900 | b=9: vs_bfs=0.782 vs_dfs=0.843 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_mixed_seed2000/oracle_families.json
+== n40_er_seed2000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.40070475309724635 follows_dfs=0.5992952469027536
+  er_blocks     vs_truth=0.459 vs_mp=0.459 | b=9: vs_bfs=0.589 vs_dfs=0.586 | BFSvsDFS disagree=0.255 follows_bfs=0.5047718351324828 follows_dfs=0.4952281648675172
+  clique_blocks vs_truth=0.371 vs_mp=0.371 | b=9: vs_bfs=0.453 vs_dfs=0.453 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.848 vs_mp=0.615 | b=9: vs_bfs=0.730 vs_dfs=0.767 | BFSvsDFS disagree=0.047 follows_bfs=0.12352238013016337 follows_dfs=0.8764776198698366
+  2chains       vs_truth=0.559 vs_mp=0.474 | b=9: vs_bfs=0.559 vs_dfs=0.559 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.513 vs_mp=0.513 | b=9: vs_bfs=0.513 vs_dfs=0.513 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.816 vs_mp=0.606 | b=9: vs_bfs=0.640 vs_dfs=0.662 | BFSvsDFS disagree=0.466 follows_bfs=0.47722704614889855 follows_dfs=0.5227729538511015
+  2cycle        vs_truth=0.614 vs_mp=0.604 | b=9: vs_bfs=0.614 vs_dfs=0.614 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=0.942 vs_mp=0.458 | b=9: vs_bfs=0.642 vs_dfs=0.732 | BFSvsDFS disagree=0.124 follows_bfs=0.14703212466589338 follows_dfs=0.8529678753341066
+  barbell       vs_truth=0.268 vs_mp=0.588 | b=9: vs_bfs=0.546 vs_dfs=0.422 | BFSvsDFS disagree=0.263 follows_bfs=0.7283372921615202 follows_dfs=0.2716627078384798
+  expander      vs_truth=0.999 vs_mp=0.999 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.316514831380512 follows_dfs=0.6834851686194879
+  chain_plus    vs_truth=0.842 vs_mp=0.566 | b=9: vs_bfs=0.714 vs_dfs=0.755 | BFSvsDFS disagree=0.047 follows_bfs=0.0730456785191104 follows_dfs=0.9269543214808896
+  saved -> runs/report5/oracle_families_dfs/n40_er_seed2000/oracle_families.json
+== n40_mixed_seed2000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed2000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed2000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.40069678077714177 follows_dfs=0.5993032192228582
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.867 vs_dfs=0.869 | BFSvsDFS disagree=0.255 follows_bfs=0.4951177625122669 follows_dfs=0.5048822374877331
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.918 vs_dfs=0.918 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.925 vs_mp=0.753 | b=9: vs_bfs=0.797 vs_dfs=0.836 | BFSvsDFS disagree=0.047 follows_bfs=0.09642714835967592 follows_dfs=0.9035728516403241
+  2chains       vs_truth=0.858 vs_mp=0.997 | b=9: vs_bfs=0.858 vs_dfs=0.858 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=1.000 vs_dfs=1.000 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.462 vs_mp=1.000 | b=9: vs_bfs=0.910 vs_dfs=0.457 | BFSvsDFS disagree=0.466 follows_bfs=0.9735354022618856 follows_dfs=0.02646459773811438
+  2cycle        vs_truth=0.974 vs_mp=1.000 | b=9: vs_bfs=0.974 vs_dfs=0.974 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=1.000 vs_mp=0.404 | b=9: vs_bfs=0.618 vs_dfs=0.731 | BFSvsDFS disagree=0.124 follows_bfs=0.054969993443945736 follows_dfs=0.9450300065560543
+  barbell       vs_truth=0.464 vs_mp=0.792 | b=9: vs_bfs=0.773 vs_dfs=0.589 | BFSvsDFS disagree=0.263 follows_bfs=0.8401306413301662 follows_dfs=0.15986935866983373
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.3152868863704964 follows_dfs=0.6847131136295036
+  chain_plus    vs_truth=0.816 vs_mp=0.777 | b=9: vs_bfs=0.769 vs_dfs=0.778 | BFSvsDFS disagree=0.047 follows_bfs=0.41170595285657213 follows_dfs=0.5882940471434279
+  saved -> runs/report5/oracle_families_dfs/n40_mixed_seed2000/oracle_families.json
+== n20_mixed_seed3000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.924 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.793 vs_dfs=0.833 | BFSvsDFS disagree=0.301 follows_bfs=0.43697618454900006 follows_dfs=0.5630238154509999
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.876 vs_dfs=0.876 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.999 vs_mp=0.902 | b=9: vs_bfs=0.808 vs_dfs=0.852 | BFSvsDFS disagree=0.054 follows_bfs=0.11753902662993572 follows_dfs=0.8824609733700642
+  2chains       vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=1.000 vs_mp=0.947 | b=9: vs_bfs=0.421 vs_dfs=0.623 | BFSvsDFS disagree=0.409 follows_bfs=0.26595744680851063 follows_dfs=0.7340425531914894
+  2cycle        vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.947 vs_dfs=0.973 | BFSvsDFS disagree=0.076 follows_bfs=0.3381866313699537 follows_dfs=0.6618133686300464
+  1chain        vs_truth=1.000 vs_mp=0.711 | b=9: vs_bfs=0.474 vs_dfs=0.585 | BFSvsDFS disagree=0.153 follows_bfs=0.15680521597392014 follows_dfs=0.8431947840260798
+  barbell       vs_truth=0.700 vs_mp=0.884 | b=9: vs_bfs=0.769 vs_dfs=0.844 | BFSvsDFS disagree=0.224 follows_bfs=0.3408304498269896 follows_dfs=0.6591695501730104
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.997 vs_mp=0.900 | b=9: vs_bfs=0.782 vs_dfs=0.843 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_mixed_seed3000/oracle_families.json
+== n40_er_seed3000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=0.999 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.4011113414225808 follows_dfs=0.5988886585774192
+  er_blocks     vs_truth=0.863 vs_mp=0.863 | b=9: vs_bfs=0.742 vs_dfs=0.744 | BFSvsDFS disagree=0.255 follows_bfs=0.4969210009813543 follows_dfs=0.5030789990186457
+  clique_blocks vs_truth=0.764 vs_mp=0.764 | b=9: vs_bfs=0.682 vs_dfs=0.682 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.825 vs_mp=0.604 | b=9: vs_bfs=0.723 vs_dfs=0.757 | BFSvsDFS disagree=0.047 follows_bfs=0.14650019922964538 follows_dfs=0.8534998007703546
+  2chains       vs_truth=0.525 vs_mp=0.413 | b=9: vs_bfs=0.525 vs_dfs=0.525 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.506 vs_mp=0.506 | b=9: vs_bfs=0.506 vs_dfs=0.506 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.727 vs_mp=0.683 | b=9: vs_bfs=0.691 vs_dfs=0.611 | BFSvsDFS disagree=0.466 follows_bfs=0.5836750281395723 follows_dfs=0.4163249718604277
+  2cycle        vs_truth=0.684 vs_mp=0.682 | b=9: vs_bfs=0.684 vs_dfs=0.684 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=0.905 vs_mp=0.492 | b=9: vs_bfs=0.654 vs_dfs=0.736 | BFSvsDFS disagree=0.124 follows_bfs=0.17940894649251096 follows_dfs=0.8205910535074891
+  barbell       vs_truth=0.207 vs_mp=0.561 | b=9: vs_bfs=0.515 vs_dfs=0.406 | BFSvsDFS disagree=0.263 follows_bfs=0.700688836104513 follows_dfs=0.29931116389548695
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.31545152704223034 follows_dfs=0.6845484729577697
+  chain_plus    vs_truth=0.843 vs_mp=0.535 | b=9: vs_bfs=0.708 vs_dfs=0.753 | BFSvsDFS disagree=0.047 follows_bfs=0.03628978559062458 follows_dfs=0.9637102144093754
+  saved -> runs/report5/oracle_families_dfs/n40_er_seed3000/oracle_families.json
+== n40_mixed_seed3000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed3000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.40077650397818776 follows_dfs=0.5992234960218122
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.867 vs_dfs=0.869 | BFSvsDFS disagree=0.255 follows_bfs=0.49499509322865554 follows_dfs=0.5050049067713445
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.918 vs_dfs=0.918 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.929 vs_mp=0.750 | b=9: vs_bfs=0.800 vs_dfs=0.839 | BFSvsDFS disagree=0.047 follows_bfs=0.09602868906893346 follows_dfs=0.9039713109310665
+  2chains       vs_truth=0.859 vs_mp=1.000 | b=9: vs_bfs=0.859 vs_dfs=0.859 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=1.000 vs_dfs=1.000 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.462 vs_mp=1.000 | b=9: vs_bfs=0.910 vs_dfs=0.457 | BFSvsDFS disagree=0.466 follows_bfs=0.9735488020582087 follows_dfs=0.026451197941791283
+  2cycle        vs_truth=0.974 vs_mp=1.000 | b=9: vs_bfs=0.974 vs_dfs=0.974 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=1.000 vs_mp=0.404 | b=9: vs_bfs=0.618 vs_dfs=0.731 | BFSvsDFS disagree=0.124 follows_bfs=0.054969993443945736 follows_dfs=0.9450300065560543
+  barbell       vs_truth=0.500 vs_mp=0.780 | b=9: vs_bfs=0.766 vs_dfs=0.619 | BFSvsDFS disagree=0.263 follows_bfs=0.7736104513064133 follows_dfs=0.2263895486935867
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.31525944625854074 follows_dfs=0.6847405537414593
+  chain_plus    vs_truth=0.826 vs_mp=0.770 | b=9: vs_bfs=0.781 vs_dfs=0.790 | BFSvsDFS disagree=0.047 follows_bfs=0.4133706219203622 follows_dfs=0.5866293780796378
+  saved -> runs/report5/oracle_families_dfs/n40_mixed_seed3000/oracle_families.json
+== n20_mixed_seed4000  (runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n20/n20_mixed_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=20 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.906 vs_dfs=0.925 | BFSvsDFS disagree=0.091 follows_bfs=0.4039462866538778 follows_dfs=0.5960537133461222
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.793 vs_dfs=0.833 | BFSvsDFS disagree=0.301 follows_bfs=0.43697618454900006 follows_dfs=0.5630238154509999
+  clique_blocks vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.876 vs_dfs=0.876 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.999 vs_mp=0.902 | b=9: vs_bfs=0.808 vs_dfs=0.852 | BFSvsDFS disagree=0.054 follows_bfs=0.11753902662993572 follows_dfs=0.8824609733700642
+  2chains       vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.989 vs_dfs=0.989 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=1.000 vs_mp=0.947 | b=9: vs_bfs=0.421 vs_dfs=0.623 | BFSvsDFS disagree=0.409 follows_bfs=0.26595744680851063 follows_dfs=0.7340425531914894
+  2cycle        vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.947 vs_dfs=0.973 | BFSvsDFS disagree=0.076 follows_bfs=0.3381866313699537 follows_dfs=0.6618133686300464
+  1chain        vs_truth=1.000 vs_mp=0.711 | b=9: vs_bfs=0.474 vs_dfs=0.585 | BFSvsDFS disagree=0.153 follows_bfs=0.15680521597392014 follows_dfs=0.8431947840260798
+  barbell       vs_truth=0.709 vs_mp=0.893 | b=9: vs_bfs=0.760 vs_dfs=0.840 | BFSvsDFS disagree=0.224 follows_bfs=0.33039401718941847 follows_dfs=0.6696059828105816
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.464 vs_dfs=0.635 | BFSvsDFS disagree=0.502 follows_bfs=0.337828423566879 follows_dfs=0.662171576433121
+  chain_plus    vs_truth=0.997 vs_mp=0.899 | b=9: vs_bfs=0.781 vs_dfs=0.843 | BFSvsDFS disagree=0.064 follows_bfs=0.04483430799220273 follows_dfs=0.9551656920077972
+  saved -> runs/report5/oracle_families_dfs/n20_mixed_seed4000/oracle_families.json
+== n40_er_seed4000  (runs/report5/base_n40/n40_er_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_er_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=0.998 vs_mp=0.998 | b=9: vs_bfs=0.723 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.39999521660793724 follows_dfs=0.6000047833920628
+  er_blocks     vs_truth=0.464 vs_mp=0.464 | b=9: vs_bfs=0.595 vs_dfs=0.592 | BFSvsDFS disagree=0.255 follows_bfs=0.5052502453385672 follows_dfs=0.4947497546614328
+  clique_blocks vs_truth=0.370 vs_mp=0.370 | b=9: vs_bfs=0.452 vs_dfs=0.452 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.835 vs_mp=0.555 | b=9: vs_bfs=0.696 vs_dfs=0.738 | BFSvsDFS disagree=0.047 follows_bfs=0.0605658121928543 follows_dfs=0.9394341878071457
+  2chains       vs_truth=0.492 vs_mp=0.352 | b=9: vs_bfs=0.492 vs_dfs=0.492 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=0.525 vs_mp=0.525 | b=9: vs_bfs=0.525 vs_dfs=0.525 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.863 vs_mp=0.570 | b=9: vs_bfs=0.619 vs_dfs=0.687 | BFSvsDFS disagree=0.466 follows_bfs=0.4297381679798467 follows_dfs=0.5702618320201533
+  2cycle        vs_truth=0.584 vs_mp=0.570 | b=9: vs_bfs=0.584 vs_dfs=0.584 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=0.986 vs_mp=0.416 | b=9: vs_bfs=0.625 vs_dfs=0.731 | BFSvsDFS disagree=0.124 follows_bfs=0.08432094407181401 follows_dfs=0.915679055928186
+  barbell       vs_truth=0.137 vs_mp=0.551 | b=9: vs_bfs=0.504 vs_dfs=0.373 | BFSvsDFS disagree=0.263 follows_bfs=0.7436698337292161 follows_dfs=0.25633016627078387
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.31530060642647423 follows_dfs=0.6846993935735258
+  chain_plus    vs_truth=0.837 vs_mp=0.521 | b=9: vs_bfs=0.696 vs_dfs=0.743 | BFSvsDFS disagree=0.047 follows_bfs=0.009655080569982688 follows_dfs=0.9903449194300173
+  saved -> runs/report5/oracle_families_dfs/n40_er_seed4000/oracle_families.json
+== n40_mixed_seed4000  (runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed4000/last.pt) ==
+checkpoint=runs/report5/base_n40/n40_mixed_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 L=2 device=cuda
+  er            vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.724 vs_dfs=0.804 | BFSvsDFS disagree=0.392 follows_bfs=0.40070475309724635 follows_dfs=0.5992952469027536
+  er_blocks     vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.867 vs_dfs=0.869 | BFSvsDFS disagree=0.255 follows_bfs=0.49499509322865554 follows_dfs=0.5050049067713445
+  clique_blocks vs_truth=0.986 vs_mp=0.986 | b=9: vs_bfs=0.917 vs_dfs=0.917 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  path_union    vs_truth=0.927 vs_mp=0.753 | b=9: vs_bfs=0.798 vs_dfs=0.836 | BFSvsDFS disagree=0.047 follows_bfs=0.09695842741399921 follows_dfs=0.9030415725860008
+  2chains       vs_truth=0.859 vs_mp=0.999 | b=9: vs_bfs=0.859 vs_dfs=0.859 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  2cliques      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=1.000 vs_dfs=1.000 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1cycle        vs_truth=0.462 vs_mp=1.000 | b=9: vs_bfs=0.910 vs_dfs=0.457 | BFSvsDFS disagree=0.466 follows_bfs=0.9735488020582087 follows_dfs=0.026451197941791283
+  2cycle        vs_truth=0.974 vs_mp=1.000 | b=9: vs_bfs=0.974 vs_dfs=0.974 | BFSvsDFS disagree=0.000 follows_bfs=None follows_dfs=None
+  1chain        vs_truth=1.000 vs_mp=0.404 | b=9: vs_bfs=0.618 vs_dfs=0.731 | BFSvsDFS disagree=0.124 follows_bfs=0.054969993443945736 follows_dfs=0.9450300065560543
+  barbell       vs_truth=0.478 vs_mp=0.797 | b=9: vs_bfs=0.782 vs_dfs=0.604 | BFSvsDFS disagree=0.263 follows_bfs=0.8307363420427554 follows_dfs=0.16926365795724466
+  expander      vs_truth=1.000 vs_mp=1.000 | b=9: vs_bfs=0.603 vs_dfs=0.775 | BFSvsDFS disagree=0.456 follows_bfs=0.3153074664544631 follows_dfs=0.6846925335455368
+  chain_plus    vs_truth=0.822 vs_mp=0.780 | b=9: vs_bfs=0.773 vs_dfs=0.781 | BFSvsDFS disagree=0.047 follows_bfs=0.4112398455187109 follows_dfs=0.5887601544812892
+  saved -> runs/report5/oracle_families_dfs/n40_mixed_seed4000/oracle_families.json
+oracle-agreement-families (with DFS oracle) eval done -> runs/report5/oracle_families_dfs

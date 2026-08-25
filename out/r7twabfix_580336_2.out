@@ -1,0 +1,64 @@
+tag=n40_er_seed3000 checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+== eval_three_way_split.py (falsification test) ==
+checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+  small= 1 large=(19,20) exact=0.000 cut(L1,L2)=0.062 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 2 large=(19,19) exact=0.000 cut(L1,L2)=0.034 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 4 large=(18,18) exact=0.000 cut(L1,L2)=0.005 cut(S,L1)=1.000 cut(S,L2)=1.000
+  small= 7 large=(16,17) exact=0.000 cut(L1,L2)=0.305 cut(S,L1)=0.750 cut(S,L2)=0.766
+  small= 8 large=(16,16) exact=0.000 cut(L1,L2)=0.560 cut(S,L1)=0.846 cut(S,L2)=0.846
+  small=10 large=(15,15) exact=0.000 cut(L1,L2)=0.824 cut(S,L1)=0.894 cut(S,L2)=0.895
+  saved -> runs/report7/three_way/n40_er_seed3000/three_way_split.json
+== ablation_asym_chains.py (layer ablations) ==
+checkpoint=runs/families_n40/n40_er_roberta_linear_lam0_seed3000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+      baseline a= 1 exact=0.007 reach_long=0.950 reach_short=nan cut=1.000
+      baseline a= 4 exact=0.660 reach_long=0.999 reach_short=1.000 cut=0.998
+      baseline a= 7 exact=0.000 reach_long=0.990 reach_short=1.000 cut=0.518
+      baseline a= 8 exact=0.000 reach_long=0.970 reach_short=1.000 cut=0.536
+      baseline a=10 exact=0.000 reach_long=0.931 reach_short=0.999 cut=0.498
+      baseline a=14 exact=0.000 reach_long=0.945 reach_short=0.990 cut=0.273
+      baseline a=17 exact=0.000 reach_long=0.954 reach_short=0.980 cut=0.166
+      baseline a=20 exact=0.000 reach_long=0.964 reach_short=0.963 cut=0.119
+    zero_attn0 a= 1 exact=0.000 reach_long=0.022 reach_short=nan cut=1.000
+    zero_attn0 a= 4 exact=0.000 reach_long=0.026 reach_short=0.244 cut=1.000
+    zero_attn0 a= 7 exact=0.000 reach_long=0.029 reach_short=0.147 cut=1.000
+    zero_attn0 a= 8 exact=0.000 reach_long=0.030 reach_short=0.121 cut=1.000
+    zero_attn0 a=10 exact=0.000 reach_long=0.033 reach_short=0.099 cut=1.000
+    zero_attn0 a=14 exact=0.000 reach_long=0.036 reach_short=0.069 cut=1.000
+    zero_attn0 a=17 exact=0.000 reach_long=0.041 reach_short=0.056 cut=1.000
+    zero_attn0 a=20 exact=0.000 reach_long=0.047 reach_short=0.047 cut=1.000
+    zero_attn1 a= 1 exact=0.000 reach_long=0.138 reach_short=nan cut=1.000
+    zero_attn1 a= 4 exact=0.000 reach_long=0.150 reach_short=1.000 cut=1.000
+    zero_attn1 a= 7 exact=0.000 reach_long=0.163 reach_short=0.697 cut=1.000
+    zero_attn1 a= 8 exact=0.000 reach_long=0.168 reach_short=0.616 cut=1.000
+    zero_attn1 a=10 exact=0.000 reach_long=0.179 reach_short=0.507 cut=1.000
+    zero_attn1 a=14 exact=0.000 reach_long=0.205 reach_short=0.372 cut=1.000
+    zero_attn1 a=17 exact=0.000 reach_long=0.232 reach_short=0.308 cut=1.000
+    zero_attn1 a=20 exact=0.000 reach_long=0.265 reach_short=0.264 cut=1.000
+     zero_mlp0 a= 1 exact=0.000 reach_long=0.358 reach_short=nan cut=0.998
+     zero_mlp0 a= 4 exact=0.000 reach_long=0.408 reach_short=0.999 cut=0.828
+     zero_mlp0 a= 7 exact=0.000 reach_long=0.382 reach_short=0.998 cut=0.962
+     zero_mlp0 a= 8 exact=0.000 reach_long=0.389 reach_short=0.965 cut=0.966
+     zero_mlp0 a=10 exact=0.000 reach_long=0.403 reach_short=0.854 cut=0.961
+     zero_mlp0 a=14 exact=0.000 reach_long=0.446 reach_short=0.686 cut=0.958
+     zero_mlp0 a=17 exact=0.000 reach_long=0.484 reach_short=0.599 cut=0.955
+     zero_mlp0 a=20 exact=0.000 reach_long=0.534 reach_short=0.532 cut=0.960
+     zero_mlp1 a= 1 exact=0.000 reach_long=0.993 reach_short=nan cut=0.967
+     zero_mlp1 a= 4 exact=0.000 reach_long=0.977 reach_short=1.000 cut=0.523
+     zero_mlp1 a= 7 exact=0.000 reach_long=0.966 reach_short=1.000 cut=0.381
+     zero_mlp1 a= 8 exact=0.000 reach_long=0.965 reach_short=1.000 cut=0.299
+     zero_mlp1 a=10 exact=0.000 reach_long=0.961 reach_short=1.000 cut=0.199
+     zero_mlp1 a=14 exact=0.000 reach_long=0.952 reach_short=0.926 cut=0.168
+     zero_mlp1 a=17 exact=0.000 reach_long=0.937 reach_short=0.908 cut=0.156
+     zero_mlp1 a=20 exact=0.000 reach_long=0.921 reach_short=0.922 cut=0.152
+        bypass a= 1 exact=0.000 reach_long=0.240 reach_short=nan cut=0.751
+        bypass a= 4 exact=0.000 reach_long=0.237 reach_short=0.246 cut=0.750
+        bypass a= 7 exact=0.000 reach_long=0.239 reach_short=0.232 cut=0.760
+        bypass a= 8 exact=0.000 reach_long=0.239 reach_short=0.222 cut=0.757
+        bypass a=10 exact=0.000 reach_long=0.240 reach_short=0.244 cut=0.760
+        bypass a=14 exact=0.000 reach_long=0.234 reach_short=0.248 cut=0.756
+        bypass a=17 exact=0.000 reach_long=0.236 reach_short=0.239 cut=0.758
+        bypass a=20 exact=0.000 reach_long=0.239 reach_short=0.239 cut=0.756
+  saved -> runs/report7/ablation/n40_er_seed3000/ablation.csv
+done n40_er_seed3000

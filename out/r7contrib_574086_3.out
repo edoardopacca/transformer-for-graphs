@@ -1,0 +1,84 @@
+== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) -- seed 4000 ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 1 exact=1.000 reach_long=1.000 reach_short=nan cut=1.000 mode=random
+  a= 2 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 3 exact=0.800 reach_long=1.000 reach_short=1.000 cut=0.991 mode=random
+  a= 4 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 5 exact=0.995 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 6 exact=0.890 reach_long=1.000 reach_short=1.000 cut=0.999 mode=random
+  a= 7 exact=0.720 reach_long=1.000 reach_short=1.000 cut=0.997 mode=random
+  a= 8 exact=0.000 reach_long=0.991 reach_short=1.000 cut=0.923 mode=random
+  a= 9 exact=0.000 reach_long=0.881 reach_short=1.000 cut=0.932 mode=random
+  a=10 exact=0.000 reach_long=0.667 reach_short=1.000 cut=0.998 mode=random
+  a=11 exact=0.000 reach_long=0.535 reach_short=0.982 cut=1.000 mode=random
+  a=12 exact=0.000 reach_long=0.548 reach_short=0.954 cut=1.000 mode=random
+  a=13 exact=0.000 reach_long=0.564 reach_short=0.923 cut=1.000 mode=random
+  a=14 exact=0.000 reach_long=0.581 reach_short=0.889 cut=1.000 mode=random
+  a=15 exact=0.000 reach_long=0.599 reach_short=0.852 cut=1.000 mode=random
+  a=16 exact=0.000 reach_long=0.617 reach_short=0.819 cut=1.000 mode=random
+  a=17 exact=0.000 reach_long=0.638 reach_short=0.792 cut=1.000 mode=random
+  a=18 exact=0.000 reach_long=0.660 reach_short=0.763 cut=1.000 mode=random
+  a=19 exact=0.000 reach_long=0.684 reach_short=0.735 cut=1.000 mode=random
+  a=20 exact=0.000 reach_long=0.709 reach_short=0.709 cut=1.000 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 1 exact=1.000 reach_long=1.000 reach_short=nan cut=1.000 mode=fixed
+  a= 4 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.955 mode=fixed
+  a= 8 exact=0.000 reach_long=0.982 reach_short=1.000 cut=0.855 mode=fixed
+  a=10 exact=0.000 reach_long=0.587 reach_short=1.000 cut=1.000 mode=fixed
+  a=17 exact=0.000 reach_long=0.640 reach_short=0.794 cut=1.000 mode=fixed
+  a=20 exact=0.000 reach_long=0.711 reach_short=0.708 cut=1.000 mode=fixed
+  saved -> runs/report7/mechanistic/n40_pathunion_seed4000/metrics.csv
+
+== readout decomposition h_i^T w_j ==
+  readout a= 1 done
+  readout a= 2 done
+  readout a= 3 done
+  readout a= 4 done
+  readout a= 5 done
+  readout a= 6 done
+  readout a= 7 done
+  readout a= 8 done
+  readout a= 9 done
+  readout a=10 done
+  readout a=11 done
+  readout a=12 done
+  readout a=13 done
+  readout a=14 done
+  readout a=15 done
+  readout a=16 done
+  readout a=17 done
+  readout a=18 done
+  readout a=19 done
+  readout a=20 done
+  saved -> runs/report7/mechanistic/n40_pathunion_seed4000/readout.csv
+
+== W_out / W_in geometry ==
+  saved -> runs/report7/mechanistic/n40_pathunion_seed4000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 1 done (row_mass1 mean=2.822, exact-contribution over 40 graphs)
+  attention a= 4 done (row_mass1 mean=2.637, exact-contribution over 40 graphs)
+  attention a= 7 done (row_mass1 mean=2.469, exact-contribution over 40 graphs)
+  attention a= 8 done (row_mass1 mean=2.445, exact-contribution over 40 graphs)
+  attention a=10 done (row_mass1 mean=2.425, exact-contribution over 40 graphs)
+  attention a=14 done (row_mass1 mean=2.428, exact-contribution over 40 graphs)
+  attention a=17 done (row_mass1 mean=2.428, exact-contribution over 40 graphs)
+  attention a=20 done (row_mass1 mean=2.426, exact-contribution over 40 graphs)
+  saved -> runs/report7/mechanistic/n40_pathunion_seed4000/attn_cache.npz
+== mechanistic_heatmaps.py (heatmap probe, exact contribution) -- seed 4000 ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_linear_lam0_seed4000/last.pt
+  arch=roberta readout=linear n=40 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a=20 done
+  saved -> runs/report7/heatmaps/n40_pathunion_seed4000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report7/heatmaps/n40_pathunion_seed4000/raw_weights.npz
+done seed 4000

@@ -1,0 +1,801 @@
+=== n20_pathunion_seed1000  <-  runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_pathunion_seed1000/asym_chains.json
+=== n20_pathunion_seed2000  <-  runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_pathunion_seed2000/asym_chains.json
+=== n20_pathunion_seed3000  <-  runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_pathunion_seed3000/asym_chains.json
+=== n20_pathunion_seed4000  <-  runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/report6/a1_train/n20_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_pathunion_seed4000/asym_chains.json
+=== n40_pathunion_seed1000  <-  runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,31) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,30) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,29) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(12,28) exact=0.000 reach_long=0.884 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.900 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.915 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.931 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=0.997 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=0.996 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=0.995 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=0.996 longblock=0.007
+  split=(20,20) exact=0.000 reach_long=0.995 cut=0.997 longblock=0.040
+  saved -> runs/report6/asym_chains_sim/n40_pathunion_seed1000/asym_chains.json
+=== n40_pathunion_seed2000  <-  runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=0.000 reach_long=0.820 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.835 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.850 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.865 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=0.999 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=0.999 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=0.998 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=0.996 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=0.995 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=0.995 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=0.996 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_pathunion_seed2000/asym_chains.json
+=== n40_pathunion_seed3000  <-  runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,31) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,30) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,29) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(12,28) exact=0.000 reach_long=0.882 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.898 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=0.999 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=0.999 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=0.998 longblock=0.003
+  split=(19,21) exact=0.000 reach_long=0.986 cut=0.998 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=0.998 longblock=0.017
+  saved -> runs/report6/asym_chains_sim/n40_pathunion_seed3000/asym_chains.json
+=== n40_pathunion_seed4000  <-  runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=0.000 reach_long=0.818 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.833 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.849 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.865 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=0.999 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=0.998 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=0.998 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_pathunion_seed4000/asym_chains.json
+=== n64_pathunion_seed1000  <-  runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,62) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,61) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,60) exact=0.000 reach_long=0.723 cut=1.000 longblock=0.000
+  split=( 5,59) exact=0.000 reach_long=0.718 cut=1.000 longblock=0.000
+  split=( 6,58) exact=0.000 reach_long=0.715 cut=1.000 longblock=0.000
+  split=( 7,57) exact=0.000 reach_long=0.711 cut=0.998 longblock=0.000
+  split=( 8,56) exact=0.000 reach_long=0.706 cut=1.000 longblock=0.000
+  split=( 9,55) exact=0.000 reach_long=0.704 cut=1.000 longblock=0.000
+  split=(10,54) exact=0.000 reach_long=0.701 cut=1.000 longblock=0.000
+  split=(11,53) exact=0.000 reach_long=0.697 cut=0.989 longblock=0.000
+  split=(12,52) exact=0.000 reach_long=0.695 cut=0.884 longblock=0.000
+  split=(13,51) exact=0.000 reach_long=0.689 cut=0.849 longblock=0.000
+  split=(14,50) exact=0.000 reach_long=0.687 cut=0.804 longblock=0.000
+  split=(15,49) exact=0.000 reach_long=0.678 cut=0.772 longblock=0.000
+  split=(16,48) exact=0.000 reach_long=0.677 cut=0.739 longblock=0.000
+  split=(17,47) exact=0.000 reach_long=0.672 cut=0.708 longblock=0.000
+  split=(18,46) exact=0.000 reach_long=0.668 cut=0.684 longblock=0.000
+  split=(19,45) exact=0.000 reach_long=0.665 cut=0.664 longblock=0.000
+  split=(20,44) exact=0.000 reach_long=0.660 cut=0.645 longblock=0.000
+  split=(21,43) exact=0.000 reach_long=0.656 cut=0.629 longblock=0.000
+  split=(22,42) exact=0.000 reach_long=0.652 cut=0.612 longblock=0.000
+  split=(23,41) exact=0.000 reach_long=0.646 cut=0.601 longblock=0.000
+  split=(24,40) exact=0.000 reach_long=0.642 cut=0.592 longblock=0.000
+  split=(25,39) exact=0.000 reach_long=0.639 cut=0.580 longblock=0.000
+  split=(26,38) exact=0.000 reach_long=0.635 cut=0.571 longblock=0.000
+  split=(27,37) exact=0.000 reach_long=0.630 cut=0.566 longblock=0.000
+  split=(28,36) exact=0.000 reach_long=0.626 cut=0.561 longblock=0.000
+  split=(29,35) exact=0.000 reach_long=0.622 cut=0.558 longblock=0.000
+  split=(30,34) exact=0.000 reach_long=0.618 cut=0.556 longblock=0.000
+  split=(31,33) exact=0.000 reach_long=0.616 cut=0.551 longblock=0.000
+  split=(32,32) exact=0.000 reach_long=0.610 cut=0.555 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n64_pathunion_seed1000/asym_chains.json
+=== n64_pathunion_seed2000  <-  runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,62) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,61) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,60) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,59) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,58) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,57) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,56) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,55) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,54) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,53) exact=0.520 reach_long=0.991 cut=1.000 longblock=0.520
+  split=(12,52) exact=0.000 reach_long=0.777 cut=1.000 longblock=0.000
+  split=(13,51) exact=0.000 reach_long=0.778 cut=1.000 longblock=0.000
+  split=(14,50) exact=0.000 reach_long=0.773 cut=0.968 longblock=0.000
+  split=(15,49) exact=0.000 reach_long=0.772 cut=0.906 longblock=0.000
+  split=(16,48) exact=0.000 reach_long=0.769 cut=0.854 longblock=0.000
+  split=(17,47) exact=0.000 reach_long=0.766 cut=0.830 longblock=0.000
+  split=(18,46) exact=0.000 reach_long=0.766 cut=0.810 longblock=0.000
+  split=(19,45) exact=0.000 reach_long=0.764 cut=0.796 longblock=0.000
+  split=(20,44) exact=0.000 reach_long=0.762 cut=0.787 longblock=0.000
+  split=(21,43) exact=0.000 reach_long=0.761 cut=0.789 longblock=0.000
+  split=(22,42) exact=0.000 reach_long=0.754 cut=0.790 longblock=0.000
+  split=(23,41) exact=0.000 reach_long=0.758 cut=0.796 longblock=0.000
+  split=(24,40) exact=0.000 reach_long=0.756 cut=0.805 longblock=0.000
+  split=(25,39) exact=0.000 reach_long=0.755 cut=0.796 longblock=0.000
+  split=(26,38) exact=0.000 reach_long=0.753 cut=0.783 longblock=0.000
+  split=(27,37) exact=0.000 reach_long=0.751 cut=0.775 longblock=0.000
+  split=(28,36) exact=0.000 reach_long=0.750 cut=0.763 longblock=0.000
+  split=(29,35) exact=0.000 reach_long=0.750 cut=0.754 longblock=0.000
+  split=(30,34) exact=0.000 reach_long=0.749 cut=0.751 longblock=0.000
+  split=(31,33) exact=0.000 reach_long=0.747 cut=0.754 longblock=0.000
+  split=(32,32) exact=0.000 reach_long=0.749 cut=0.749 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n64_pathunion_seed2000/asym_chains.json
+=== n64_pathunion_seed3000  <-  runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,62) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,61) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,60) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,59) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,58) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,57) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,56) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,55) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,54) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,53) exact=0.847 reach_long=0.999 cut=1.000 longblock=0.847
+  split=(12,52) exact=0.000 reach_long=0.805 cut=1.000 longblock=0.000
+  split=(13,51) exact=0.000 reach_long=0.803 cut=1.000 longblock=0.000
+  split=(14,50) exact=0.000 reach_long=0.797 cut=0.981 longblock=0.000
+  split=(15,49) exact=0.000 reach_long=0.798 cut=0.925 longblock=0.000
+  split=(16,48) exact=0.000 reach_long=0.795 cut=0.863 longblock=0.000
+  split=(17,47) exact=0.000 reach_long=0.790 cut=0.835 longblock=0.000
+  split=(18,46) exact=0.000 reach_long=0.788 cut=0.807 longblock=0.000
+  split=(19,45) exact=0.000 reach_long=0.784 cut=0.786 longblock=0.000
+  split=(20,44) exact=0.000 reach_long=0.781 cut=0.772 longblock=0.000
+  split=(21,43) exact=0.000 reach_long=0.775 cut=0.767 longblock=0.000
+  split=(22,42) exact=0.000 reach_long=0.772 cut=0.767 longblock=0.000
+  split=(23,41) exact=0.000 reach_long=0.770 cut=0.771 longblock=0.000
+  split=(24,40) exact=0.000 reach_long=0.767 cut=0.786 longblock=0.000
+  split=(25,39) exact=0.000 reach_long=0.764 cut=0.769 longblock=0.000
+  split=(26,38) exact=0.000 reach_long=0.761 cut=0.753 longblock=0.000
+  split=(27,37) exact=0.000 reach_long=0.756 cut=0.750 longblock=0.000
+  split=(28,36) exact=0.000 reach_long=0.753 cut=0.740 longblock=0.000
+  split=(29,35) exact=0.000 reach_long=0.752 cut=0.730 longblock=0.000
+  split=(30,34) exact=0.000 reach_long=0.749 cut=0.727 longblock=0.000
+  split=(31,33) exact=0.000 reach_long=0.748 cut=0.730 longblock=0.000
+  split=(32,32) exact=0.000 reach_long=0.749 cut=0.723 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n64_pathunion_seed3000/asym_chains.json
+=== n64_pathunion_seed4000  <-  runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_path_union_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,62) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,61) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,60) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,59) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,58) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,57) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,56) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,55) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,54) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,53) exact=0.983 reach_long=1.000 cut=1.000 longblock=0.983
+  split=(12,52) exact=0.000 reach_long=0.845 cut=1.000 longblock=0.000
+  split=(13,51) exact=0.000 reach_long=0.842 cut=0.998 longblock=0.000
+  split=(14,50) exact=0.000 reach_long=0.840 cut=0.938 longblock=0.000
+  split=(15,49) exact=0.000 reach_long=0.835 cut=0.867 longblock=0.000
+  split=(16,48) exact=0.000 reach_long=0.832 cut=0.802 longblock=0.000
+  split=(17,47) exact=0.000 reach_long=0.832 cut=0.763 longblock=0.000
+  split=(18,46) exact=0.000 reach_long=0.826 cut=0.722 longblock=0.000
+  split=(19,45) exact=0.000 reach_long=0.824 cut=0.683 longblock=0.000
+  split=(20,44) exact=0.000 reach_long=0.824 cut=0.648 longblock=0.000
+  split=(21,43) exact=0.000 reach_long=0.821 cut=0.635 longblock=0.000
+  split=(22,42) exact=0.000 reach_long=0.816 cut=0.637 longblock=0.000
+  split=(23,41) exact=0.000 reach_long=0.812 cut=0.654 longblock=0.000
+  split=(24,40) exact=0.000 reach_long=0.812 cut=0.672 longblock=0.000
+  split=(25,39) exact=0.000 reach_long=0.808 cut=0.658 longblock=0.000
+  split=(26,38) exact=0.000 reach_long=0.803 cut=0.634 longblock=0.000
+  split=(27,37) exact=0.000 reach_long=0.801 cut=0.625 longblock=0.000
+  split=(28,36) exact=0.000 reach_long=0.801 cut=0.608 longblock=0.000
+  split=(29,35) exact=0.000 reach_long=0.800 cut=0.601 longblock=0.000
+  split=(30,34) exact=0.000 reach_long=0.795 cut=0.606 longblock=0.000
+  split=(31,33) exact=0.000 reach_long=0.794 cut=0.601 longblock=0.000
+  split=(32,32) exact=0.000 reach_long=0.796 cut=0.607 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n64_pathunion_seed4000/asym_chains.json
+=== n20_er_seed1000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.983 reach_long=1.000 cut=1.000 longblock=0.983
+  split=( 2,18) exact=0.990 reach_long=1.000 cut=1.000 longblock=0.990
+  split=( 3,17) exact=0.010 reach_long=0.920 cut=1.000 longblock=0.010
+  split=( 4,16) exact=0.703 reach_long=0.994 cut=1.000 longblock=0.703
+  split=( 5,15) exact=0.367 reach_long=0.977 cut=1.000 longblock=0.377
+  split=( 6,14) exact=0.060 reach_long=0.908 cut=1.000 longblock=0.063
+  split=( 7,13) exact=0.013 reach_long=0.903 cut=1.000 longblock=0.013
+  split=( 8,12) exact=0.050 reach_long=0.951 cut=0.998 longblock=0.060
+  split=( 9,11) exact=0.240 reach_long=0.983 cut=0.993 longblock=0.487
+  split=(10,10) exact=0.437 reach_long=1.000 cut=0.988 longblock=0.983
+  saved -> runs/report6/asym_chains_sim/n20_er_seed1000/asym_chains.json
+=== n20_er_seed2000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.307 reach_long=0.977 cut=1.000 longblock=0.307
+  split=( 2,18) exact=0.900 reach_long=0.999 cut=1.000 longblock=0.900
+  split=( 3,17) exact=0.000 reach_long=0.699 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.000 reach_long=0.784 cut=1.000 longblock=0.000
+  split=( 5,15) exact=0.000 reach_long=0.809 cut=1.000 longblock=0.000
+  split=( 6,14) exact=0.000 reach_long=0.816 cut=1.000 longblock=0.000
+  split=( 7,13) exact=0.000 reach_long=0.838 cut=1.000 longblock=0.000
+  split=( 8,12) exact=0.010 reach_long=0.888 cut=1.000 longblock=0.010
+  split=( 9,11) exact=0.137 reach_long=0.951 cut=1.000 longblock=0.137
+  split=(10,10) exact=0.637 reach_long=0.995 cut=1.000 longblock=0.847
+  saved -> runs/report6/asym_chains_sim/n20_er_seed2000/asym_chains.json
+=== n20_er_seed3000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.990 reach_long=1.000 cut=1.000 longblock=0.990
+  split=( 2,18) exact=0.937 reach_long=0.999 cut=1.000 longblock=0.937
+  split=( 3,17) exact=0.000 reach_long=0.836 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.053 reach_long=0.914 cut=1.000 longblock=0.053
+  split=( 5,15) exact=0.067 reach_long=0.915 cut=1.000 longblock=0.067
+  split=( 6,14) exact=0.000 reach_long=0.862 cut=1.000 longblock=0.000
+  split=( 7,13) exact=0.003 reach_long=0.876 cut=1.000 longblock=0.003
+  split=( 8,12) exact=0.057 reach_long=0.928 cut=1.000 longblock=0.057
+  split=( 9,11) exact=0.263 reach_long=0.973 cut=0.996 longblock=0.353
+  split=(10,10) exact=0.357 reach_long=0.996 cut=0.989 longblock=0.863
+  saved -> runs/report6/asym_chains_sim/n20_er_seed3000/asym_chains.json
+=== n20_er_seed4000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.990 reach_long=1.000 cut=1.000 longblock=0.990
+  split=( 2,18) exact=0.993 reach_long=1.000 cut=1.000 longblock=0.993
+  split=( 3,17) exact=0.000 reach_long=0.789 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.050 reach_long=0.924 cut=1.000 longblock=0.050
+  split=( 5,15) exact=0.037 reach_long=0.906 cut=1.000 longblock=0.037
+  split=( 6,14) exact=0.020 reach_long=0.878 cut=1.000 longblock=0.020
+  split=( 7,13) exact=0.070 reach_long=0.903 cut=1.000 longblock=0.070
+  split=( 8,12) exact=0.090 reach_long=0.932 cut=0.999 longblock=0.100
+  split=( 9,11) exact=0.283 reach_long=0.974 cut=0.997 longblock=0.377
+  split=(10,10) exact=0.567 reach_long=0.998 cut=0.995 longblock=0.937
+  saved -> runs/report6/asym_chains_sim/n20_er_seed4000/asym_chains.json
+=== n20_er_seed5000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed5000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed5000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.470 reach_long=0.987 cut=1.000 longblock=0.470
+  split=( 2,18) exact=0.907 reach_long=0.999 cut=1.000 longblock=0.907
+  split=( 3,17) exact=0.000 reach_long=0.711 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.020 reach_long=0.882 cut=1.000 longblock=0.020
+  split=( 5,15) exact=0.013 reach_long=0.877 cut=1.000 longblock=0.013
+  split=( 6,14) exact=0.000 reach_long=0.828 cut=1.000 longblock=0.000
+  split=( 7,13) exact=0.000 reach_long=0.833 cut=1.000 longblock=0.000
+  split=( 8,12) exact=0.010 reach_long=0.866 cut=1.000 longblock=0.010
+  split=( 9,11) exact=0.177 reach_long=0.945 cut=1.000 longblock=0.187
+  split=(10,10) exact=0.590 reach_long=0.995 cut=0.999 longblock=0.823
+  saved -> runs/report6/asym_chains_sim/n20_er_seed5000/asym_chains.json
+=== n20_er_seed6000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed6000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed6000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=0.000 reach_long=0.792 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.410 reach_long=0.977 cut=1.000 longblock=0.410
+  split=( 5,15) exact=0.020 reach_long=0.888 cut=1.000 longblock=0.020
+  split=( 6,14) exact=0.000 reach_long=0.829 cut=1.000 longblock=0.000
+  split=( 7,13) exact=0.000 reach_long=0.872 cut=1.000 longblock=0.000
+  split=( 8,12) exact=0.197 reach_long=0.951 cut=0.998 longblock=0.237
+  split=( 9,11) exact=0.543 reach_long=0.996 cut=0.993 longblock=0.880
+  split=(10,10) exact=0.527 reach_long=1.000 cut=0.991 longblock=0.993
+  saved -> runs/report6/asym_chains_sim/n20_er_seed6000/asym_chains.json
+=== n20_er_seed7000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed7000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed7000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.993 reach_long=1.000 cut=1.000 longblock=0.993
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=0.023 reach_long=0.903 cut=1.000 longblock=0.023
+  split=( 4,16) exact=0.057 reach_long=0.918 cut=1.000 longblock=0.057
+  split=( 5,15) exact=0.107 reach_long=0.937 cut=1.000 longblock=0.107
+  split=( 6,14) exact=0.027 reach_long=0.885 cut=1.000 longblock=0.027
+  split=( 7,13) exact=0.020 reach_long=0.868 cut=1.000 longblock=0.020
+  split=( 8,12) exact=0.027 reach_long=0.905 cut=1.000 longblock=0.030
+  split=( 9,11) exact=0.077 reach_long=0.952 cut=0.998 longblock=0.130
+  split=(10,10) exact=0.277 reach_long=0.992 cut=0.994 longblock=0.740
+  saved -> runs/report6/asym_chains_sim/n20_er_seed7000/asym_chains.json
+=== n20_er_seed8000  <-  runs/families_n20/n20_er_roberta_similarity_lam0_seed8000/last.pt ===
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed8000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=0.747 reach_long=0.997 cut=1.000 longblock=0.747
+  split=( 2,18) exact=0.997 reach_long=1.000 cut=1.000 longblock=0.997
+  split=( 3,17) exact=0.000 reach_long=0.836 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.637 reach_long=0.989 cut=1.000 longblock=0.637
+  split=( 5,15) exact=0.607 reach_long=0.988 cut=1.000 longblock=0.607
+  split=( 6,14) exact=0.213 reach_long=0.967 cut=1.000 longblock=0.213
+  split=( 7,13) exact=0.170 reach_long=0.954 cut=1.000 longblock=0.170
+  split=( 8,12) exact=0.210 reach_long=0.960 cut=0.999 longblock=0.233
+  split=( 9,11) exact=0.353 reach_long=0.988 cut=0.993 longblock=0.627
+  split=(10,10) exact=0.333 reach_long=1.000 cut=0.985 longblock=0.977
+  saved -> runs/report6/asym_chains_sim/n20_er_seed8000/asym_chains.json
+=== n40_er_seed1000  <-  runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=0.000 reach_long=0.715 cut=1.000 longblock=0.000
+  split=( 2,38) exact=0.000 reach_long=0.728 cut=1.000 longblock=0.000
+  split=( 3,37) exact=0.000 reach_long=0.742 cut=1.000 longblock=0.000
+  split=( 4,36) exact=0.000 reach_long=0.755 cut=1.000 longblock=0.000
+  split=( 5,35) exact=0.000 reach_long=0.770 cut=1.000 longblock=0.000
+  split=( 6,34) exact=0.000 reach_long=0.785 cut=1.000 longblock=0.000
+  split=( 7,33) exact=0.000 reach_long=0.800 cut=1.000 longblock=0.000
+  split=( 8,32) exact=0.000 reach_long=0.816 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.832 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.848 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.864 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_er_seed1000/asym_chains.json
+=== n40_er_seed2000  <-  runs/families_n40/n40_er_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=0.000 reach_long=0.716 cut=1.000 longblock=0.000
+  split=( 2,38) exact=0.000 reach_long=0.728 cut=1.000 longblock=0.000
+  split=( 3,37) exact=0.000 reach_long=0.742 cut=1.000 longblock=0.000
+  split=( 4,36) exact=0.000 reach_long=0.756 cut=1.000 longblock=0.000
+  split=( 5,35) exact=0.000 reach_long=0.771 cut=1.000 longblock=0.000
+  split=( 6,34) exact=0.000 reach_long=0.785 cut=1.000 longblock=0.000
+  split=( 7,33) exact=0.000 reach_long=0.800 cut=1.000 longblock=0.000
+  split=( 8,32) exact=0.000 reach_long=0.816 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.832 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.848 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.865 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_er_seed2000/asym_chains.json
+=== n40_er_seed3000  <-  runs/families_n40/n40_er_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=0.000 reach_long=0.716 cut=1.000 longblock=0.000
+  split=( 2,38) exact=0.000 reach_long=0.729 cut=1.000 longblock=0.000
+  split=( 3,37) exact=0.000 reach_long=0.742 cut=1.000 longblock=0.000
+  split=( 4,36) exact=0.000 reach_long=0.756 cut=1.000 longblock=0.000
+  split=( 5,35) exact=0.000 reach_long=0.771 cut=1.000 longblock=0.000
+  split=( 6,34) exact=0.000 reach_long=0.785 cut=1.000 longblock=0.000
+  split=( 7,33) exact=0.000 reach_long=0.800 cut=1.000 longblock=0.000
+  split=( 8,32) exact=0.000 reach_long=0.816 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.832 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.848 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.864 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_er_seed3000/asym_chains.json
+=== n40_er_seed4000  <-  runs/families_n40/n40_er_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=0.000 reach_long=0.716 cut=1.000 longblock=0.000
+  split=( 2,38) exact=0.000 reach_long=0.729 cut=1.000 longblock=0.000
+  split=( 3,37) exact=0.000 reach_long=0.743 cut=1.000 longblock=0.000
+  split=( 4,36) exact=0.000 reach_long=0.757 cut=1.000 longblock=0.000
+  split=( 5,35) exact=0.000 reach_long=0.771 cut=1.000 longblock=0.000
+  split=( 6,34) exact=0.000 reach_long=0.786 cut=1.000 longblock=0.000
+  split=( 7,33) exact=0.000 reach_long=0.801 cut=1.000 longblock=0.000
+  split=( 8,32) exact=0.000 reach_long=0.816 cut=1.000 longblock=0.000
+  split=( 9,31) exact=0.000 reach_long=0.832 cut=1.000 longblock=0.000
+  split=(10,30) exact=0.000 reach_long=0.848 cut=1.000 longblock=0.000
+  split=(11,29) exact=0.000 reach_long=0.865 cut=1.000 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_er_seed4000/asym_chains.json
+=== n64_er_seed1000  <-  runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=0.897 reach_long=1.000 cut=1.000 longblock=0.897
+  split=( 2,62) exact=0.843 reach_long=1.000 cut=1.000 longblock=0.843
+  split=( 3,61) exact=0.773 reach_long=1.000 cut=1.000 longblock=0.773
+  split=( 4,60) exact=0.533 reach_long=0.999 cut=1.000 longblock=0.533
+  split=( 5,59) exact=0.543 reach_long=0.999 cut=1.000 longblock=0.543
+  split=( 6,58) exact=0.540 reach_long=0.999 cut=1.000 longblock=0.540
+  split=( 7,57) exact=0.560 reach_long=0.999 cut=1.000 longblock=0.560
+  split=( 8,56) exact=0.577 reach_long=0.999 cut=1.000 longblock=0.577
+  split=( 9,55) exact=0.000 reach_long=0.999 cut=0.808 longblock=0.553
+  split=(10,54) exact=0.000 reach_long=0.998 cut=0.616 longblock=0.517
+  split=(11,53) exact=0.000 reach_long=0.998 cut=0.556 longblock=0.517
+  split=(12,52) exact=0.000 reach_long=0.998 cut=0.473 longblock=0.573
+  split=(13,51) exact=0.000 reach_long=0.998 cut=0.377 longblock=0.510
+  split=(14,50) exact=0.000 reach_long=0.998 cut=0.275 longblock=0.540
+  split=(15,49) exact=0.000 reach_long=0.998 cut=0.158 longblock=0.523
+  split=(16,48) exact=0.000 reach_long=0.998 cut=0.023 longblock=0.493
+  split=(17,47) exact=0.000 reach_long=0.998 cut=0.011 longblock=0.523
+  split=(18,46) exact=0.000 reach_long=0.998 cut=0.009 longblock=0.520
+  split=(19,45) exact=0.000 reach_long=0.997 cut=0.011 longblock=0.513
+  split=(20,44) exact=0.000 reach_long=0.998 cut=0.009 longblock=0.523
+  split=(21,43) exact=0.000 reach_long=0.998 cut=0.009 longblock=0.507
+  split=(22,42) exact=0.000 reach_long=0.998 cut=0.007 longblock=0.543
+  split=(23,41) exact=0.000 reach_long=0.998 cut=0.008 longblock=0.533
+  split=(24,40) exact=0.000 reach_long=0.997 cut=0.009 longblock=0.547
+  split=(25,39) exact=0.000 reach_long=0.997 cut=0.008 longblock=0.540
+  split=(26,38) exact=0.000 reach_long=0.997 cut=0.008 longblock=0.583
+  split=(27,37) exact=0.000 reach_long=0.997 cut=0.008 longblock=0.503
+  split=(28,36) exact=0.000 reach_long=0.997 cut=0.008 longblock=0.500
+  split=(29,35) exact=0.000 reach_long=0.997 cut=0.008 longblock=0.530
+  split=(30,34) exact=0.000 reach_long=0.997 cut=0.007 longblock=0.547
+  split=(31,33) exact=0.000 reach_long=0.996 cut=0.008 longblock=0.527
+  split=(32,32) exact=0.000 reach_long=0.996 cut=0.007 longblock=0.523
+  saved -> runs/report6/asym_chains_sim/n64_er_seed1000/asym_chains.json
+=== n64_er_seed2000  <-  runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=0.980 reach_long=1.000 cut=1.000 longblock=0.980
+  split=( 2,62) exact=0.973 reach_long=1.000 cut=1.000 longblock=0.973
+  split=( 3,61) exact=0.957 reach_long=1.000 cut=1.000 longblock=0.957
+  split=( 4,60) exact=0.863 reach_long=1.000 cut=1.000 longblock=0.863
+  split=( 5,59) exact=0.847 reach_long=1.000 cut=1.000 longblock=0.847
+  split=( 6,58) exact=0.873 reach_long=1.000 cut=1.000 longblock=0.873
+  split=( 7,57) exact=0.857 reach_long=1.000 cut=1.000 longblock=0.857
+  split=( 8,56) exact=0.843 reach_long=1.000 cut=1.000 longblock=0.843
+  split=( 9,55) exact=0.000 reach_long=1.000 cut=0.786 longblock=0.847
+  split=(10,54) exact=0.000 reach_long=1.000 cut=0.606 longblock=0.863
+  split=(11,53) exact=0.000 reach_long=1.000 cut=0.524 longblock=0.870
+  split=(12,52) exact=0.000 reach_long=1.000 cut=0.440 longblock=0.867
+  split=(13,51) exact=0.000 reach_long=1.000 cut=0.338 longblock=0.850
+  split=(14,50) exact=0.000 reach_long=1.000 cut=0.220 longblock=0.843
+  split=(15,49) exact=0.000 reach_long=1.000 cut=0.076 longblock=0.863
+  split=(16,48) exact=0.000 reach_long=1.000 cut=0.004 longblock=0.833
+  split=(17,47) exact=0.000 reach_long=1.000 cut=0.003 longblock=0.857
+  split=(18,46) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.867
+  split=(19,45) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.853
+  split=(20,44) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.870
+  split=(21,43) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.847
+  split=(22,42) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.837
+  split=(23,41) exact=0.000 reach_long=1.000 cut=0.001 longblock=0.863
+  split=(24,40) exact=0.000 reach_long=1.000 cut=0.001 longblock=0.870
+  split=(25,39) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.843
+  split=(26,38) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.867
+  split=(27,37) exact=0.000 reach_long=1.000 cut=0.001 longblock=0.883
+  split=(28,36) exact=0.000 reach_long=0.999 cut=0.001 longblock=0.850
+  split=(29,35) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.850
+  split=(30,34) exact=0.000 reach_long=1.000 cut=0.001 longblock=0.900
+  split=(31,33) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.847
+  split=(32,32) exact=0.000 reach_long=0.999 cut=0.001 longblock=0.857
+  saved -> runs/report6/asym_chains_sim/n64_er_seed2000/asym_chains.json
+=== n64_er_seed3000  <-  runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=0.917 reach_long=1.000 cut=1.000 longblock=0.917
+  split=( 2,62) exact=0.940 reach_long=1.000 cut=1.000 longblock=0.940
+  split=( 3,61) exact=0.857 reach_long=1.000 cut=1.000 longblock=0.857
+  split=( 4,60) exact=0.713 reach_long=0.999 cut=1.000 longblock=0.713
+  split=( 5,59) exact=0.667 reach_long=0.999 cut=1.000 longblock=0.667
+  split=( 6,58) exact=0.683 reach_long=0.999 cut=1.000 longblock=0.683
+  split=( 7,57) exact=0.673 reach_long=0.999 cut=1.000 longblock=0.673
+  split=( 8,56) exact=0.677 reach_long=0.999 cut=1.000 longblock=0.680
+  split=( 9,55) exact=0.000 reach_long=0.999 cut=0.786 longblock=0.750
+  split=(10,54) exact=0.000 reach_long=0.999 cut=0.606 longblock=0.710
+  split=(11,53) exact=0.000 reach_long=0.999 cut=0.517 longblock=0.673
+  split=(12,52) exact=0.000 reach_long=0.999 cut=0.456 longblock=0.667
+  split=(13,51) exact=0.000 reach_long=0.999 cut=0.360 longblock=0.730
+  split=(14,50) exact=0.000 reach_long=0.999 cut=0.258 longblock=0.703
+  split=(15,49) exact=0.000 reach_long=0.999 cut=0.112 longblock=0.697
+  split=(16,48) exact=0.000 reach_long=0.999 cut=0.011 longblock=0.700
+  split=(17,47) exact=0.000 reach_long=0.999 cut=0.006 longblock=0.670
+  split=(18,46) exact=0.000 reach_long=0.999 cut=0.006 longblock=0.670
+  split=(19,45) exact=0.000 reach_long=0.999 cut=0.006 longblock=0.660
+  split=(20,44) exact=0.000 reach_long=0.999 cut=0.005 longblock=0.680
+  split=(21,43) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.737
+  split=(22,42) exact=0.000 reach_long=0.999 cut=0.005 longblock=0.710
+  split=(23,41) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.777
+  split=(24,40) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.740
+  split=(25,39) exact=0.000 reach_long=0.998 cut=0.005 longblock=0.667
+  split=(26,38) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.707
+  split=(27,37) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.703
+  split=(28,36) exact=0.000 reach_long=0.998 cut=0.005 longblock=0.653
+  split=(29,35) exact=0.000 reach_long=0.999 cut=0.004 longblock=0.727
+  split=(30,34) exact=0.000 reach_long=0.998 cut=0.004 longblock=0.727
+  split=(31,33) exact=0.000 reach_long=0.998 cut=0.004 longblock=0.720
+  split=(32,32) exact=0.000 reach_long=0.998 cut=0.004 longblock=0.710
+  saved -> runs/report6/asym_chains_sim/n64_er_seed3000/asym_chains.json
+=== n64_er_seed4000  <-  runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/report6/a1_train/n64_er_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=64 device=cuda
+  split=( 1,63) exact=0.993 reach_long=1.000 cut=1.000 longblock=0.993
+  split=( 2,62) exact=0.970 reach_long=1.000 cut=1.000 longblock=0.970
+  split=( 3,61) exact=0.960 reach_long=1.000 cut=1.000 longblock=0.960
+  split=( 4,60) exact=0.863 reach_long=1.000 cut=1.000 longblock=0.863
+  split=( 5,59) exact=0.777 reach_long=1.000 cut=1.000 longblock=0.777
+  split=( 6,58) exact=0.833 reach_long=1.000 cut=1.000 longblock=0.833
+  split=( 7,57) exact=0.800 reach_long=1.000 cut=1.000 longblock=0.800
+  split=( 8,56) exact=0.853 reach_long=1.000 cut=1.000 longblock=0.853
+  split=( 9,55) exact=0.000 reach_long=1.000 cut=0.796 longblock=0.823
+  split=(10,54) exact=0.000 reach_long=1.000 cut=0.609 longblock=0.840
+  split=(11,53) exact=0.000 reach_long=1.000 cut=0.529 longblock=0.857
+  split=(12,52) exact=0.000 reach_long=1.000 cut=0.464 longblock=0.823
+  split=(13,51) exact=0.000 reach_long=1.000 cut=0.367 longblock=0.840
+  split=(14,50) exact=0.000 reach_long=1.000 cut=0.262 longblock=0.837
+  split=(15,49) exact=0.000 reach_long=1.000 cut=0.132 longblock=0.833
+  split=(16,48) exact=0.000 reach_long=0.999 cut=0.007 longblock=0.783
+  split=(17,47) exact=0.000 reach_long=0.999 cut=0.003 longblock=0.787
+  split=(18,46) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.830
+  split=(19,45) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.803
+  split=(20,44) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.813
+  split=(21,43) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.807
+  split=(22,42) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.857
+  split=(23,41) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.843
+  split=(24,40) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.797
+  split=(25,39) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.853
+  split=(26,38) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.843
+  split=(27,37) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.830
+  split=(28,36) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.853
+  split=(29,35) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.830
+  split=(30,34) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.820
+  split=(31,33) exact=0.000 reach_long=1.000 cut=0.002 longblock=0.867
+  split=(32,32) exact=0.000 reach_long=0.999 cut=0.002 longblock=0.853
+  saved -> runs/report6/asym_chains_sim/n64_er_seed4000/asym_chains.json
+=== n20_mixed_seed1000  <-  runs/families_n20/n20_mixed_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_mixed_seed1000/asym_chains.json
+=== n20_mixed_seed2000  <-  runs/families_n20/n20_mixed_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=0.993 reach_long=1.000 cut=1.000 longblock=0.993
+  split=( 4,16) exact=0.920 reach_long=0.996 cut=1.000 longblock=0.920
+  split=( 5,15) exact=0.827 reach_long=0.992 cut=0.997 longblock=0.867
+  split=( 6,14) exact=0.697 reach_long=0.989 cut=0.993 longblock=0.757
+  split=( 7,13) exact=0.653 reach_long=0.988 cut=0.994 longblock=0.740
+  split=( 8,12) exact=0.773 reach_long=0.995 cut=0.997 longblock=0.857
+  split=( 9,11) exact=0.923 reach_long=0.998 cut=1.000 longblock=0.950
+  split=(10,10) exact=0.970 reach_long=0.999 cut=1.000 longblock=0.987
+  saved -> runs/report6/asym_chains_sim/n20_mixed_seed2000/asym_chains.json
+=== n20_mixed_seed3000  <-  runs/families_n20/n20_mixed_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,17) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,16) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,15) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,14) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,13) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_mixed_seed3000/asym_chains.json
+=== n20_mixed_seed4000  <-  runs/families_n20/n20_mixed_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=20 device=cuda
+  split=( 1,19) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,18) exact=0.643 reach_long=0.991 cut=1.000 longblock=0.643
+  split=( 3,17) exact=0.000 reach_long=0.795 cut=1.000 longblock=0.000
+  split=( 4,16) exact=0.000 reach_long=0.826 cut=1.000 longblock=0.000
+  split=( 5,15) exact=0.223 reach_long=0.971 cut=1.000 longblock=0.223
+  split=( 6,14) exact=0.017 reach_long=0.966 cut=1.000 longblock=0.017
+  split=( 7,13) exact=0.247 reach_long=0.990 cut=1.000 longblock=0.247
+  split=( 8,12) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,11) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,10) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  saved -> runs/report6/asym_chains_sim/n20_mixed_seed4000/asym_chains.json
+=== n40_mixed_seed1000  <-  runs/families_n40/n40_mixed_roberta_similarity_lam0_seed1000/last.pt ===
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,31) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,30) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,29) exact=0.010 reach_long=0.910 cut=1.000 longblock=0.010
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.000
+  saved -> runs/report6/asym_chains_sim/n40_mixed_seed1000/asym_chains.json
+=== n40_mixed_seed2000  <-  runs/families_n40/n40_mixed_roberta_similarity_lam0_seed2000/last.pt ===
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,32) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,31) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,30) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,29) exact=0.007 reach_long=0.929 cut=1.000 longblock=0.007
+  split=(12,28) exact=0.000 reach_long=0.881 cut=1.000 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.897 cut=1.000 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.914 cut=1.000 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.930 cut=1.000 longblock=0.000
+  split=(16,24) exact=0.000 reach_long=0.946 cut=1.000 longblock=0.000
+  split=(17,23) exact=0.000 reach_long=0.961 cut=1.000 longblock=0.000
+  split=(18,22) exact=0.000 reach_long=0.974 cut=1.000 longblock=0.000
+  split=(19,21) exact=0.000 reach_long=0.986 cut=1.000 longblock=0.000
+  split=(20,20) exact=0.000 reach_long=0.995 cut=1.000 longblock=0.003
+  saved -> runs/report6/asym_chains_sim/n40_mixed_seed2000/asym_chains.json
+=== n40_mixed_seed3000  <-  runs/families_n40/n40_mixed_roberta_similarity_lam0_seed3000/last.pt ===
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=0.997 reach_long=1.000 cut=1.000 longblock=0.997
+  split=( 5,35) exact=0.990 reach_long=1.000 cut=1.000 longblock=0.990
+  split=( 6,34) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,33) exact=0.987 reach_long=1.000 cut=1.000 longblock=0.987
+  split=( 8,32) exact=0.930 reach_long=1.000 cut=1.000 longblock=0.970
+  split=( 9,31) exact=0.687 reach_long=0.994 cut=0.997 longblock=0.840
+  split=(10,30) exact=0.357 reach_long=0.956 cut=0.980 longblock=0.527
+  split=(11,29) exact=0.067 reach_long=0.849 cut=0.946 longblock=0.213
+  split=(12,28) exact=0.000 reach_long=0.840 cut=0.914 longblock=0.143
+  split=(13,27) exact=0.003 reach_long=0.859 cut=0.912 longblock=0.127
+  split=(14,26) exact=0.000 reach_long=0.881 cut=0.928 longblock=0.087
+  split=(15,25) exact=0.000 reach_long=0.898 cut=0.955 longblock=0.077
+  split=(16,24) exact=0.050 reach_long=0.929 cut=0.973 longblock=0.153
+  split=(17,23) exact=0.163 reach_long=0.954 cut=0.985 longblock=0.250
+  split=(18,22) exact=0.337 reach_long=0.975 cut=0.991 longblock=0.403
+  split=(19,21) exact=0.483 reach_long=0.991 cut=0.996 longblock=0.610
+  split=(20,20) exact=0.533 reach_long=0.997 cut=0.998 longblock=0.757
+  saved -> runs/report6/asym_chains_sim/n40_mixed_seed3000/asym_chains.json
+=== n40_mixed_seed4000  <-  runs/families_n40/n40_mixed_roberta_similarity_lam0_seed4000/last.pt ===
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 device=cuda
+  split=( 1,39) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,38) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 3,37) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,36) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,35) exact=0.933 reach_long=0.999 cut=1.000 longblock=0.933
+  split=( 6,34) exact=0.650 reach_long=0.987 cut=1.000 longblock=0.650
+  split=( 7,33) exact=0.523 reach_long=0.967 cut=0.999 longblock=0.593
+  split=( 8,32) exact=0.547 reach_long=0.985 cut=0.996 longblock=0.673
+  split=( 9,31) exact=0.500 reach_long=0.965 cut=0.994 longblock=0.533
+  split=(10,30) exact=0.117 reach_long=0.908 cut=0.986 longblock=0.143
+  split=(11,29) exact=0.000 reach_long=0.781 cut=0.969 longblock=0.000
+  split=(12,28) exact=0.000 reach_long=0.728 cut=0.946 longblock=0.000
+  split=(13,27) exact=0.000 reach_long=0.758 cut=0.928 longblock=0.000
+  split=(14,26) exact=0.000 reach_long=0.805 cut=0.947 longblock=0.000
+  split=(15,25) exact=0.000 reach_long=0.853 cut=0.964 longblock=0.000
+  split=(16,24) exact=0.003 reach_long=0.896 cut=0.981 longblock=0.010
+  split=(17,23) exact=0.077 reach_long=0.934 cut=0.992 longblock=0.093
+  split=(18,22) exact=0.187 reach_long=0.964 cut=0.997 longblock=0.210
+  split=(19,21) exact=0.360 reach_long=0.982 cut=0.999 longblock=0.390
+  split=(20,20) exact=0.413 reach_long=0.995 cut=0.998 longblock=0.600
+  saved -> runs/report6/asym_chains_sim/n40_mixed_seed4000/asym_chains.json
+ALL DONE. jsons -> runs/report6/asym_chains_sim/<tag>/asym_chains.json   (count them; eval skips missing ckpts)

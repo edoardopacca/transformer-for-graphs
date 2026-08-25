@@ -1,0 +1,67 @@
+tag=n20_er_seed3000 checkpoint=runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed3000/best.pt
+== mechanistic_asym_chains.py (Tier-1 + attention probe, exact contribution) ==
+checkpoint=runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed3000/best.pt
+  arch=roberta readout=linear n=20 device=cpu
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 0.00e+00)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 1 exact=0.000 reach_long=0.928 reach_short=nan cut=1.000 mode=random
+  a= 2 exact=0.010 reach_long=0.973 reach_short=1.000 cut=1.000 mode=random
+  a= 3 exact=0.865 reach_long=1.000 reach_short=0.989 cut=1.000 mode=random
+  a= 4 exact=0.545 reach_long=1.000 reach_short=1.000 cut=0.987 mode=random
+  a= 5 exact=0.135 reach_long=1.000 reach_short=1.000 cut=0.958 mode=random
+  a= 6 exact=0.000 reach_long=0.998 reach_short=1.000 cut=0.851 mode=random
+  a= 7 exact=0.000 reach_long=0.997 reach_short=1.000 cut=0.841 mode=random
+  a= 8 exact=0.000 reach_long=0.999 reach_short=1.000 cut=0.793 mode=random
+  a= 9 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.747 mode=random
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.724 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 1 exact=0.000 reach_long=0.959 reach_short=nan cut=1.000 mode=fixed
+  a= 4 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a= 7 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.890 mode=fixed
+  a= 8 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.844 mode=fixed
+  a=10 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.670 mode=fixed
+  saved -> runs/report7/mechanistic/n20_er_seed3000/metrics.csv
+
+== readout decomposition h_i^T w_j ==
+  readout a= 1 done
+  readout a= 2 done
+  readout a= 3 done
+  readout a= 4 done
+  readout a= 5 done
+  readout a= 6 done
+  readout a= 7 done
+  readout a= 8 done
+  readout a= 9 done
+  readout a=10 done
+  saved -> runs/report7/mechanistic/n20_er_seed3000/readout.csv
+
+== W_out / W_in geometry ==
+  saved -> runs/report7/mechanistic/n20_er_seed3000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 1 done (row_mass1 mean=1.987, exact-contribution over 64 graphs)
+  attention a= 4 done (row_mass1 mean=1.782, exact-contribution over 64 graphs)
+  attention a= 7 done (row_mass1 mean=1.815, exact-contribution over 64 graphs)
+  attention a= 8 done (row_mass1 mean=1.776, exact-contribution over 64 graphs)
+  attention a=10 done (row_mass1 mean=1.758, exact-contribution over 64 graphs)
+  saved -> runs/report7/mechanistic/n20_er_seed3000/attn_cache.npz
+== mechanistic_heatmaps.py (heatmap probe, exact contribution, all 5 representative splits) ==
+checkpoint=runs/repro_paper_n20_roberta/n20_p008_unrestricted_seed3000/best.pt
+  arch=roberta readout=linear n=20 device=cpu
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 1 done
+  heatmap probe a= 4 done
+  heatmap probe a= 7 done
+  heatmap probe a= 8 done
+  heatmap probe a=10 done
+  saved -> runs/report7/heatmaps/n20_er_seed3000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report7/heatmaps/n20_er_seed3000/raw_weights.npz
+== eval_three_way_split.py (falsification test) ==
+python: can't open file '/home/3352759/transformer-for-graphs/eval_three_way_split.py': [Errno 2] No such file or directory
+== ablation_asym_chains.py (layer ablations) ==
+python: can't open file '/home/3352759/transformer-for-graphs/ablation_asym_chains.py': [Errno 2] No such file or directory
+done n20_er_seed3000

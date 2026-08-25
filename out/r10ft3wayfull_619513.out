@@ -1,0 +1,544 @@
+== (1) fine-tune ONLY sim_scale/sim_bias on the FULL K=3 split distribution ==
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cuda
+  fine-tuning stream: generate_path_union_graph(min_paths=3, max_paths=3) -- the FULL three-component split space
+  always evaluated (named cells): [(15, 15, 16), (7, 15, 24)]
+fine-tuning ONLY ['sim_scale', 'sim_bias'] (2 / 6329858 parameters)
+scale/bias BEFORE fine-tuning: scale=31.124615 bias=-1.383125
+step      0 (before fine-tuning): aggregate_k3 exact=0.0000 pairwise=0.6233
+  s15_15_16: exact=0.0000 cut_23=0.1993 pred_pos=0.8541
+  s7_15_24: exact=0.0000 cut_23=0.0000 pred_pos=0.7564
+step    2000 loss=5.7290 scale=28.531509 bias=-3.304595 aggregate_k3 exact=0.0000 pairwise=0.6540
+  s15_15_16: exact=0.0000 cut_23=0.4271 pred_pos=0.7009
+  s7_15_24: exact=0.0000 cut_23=0.0000 pred_pos=0.7439
+step    4000 loss=4.4563 scale=25.996746 bias=-5.153888 aggregate_k3 exact=0.0000 pairwise=0.6852
+  s15_15_16: exact=0.0000 cut_23=0.6090 pred_pos=0.5873
+  s7_15_24: exact=0.0000 cut_23=0.0001 pred_pos=0.7419
+step    6000 loss=3.5024 scale=23.523783 bias=-6.953356 aggregate_k3 exact=0.0000 pairwise=0.7115
+  s15_15_16: exact=0.0000 cut_23=0.7947 pred_pos=0.4692
+  s7_15_24: exact=0.0000 cut_23=0.0011 pred_pos=0.7416
+step    8000 loss=2.3258 scale=21.113380 bias=-8.702245 aggregate_k3 exact=0.0067 pairwise=0.7177
+  s15_15_16: exact=0.0300 cut_23=0.9627 pred_pos=0.3566
+  s7_15_24: exact=0.0000 cut_23=0.0160 pred_pos=0.7361
+step   10000 loss=1.4473 scale=18.784157 bias=-10.376798 aggregate_k3 exact=0.0033 pairwise=0.7173
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.3275
+  s7_15_24: exact=0.0000 cut_23=0.1239 pred_pos=0.6953
+step   12000 loss=0.8077 scale=16.651485 bias=-11.838203 aggregate_k3 exact=0.0067 pairwise=0.7354
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2445
+  s7_15_24: exact=0.0000 cut_23=0.5987 pred_pos=0.4912
+step   14000 loss=0.6741 scale=15.196418 bias=-12.463586 aggregate_k3 exact=0.0433 pairwise=0.7561
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1675
+  s7_15_24: exact=0.0000 cut_23=0.9360 pred_pos=0.2546
+step   16000 loss=0.6214 scale=14.344006 bias=-11.875134 aggregate_k3 exact=0.0500 pairwise=0.7593
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1628
+  s7_15_24: exact=0.0000 cut_23=0.9482 pred_pos=0.2399
+step   18000 loss=0.5921 scale=13.057841 bias=-10.742258 aggregate_k3 exact=0.0467 pairwise=0.7571
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1661
+  s7_15_24: exact=0.0000 cut_23=0.9399 pred_pos=0.2499
+step   20000 loss=0.5666 scale=11.367567 bias=-9.270584 aggregate_k3 exact=0.0367 pairwise=0.7546
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1702
+  s7_15_24: exact=0.0000 cut_23=0.9275 pred_pos=0.2638
+step   22000 loss=0.5289 scale=9.638579 bias=-7.743120 aggregate_k3 exact=0.0300 pairwise=0.7513
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1783
+  s7_15_24: exact=0.0000 cut_23=0.9032 pred_pos=0.2885
+step   24000 loss=0.5182 scale=8.026478 bias=-6.330366 aggregate_k3 exact=0.0233 pairwise=0.7472
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1881
+  s7_15_24: exact=0.0000 cut_23=0.8674 pred_pos=0.3197
+step   26000 loss=0.5134 scale=6.613912 bias=-5.114309 aggregate_k3 exact=0.0100 pairwise=0.7442
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.1987
+  s7_15_24: exact=0.0000 cut_23=0.8248 pred_pos=0.3537
+step   28000 loss=0.4840 scale=5.607115 bias=-4.237395 aggregate_k3 exact=0.0133 pairwise=0.7419
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2105
+  s7_15_24: exact=0.0000 cut_23=0.7685 pred_pos=0.3930
+step   30000 loss=0.4927 scale=5.077596 bias=-3.786504 aggregate_k3 exact=0.0133 pairwise=0.7403
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2177
+  s7_15_24: exact=0.0000 cut_23=0.7338 pred_pos=0.4155
+step   32000 loss=0.4831 scale=4.891841 bias=-3.631721 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2201
+  s7_15_24: exact=0.0000 cut_23=0.7211 pred_pos=0.4231
+step   34000 loss=0.4814 scale=4.848065 bias=-3.594433 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7174 pred_pos=0.4254
+step   36000 loss=0.4920 scale=4.841677 bias=-3.589400 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2209
+  s7_15_24: exact=0.0000 cut_23=0.7172 pred_pos=0.4255
+step   38000 loss=0.4764 scale=4.843482 bias=-3.586272 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2215
+  s7_15_24: exact=0.0000 cut_23=0.7141 pred_pos=0.4274
+step   40000 loss=0.5027 scale=4.846757 bias=-3.595740 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2205
+  s7_15_24: exact=0.0000 cut_23=0.7192 pred_pos=0.4243
+step   42000 loss=0.4808 scale=4.838369 bias=-3.585602 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7163 pred_pos=0.4261
+step   44000 loss=0.4855 scale=4.838607 bias=-3.591825 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2202
+  s7_15_24: exact=0.0000 cut_23=0.7208 pred_pos=0.4233
+step   46000 loss=0.4802 scale=4.841156 bias=-3.583947 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2216
+  s7_15_24: exact=0.0000 cut_23=0.7136 pred_pos=0.4277
+step   48000 loss=0.4931 scale=4.827985 bias=-3.574052 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2217
+  s7_15_24: exact=0.0000 cut_23=0.7135 pred_pos=0.4278
+step   50000 loss=0.4759 scale=4.833103 bias=-3.583760 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7178 pred_pos=0.4252
+step   52000 loss=0.4994 scale=4.828494 bias=-3.589275 aggregate_k3 exact=0.0133 pairwise=0.7400
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2194
+  s7_15_24: exact=0.0000 cut_23=0.7247 pred_pos=0.4209
+step   54000 loss=0.4897 scale=4.833213 bias=-3.592265 aggregate_k3 exact=0.0133 pairwise=0.7400
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2195
+  s7_15_24: exact=0.0000 cut_23=0.7244 pred_pos=0.4211
+step   56000 loss=0.4950 scale=4.836412 bias=-3.583848 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7160 pred_pos=0.4262
+step   58000 loss=0.4770 scale=4.840230 bias=-3.589566 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2207
+  s7_15_24: exact=0.0000 cut_23=0.7182 pred_pos=0.4249
+step   60000 loss=0.4866 scale=4.841865 bias=-3.580678 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2223
+  s7_15_24: exact=0.0000 cut_23=0.7106 pred_pos=0.4295
+step   62000 loss=0.4790 scale=4.828883 bias=-3.590045 aggregate_k3 exact=0.0133 pairwise=0.7400
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2193
+  s7_15_24: exact=0.0000 cut_23=0.7252 pred_pos=0.4207
+step   64000 loss=0.4783 scale=4.830997 bias=-3.582694 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2207
+  s7_15_24: exact=0.0000 cut_23=0.7181 pred_pos=0.4250
+step   66000 loss=0.4925 scale=4.827384 bias=-3.577338 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7162 pred_pos=0.4262
+step   68000 loss=0.4908 scale=4.835441 bias=-3.579154 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2217
+  s7_15_24: exact=0.0000 cut_23=0.7132 pred_pos=0.4279
+step   70000 loss=0.4786 scale=4.829676 bias=-3.574094 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2219
+  s7_15_24: exact=0.0000 cut_23=0.7124 pred_pos=0.4284
+step   72000 loss=0.4826 scale=4.818303 bias=-3.587365 aggregate_k3 exact=0.0133 pairwise=0.7401
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2186
+  s7_15_24: exact=0.0000 cut_23=0.7293 pred_pos=0.4182
+step   74000 loss=0.4896 scale=4.826039 bias=-3.580715 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2204
+  s7_15_24: exact=0.0000 cut_23=0.7196 pred_pos=0.4241
+step   76000 loss=0.4748 scale=4.835892 bias=-3.577635 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2220
+  s7_15_24: exact=0.0000 cut_23=0.7115 pred_pos=0.4289
+step   78000 loss=0.5086 scale=4.833534 bias=-3.583804 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7175 pred_pos=0.4253
+step   80000 loss=0.4810 scale=4.832730 bias=-3.581901 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2210
+  s7_15_24: exact=0.0000 cut_23=0.7166 pred_pos=0.4259
+step   82000 loss=0.4907 scale=4.840263 bias=-3.586045 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2212
+  s7_15_24: exact=0.0000 cut_23=0.7156 pred_pos=0.4265
+step   84000 loss=0.4847 scale=4.842606 bias=-3.590840 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7178 pred_pos=0.4252
+step   86000 loss=0.5025 scale=4.849349 bias=-3.589432 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2217
+  s7_15_24: exact=0.0000 cut_23=0.7131 pred_pos=0.4280
+step   88000 loss=0.4874 scale=4.836702 bias=-3.590613 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2201
+  s7_15_24: exact=0.0000 cut_23=0.7209 pred_pos=0.4232
+step   90000 loss=0.4869 scale=4.835280 bias=-3.573018 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2228
+  s7_15_24: exact=0.0000 cut_23=0.7084 pred_pos=0.4308
+step   92000 loss=0.4933 scale=4.832077 bias=-3.587274 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2201
+  s7_15_24: exact=0.0000 cut_23=0.7210 pred_pos=0.4232
+step   94000 loss=0.4907 scale=4.835324 bias=-3.590091 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2201
+  s7_15_24: exact=0.0000 cut_23=0.7213 pred_pos=0.4230
+step   96000 loss=0.4950 scale=4.837519 bias=-3.585091 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2210
+  s7_15_24: exact=0.0000 cut_23=0.7163 pred_pos=0.4261
+step   98000 loss=0.4769 scale=4.835154 bias=-3.593060 aggregate_k3 exact=0.0133 pairwise=0.7399
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2196
+  s7_15_24: exact=0.0000 cut_23=0.7239 pred_pos=0.4214
+step  100000 loss=0.4962 scale=4.845381 bias=-3.586570 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2217
+  s7_15_24: exact=0.0000 cut_23=0.7132 pred_pos=0.4279
+step  102000 loss=0.4893 scale=4.840283 bias=-3.579510 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2223
+  s7_15_24: exact=0.0000 cut_23=0.7106 pred_pos=0.4295
+step  104000 loss=0.4988 scale=4.847436 bias=-3.586402 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2220
+  s7_15_24: exact=0.0000 cut_23=0.7118 pred_pos=0.4288
+step  106000 loss=0.4768 scale=4.833533 bias=-3.577781 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2217
+  s7_15_24: exact=0.0000 cut_23=0.7132 pred_pos=0.4279
+step  108000 loss=0.4856 scale=4.832614 bias=-3.582623 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2209
+  s7_15_24: exact=0.0000 cut_23=0.7171 pred_pos=0.4255
+step  110000 loss=0.4898 scale=4.829862 bias=-3.587860 aggregate_k3 exact=0.0133 pairwise=0.7399
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2198
+  s7_15_24: exact=0.0000 cut_23=0.7228 pred_pos=0.4221
+step  112000 loss=0.4831 scale=4.832342 bias=-3.578219 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2215
+  s7_15_24: exact=0.0000 cut_23=0.7142 pred_pos=0.4274
+step  114000 loss=0.4827 scale=4.835003 bias=-3.586134 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2206
+  s7_15_24: exact=0.0000 cut_23=0.7185 pred_pos=0.4247
+step  116000 loss=0.4866 scale=4.836284 bias=-3.583077 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2212
+  s7_15_24: exact=0.0000 cut_23=0.7156 pred_pos=0.4265
+step  118000 loss=0.4872 scale=4.834907 bias=-3.587126 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2204
+  s7_15_24: exact=0.0000 cut_23=0.7195 pred_pos=0.4242
+step  120000 loss=0.4967 scale=4.838127 bias=-3.587021 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7174 pred_pos=0.4254
+step  122000 loss=0.4946 scale=4.833895 bias=-3.581236 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2212
+  s7_15_24: exact=0.0000 cut_23=0.7156 pred_pos=0.4265
+step  124000 loss=0.4903 scale=4.841656 bias=-3.587934 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7162 pred_pos=0.4261
+step  126000 loss=0.4990 scale=4.834089 bias=-3.585422 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2206
+  s7_15_24: exact=0.0000 cut_23=0.7185 pred_pos=0.4248
+step  128000 loss=0.4812 scale=4.844198 bias=-3.582062 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2223
+  s7_15_24: exact=0.0000 cut_23=0.7102 pred_pos=0.4297
+step  130000 loss=0.5055 scale=4.836074 bias=-3.584136 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2210
+  s7_15_24: exact=0.0000 cut_23=0.7164 pred_pos=0.4260
+step  132000 loss=0.4959 scale=4.833555 bias=-3.587251 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2203
+  s7_15_24: exact=0.0000 cut_23=0.7203 pred_pos=0.4236
+step  134000 loss=0.4949 scale=4.835712 bias=-3.586313 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2207
+  s7_15_24: exact=0.0000 cut_23=0.7183 pred_pos=0.4249
+step  136000 loss=0.4974 scale=4.833332 bias=-3.591594 aggregate_k3 exact=0.0133 pairwise=0.7399
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2196
+  s7_15_24: exact=0.0000 cut_23=0.7238 pred_pos=0.4215
+step  138000 loss=0.4887 scale=4.841371 bias=-3.593415 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2202
+  s7_15_24: exact=0.0000 cut_23=0.7205 pred_pos=0.4235
+step  140000 loss=0.4854 scale=4.844098 bias=-3.579295 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2228
+  s7_15_24: exact=0.0000 cut_23=0.7082 pred_pos=0.4309
+step  142000 loss=0.4899 scale=4.837003 bias=-3.588216 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2205
+  s7_15_24: exact=0.0000 cut_23=0.7189 pred_pos=0.4245
+step  144000 loss=0.4872 scale=4.831662 bias=-3.579313 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2213
+  s7_15_24: exact=0.0000 cut_23=0.7154 pred_pos=0.4266
+step  146000 loss=0.4817 scale=4.824776 bias=-3.570686 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2218
+  s7_15_24: exact=0.0000 cut_23=0.7127 pred_pos=0.4282
+step  148000 loss=0.4987 scale=4.829912 bias=-3.571351 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2224
+  s7_15_24: exact=0.0000 cut_23=0.7101 pred_pos=0.4298
+step  150000 loss=0.4900 scale=4.839601 bias=-3.589591 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2206
+  s7_15_24: exact=0.0000 cut_23=0.7186 pred_pos=0.4247
+step  152000 loss=0.4928 scale=4.840741 bias=-3.586127 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2213
+  s7_15_24: exact=0.0000 cut_23=0.7155 pred_pos=0.4266
+step  154000 loss=0.4834 scale=4.833121 bias=-3.583980 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2207
+  s7_15_24: exact=0.0000 cut_23=0.7179 pred_pos=0.4251
+step  156000 loss=0.4982 scale=4.834880 bias=-3.586073 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2206
+  s7_15_24: exact=0.0000 cut_23=0.7185 pred_pos=0.4247
+step  158000 loss=0.4796 scale=4.831820 bias=-3.580439 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7160 pred_pos=0.4262
+step  160000 loss=0.4826 scale=4.836211 bias=-3.582473 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2213
+  s7_15_24: exact=0.0000 cut_23=0.7152 pred_pos=0.4267
+step  162000 loss=0.4909 scale=4.828534 bias=-3.580197 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7176 pred_pos=0.4253
+step  164000 loss=0.4961 scale=4.830419 bias=-3.587892 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2198
+  s7_15_24: exact=0.0000 cut_23=0.7225 pred_pos=0.4223
+step  166000 loss=0.4821 scale=4.833459 bias=-3.587324 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2203
+  s7_15_24: exact=0.0000 cut_23=0.7204 pred_pos=0.4236
+step  168000 loss=0.4850 scale=4.825910 bias=-3.581653 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2203
+  s7_15_24: exact=0.0000 cut_23=0.7204 pred_pos=0.4236
+step  170000 loss=0.4794 scale=4.828764 bias=-3.580262 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2208
+  s7_15_24: exact=0.0000 cut_23=0.7175 pred_pos=0.4253
+step  172000 loss=0.4819 scale=4.830780 bias=-3.590478 aggregate_k3 exact=0.0133 pairwise=0.7400
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2195
+  s7_15_24: exact=0.0000 cut_23=0.7244 pred_pos=0.4211
+step  174000 loss=0.4865 scale=4.845471 bias=-3.581338 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2226
+  s7_15_24: exact=0.0000 cut_23=0.7090 pred_pos=0.4304
+step  176000 loss=0.4893 scale=4.833809 bias=-3.587603 aggregate_k3 exact=0.0133 pairwise=0.7397
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2203
+  s7_15_24: exact=0.0000 cut_23=0.7204 pred_pos=0.4236
+step  178000 loss=0.4855 scale=4.844869 bias=-3.589700 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2212
+  s7_15_24: exact=0.0000 cut_23=0.7157 pred_pos=0.4264
+step  180000 loss=0.4938 scale=4.839815 bias=-3.584131 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2215
+  s7_15_24: exact=0.0000 cut_23=0.7145 pred_pos=0.4272
+step  182000 loss=0.4853 scale=4.827598 bias=-3.575999 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2213
+  s7_15_24: exact=0.0000 cut_23=0.7151 pred_pos=0.4268
+step  184000 loss=0.4922 scale=4.832921 bias=-3.581498 aggregate_k3 exact=0.0133 pairwise=0.7396
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2211
+  s7_15_24: exact=0.0000 cut_23=0.7162 pred_pos=0.4261
+step  186000 loss=0.4983 scale=4.827530 bias=-3.589800 aggregate_k3 exact=0.0133 pairwise=0.7400
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2192
+  s7_15_24: exact=0.0000 cut_23=0.7258 pred_pos=0.4203
+step  188000 loss=0.4898 scale=4.832677 bias=-3.576517 aggregate_k3 exact=0.0133 pairwise=0.7394
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2218
+  s7_15_24: exact=0.0000 cut_23=0.7126 pred_pos=0.4282
+step  190000 loss=0.4863 scale=4.836812 bias=-3.575381 aggregate_k3 exact=0.0133 pairwise=0.7393
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2225
+  s7_15_24: exact=0.0000 cut_23=0.7093 pred_pos=0.4303
+step  192000 loss=0.4949 scale=4.840009 bias=-3.583822 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2215
+  s7_15_24: exact=0.0000 cut_23=0.7142 pred_pos=0.4274
+step  194000 loss=0.4830 scale=4.823403 bias=-3.580860 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2201
+  s7_15_24: exact=0.0000 cut_23=0.7210 pred_pos=0.4232
+step  196000 loss=0.4837 scale=4.840642 bias=-3.586104 aggregate_k3 exact=0.0133 pairwise=0.7395
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2213
+  s7_15_24: exact=0.0000 cut_23=0.7155 pred_pos=0.4266
+step  198000 loss=0.4824 scale=4.825315 bias=-3.583745 aggregate_k3 exact=0.0133 pairwise=0.7398
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2199
+  s7_15_24: exact=0.0000 cut_23=0.7223 pred_pos=0.4224
+step  200000 loss=0.4949 scale=4.832008 bias=-3.590384 aggregate_k3 exact=0.0133 pairwise=0.7399
+  s15_15_16: exact=0.0000 cut_23=1.0000 pred_pos=0.2196
+  s7_15_24: exact=0.0000 cut_23=0.7235 pred_pos=0.4216
+scale/bias AFTER fine-tuning: scale=4.832008 bias=-3.590384
+  delta: d_scale=-26.292607 d_bias=-2.207259
+done -> runs/report10/finetune_readout_full3way/n46_splitchains_seed1000_full3way/finetuned.pt
+== (2) AFTER fine-tuning: own-family K=2 split-chains sweep (forgetting check) ==
+checkpoint=runs/report10/finetune_readout_full3way/n46_splitchains_seed1000_full3way/finetuned.pt
+  arch=roberta readout=similarity n=46 device=cuda
+  split=( 1,45) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 2,44) exact=0.000 reach_long=0.071 cut=1.000 longblock=0.000
+  split=( 3,43) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 4,42) exact=1.000 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 5,41) exact=0.490 reach_long=0.984 cut=1.000 longblock=0.490
+  split=( 6,40) exact=0.500 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 7,39) exact=0.060 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 8,38) exact=0.017 reach_long=1.000 cut=1.000 longblock=1.000
+  split=( 9,37) exact=0.003 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(10,36) exact=0.003 reach_long=1.000 cut=1.000 longblock=1.000
+  split=(11,35) exact=0.000 reach_long=0.925 cut=1.000 longblock=0.527
+  split=(12,34) exact=0.000 reach_long=0.013 cut=1.000 longblock=0.000
+  split=(13,33) exact=0.000 reach_long=0.014 cut=1.000 longblock=0.000
+  split=(14,32) exact=0.000 reach_long=0.016 cut=1.000 longblock=0.000
+  split=(15,31) exact=0.000 reach_long=0.018 cut=1.000 longblock=0.000
+  split=(16,30) exact=0.000 reach_long=0.019 cut=1.000 longblock=0.000
+  split=(17,29) exact=0.000 reach_long=0.024 cut=1.000 longblock=0.000
+  split=(18,28) exact=0.000 reach_long=0.026 cut=1.000 longblock=0.000
+  split=(19,27) exact=0.000 reach_long=0.031 cut=1.000 longblock=0.000
+  split=(20,26) exact=0.000 reach_long=0.037 cut=1.000 longblock=0.000
+  split=(21,25) exact=0.000 reach_long=0.045 cut=1.000 longblock=0.000
+  split=(22,24) exact=0.000 reach_long=0.059 cut=1.000 longblock=0.000
+  split=(23,23) exact=0.000 reach_long=0.078 cut=1.000 longblock=0.000
+  saved -> runs/report10/asym_chains_n46/n46_splitchains_seed1000_full3way_post/asym_chains.json
+== (3) AFTER fine-tuning: full 176-cell A.3 behavioural sweep ==
+checkpoint=runs/report10/finetune_readout_full3way/n46_splitchains_seed1000_full3way/finetuned.pt
+  arch=roberta readout=similarity n=46 device=cuda topology=chain
+testing 176 distinct 3-way size combinations (partitions of 46, min_size=1)
+  sizes=(1, 1, 44) exact=0.010 reach=(None,None,1.0) cut=(0.01,1.0,1.0) pos_rate=0.917
+  sizes=(1, 2, 43) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 3, 42) exact=0.000 reach=(None,0.3333,1.0) cut=(0.98,1.0,0.3338) pos_rate=0.916
+  sizes=(1, 4, 41) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.802
+  sizes=(1, 5, 40) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.1546) pos_rate=0.928
+  sizes=(1, 6, 39) exact=0.055 reach=(None,1.0,1.0) cut=(1.0,1.0,0.6877) pos_rate=0.805
+  sizes=(1, 7, 38) exact=0.035 reach=(None,1.0,1.0) cut=(1.0,1.0,0.4928) pos_rate=0.834
+  sizes=(1, 8, 37) exact=0.335 reach=(None,1.0,1.0) cut=(1.0,1.0,0.8861) pos_rate=0.710
+  sizes=(1, 9, 36) exact=0.245 reach=(None,1.0,1.0) cut=(1.0,1.0,0.7038) pos_rate=0.742
+  sizes=(1, 10, 35) exact=0.040 reach=(None,1.0,1.0) cut=(1.0,1.0,0.2264) pos_rate=0.883
+  sizes=(1, 11, 34) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0641) pos_rate=0.935
+  sizes=(1, 12, 33) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 13, 32) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 14, 31) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 15, 30) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 16, 29) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 17, 28) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 18, 27) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 19, 26) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 20, 25) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 21, 24) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(1, 22, 23) exact=0.000 reach=(None,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.958
+  sizes=(2, 2, 42) exact=0.000 reach=(1.0,1.0,0.5118) cut=(1.0,1.0,1.0) pos_rate=0.440
+  sizes=(2, 3, 41) exact=0.445 reach=(1.0,0.7817,1.0) cut=(1.0,0.9634,1.0) pos_rate=0.803
+  sizes=(2, 4, 40) exact=0.000 reach=(1.0,0.985,1.0) cut=(1.0,0.0,1.0) pos_rate=0.841
+  sizes=(2, 5, 39) exact=0.000 reach=(1.0,1.0,0.8705) cut=(1.0,0.8367,1.0) pos_rate=0.654
+  sizes=(2, 6, 38) exact=0.015 reach=(1.0,0.868,1.0) cut=(1.0,0.1212,1.0) pos_rate=0.763
+  sizes=(2, 7, 37) exact=0.000 reach=(1.0,0.5688,1.0) cut=(1.0,0.0873,1.0) pos_rate=0.727
+  sizes=(2, 8, 36) exact=0.000 reach=(1.0,0.5509,1.0) cut=(1.0,0.0,1.0) pos_rate=0.701
+  sizes=(2, 9, 35) exact=0.000 reach=(1.0,0.5413,1.0) cut=(1.0,0.0,1.0) pos_rate=0.670
+  sizes=(2, 10, 34) exact=0.000 reach=(1.0,0.5546,1.0) cut=(1.0,0.0059,1.0) pos_rate=0.640
+  sizes=(2, 11, 33) exact=0.000 reach=(1.0,0.688,0.9135) cut=(1.0,0.5947,1.0) pos_rate=0.540
+  sizes=(2, 12, 32) exact=0.000 reach=(1.0,0.6625,0.0178) cut=(1.0,1.0,1.0) pos_rate=0.072
+  sizes=(2, 13, 31) exact=0.000 reach=(1.0,0.7408,0.0187) cut=(1.0,1.0,1.0) pos_rate=0.086
+  sizes=(2, 14, 30) exact=0.000 reach=(1.0,0.7726,0.0201) cut=(1.0,1.0,1.0) pos_rate=0.097
+  sizes=(2, 15, 29) exact=0.000 reach=(1.0,0.6378,0.0241) cut=(1.0,1.0,1.0) pos_rate=0.095
+  sizes=(2, 16, 28) exact=0.000 reach=(1.0,0.5244,0.0261) cut=(1.0,1.0,1.0) pos_rate=0.091
+  sizes=(2, 17, 27) exact=0.000 reach=(1.0,0.4143,0.0319) cut=(1.0,1.0,1.0) pos_rate=0.086
+  sizes=(2, 18, 26) exact=0.000 reach=(1.0,0.3072,0.038) cut=(1.0,1.0,1.0) pos_rate=0.079
+  sizes=(2, 19, 25) exact=0.000 reach=(1.0,0.2315,0.0467) cut=(1.0,1.0,1.0) pos_rate=0.073
+  sizes=(2, 20, 24) exact=0.000 reach=(1.0,0.1774,0.0609) cut=(1.0,1.0,1.0) pos_rate=0.070
+  sizes=(2, 21, 23) exact=0.000 reach=(1.0,0.1374,0.081) cut=(1.0,1.0,1.0) pos_rate=0.069
+  sizes=(2, 22, 22) exact=0.000 reach=(1.0,0.1054,0.1055) cut=(1.0,1.0,1.0) pos_rate=0.069
+  sizes=(3, 3, 40) exact=0.000 reach=(0.3333,0.3333,1.0) cut=(0.8978,1.0,1.0) pos_rate=0.762
+  sizes=(3, 4, 39) exact=0.000 reach=(0.3467,0.8925,1.0) cut=(1.0,0.539,1.0) pos_rate=0.779
+  sizes=(3, 5, 38) exact=0.115 reach=(0.4433,1.0,1.0) cut=(1.0,1.0,0.9914) pos_rate=0.699
+  sizes=(3, 6, 37) exact=0.000 reach=(0.3333,0.9837,1.0) cut=(1.0,0.9763,0.9987) pos_rate=0.669
+  sizes=(3, 7, 36) exact=0.040 reach=(0.375,0.9826,1.0) cut=(1.0,0.999,0.9935) pos_rate=0.639
+  sizes=(3, 8, 35) exact=0.000 reach=(0.35,0.9982,1.0) cut=(1.0,0.8049,0.9999) pos_rate=0.631
+  sizes=(3, 9, 34) exact=0.015 reach=(0.365,1.0,1.0) cut=(1.0,0.8408,0.9988) pos_rate=0.603
+  sizes=(3, 10, 33) exact=0.000 reach=(0.3333,0.9993,1.0) cut=(1.0,0.9763,0.9436) pos_rate=0.584
+  sizes=(3, 11, 32) exact=0.005 reach=(0.385,0.9965,1.0) cut=(1.0,0.9964,0.641) pos_rate=0.663
+  sizes=(3, 12, 31) exact=0.000 reach=(1.0,0.9981,0.9945) cut=(1.0,1.0,0.0447) pos_rate=0.860
+  sizes=(3, 13, 30) exact=0.000 reach=(0.9983,0.9998,0.9914) cut=(1.0,1.0,0.0252) pos_rate=0.865
+  sizes=(3, 14, 29) exact=0.000 reach=(1.0,1.0,0.9943) cut=(1.0,1.0,0.0081) pos_rate=0.873
+  sizes=(3, 15, 28) exact=0.000 reach=(1.0,1.0,0.9959) cut=(1.0,1.0,0.0083) pos_rate=0.873
+  sizes=(3, 16, 27) exact=0.000 reach=(1.0,1.0,0.9931) cut=(1.0,1.0,0.0143) pos_rate=0.870
+  sizes=(3, 17, 26) exact=0.000 reach=(1.0,1.0,0.9964) cut=(1.0,1.0,0.0097) pos_rate=0.873
+  sizes=(3, 18, 25) exact=0.000 reach=(1.0,1.0,0.9957) cut=(1.0,1.0,0.0169) pos_rate=0.870
+  sizes=(3, 19, 24) exact=0.000 reach=(1.0,1.0,0.9961) cut=(1.0,1.0,0.0169) pos_rate=0.870
+  sizes=(3, 20, 23) exact=0.000 reach=(1.0,0.9993,0.9959) cut=(1.0,1.0,0.0188) pos_rate=0.869
+  sizes=(3, 21, 22) exact=0.000 reach=(1.0,0.998,0.9975) cut=(1.0,1.0,0.0166) pos_rate=0.870
+  sizes=(4, 4, 38) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.2255,0.2109) pos_rate=0.922
+  sizes=(4, 5, 37) exact=0.000 reach=(0.9683,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 6, 36) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.577,0.0085) pos_rate=0.897
+  sizes=(4, 7, 35) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.7801,0.0031) pos_rate=0.870
+  sizes=(4, 8, 34) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.1763,0.0006) pos_rate=0.947
+  sizes=(4, 9, 33) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.2872,0.0001) pos_rate=0.930
+  sizes=(4, 10, 32) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.8811,0.0) pos_rate=0.856
+  sizes=(4, 11, 31) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 12, 30) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 13, 29) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 14, 28) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 15, 27) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 16, 26) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 17, 25) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 18, 24) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 19, 23) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 20, 22) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(4, 21, 21) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,0.0) pos_rate=0.841
+  sizes=(5, 5, 36) exact=0.195 reach=(1.0,1.0,0.9995) cut=(0.8882,0.8319,0.8268) pos_rate=0.697
+  sizes=(5, 6, 35) exact=0.000 reach=(1.0,0.9837,1.0) cut=(0.9998,0.0053,0.9971) pos_rate=0.773
+  sizes=(5, 7, 34) exact=0.000 reach=(1.0,0.8886,1.0) cut=(1.0,0.0514,0.9935) pos_rate=0.733
+  sizes=(5, 8, 33) exact=0.000 reach=(1.0,0.9077,1.0) cut=(1.0,0.0,1.0) pos_rate=0.710
+  sizes=(5, 9, 32) exact=0.000 reach=(1.0,0.8754,1.0) cut=(1.0,0.0,1.0) pos_rate=0.681
+  sizes=(5, 10, 31) exact=0.000 reach=(1.0,0.88,1.0) cut=(1.0,0.0007,1.0) pos_rate=0.654
+  sizes=(5, 11, 30) exact=0.035 reach=(1.0,0.8786,0.9682) cut=(1.0,0.5373,1.0) pos_rate=0.540
+  sizes=(5, 12, 29) exact=0.000 reach=(1.0,0.9173,0.0781) cut=(1.0,1.0,1.0) pos_rate=0.118
+  sizes=(5, 13, 28) exact=0.000 reach=(1.0,0.9267,0.0834) cut=(1.0,1.0,1.0) pos_rate=0.129
+  sizes=(5, 14, 27) exact=0.000 reach=(1.0,0.9199,0.0925) cut=(1.0,1.0,1.0) pos_rate=0.141
+  sizes=(5, 15, 26) exact=0.000 reach=(1.0,0.7893,0.1001) cut=(1.0,1.0,1.0) pos_rate=0.140
+  sizes=(5, 16, 25) exact=0.000 reach=(1.0,0.6686,0.129) cut=(1.0,1.0,1.0) pos_rate=0.144
+  sizes=(5, 17, 24) exact=0.000 reach=(1.0,0.5623,0.1566) cut=(1.0,1.0,0.9989) pos_rate=0.145
+  sizes=(5, 18, 23) exact=0.000 reach=(1.0,0.4675,0.1813) cut=(1.0,1.0,0.9998) pos_rate=0.142
+  sizes=(5, 19, 22) exact=0.000 reach=(1.0,0.3678,0.1976) cut=(1.0,1.0,1.0) pos_rate=0.134
+  sizes=(5, 20, 21) exact=0.000 reach=(1.0,0.3104,0.25) cut=(1.0,1.0,0.9995) pos_rate=0.137
+  sizes=(6, 6, 34) exact=0.000 reach=(1.0,1.0,1.0) cut=(0.9958,0.2702,0.2518) pos_rate=0.866
+  sizes=(6, 7, 33) exact=0.000 reach=(1.0,0.9995,1.0) cut=(1.0,0.4631,0.3521) pos_rate=0.797
+  sizes=(6, 8, 32) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0001,0.5487) pos_rate=0.822
+  sizes=(6, 9, 31) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0,0.709) pos_rate=0.762
+  sizes=(6, 10, 30) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0336,0.7379) pos_rate=0.728
+  sizes=(6, 11, 29) exact=0.050 reach=(1.0,0.9993,0.9987) cut=(1.0,0.898,0.73) pos_rate=0.569
+  sizes=(6, 12, 28) exact=0.000 reach=(0.9977,1.0,0.7366) cut=(1.0,1.0,0.5418) pos_rate=0.507
+  sizes=(6, 13, 27) exact=0.000 reach=(0.9983,0.9999,0.7537) cut=(1.0,1.0,0.5558) pos_rate=0.507
+  sizes=(6, 14, 26) exact=0.000 reach=(0.9993,0.9999,0.7778) cut=(1.0,1.0,0.5886) pos_rate=0.502
+  sizes=(6, 15, 25) exact=0.000 reach=(0.998,0.9998,0.8128) cut=(1.0,1.0,0.5819) pos_rate=0.514
+  sizes=(6, 16, 24) exact=0.000 reach=(0.9973,0.9943,0.8214) cut=(1.0,1.0,0.6187) pos_rate=0.501
+  sizes=(6, 17, 23) exact=0.000 reach=(0.9957,0.992,0.8583) cut=(1.0,1.0,0.6268) pos_rate=0.507
+  sizes=(6, 18, 22) exact=0.000 reach=(0.9977,0.9839,0.8859) cut=(1.0,1.0,0.6352) pos_rate=0.508
+  sizes=(6, 19, 21) exact=0.000 reach=(0.9983,0.9735,0.9094) cut=(1.0,1.0,0.6648) pos_rate=0.500
+  sizes=(6, 20, 20) exact=0.000 reach=(0.996,0.9536,0.953) cut=(1.0,1.0,0.6731) pos_rate=0.502
+  sizes=(7, 7, 32) exact=0.000 reach=(0.9974,0.9964,0.9998) cut=(1.0,0.5177,0.5479) pos_rate=0.728
+  sizes=(7, 8, 31) exact=0.000 reach=(1.0,0.9962,1.0) cut=(1.0,0.0004,0.767) pos_rate=0.767
+  sizes=(7, 9, 30) exact=0.000 reach=(1.0,0.9985,1.0) cut=(1.0,0.0002,0.9221) pos_rate=0.705
+  sizes=(7, 10, 29) exact=0.000 reach=(1.0,0.9997,1.0) cut=(1.0,0.0446,0.9114) pos_rate=0.675
+  sizes=(7, 11, 28) exact=0.175 reach=(1.0,0.9938,0.9975) cut=(1.0,0.8987,0.8541) pos_rate=0.511
+  sizes=(7, 12, 27) exact=0.000 reach=(0.8936,0.9972,0.6483) cut=(1.0,1.0,0.6733) pos_rate=0.417
+  sizes=(7, 13, 26) exact=0.000 reach=(0.9031,0.9992,0.6803) cut=(1.0,1.0,0.6819) pos_rate=0.424
+  sizes=(7, 14, 25) exact=0.000 reach=(0.8981,0.9996,0.6994) cut=(1.0,1.0,0.7153) pos_rate=0.418
+  sizes=(7, 15, 24) exact=0.000 reach=(0.8971,0.9946,0.7377) cut=(1.0,1.0,0.6996) pos_rate=0.433
+  sizes=(7, 16, 23) exact=0.000 reach=(0.8902,0.9775,0.7468) cut=(1.0,1.0,0.737) pos_rate=0.420
+  sizes=(7, 17, 22) exact=0.000 reach=(0.8924,0.9688,0.7982) cut=(1.0,1.0,0.7334) pos_rate=0.432
+  sizes=(7, 18, 21) exact=0.000 reach=(0.9,0.9439,0.8275) cut=(1.0,1.0,0.7541) pos_rate=0.428
+  sizes=(7, 19, 20) exact=0.000 reach=(0.9026,0.937,0.9004) cut=(1.0,1.0,0.7399) pos_rate=0.446
+  sizes=(8, 8, 30) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0092,0.0093) pos_rate=0.935
+  sizes=(8, 9, 29) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0003,0.0302) pos_rate=0.924
+  sizes=(8, 10, 28) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.3493,0.0373) pos_rate=0.841
+  sizes=(8, 11, 27) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.9677,0.0543) pos_rate=0.704
+  sizes=(8, 12, 26) exact=0.000 reach=(0.8655,1.0,0.9962) cut=(1.0,1.0,0.0001) pos_rate=0.708
+  sizes=(8, 13, 25) exact=0.000 reach=(0.8786,1.0,0.9972) cut=(1.0,1.0,0.0002) pos_rate=0.709
+  sizes=(8, 14, 24) exact=0.000 reach=(0.8716,1.0,0.997) cut=(1.0,1.0,0.0018) pos_rate=0.708
+  sizes=(8, 15, 23) exact=0.000 reach=(0.8771,1.0,0.9981) cut=(1.0,1.0,0.008) pos_rate=0.706
+  sizes=(8, 16, 22) exact=0.000 reach=(0.8666,1.0,0.9989) cut=(1.0,1.0,0.0074) pos_rate=0.706
+  sizes=(8, 17, 21) exact=0.000 reach=(0.8684,1.0,0.9991) cut=(1.0,1.0,0.011) pos_rate=0.705
+  sizes=(8, 18, 20) exact=0.000 reach=(0.875,1.0,0.9995) cut=(1.0,1.0,0.0177) pos_rate=0.703
+  sizes=(8, 19, 19) exact=0.000 reach=(0.8888,1.0,1.0) cut=(1.0,1.0,0.0105) pos_rate=0.706
+  sizes=(9, 9, 28) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.0116,0.0166) pos_rate=0.917
+  sizes=(9, 10, 27) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.5084,0.0191) pos_rate=0.793
+  sizes=(9, 11, 26) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.9776,0.0278) pos_rate=0.683
+  sizes=(9, 12, 25) exact=0.000 reach=(0.6981,1.0,0.9994) cut=(1.0,1.0,0.0) pos_rate=0.675
+  sizes=(9, 13, 24) exact=0.000 reach=(0.6917,1.0,0.9995) cut=(1.0,1.0,0.0007) pos_rate=0.674
+  sizes=(9, 14, 23) exact=0.000 reach=(0.7029,1.0,0.9994) cut=(1.0,1.0,0.0013) pos_rate=0.675
+  sizes=(9, 15, 22) exact=0.000 reach=(0.6854,1.0,0.9999) cut=(1.0,1.0,0.0001) pos_rate=0.674
+  sizes=(9, 16, 21) exact=0.000 reach=(0.6893,1.0,1.0) cut=(1.0,1.0,0.0012) pos_rate=0.674
+  sizes=(9, 17, 20) exact=0.000 reach=(0.6881,1.0,0.9999) cut=(1.0,1.0,0.0017) pos_rate=0.674
+  sizes=(9, 18, 19) exact=0.000 reach=(0.6929,1.0,1.0) cut=(1.0,1.0,0.0014) pos_rate=0.674
+  sizes=(10, 10, 26) exact=0.000 reach=(1.0,1.0,1.0) cut=(1.0,0.4421,0.3932) pos_rate=0.700
+  sizes=(10, 11, 25) exact=0.010 reach=(1.0,1.0,1.0) cut=(1.0,0.9551,0.2302) pos_rate=0.611
+  sizes=(10, 12, 24) exact=0.000 reach=(0.6804,1.0,0.9875) cut=(1.0,1.0,0.014) pos_rate=0.639
+  sizes=(10, 13, 23) exact=0.000 reach=(0.6918,1.0,0.9908) cut=(1.0,1.0,0.0059) pos_rate=0.643
+  sizes=(10, 14, 22) exact=0.000 reach=(0.6841,1.0,0.9933) cut=(1.0,1.0,0.0139) pos_rate=0.641
+  sizes=(10, 15, 21) exact=0.000 reach=(0.6973,1.0,0.9965) cut=(1.0,1.0,0.0219) pos_rate=0.640
+  sizes=(10, 16, 20) exact=0.000 reach=(0.6826,1.0,0.9988) cut=(1.0,1.0,0.032) pos_rate=0.636
+  sizes=(10, 17, 19) exact=0.000 reach=(0.68,1.0,1.0) cut=(1.0,1.0,0.0426) pos_rate=0.633
+  sizes=(10, 18, 18) exact=0.000 reach=(0.6867,0.9999,1.0) cut=(1.0,1.0,0.0353) pos_rate=0.636
+  sizes=(11, 11, 24) exact=0.245 reach=(1.0,1.0,0.9985) cut=(1.0,0.8181,0.8733) pos_rate=0.463
+  sizes=(11, 12, 23) exact=0.000 reach=(0.7553,1.0,0.8959) cut=(1.0,1.0,0.2547) pos_rate=0.532
+  sizes=(11, 13, 22) exact=0.000 reach=(0.7519,1.0,0.8799) cut=(1.0,1.0,0.3502) pos_rate=0.502
+  sizes=(11, 14, 21) exact=0.000 reach=(0.7507,1.0,0.9122) cut=(1.0,1.0,0.3215) pos_rate=0.516
+  sizes=(11, 15, 20) exact=0.000 reach=(0.7503,0.999,0.9408) cut=(1.0,1.0,0.3203) pos_rate=0.522
+  sizes=(11, 16, 19) exact=0.000 reach=(0.7457,0.99,0.9545) cut=(1.0,1.0,0.3455) pos_rate=0.515
+  sizes=(11, 17, 18) exact=0.000 reach=(0.7579,0.9857,0.9754) cut=(1.0,1.0,0.3459) pos_rate=0.518
+  sizes=(12, 12, 22) exact=0.000 reach=(0.8123,0.8069,0.2252) cut=(1.0,1.0,1.0) pos_rate=0.172
+  sizes=(12, 13, 21) exact=0.000 reach=(0.8061,0.8392,0.2591) cut=(1.0,1.0,1.0) pos_rate=0.185
+  sizes=(12, 14, 20) exact=0.000 reach=(0.8038,0.7837,0.2915) cut=(1.0,1.0,1.0) pos_rate=0.192
+  sizes=(12, 15, 19) exact=0.000 reach=(0.8105,0.6661,0.3452) cut=(1.0,1.0,1.0) pos_rate=0.194
+  sizes=(12, 16, 18) exact=0.000 reach=(0.8114,0.5709,0.4101) cut=(1.0,1.0,1.0) pos_rate=0.196
+  sizes=(12, 17, 17) exact=0.000 reach=(0.8072,0.4791,0.4768) cut=(1.0,1.0,1.0) pos_rate=0.195
+  sizes=(13, 13, 20) exact=0.000 reach=(0.8411,0.8288,0.2973) cut=(1.0,1.0,1.0) pos_rate=0.198
+  sizes=(13, 14, 19) exact=0.000 reach=(0.8338,0.7737,0.3446) cut=(1.0,1.0,1.0) pos_rate=0.205
+  sizes=(13, 15, 18) exact=0.000 reach=(0.8363,0.6651,0.4098) cut=(1.0,1.0,1.0) pos_rate=0.209
+  sizes=(13, 16, 17) exact=0.000 reach=(0.8301,0.5691,0.4786) cut=(1.0,1.0,1.0) pos_rate=0.209
+  sizes=(14, 14, 18) exact=0.000 reach=(0.7792,0.7808,0.4097) cut=(1.0,1.0,1.0) pos_rate=0.215
+  sizes=(14, 15, 17) exact=0.000 reach=(0.7809,0.6646,0.4803) cut=(1.0,1.0,1.0) pos_rate=0.217
+  sizes=(14, 16, 16) exact=0.000 reach=(0.7808,0.5701,0.5672) cut=(1.0,1.0,1.0) pos_rate=0.218
+  sizes=(15, 15, 16) exact=0.000 reach=(0.6654,0.6652,0.566) cut=(1.0,1.0,1.0) pos_rate=0.218
+  saved -> runs/report10/threeway_splitchains/n46_splitchains_seed1000_full3way_post/threeway_split.csv
+== (4) AFTER fine-tuning: attention heatmaps, 5 cells (same as Report IX A.3) ==
+checkpoint=runs/report10/finetune_readout_full3way/n46_splitchains_seed1000_full3way/finetuned.pt
+  arch=roberta readout=similarity n=46 device=cuda
+== attention/Q/K/V heatmap probe (three-way, arbitrary sizes) ==
+  heatmap probe sizes=(1, 22, 23) done
+  heatmap probe sizes=(4, 15, 27) done
+  heatmap probe sizes=(7, 15, 24) done
+  heatmap probe sizes=(2, 10, 34) done
+  heatmap probe sizes=(15, 15, 16) done
+  saved -> runs/report10/heatmaps_threeway/n46_splitchains_seed1000_full3way_post/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report10/heatmaps_threeway/n46_splitchains_seed1000_full3way_post/raw_weights.npz
+== (5) AFTER fine-tuning: stagewise cosine geometry, 5 cells ==
+checkpoint=runs/report10/finetune_readout_full3way/n46_splitchains_seed1000_full3way/finetuned.pt
+  arch=roberta readout=similarity n=46 device=cuda topology=chain
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise sizes=(1, 22, 23) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/0.000)
+  stagewise sizes=(4, 15, 27) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/0.000)
+  stagewise sizes=(7, 15, 24) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/0.673)
+  stagewise sizes=(2, 10, 34) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/0.002/1.000)
+  stagewise sizes=(15, 15, 16) done (exact H0=0.000, H2=0.000, cut12/13/23 @H2=1.000/1.000/1.000)
+  saved -> runs/report10/stagewise_threeway/n46_splitchains_seed1000_full3way_post/stagewise_{geometry.npz,metrics.csv,margins.csv}
+done: n46_splitchains_seed1000_full3way (fine-tune + full post-finetune battery; pre-finetune baselines already in runs/report9/)

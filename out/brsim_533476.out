@@ -1,0 +1,465 @@
+== n20_mixed_sim_seed1000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed1000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.817 disc=0.868 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed1000/bridged_cliques.json
+== n20_er_sim_seed1000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed1000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.001 withinA=1.000 withinB=1.000 cross=0.001 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.831 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.987 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed1000/bridged_cliques.json
+== n20_mixed_sim_seed2000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed2000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.937 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.963 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.954 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.984 disc=0.975 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.352 disc=0.639 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.044 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.003 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed2000/bridged_cliques.json
+== n20_er_sim_seed2000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed2000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.528 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed2000/bridged_cliques.json
+== n20_mixed_sim_seed3000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed3000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.894 disc=0.924 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.264 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.017 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed3000/bridged_cliques.json
+== n20_er_sim_seed3000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed3000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.996 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed3000/bridged_cliques.json
+== n20_mixed_sim_seed4000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed4000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.660 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.956 disc=0.697 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.190 disc=0.593 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed4000/bridged_cliques.json
+== n20_er_sim_seed4000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed4000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.792 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.966 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed4000/bridged_cliques.json
+== n20_mixed_sim_seed5000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed5000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed5000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.074 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed5000/bridged_cliques.json
+== n20_er_sim_seed5000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed5000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed5000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.743 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.700 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed5000/bridged_cliques.json
+== n20_mixed_sim_seed6000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed6000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed6000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.153 disc=0.502 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed6000/bridged_cliques.json
+== n20_er_sim_seed6000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed6000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed6000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.752 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.966 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed6000/bridged_cliques.json
+== n20_mixed_sim_seed7000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed7000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed7000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.744 disc=0.816 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.264 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.016 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed7000/bridged_cliques.json
+== n20_er_sim_seed7000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed7000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed7000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.953 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed7000/bridged_cliques.json
+== n20_mixed_sim_seed8000  (runs/families_n20/n20_mixed_roberta_similarity_lam0_seed8000/last.pt) ==
+checkpoint=runs/families_n20/n20_mixed_roberta_similarity_lam0_seed8000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=0.615 disc=0.723 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=0.260 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=0.016 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_mixed_sim_seed8000/bridged_cliques.json
+== n20_er_sim_seed8000  (runs/families_n20/n20_er_roberta_similarity_lam0_seed8000/last.pt) ==
+checkpoint=runs/families_n20/n20_er_roberta_similarity_lam0_seed8000/last.pt
+  arch=roberta readout=similarity n=20 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.19 DFS(b=c)=0.19
+  c= 3  model cross=1.000 disc=0.738 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.31
+  c= 4  model cross=1.000 disc=0.951 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.47
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.54
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.56
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.59
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.61
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  saved -> runs/report5/bridged_similarity/n20_er_sim_seed8000/bridged_cliques.json
+== n40_mixed_sim_seed1000  (runs/families_n40/n40_mixed_roberta_similarity_lam0_seed1000/last.pt) ==
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=0.565 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=0.999 disc=0.511 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=0.959 disc=0.568 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.810 disc=0.604 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.479 disc=0.559 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.167 disc=0.511 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.049 disc=0.505 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.014 disc=0.493 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.005 disc=0.502 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_mixed_sim_seed1000/bridged_cliques.json
+== n40_er_sim_seed1000  (runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.995 disc=0.997 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.986 disc=0.991 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.935 disc=0.960 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.924 disc=0.954 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.970 disc=0.982 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.995 disc=0.995 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.995 disc=0.908 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=1.000 disc=0.721 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=1.000 disc=0.560 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=1.000 disc=0.504 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_er_sim_seed1000/bridged_cliques.json
+== n40_mixed_sim_seed2000  (runs/families_n40/n40_mixed_roberta_similarity_lam0_seed2000/last.pt) ==
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=1.000 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.995 disc=0.497 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.927 disc=0.479 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.539 disc=0.537 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.002 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_mixed_sim_seed2000/bridged_cliques.json
+== n40_er_sim_seed2000  (runs/families_n40/n40_er_roberta_similarity_lam0_seed2000/last.pt) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.998 disc=0.999 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.983 disc=0.989 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.992 disc=0.995 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.998 disc=0.999 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.998 disc=0.994 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=1.000 disc=0.954 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=1.000 disc=0.766 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=1.000 disc=0.575 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=1.000 disc=0.501 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_er_sim_seed2000/bridged_cliques.json
+== n40_mixed_sim_seed3000  (runs/families_n40/n40_mixed_roberta_similarity_lam0_seed3000/last.pt) ==
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=0.509 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=1.000 disc=0.501 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=1.000 disc=0.520 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=1.000 disc=0.618 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.955 disc=0.768 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.521 disc=0.700 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.081 disc=0.507 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=0.004 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_mixed_sim_seed3000/bridged_cliques.json
+== n40_er_sim_seed3000  (runs/families_n40/n40_er_roberta_similarity_lam0_seed3000/last.pt) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed3000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.998 disc=0.999 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.997 disc=0.998 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.994 disc=0.996 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=1.000 disc=0.998 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=1.000 disc=0.929 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=1.000 disc=0.618 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=1.000 disc=0.503 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_er_sim_seed3000/bridged_cliques.json
+== n40_mixed_sim_seed4000  (runs/families_n40/n40_mixed_roberta_similarity_lam0_seed4000/last.pt) ==
+checkpoint=runs/families_n40/n40_mixed_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=0.000
+  [split] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=0.000
+  discrimination acc=0.500 (bridged->conn 0.00, split->conn 0.00)
+  c= 2  model cross=1.000 disc=0.668 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=0.584 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=0.504 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=0.960 disc=0.535 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=0.059 disc=0.519 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=0.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_mixed_sim_seed4000/bridged_cliques.json
+== n40_er_sim_seed4000  (runs/families_n40/n40_er_roberta_similarity_lam0_seed4000/last.pt) ==
+checkpoint=runs/families_n40/n40_er_roberta_similarity_lam0_seed4000/last.pt
+  arch=roberta readout=similarity n=40 L=2 device=cuda
+  [bridged] exact=1.000 withinA=1.000 withinB=1.000 cross=1.000 crossPredConn=1.000
+  [split] exact=0.000 withinA=1.000 withinB=1.000 cross=0.000 crossPredConn=1.000
+  discrimination acc=0.500 (bridged->conn 1.00, split->conn 1.00)
+  c= 2  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.18 DFS(b=c)=0.18
+  c= 3  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.10 DFS(b=c)=0.32
+  c= 4  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.06 DFS(b=c)=0.44
+  c= 5  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.04 DFS(b=c)=0.49
+  c= 6  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.03 DFS(b=c)=0.53
+  c= 7  model cross=1.000 disc=1.000 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.57
+  c= 8  model cross=0.998 disc=0.999 | MP=1.00 BFS(b=c)=0.02 DFS(b=c)=0.58
+  c= 9  model cross=0.956 disc=0.972 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.62
+  c=10  model cross=0.880 disc=0.926 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.64
+  c=11  model cross=0.856 disc=0.913 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.63
+  c=12  model cross=0.891 disc=0.935 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=13  model cross=0.971 disc=0.983 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.67
+  c=14  model cross=1.000 disc=0.983 | MP=1.00 BFS(b=c)=0.01 DFS(b=c)=0.65
+  c=15  model cross=1.000 disc=0.697 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=16  model cross=1.000 disc=0.509 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.67
+  c=17  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.68
+  c=18  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  c=19  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.70
+  c=20  model cross=1.000 disc=0.500 | MP=1.00 BFS(b=c)=0.00 DFS(b=c)=0.69
+  saved -> runs/report5/bridged_similarity/n40_er_sim_seed4000/bridged_cliques.json
+bridged-cliques (similarity read-out) eval done -> runs/report5/bridged_similarity

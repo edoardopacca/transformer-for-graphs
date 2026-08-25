@@ -1,0 +1,17 @@
+== edge_ablation_contribution.py --topology chain (seed 1000) ==
+checkpoint=runs/report6/a1_train/n40_path_union_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=40 device=cpu topology=chain
+  [selftest] batched baseline matches standalone forward; self-loops survive ablation; F(i) confined to the long component
+  edge-ablation a= 1 done (edges=38, edge_leak=0.000, logit_leak=0.000, far_leak=0.000)
+  edge-ablation a= 4 done (edges=38, edge_leak=0.029, logit_leak=0.006, far_leak=0.004)
+  edge-ablation a= 7 done (edges=38, edge_leak=0.066, logit_leak=0.027, far_leak=0.022)
+  edge-ablation a= 8 done (edges=38, edge_leak=0.079, logit_leak=0.029, far_leak=0.019)
+  edge-ablation a=10 done (edges=38, edge_leak=0.111, logit_leak=0.039, far_leak=0.025)
+  edge-ablation a=11 done (edges=38, edge_leak=0.194, logit_leak=0.148, far_leak=0.115)
+  edge-ablation a=12 done (edges=38, edge_leak=0.278, logit_leak=0.254, far_leak=0.225)
+  edge-ablation a=13 done (edges=38, edge_leak=0.266, logit_leak=0.223, far_leak=0.181)
+  edge-ablation a=14 done (edges=38, edge_leak=0.266, logit_leak=0.200, far_leak=0.140)
+  edge-ablation a=17 done (edges=38, edge_leak=0.300, logit_leak=0.226, far_leak=0.060)
+  edge-ablation a=20 done (edges=38, edge_leak=0.369, logit_leak=0.270, far_leak=0.047)
+  saved -> runs/report8/edge_contrib/n40_pathunion_seed1000/edge_contrib.npz
+done seed 1000

@@ -1,0 +1,289 @@
+== n46_split_cycles_roberta_similarity_lam0_seed2000 ==
+ device=cuda arch=roberta readout=similarity sim_fixed=False lambda=0.0 params=6,329,858
+ step    5000 loss=0.57848 bce=0.57848 lap=0.00 lam=0.0e+00 val=0.0000 2ch=0.000 2cl=1.000 65s
+ step   10000 loss=0.53299 bce=0.53299 lap=0.00 lam=0.0e+00 val=0.0002 2ch=0.000 2cl=1.000 64s
+ step   15000 loss=0.51228 bce=0.51228 lap=0.00 lam=0.0e+00 val=0.0022 2ch=0.000 2cl=0.000 63s
+ step   20000 loss=0.48531 bce=0.48531 lap=0.00 lam=0.0e+00 val=0.0000 2ch=0.000 2cl=0.000 63s
+ step   25000 loss=0.46914 bce=0.46914 lap=0.00 lam=0.0e+00 val=0.1452 2ch=0.000 2cl=0.000 64s
+ step   30000 loss=0.45537 bce=0.45537 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step   35000 loss=0.44640 bce=0.44640 lap=0.00 lam=0.0e+00 val=0.1534 2ch=0.000 2cl=0.000 64s
+ step   40000 loss=0.44020 bce=0.44020 lap=0.00 lam=0.0e+00 val=0.1526 2ch=0.000 2cl=0.000 64s
+ step   45000 loss=0.43544 bce=0.43544 lap=0.00 lam=0.0e+00 val=0.1526 2ch=0.000 2cl=0.000 64s
+ step   50000 loss=0.43153 bce=0.43153 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.033 64s
+ step   55000 loss=0.42839 bce=0.42839 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.481 64s
+ step   60000 loss=0.42560 bce=0.42560 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.016 63s
+ step   65000 loss=0.42303 bce=0.42303 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.013 63s
+ step   70000 loss=0.42060 bce=0.42060 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.066 64s
+ step   75000 loss=0.41822 bce=0.41822 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.059 64s
+ step   80000 loss=0.41572 bce=0.41572 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step   85000 loss=0.41224 bce=0.41224 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step   90000 loss=0.41027 bce=0.41027 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step   95000 loss=0.40885 bce=0.40885 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  100000 loss=0.40779 bce=0.40779 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 63s
+ step  105000 loss=0.40663 bce=0.40663 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  110000 loss=0.40547 bce=0.40547 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  115000 loss=0.40447 bce=0.40447 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  120000 loss=0.40372 bce=0.40372 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  125000 loss=0.40280 bce=0.40280 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  130000 loss=0.40196 bce=0.40196 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 64s
+ step  135000 loss=0.40090 bce=0.40090 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 63s
+ step  140000 loss=0.40010 bce=0.40010 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 63s
+ step  145000 loss=0.39958 bce=0.39958 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 63s
+ step  150000 loss=0.39865 bce=0.39865 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.000 63s
+ step  155000 loss=0.39773 bce=0.39773 lap=0.00 lam=0.0e+00 val=0.1520 2ch=0.000 2cl=0.000 63s
+ step  160000 loss=0.39720 bce=0.39720 lap=0.00 lam=0.0e+00 val=0.1510 2ch=0.000 2cl=0.000 63s
+ step  165000 loss=0.39673 bce=0.39673 lap=0.00 lam=0.0e+00 val=0.1514 2ch=0.000 2cl=0.000 64s
+ step  170000 loss=0.39592 bce=0.39592 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.012 63s
+ step  175000 loss=0.39527 bce=0.39527 lap=0.00 lam=0.0e+00 val=0.1520 2ch=0.000 2cl=0.036 63s
+ step  180000 loss=0.39475 bce=0.39475 lap=0.00 lam=0.0e+00 val=0.1526 2ch=0.000 2cl=0.012 64s
+ step  185000 loss=0.39426 bce=0.39426 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.011 63s
+ step  190000 loss=0.39365 bce=0.39365 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.024 63s
+ step  195000 loss=0.39328 bce=0.39328 lap=0.00 lam=0.0e+00 val=0.1536 2ch=0.000 2cl=0.013 64s
+ step  200000 loss=0.39273 bce=0.39273 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.005 63s
+ step  205000 loss=0.39247 bce=0.39247 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.013 64s
+ step  210000 loss=0.39192 bce=0.39192 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.000 63s
+ step  215000 loss=0.39155 bce=0.39155 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.005 64s
+ step  220000 loss=0.39117 bce=0.39117 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.003 63s
+ step  225000 loss=0.39077 bce=0.39077 lap=0.00 lam=0.0e+00 val=0.1540 2ch=0.000 2cl=0.016 64s
+ step  230000 loss=0.39027 bce=0.39027 lap=0.00 lam=0.0e+00 val=0.1524 2ch=0.000 2cl=0.019 64s
+ step  235000 loss=0.38998 bce=0.38998 lap=0.00 lam=0.0e+00 val=0.1544 2ch=0.000 2cl=0.005 64s
+ step  240000 loss=0.38963 bce=0.38963 lap=0.00 lam=0.0e+00 val=0.1526 2ch=0.000 2cl=0.010 64s
+ step  245000 loss=0.38923 bce=0.38923 lap=0.00 lam=0.0e+00 val=0.1532 2ch=0.000 2cl=0.000 64s
+ step  250000 loss=0.38889 bce=0.38889 lap=0.00 lam=0.0e+00 val=0.1526 2ch=0.000 2cl=0.000 63s
+ step  255000 loss=0.38855 bce=0.38855 lap=0.00 lam=0.0e+00 val=0.1530 2ch=0.000 2cl=0.000 63s
+ step  260000 loss=0.38831 bce=0.38831 lap=0.00 lam=0.0e+00 val=0.1528 2ch=0.000 2cl=0.000 64s
+ step  265000 loss=0.38803 bce=0.38803 lap=0.00 lam=0.0e+00 val=0.1528 2ch=0.000 2cl=0.000 63s
+ step  270000 loss=0.38767 bce=0.38767 lap=0.00 lam=0.0e+00 val=0.1672 2ch=0.000 2cl=0.000 64s
+ step  275000 loss=0.38731 bce=0.38731 lap=0.00 lam=0.0e+00 val=0.1600 2ch=0.000 2cl=0.000 64s
+ step  280000 loss=0.38707 bce=0.38707 lap=0.00 lam=0.0e+00 val=0.1636 2ch=0.000 2cl=0.001 64s
+ step  285000 loss=0.38672 bce=0.38672 lap=0.00 lam=0.0e+00 val=0.1534 2ch=0.000 2cl=0.000 64s
+ step  290000 loss=0.38621 bce=0.38621 lap=0.00 lam=0.0e+00 val=0.2016 2ch=0.000 2cl=0.000 63s
+ step  295000 loss=0.38579 bce=0.38579 lap=0.00 lam=0.0e+00 val=0.1528 2ch=0.000 2cl=0.000 64s
+ step  300000 loss=0.38547 bce=0.38547 lap=0.00 lam=0.0e+00 val=0.1948 2ch=0.000 2cl=0.000 63s
+ step  305000 loss=0.38486 bce=0.38486 lap=0.00 lam=0.0e+00 val=0.1536 2ch=0.000 2cl=0.000 63s
+ step  310000 loss=0.38449 bce=0.38449 lap=0.00 lam=0.0e+00 val=0.1556 2ch=0.000 2cl=0.000 64s
+ step  315000 loss=0.38389 bce=0.38389 lap=0.00 lam=0.0e+00 val=0.1970 2ch=0.000 2cl=0.000 64s
+ step  320000 loss=0.38369 bce=0.38369 lap=0.00 lam=0.0e+00 val=0.1930 2ch=0.000 2cl=0.000 63s
+ step  325000 loss=0.38325 bce=0.38325 lap=0.00 lam=0.0e+00 val=0.1960 2ch=0.000 2cl=0.000 64s
+ step  330000 loss=0.38281 bce=0.38281 lap=0.00 lam=0.0e+00 val=0.1926 2ch=0.000 2cl=0.000 63s
+ step  335000 loss=0.38244 bce=0.38244 lap=0.00 lam=0.0e+00 val=0.2326 2ch=0.000 2cl=0.000 64s
+ step  340000 loss=0.38218 bce=0.38218 lap=0.00 lam=0.0e+00 val=0.2250 2ch=0.000 2cl=0.000 64s
+ step  345000 loss=0.38169 bce=0.38169 lap=0.00 lam=0.0e+00 val=0.1952 2ch=0.000 2cl=0.000 64s
+ step  350000 loss=0.38138 bce=0.38138 lap=0.00 lam=0.0e+00 val=0.2190 2ch=0.000 2cl=0.000 64s
+ step  355000 loss=0.38111 bce=0.38111 lap=0.00 lam=0.0e+00 val=0.2422 2ch=0.000 2cl=0.000 63s
+ step  360000 loss=0.38057 bce=0.38057 lap=0.00 lam=0.0e+00 val=0.2700 2ch=0.000 2cl=0.000 63s
+ step  365000 loss=0.38012 bce=0.38012 lap=0.00 lam=0.0e+00 val=0.3006 2ch=0.000 2cl=0.000 64s
+ step  370000 loss=0.37987 bce=0.37987 lap=0.00 lam=0.0e+00 val=0.3490 2ch=0.000 2cl=0.000 63s
+ step  375000 loss=0.37969 bce=0.37969 lap=0.00 lam=0.0e+00 val=0.2330 2ch=0.000 2cl=0.000 63s
+ step  380000 loss=0.37936 bce=0.37936 lap=0.00 lam=0.0e+00 val=0.2460 2ch=0.000 2cl=0.000 63s
+ step  385000 loss=0.37895 bce=0.37895 lap=0.00 lam=0.0e+00 val=0.4224 2ch=0.000 2cl=0.000 63s
+ step  390000 loss=0.37868 bce=0.37868 lap=0.00 lam=0.0e+00 val=0.4094 2ch=0.000 2cl=0.000 63s
+ step  395000 loss=0.37843 bce=0.37843 lap=0.00 lam=0.0e+00 val=0.4206 2ch=0.000 2cl=0.000 64s
+ step  400000 loss=0.37834 bce=0.37834 lap=0.00 lam=0.0e+00 val=0.3854 2ch=0.000 2cl=0.000 63s
+ step  405000 loss=0.37798 bce=0.37798 lap=0.00 lam=0.0e+00 val=0.4184 2ch=0.000 2cl=0.000 63s
+ step  410000 loss=0.37785 bce=0.37785 lap=0.00 lam=0.0e+00 val=0.4222 2ch=0.000 2cl=0.000 63s
+ step  415000 loss=0.37754 bce=0.37754 lap=0.00 lam=0.0e+00 val=0.4264 2ch=0.000 2cl=0.000 64s
+ step  420000 loss=0.37724 bce=0.37724 lap=0.00 lam=0.0e+00 val=0.4178 2ch=0.000 2cl=0.000 64s
+ step  425000 loss=0.37702 bce=0.37702 lap=0.00 lam=0.0e+00 val=0.4150 2ch=0.000 2cl=0.000 63s
+ step  430000 loss=0.37687 bce=0.37687 lap=0.00 lam=0.0e+00 val=0.4226 2ch=0.000 2cl=0.000 63s
+ step  435000 loss=0.37660 bce=0.37660 lap=0.00 lam=0.0e+00 val=0.3868 2ch=0.000 2cl=0.000 63s
+ step  440000 loss=0.37653 bce=0.37653 lap=0.00 lam=0.0e+00 val=0.4240 2ch=0.000 2cl=0.000 63s
+ step  445000 loss=0.37633 bce=0.37633 lap=0.00 lam=0.0e+00 val=0.4094 2ch=0.000 2cl=0.000 63s
+ step  450000 loss=0.37622 bce=0.37622 lap=0.00 lam=0.0e+00 val=0.4240 2ch=0.000 2cl=0.000 63s
+ step  455000 loss=0.37603 bce=0.37603 lap=0.00 lam=0.0e+00 val=0.3692 2ch=0.000 2cl=0.000 64s
+ step  460000 loss=0.37564 bce=0.37564 lap=0.00 lam=0.0e+00 val=0.4244 2ch=0.000 2cl=0.000 63s
+ step  465000 loss=0.37551 bce=0.37551 lap=0.00 lam=0.0e+00 val=0.3976 2ch=0.000 2cl=0.000 63s
+ step  470000 loss=0.37548 bce=0.37548 lap=0.00 lam=0.0e+00 val=0.4036 2ch=0.000 2cl=0.000 64s
+ step  475000 loss=0.37536 bce=0.37536 lap=0.00 lam=0.0e+00 val=0.4026 2ch=0.000 2cl=0.000 63s
+ step  480000 loss=0.37504 bce=0.37504 lap=0.00 lam=0.0e+00 val=0.3730 2ch=0.000 2cl=0.000 64s
+ step  485000 loss=0.37497 bce=0.37497 lap=0.00 lam=0.0e+00 val=0.4028 2ch=0.000 2cl=0.000 63s
+ step  490000 loss=0.37474 bce=0.37474 lap=0.00 lam=0.0e+00 val=0.4182 2ch=0.000 2cl=0.000 64s
+ step  495000 loss=0.37467 bce=0.37467 lap=0.00 lam=0.0e+00 val=0.3876 2ch=0.000 2cl=0.000 64s
+ step  500000 loss=0.37448 bce=0.37448 lap=0.00 lam=0.0e+00 val=0.4118 2ch=0.000 2cl=0.000 63s
+ step  505000 loss=0.37443 bce=0.37443 lap=0.00 lam=0.0e+00 val=0.3714 2ch=0.000 2cl=0.000 63s
+ step  510000 loss=0.37413 bce=0.37413 lap=0.00 lam=0.0e+00 val=0.3960 2ch=0.000 2cl=0.000 63s
+ step  515000 loss=0.37413 bce=0.37413 lap=0.00 lam=0.0e+00 val=0.4220 2ch=0.000 2cl=0.000 63s
+ step  520000 loss=0.37379 bce=0.37379 lap=0.00 lam=0.0e+00 val=0.3708 2ch=0.000 2cl=0.000 63s
+ step  525000 loss=0.37376 bce=0.37376 lap=0.00 lam=0.0e+00 val=0.3780 2ch=0.000 2cl=0.000 63s
+ step  530000 loss=0.37360 bce=0.37360 lap=0.00 lam=0.0e+00 val=0.3774 2ch=0.000 2cl=0.000 63s
+ step  535000 loss=0.37343 bce=0.37343 lap=0.00 lam=0.0e+00 val=0.3408 2ch=0.000 2cl=0.000 63s
+ step  540000 loss=0.37325 bce=0.37325 lap=0.00 lam=0.0e+00 val=0.3438 2ch=0.000 2cl=0.000 63s
+ step  545000 loss=0.37313 bce=0.37313 lap=0.00 lam=0.0e+00 val=0.3730 2ch=0.000 2cl=0.000 64s
+ step  550000 loss=0.37317 bce=0.37317 lap=0.00 lam=0.0e+00 val=0.4046 2ch=0.000 2cl=0.000 63s
+ step  555000 loss=0.37291 bce=0.37291 lap=0.00 lam=0.0e+00 val=0.3946 2ch=0.000 2cl=0.000 63s
+ step  560000 loss=0.37280 bce=0.37280 lap=0.00 lam=0.0e+00 val=0.3546 2ch=0.000 2cl=0.000 63s
+ step  565000 loss=0.37274 bce=0.37274 lap=0.00 lam=0.0e+00 val=0.3768 2ch=0.000 2cl=0.000 64s
+ step  570000 loss=0.37269 bce=0.37269 lap=0.00 lam=0.0e+00 val=0.3650 2ch=0.000 2cl=0.000 63s
+ step  575000 loss=0.37250 bce=0.37250 lap=0.00 lam=0.0e+00 val=0.3522 2ch=0.000 2cl=0.000 63s
+ step  580000 loss=0.37232 bce=0.37232 lap=0.00 lam=0.0e+00 val=0.4024 2ch=0.000 2cl=0.000 63s
+ step  585000 loss=0.37214 bce=0.37214 lap=0.00 lam=0.0e+00 val=0.3292 2ch=0.000 2cl=0.000 63s
+ step  590000 loss=0.37215 bce=0.37215 lap=0.00 lam=0.0e+00 val=0.3728 2ch=0.000 2cl=0.000 64s
+ step  595000 loss=0.37190 bce=0.37190 lap=0.00 lam=0.0e+00 val=0.3502 2ch=0.000 2cl=0.000 63s
+ step  600000 loss=0.37185 bce=0.37185 lap=0.00 lam=0.0e+00 val=0.3830 2ch=0.000 2cl=0.000 63s
+ step  605000 loss=0.37168 bce=0.37168 lap=0.00 lam=0.0e+00 val=0.3792 2ch=0.000 2cl=0.000 64s
+ step  610000 loss=0.37156 bce=0.37156 lap=0.00 lam=0.0e+00 val=0.3964 2ch=0.000 2cl=0.000 63s
+ step  615000 loss=0.37150 bce=0.37150 lap=0.00 lam=0.0e+00 val=0.3276 2ch=0.000 2cl=0.000 63s
+ step  620000 loss=0.37138 bce=0.37138 lap=0.00 lam=0.0e+00 val=0.3796 2ch=0.000 2cl=0.000 63s
+ step  625000 loss=0.37128 bce=0.37128 lap=0.00 lam=0.0e+00 val=0.3760 2ch=0.000 2cl=0.000 64s
+ step  630000 loss=0.37101 bce=0.37101 lap=0.00 lam=0.0e+00 val=0.3524 2ch=0.000 2cl=0.000 63s
+ step  635000 loss=0.37111 bce=0.37111 lap=0.00 lam=0.0e+00 val=0.3760 2ch=0.000 2cl=0.000 63s
+ step  640000 loss=0.37089 bce=0.37089 lap=0.00 lam=0.0e+00 val=0.3636 2ch=0.000 2cl=0.000 63s
+ step  645000 loss=0.37084 bce=0.37084 lap=0.00 lam=0.0e+00 val=0.3866 2ch=0.000 2cl=0.000 63s
+ step  650000 loss=0.37079 bce=0.37079 lap=0.00 lam=0.0e+00 val=0.3752 2ch=0.000 2cl=0.000 63s
+ step  655000 loss=0.37071 bce=0.37071 lap=0.00 lam=0.0e+00 val=0.3748 2ch=0.000 2cl=0.000 64s
+ step  660000 loss=0.37053 bce=0.37053 lap=0.00 lam=0.0e+00 val=0.3658 2ch=0.000 2cl=0.000 63s
+ step  665000 loss=0.37048 bce=0.37048 lap=0.00 lam=0.0e+00 val=0.3960 2ch=0.000 2cl=0.000 63s
+ step  670000 loss=0.37045 bce=0.37045 lap=0.00 lam=0.0e+00 val=0.3274 2ch=0.000 2cl=0.000 63s
+ step  675000 loss=0.37019 bce=0.37019 lap=0.00 lam=0.0e+00 val=0.3666 2ch=0.000 2cl=0.000 63s
+ step  680000 loss=0.37018 bce=0.37018 lap=0.00 lam=0.0e+00 val=0.3452 2ch=0.000 2cl=0.000 63s
+ step  685000 loss=0.37010 bce=0.37010 lap=0.00 lam=0.0e+00 val=0.3366 2ch=0.000 2cl=0.000 63s
+ step  690000 loss=0.36992 bce=0.36992 lap=0.00 lam=0.0e+00 val=0.3472 2ch=0.000 2cl=0.000 63s
+ step  695000 loss=0.36976 bce=0.36976 lap=0.00 lam=0.0e+00 val=0.3898 2ch=0.000 2cl=0.000 63s
+ step  700000 loss=0.36974 bce=0.36974 lap=0.00 lam=0.0e+00 val=0.3318 2ch=0.000 2cl=0.000 63s
+ step  705000 loss=0.36971 bce=0.36971 lap=0.00 lam=0.0e+00 val=0.3682 2ch=0.000 2cl=0.000 63s
+ step  710000 loss=0.36966 bce=0.36966 lap=0.00 lam=0.0e+00 val=0.3552 2ch=0.000 2cl=0.000 63s
+ step  715000 loss=0.36950 bce=0.36950 lap=0.00 lam=0.0e+00 val=0.3826 2ch=0.000 2cl=0.000 63s
+ step  720000 loss=0.36951 bce=0.36951 lap=0.00 lam=0.0e+00 val=0.3652 2ch=0.000 2cl=0.000 64s
+ step  725000 loss=0.36947 bce=0.36947 lap=0.00 lam=0.0e+00 val=0.3500 2ch=0.000 2cl=0.000 64s
+ step  730000 loss=0.36938 bce=0.36938 lap=0.00 lam=0.0e+00 val=0.3234 2ch=0.000 2cl=0.000 63s
+ step  735000 loss=0.36922 bce=0.36922 lap=0.00 lam=0.0e+00 val=0.3350 2ch=0.000 2cl=0.000 64s
+ step  740000 loss=0.36923 bce=0.36923 lap=0.00 lam=0.0e+00 val=0.3454 2ch=0.000 2cl=0.000 63s
+ step  745000 loss=0.36910 bce=0.36910 lap=0.00 lam=0.0e+00 val=0.3640 2ch=0.000 2cl=0.000 64s
+ step  750000 loss=0.36919 bce=0.36919 lap=0.00 lam=0.0e+00 val=0.3226 2ch=0.000 2cl=0.000 63s
+ step  755000 loss=0.36891 bce=0.36891 lap=0.00 lam=0.0e+00 val=0.3390 2ch=0.000 2cl=0.000 63s
+ step  760000 loss=0.36888 bce=0.36888 lap=0.00 lam=0.0e+00 val=0.3554 2ch=0.000 2cl=0.000 63s
+ step  765000 loss=0.36880 bce=0.36880 lap=0.00 lam=0.0e+00 val=0.3276 2ch=0.000 2cl=0.000 64s
+ step  770000 loss=0.36886 bce=0.36886 lap=0.00 lam=0.0e+00 val=0.3158 2ch=0.000 2cl=0.000 64s
+ step  775000 loss=0.36874 bce=0.36874 lap=0.00 lam=0.0e+00 val=0.3612 2ch=0.000 2cl=0.000 64s
+ step  780000 loss=0.36872 bce=0.36872 lap=0.00 lam=0.0e+00 val=0.3242 2ch=0.000 2cl=0.000 64s
+ step  785000 loss=0.36861 bce=0.36861 lap=0.00 lam=0.0e+00 val=0.3596 2ch=0.000 2cl=0.000 64s
+ step  790000 loss=0.36840 bce=0.36840 lap=0.00 lam=0.0e+00 val=0.4018 2ch=0.000 2cl=0.000 63s
+ step  795000 loss=0.36844 bce=0.36844 lap=0.00 lam=0.0e+00 val=0.3662 2ch=0.000 2cl=0.000 63s
+ step  800000 loss=0.36838 bce=0.36838 lap=0.00 lam=0.0e+00 val=0.3214 2ch=0.000 2cl=0.000 63s
+ step  805000 loss=0.36830 bce=0.36830 lap=0.00 lam=0.0e+00 val=0.3736 2ch=0.000 2cl=0.000 63s
+ step  810000 loss=0.36842 bce=0.36842 lap=0.00 lam=0.0e+00 val=0.3154 2ch=0.000 2cl=0.000 64s
+ step  815000 loss=0.36819 bce=0.36819 lap=0.00 lam=0.0e+00 val=0.3636 2ch=0.000 2cl=0.000 63s
+ step  820000 loss=0.36826 bce=0.36826 lap=0.00 lam=0.0e+00 val=0.3282 2ch=0.000 2cl=0.000 64s
+ step  825000 loss=0.36815 bce=0.36815 lap=0.00 lam=0.0e+00 val=0.3542 2ch=0.000 2cl=0.000 63s
+ step  830000 loss=0.36819 bce=0.36819 lap=0.00 lam=0.0e+00 val=0.3424 2ch=0.000 2cl=0.000 64s
+ step  835000 loss=0.36801 bce=0.36801 lap=0.00 lam=0.0e+00 val=0.3590 2ch=0.000 2cl=0.000 64s
+ step  840000 loss=0.36802 bce=0.36802 lap=0.00 lam=0.0e+00 val=0.3396 2ch=0.000 2cl=0.000 64s
+ step  845000 loss=0.36803 bce=0.36803 lap=0.00 lam=0.0e+00 val=0.3476 2ch=0.000 2cl=0.000 63s
+ step  850000 loss=0.36789 bce=0.36789 lap=0.00 lam=0.0e+00 val=0.3514 2ch=0.000 2cl=0.000 63s
+ step  855000 loss=0.36776 bce=0.36776 lap=0.00 lam=0.0e+00 val=0.3348 2ch=0.000 2cl=0.000 64s
+ step  860000 loss=0.36771 bce=0.36771 lap=0.00 lam=0.0e+00 val=0.3238 2ch=0.000 2cl=0.000 63s
+ step  865000 loss=0.36785 bce=0.36785 lap=0.00 lam=0.0e+00 val=0.3392 2ch=0.000 2cl=0.000 63s
+ step  870000 loss=0.36764 bce=0.36764 lap=0.00 lam=0.0e+00 val=0.3208 2ch=0.000 2cl=0.000 63s
+ step  875000 loss=0.36759 bce=0.36759 lap=0.00 lam=0.0e+00 val=0.3410 2ch=0.000 2cl=0.000 64s
+ step  880000 loss=0.36760 bce=0.36760 lap=0.00 lam=0.0e+00 val=0.3516 2ch=0.000 2cl=0.000 64s
+ step  885000 loss=0.36749 bce=0.36749 lap=0.00 lam=0.0e+00 val=0.3454 2ch=0.000 2cl=0.000 64s
+ step  890000 loss=0.36757 bce=0.36757 lap=0.00 lam=0.0e+00 val=0.3376 2ch=0.000 2cl=0.000 63s
+ step  895000 loss=0.36747 bce=0.36747 lap=0.00 lam=0.0e+00 val=0.3414 2ch=0.000 2cl=0.000 64s
+ step  900000 loss=0.36752 bce=0.36752 lap=0.00 lam=0.0e+00 val=0.3276 2ch=0.000 2cl=0.000 64s
+ step  905000 loss=0.36755 bce=0.36755 lap=0.00 lam=0.0e+00 val=0.3388 2ch=0.000 2cl=0.000 63s
+ step  910000 loss=0.36763 bce=0.36763 lap=0.00 lam=0.0e+00 val=0.3520 2ch=0.000 2cl=0.000 64s
+ step  915000 loss=0.36749 bce=0.36749 lap=0.00 lam=0.0e+00 val=0.3400 2ch=0.000 2cl=0.000 64s
+ step  920000 loss=0.36746 bce=0.36746 lap=0.00 lam=0.0e+00 val=0.3264 2ch=0.000 2cl=0.000 63s
+ step  925000 loss=0.36733 bce=0.36733 lap=0.00 lam=0.0e+00 val=0.3492 2ch=0.000 2cl=0.000 64s
+ step  930000 loss=0.36732 bce=0.36732 lap=0.00 lam=0.0e+00 val=0.3358 2ch=0.000 2cl=0.000 64s
+ step  935000 loss=0.36739 bce=0.36739 lap=0.00 lam=0.0e+00 val=0.3402 2ch=0.000 2cl=0.000 64s
+ step  940000 loss=0.36727 bce=0.36727 lap=0.00 lam=0.0e+00 val=0.3420 2ch=0.000 2cl=0.000 64s
+ step  945000 loss=0.36732 bce=0.36732 lap=0.00 lam=0.0e+00 val=0.3316 2ch=0.000 2cl=0.000 63s
+ step  950000 loss=0.36735 bce=0.36735 lap=0.00 lam=0.0e+00 val=0.3378 2ch=0.000 2cl=0.000 64s
+ step  955000 loss=0.36735 bce=0.36735 lap=0.00 lam=0.0e+00 val=0.3358 2ch=0.000 2cl=0.000 64s
+ step  960000 loss=0.36729 bce=0.36729 lap=0.00 lam=0.0e+00 val=0.3338 2ch=0.000 2cl=0.000 63s
+ step  965000 loss=0.36742 bce=0.36742 lap=0.00 lam=0.0e+00 val=0.3330 2ch=0.000 2cl=0.000 64s
+ step  970000 loss=0.36727 bce=0.36727 lap=0.00 lam=0.0e+00 val=0.3356 2ch=0.000 2cl=0.000 64s
+ step  975000 loss=0.36709 bce=0.36709 lap=0.00 lam=0.0e+00 val=0.3300 2ch=0.000 2cl=0.000 64s
+ step  980000 loss=0.36731 bce=0.36731 lap=0.00 lam=0.0e+00 val=0.3318 2ch=0.000 2cl=0.000 64s
+ step  985000 loss=0.36737 bce=0.36737 lap=0.00 lam=0.0e+00 val=0.3332 2ch=0.000 2cl=0.000 64s
+ step  990000 loss=0.36722 bce=0.36722 lap=0.00 lam=0.0e+00 val=0.3314 2ch=0.000 2cl=0.000 64s
+ step  995000 loss=0.36724 bce=0.36724 lap=0.00 lam=0.0e+00 val=0.3318 2ch=0.000 2cl=0.000 63s
+ step 1000000 loss=0.36727 bce=0.36727 lap=0.00 lam=0.0e+00 val=0.3316 2ch=0.000 2cl=0.000 63s
+done. best in-dist exact=0.4264  -> runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed2000
+== mechanistic_asym_chains.py (sweep+logit, topology=cycle) ==
+checkpoint=runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=46 device=cuda
+  [selftest] run_with_cache matches model.forward_and_embeddings exactly
+  [selftest] exact_contribution matches brute-force double loop (max diff 1.19e-07)
+
+== behavioural sweep (random relabelling, the primary condition) ==
+  a= 3 exact=0.775 reach_long=1.000 reach_short=1.000 cut=0.985 mode=random
+  a= 4 exact=0.225 reach_long=1.000 reach_short=1.000 cut=0.846 mode=random
+  a= 5 exact=0.190 reach_long=1.000 reach_short=1.000 cut=0.781 mode=random
+  a= 6 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 7 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 8 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a= 9 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a=10 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a=11 exact=0.990 reach_long=1.000 reach_short=1.000 cut=1.000 mode=random
+  a=12 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=13 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=14 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=15 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=16 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=18 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=19 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=20 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=21 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=22 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+  a=23 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=random
+
+== fixed-label comparison (identity permutation, confirmatory only) ==
+  a= 4 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.351 mode=fixed
+  a= 7 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a= 8 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a=10 exact=1.000 reach_long=1.000 reach_short=1.000 cut=1.000 mode=fixed
+  a=17 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  a=23 exact=0.000 reach_long=1.000 reach_short=1.000 cut=0.000 mode=fixed
+  saved -> runs/report9/mechanistic/n46_splitcycles_seed2000/metrics.csv
+
+== readout decomposition cos(h_i,h_j) (similarity read-out) ==
+  readout(similarity) a= 3 done
+  readout(similarity) a= 4 done
+  readout(similarity) a= 5 done
+  readout(similarity) a= 6 done
+  readout(similarity) a= 7 done
+  readout(similarity) a= 8 done
+  readout(similarity) a= 9 done
+  readout(similarity) a=10 done
+  readout(similarity) a=11 done
+  readout(similarity) a=12 done
+  readout(similarity) a=13 done
+  readout(similarity) a=14 done
+  readout(similarity) a=15 done
+  readout(similarity) a=16 done
+  readout(similarity) a=17 done
+  readout(similarity) a=18 done
+  readout(similarity) a=19 done
+  readout(similarity) a=20 done
+  readout(similarity) a=21 done
+  readout(similarity) a=22 done
+  readout(similarity) a=23 done
+  saved -> runs/report9/mechanistic/n46_splitcycles_seed2000/readout.csv
+
+== W_in geometry (similarity read-out has no W_out) ==
+  saved -> runs/report9/mechanistic/n46_splitcycles_seed2000/weights_summary.json
+
+== attention probe (representative splits) ==
+  attention a= 4 done (row_mass1 mean=2.070, exact-contribution over 8 graphs)
+  attention a=23 done (row_mass1 mean=1.542, exact-contribution over 8 graphs)
+  saved -> runs/report9/mechanistic/n46_splitcycles_seed2000/attn_cache.npz (12 arrays)
+== mechanistic_heatmaps.py (attention scores, topology=cycle) ==
+checkpoint=runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=46 device=cuda
+== attention/Q/K/V heatmap probe ==
+  heatmap probe a= 4 done
+  heatmap probe a=23 done
+  saved -> runs/report9/heatmaps/n46_splitcycles_seed2000/heatmap_data.npz
+== raw weight matrices ==
+  saved -> runs/report9/heatmaps/n46_splitcycles_seed2000/raw_weights.npz
+== stagewise_diagnostics.py (layerwise cosine geometry, topology=cycle) ==
+checkpoint=runs/report9/n46_train/n46_split_cycles_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=46 device=cuda
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  stagewise a= 4 done (M_far H0=-0.000, H2=0.910)
+  stagewise a=23 done (M_far H0=0.000, H2=0.087)
+  saved -> runs/report9/stagewise/n46_splitcycles_seed2000/stagewise_{geometry.npz,metrics.csv,margins.csv,deltaz.csv}
+done: n46_splitcycles_seed2000

@@ -1,0 +1,3 @@
+== n64_split_chains_roberta_similarity_lam0_softmax_seed2000 ==
+ device=cuda arch=roberta readout=similarity attn_kind=softmax sim_fixed=False lambda=0.0 params=6,339,074
+[2026-08-06T20:34:25.785] error: *** JOB 617329 ON gnode11 CANCELLED AT 2026-08-06T20:34:25 DUE to SIGNAL Terminated ***
