@@ -62,6 +62,12 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     elif kind == "er_blocks":   a = generate_blocks_graph(n, rng, "er")
     elif kind == "clique_blocks": a = generate_blocks_graph(n, rng, "clique")
     elif kind == "path_union":  a = generate_path_union_graph(n, rng, 4)
+    # Report X: exactly-3-components path_union (every 3-way split-size combination), as
+    # its own TRAINING distribution rather than a read-out-only fine-tuning stream (unlike
+    # finetune_readout_threeway_full.py's identical generator call, this trains the whole
+    # trunk from scratch) -- feeds the multipath generalisation question.
+    elif kind == "path_union_k3":
+        a = generate_path_union_graph(n, rng, max_paths=3, min_paths=3)
     elif kind == "2chains":     a = generate_two_chains_graph(n, n // 2)
     elif kind == "2cliques":    a = generate_two_cliques_graph(n, n // 2)
     elif kind == "1cycle":      a = generate_one_cycle_graph(n)
@@ -221,7 +227,8 @@ def main():
     else:
         families = [f.strip() for f in args.families.split(",") if f.strip()]
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
-                       "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3"]
+                       "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
+                       "path_union_k3"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
