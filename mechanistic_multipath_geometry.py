@@ -113,9 +113,18 @@ def eval_k(model, dev, n, k, path_len, term_deg, rng, n_graphs):
     stages, _, logits = run_with_stages(model, xb)
 
     def unperm(arr):
+        """[G,n,d] embeddings -> unpermute the node axis only."""
         return np.stack([arr[i][inv] for i, inv in enumerate(invs)])
 
-    logits_base = unperm(logits)                       # [G,n,n]
+    def unperm_pair(arr):
+        """[G,n,n] pairwise matrix -> unpermute BOTH axes (np.ix_, not a single [inv]
+        index, which would leave the column axis in permuted order -- a real bug found
+        2026-08-26 that silently scrambled term_connect/reach_route in the first version
+        of this script; the geometry (H2 cosine) path was unaffected since it only ever
+        unpermutes embeddings via `unperm` above, never a pairwise matrix directly)."""
+        return np.stack([arr[i][np.ix_(inv, inv)] for i, inv in enumerate(invs)])
+
+    logits_base = unperm_pair(logits)                   # [G,n,n]
     pred = logits_base > 0
     term_connect = float(pred[:, s, t].mean())
     within_route_pairs = np.zeros((n, n), dtype=bool)
