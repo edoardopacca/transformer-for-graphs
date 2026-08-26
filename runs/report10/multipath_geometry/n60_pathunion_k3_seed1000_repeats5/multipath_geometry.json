@@ -2,10 +2,10 @@
   {
     "k": 1,
     "n_repeats": 5,
-    "term_connect": 0.268,
-    "term_connect_std": 0.0483,
-    "reach_route": 0.8682,
-    "reach_route_std": 0.006,
+    "term_connect": 1.0,
+    "term_connect_std": 0.0,
+    "reach_route": 0.8392,
+    "reach_route_std": 0.0101,
     "pred_positive_rate": 0.9309,
     "pred_positive_rate_std": 0.0038,
     "geometry_H2": {
@@ -49,8 +49,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.22,
-        "reach_route": 0.8588,
+        "term_connect": 1.0,
+        "reach_route": 0.8269,
         "pred_positive_rate": 0.9264,
         "geometry_H2": {
           "s_t": {
@@ -93,8 +93,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.36,
-        "reach_route": 0.8771,
+        "term_connect": 1.0,
+        "reach_route": 0.8563,
         "pred_positive_rate": 0.936,
         "geometry_H2": {
           "s_t": {
@@ -137,8 +137,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.24,
-        "reach_route": 0.8712,
+        "term_connect": 1.0,
+        "reach_route": 0.8427,
         "pred_positive_rate": 0.9347,
         "geometry_H2": {
           "s_t": {
@@ -181,8 +181,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.26,
-        "reach_route": 0.8671,
+        "term_connect": 1.0,
+        "reach_route": 0.8382,
         "pred_positive_rate": 0.9292,
         "geometry_H2": {
           "s_t": {
@@ -225,8 +225,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.26,
-        "reach_route": 0.8666,
+        "term_connect": 1.0,
+        "reach_route": 0.8317,
         "pred_positive_rate": 0.9282,
         "geometry_H2": {
           "s_t": {
@@ -269,10 +269,10 @@
   {
     "k": 2,
     "n_repeats": 5,
-    "term_connect": 0.036,
-    "term_connect_std": 0.0265,
-    "reach_route": 0.8754,
-    "reach_route_std": 0.003,
+    "term_connect": 1.0,
+    "term_connect_std": 0.0,
+    "reach_route": 0.8099,
+    "reach_route_std": 0.0001,
     "pred_positive_rate": 0.9343,
     "pred_positive_rate_std": 0.0003,
     "geometry_H2": {
@@ -320,8 +320,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.04,
-        "reach_route": 0.871,
+        "term_connect": 1.0,
+        "reach_route": 0.81,
         "pred_positive_rate": 0.9338,
         "geometry_H2": {
           "s_t": {
@@ -368,8 +368,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.08,
-        "reach_route": 0.8753,
+        "term_connect": 1.0,
+        "reach_route": 0.8098,
         "pred_positive_rate": 0.9344,
         "geometry_H2": {
           "s_t": {
@@ -416,8 +416,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.04,
-        "reach_route": 0.8735,
+        "term_connect": 1.0,
+        "reach_route": 0.81,
         "pred_positive_rate": 0.9342,
         "geometry_H2": {
           "s_t": {
@@ -464,8 +464,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.02,
-        "reach_route": 0.879,
+        "term_connect": 1.0,
+        "reach_route": 0.8098,
         "pred_positive_rate": 0.9343,
         "geometry_H2": {
           "s_t": {
@@ -512,8 +512,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.0,
-        "reach_route": 0.8782,
+        "term_connect": 1.0,
+        "reach_route": 0.81,
         "pred_positive_rate": 0.9348,
         "geometry_H2": {
           "s_t": {
@@ -560,10 +560,10 @@
   {
     "k": 3,
     "n_repeats": 5,
-    "term_connect": 0.036,
-    "term_connect_std": 0.0196,
-    "reach_route": 0.8768,
-    "reach_route_std": 0.0017,
+    "term_connect": 1.0,
+    "term_connect_std": 0.0,
+    "reach_route": 0.8099,
+    "reach_route_std": 0.0,
     "pred_positive_rate": 0.9356,
     "pred_positive_rate_std": 0.0,
     "geometry_H2": {
@@ -611,8 +611,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.06,
-        "reach_route": 0.8745,
+        "term_connect": 1.0,
+        "reach_route": 0.8099,
         "pred_positive_rate": 0.9356,
         "geometry_H2": {
           "s_t": {
@@ -659,8 +659,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.04,
-        "reach_route": 0.8753,
+        "term_connect": 1.0,
+        "reach_route": 0.8099,
         "pred_positive_rate": 0.9356,
         "geometry_H2": {
           "s_t": {
@@ -707,8 +707,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.04,
-        "reach_route": 0.8773,
+        "term_connect": 1.0,
+        "reach_route": 0.8099,
         "pred_positive_rate": 0.9356,
         "geometry_H2": {
           "s_t": {
@@ -755,8 +755,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.0,
-        "reach_route": 0.8794,
+        "term_connect": 1.0,
+        "reach_route": 0.8099,
         "pred_positive_rate": 0.9356,
         "geometry_H2": {
           "s_t": {
@@ -803,8 +803,8 @@
         "path_len": 19,
         "term_deg": 4,
         "n_graphs": 50,
-        "term_connect": 0.04,
-        "reach_route": 0.8773,
+        "term_connect": 1.0,
+        "reach_route": 0.8099,
         "pred_positive_rate": 0.9356,
         "geometry_H2": {
           "s_t": {

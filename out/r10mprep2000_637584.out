@@ -1,0 +1,24 @@
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed2000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda seed_base=2000 n_repeats=5
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  repeat=0 k=1: term_connect=1.000 reach_route=0.969 pred_pos=0.939 s_t_mean_cos=+0.997 s_t_std_cos=0.010
+  repeat=0 k=2: term_connect=1.000 reach_route=0.809 pred_pos=0.872 s_t_mean_cos=+0.961 s_t_std_cos=0.013
+  repeat=0 k=3: term_connect=1.000 reach_route=0.810 pred_pos=0.936 s_t_mean_cos=+0.950 s_t_std_cos=0.015
+  repeat=1 k=1: term_connect=1.000 reach_route=0.952 pred_pos=0.935 s_t_mean_cos=+0.998 s_t_std_cos=0.006
+  repeat=1 k=2: term_connect=1.000 reach_route=0.809 pred_pos=0.869 s_t_mean_cos=+0.957 s_t_std_cos=0.016
+  repeat=1 k=3: term_connect=1.000 reach_route=0.810 pred_pos=0.936 s_t_mean_cos=+0.946 s_t_std_cos=0.017
+  repeat=2 k=1: term_connect=1.000 reach_route=0.960 pred_pos=0.940 s_t_mean_cos=+0.997 s_t_std_cos=0.006
+  repeat=2 k=2: term_connect=1.000 reach_route=0.808 pred_pos=0.880 s_t_mean_cos=+0.961 s_t_std_cos=0.013
+  repeat=2 k=3: term_connect=1.000 reach_route=0.810 pred_pos=0.936 s_t_mean_cos=+0.951 s_t_std_cos=0.015
+  repeat=3 k=1: term_connect=1.000 reach_route=0.955 pred_pos=0.942 s_t_mean_cos=+0.999 s_t_std_cos=0.003
+  repeat=3 k=2: term_connect=1.000 reach_route=0.808 pred_pos=0.870 s_t_mean_cos=+0.964 s_t_std_cos=0.011
+  repeat=3 k=3: term_connect=1.000 reach_route=0.810 pred_pos=0.936 s_t_mean_cos=+0.949 s_t_std_cos=0.015
+  repeat=4 k=1: term_connect=1.000 reach_route=0.955 pred_pos=0.934 s_t_mean_cos=+0.998 s_t_std_cos=0.006
+  repeat=4 k=2: term_connect=1.000 reach_route=0.809 pred_pos=0.878 s_t_mean_cos=+0.961 s_t_std_cos=0.010
+  repeat=4 k=3: term_connect=1.000 reach_route=0.810 pred_pos=0.936 s_t_mean_cos=+0.947 s_t_std_cos=0.015
+  AGGREGATE k=1: term_connect=1.000+-0.000 reach_route=0.958+-0.006
+  AGGREGATE k=2: term_connect=1.000+-0.000 reach_route=0.809+-0.001
+  AGGREGATE k=3: term_connect=1.000+-0.000 reach_route=0.810+-0.000
+  saved -> runs/report10/multipath_geometry/n60_pathunion_k3_seed2000_repeats5/multipath_geometry.json
+wrote runs/report10/multipath_geometry/n60_pathunion_k3_seed2000_repeats5/term_connect_vs_k.png and h2_geometry_by_category.png
+done: n60_pathunion_k3_seed2000_repeats5
