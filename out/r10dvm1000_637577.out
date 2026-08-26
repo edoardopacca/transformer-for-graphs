@@ -1,0 +1,19 @@
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda seed_base=1000 n_repeats=5
+  repeat=0 DISJOINT [20, 20, 20] extreme-pairs pooled=0.000 per-pair=[0.0, 0.0, 0.0]
+  repeat=0 MULTIPATH lens=[19, 19, 20] s-t predicted-connected=1.000
+  repeat=1 DISJOINT [20, 20, 20] extreme-pairs pooled=0.000 per-pair=[0.0, 0.0, 0.0]
+  repeat=1 MULTIPATH lens=[19, 19, 20] s-t predicted-connected=1.000
+  repeat=2 DISJOINT [20, 20, 20] extreme-pairs pooled=0.000 per-pair=[0.0, 0.0, 0.0]
+  repeat=2 MULTIPATH lens=[19, 19, 20] s-t predicted-connected=1.000
+  repeat=3 DISJOINT [20, 20, 20] extreme-pairs pooled=0.000 per-pair=[0.0, 0.0, 0.0]
+  repeat=3 MULTIPATH lens=[19, 19, 20] s-t predicted-connected=1.000
+  repeat=4 DISJOINT [20, 20, 20] extreme-pairs pooled=0.000 per-pair=[0.0, 0.0, 0.0]
+  repeat=4 MULTIPATH lens=[19, 19, 20] s-t predicted-connected=1.000
+
+AGGREGATE over 5 repeat(s):
+  disjoint [20, 20, 20] own-path extremes : 0.0000 +- 0.0000
+  multipath lens=[19, 19, 20] s-t         : 1.0000 +- 0.0000
+
+saved -> runs/report10/disjoint_vs_multipath/n60_pathunion_k3_seed1000/disjoint_vs_multipath.json
+done: n60_pathunion_k3_seed1000 disjoint-vs-multipath

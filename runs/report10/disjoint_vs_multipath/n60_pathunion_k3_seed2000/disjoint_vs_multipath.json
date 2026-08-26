@@ -1,0 +1,255 @@
+{
+  "checkpoint": "runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed2000/last.pt",
+  "n": 60,
+  "n_graphs": 300,
+  "n_repeats": 5,
+  "seed_base": 2000,
+  "disjoint_sizes": [
+    20,
+    20,
+    20
+  ],
+  "multipath_lens": [
+    19,
+    19,
+    20
+  ],
+  "disjoint_pooled_mean": 0.0,
+  "disjoint_pooled_std": 0.0,
+  "multipath_pooled_mean": 1.0,
+  "multipath_pooled_std": 0.0,
+  "disjoint_per_repeat": [
+    {
+      "per_pair_predicted_connected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pooled_predicted_connected": 0.0,
+      "overall_pairwise_accuracy": 0.9979,
+      "sizes": [
+        20,
+        20,
+        20
+      ],
+      "extreme_pairs": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          39
+        ],
+        [
+          40,
+          59
+        ]
+      ]
+    },
+    {
+      "per_pair_predicted_connected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pooled_predicted_connected": 0.0,
+      "overall_pairwise_accuracy": 0.9979,
+      "sizes": [
+        20,
+        20,
+        20
+      ],
+      "extreme_pairs": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          39
+        ],
+        [
+          40,
+          59
+        ]
+      ]
+    },
+    {
+      "per_pair_predicted_connected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pooled_predicted_connected": 0.0,
+      "overall_pairwise_accuracy": 0.9979,
+      "sizes": [
+        20,
+        20,
+        20
+      ],
+      "extreme_pairs": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          39
+        ],
+        [
+          40,
+          59
+        ]
+      ]
+    },
+    {
+      "per_pair_predicted_connected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pooled_predicted_connected": 0.0,
+      "overall_pairwise_accuracy": 0.9979,
+      "sizes": [
+        20,
+        20,
+        20
+      ],
+      "extreme_pairs": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          39
+        ],
+        [
+          40,
+          59
+        ]
+      ]
+    },
+    {
+      "per_pair_predicted_connected": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pooled_predicted_connected": 0.0,
+      "overall_pairwise_accuracy": 0.9979,
+      "sizes": [
+        20,
+        20,
+        20
+      ],
+      "extreme_pairs": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          39
+        ],
+        [
+          40,
+          59
+        ]
+      ]
+    }
+  ],
+  "multipath_per_repeat": [
+    {
+      "per_pair_predicted_connected": [
+        1.0
+      ],
+      "pooled_predicted_connected": 1.0,
+      "overall_pairwise_accuracy": 0.905,
+      "path_lens": [
+        19,
+        19,
+        20
+      ],
+      "s_t": [
+        0,
+        1
+      ],
+      "n_nodes_used": 59,
+      "n_filler": 1
+    },
+    {
+      "per_pair_predicted_connected": [
+        1.0
+      ],
+      "pooled_predicted_connected": 1.0,
+      "overall_pairwise_accuracy": 0.905,
+      "path_lens": [
+        19,
+        19,
+        20
+      ],
+      "s_t": [
+        0,
+        1
+      ],
+      "n_nodes_used": 59,
+      "n_filler": 1
+    },
+    {
+      "per_pair_predicted_connected": [
+        1.0
+      ],
+      "pooled_predicted_connected": 1.0,
+      "overall_pairwise_accuracy": 0.905,
+      "path_lens": [
+        19,
+        19,
+        20
+      ],
+      "s_t": [
+        0,
+        1
+      ],
+      "n_nodes_used": 59,
+      "n_filler": 1
+    },
+    {
+      "per_pair_predicted_connected": [
+        1.0
+      ],
+      "pooled_predicted_connected": 1.0,
+      "overall_pairwise_accuracy": 0.905,
+      "path_lens": [
+        19,
+        19,
+        20
+      ],
+      "s_t": [
+        0,
+        1
+      ],
+      "n_nodes_used": 59,
+      "n_filler": 1
+    },
+    {
+      "per_pair_predicted_connected": [
+        1.0
+      ],
+      "pooled_predicted_connected": 1.0,
+      "overall_pairwise_accuracy": 0.905,
+      "path_lens": [
+        19,
+        19,
+        20
+      ],
+      "s_t": [
+        0,
+        1
+      ],
+      "n_nodes_used": 59,
+      "n_filler": 1
+    }
+  ]
+}
