@@ -1,0 +1,104 @@
+\relax 
+\providecommand \babel@aux [2]{\global \let \babel@toc \@gobbletwo }
+\@nameuse{bbl@beforestart}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\babel@aux{english}{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Where this comes from}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Where this comes from}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Experiment 1: targeted fine-tuning on the two named cells}{2}{section.2}\protected@file@percent }
+\newlabel{sec:exp1}{{2}{2}{Experiment 1: targeted fine-tuning on the two named cells}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Setup}{2}{subsection.2.1}\protected@file@percent }
+\newlabel{sec:setup}{{2.1}{2}{Setup}{subsection.2.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Checkpoint.}{2}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fine-tuning.}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What is measured.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Results}{2}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:results}{{2.2}{2}{Results}{subsection.2.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Does it learn the two target cells?}{2}{subsubsection.2.2.1}\protected@file@percent }
+\newlabel{sec:res-curve}{{2.2.1}{2}{Does it learn the two target cells?}{subsubsection.2.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \emph  {Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out checkpoint of Report~IX, fine-tuned as in \S  \ref {sec:setup}. \emph  {Test set:} the two target cells, $(15,15,16)$ and $(7,15,24)$, $300$ independently relabelled graphs per evaluation. \emph  {Metric:} whole-graph exact match, cut$(2,3)$ (the pair that fails at step $0$), and the overall predicted-positive rate, vs.\ fine-tuning step.}}{3}{figure.caption.4}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:r10curve}{{1}{3}{\emph {Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out checkpoint of Report~IX, fine-tuned as in \S \ref {sec:setup}. \emph {Test set:} the two target cells, $(15,15,16)$ and $(7,15,24)$, $300$ independently relabelled graphs per evaluation. \emph {Metric:} whole-graph exact match, cut$(2,3)$ (the pair that fails at step $0$), and the overall predicted-positive rate, vs.\ fine-tuning step}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Does it learn past the doubled wall?}{3}{subsubsection.2.2.2}\protected@file@percent }
+\newlabel{sec:res-beyond}{{2.2.2}{3}{Does it learn past the doubled wall?}{subsubsection.2.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \emph  {Model/training as in Figure~\ref {fig:r10curve}}. \emph  {Test set:} cell $(7,15,24)$, $300$ graphs per evaluation. \emph  {Metric:} pairwise reach (target connected) inside the 24-node component, split by shortest-path distance bucket, vs.\ fine-tuning step.}}{3}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:r10beyond}{{2}{3}{\emph {Model/training as in Figure~\ref {fig:r10curve}}. \emph {Test set:} cell $(7,15,24)$, $300$ graphs per evaluation. \emph {Metric:} pairwise reach (target connected) inside the 24-node component, split by shortest-path distance bucket, vs.\ fine-tuning step}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Does it forget the $K{=}2$ split-chains behaviour?}{4}{subsubsection.2.2.3}\protected@file@percent }
+\newlabel{sec:res-ownfamily}{{2.2.3}{4}{Does it forget the $K{=}2$ split-chains behaviour?}{subsubsection.2.2.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \emph  {Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after this fine-tuning. \emph  {Test set:} split-chain graphs at every split $a{=}1..23$, $300$ graphs per split. \emph  {Metric:} whole-graph exact match vs.\ split $a$.}}{4}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:r10ownfamily}{{3}{4}{\emph {Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after this fine-tuning. \emph {Test set:} split-chain graphs at every split $a{=}1..23$, $300$ graphs per split. \emph {Metric:} whole-graph exact match vs.\ split $a$}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.4}How much did scale/bias actually move?}{4}{subsubsection.2.2.4}\protected@file@percent }
+\newlabel{sec:res-scalebias}{{2.2.4}{4}{How much did scale/bias actually move?}{subsubsection.2.2.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.5}Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}{5}{subsubsection.2.2.5}\protected@file@percent }
+\newlabel{sec:res-mechanistic}{{2.2.5}{5}{Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}{subsubsection.2.2.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces $H^{(2)}$ pairwise cut, Report~IX checkpoint vs.\ after Experiment~1's fine-tuning. The three untrained cells are numerically identical before and after, to three decimals.}}{5}{table.caption.7}\protected@file@percent }
+\newlabel{tab:r10stagewise}{{1}{5}{$H^{(2)}$ pairwise cut, Report~IX checkpoint vs.\ after Experiment~1's fine-tuning. The three untrained cells are numerically identical before and after, to three decimals}{table.caption.7}{}}
+\newlabel{sec:res-fullgrid}{{2.2.5}{5}{Does that also hold across the whole $K{=}3$ grid, not just these five cells?}{section*.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Does that also hold across the whole $K{=}3$ grid, not just these five cells?}{5}{section*.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \emph  {Model:} split-chains-only, $n{=}46$, seed $1000$ checkpoint, before (left, Report~IX) vs.\ after (right) Experiment~1's fine-tuning. \emph  {Test set:} every feasible three-way split-chain cell, $s_1{=}1..15$, averaged over all feasible $s_2$ at each $s_1$, $176$ cells total. \emph  {Metric:} whole-graph exact match and the three pairwise cuts.}}{6}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:r10fullgrid}{{4}{6}{\emph {Model:} split-chains-only, $n{=}46$, seed $1000$ checkpoint, before (left, Report~IX) vs.\ after (right) Experiment~1's fine-tuning. \emph {Test set:} every feasible three-way split-chain cell, $s_1{=}1..15$, averaged over all feasible $s_2$ at each $s_1$, $176$ cells total. \emph {Metric:} whole-graph exact match and the three pairwise cuts}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Reading, once the data is in}{6}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:verdict-a}{{2.3}{6}{Reading, once the data is in}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experiment 2: fine-tuning on the full $K{=}3$ split distribution}{6}{section.3}\protected@file@percent }
+\newlabel{sec:exp2}{{3}{6}{Experiment 2: fine-tuning on the full $K{=}3$ split distribution}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Setup}{7}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:setup-full}{{3.1}{7}{Setup}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Checkpoint.}{7}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Fine-tuning.}{7}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What is measured.}{7}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Results}{7}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:results-full}{{3.2}{7}{Results}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Does exposure to the full distribution generalise, where the targeted fine-tune could only overfit two cells?}{7}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{sec:res-full-aggregate}{{3.2.1}{7}{Does exposure to the full distribution generalise, where the targeted fine-tune could only overfit two cells?}{subsubsection.3.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \emph  {Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out checkpoint of Report~IX, fine-tuned as in \S  \ref {sec:setup-full}. \emph  {Test set:} freshly sampled, generic three-component \texttt  {path\_union} graphs, $300$ per evaluation. \emph  {Metric:} whole-graph exact match and pairwise accuracy, vs.\ fine-tuning step.}}{8}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:r10fullaggregate}{{5}{8}{\emph {Model:} split-chains-only, $n{=}46$, seed $1000$, similarity read-out checkpoint of Report~IX, fine-tuned as in \S \ref {sec:setup-full}. \emph {Test set:} freshly sampled, generic three-component \texttt {path\_union} graphs, $300$ per evaluation. \emph {Metric:} whole-graph exact match and pairwise accuracy, vs.\ fine-tuning step}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Same two named cells as Experiment 1 --- does the broader stream do better, worse, or the same?}{8}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{sec:res-full-named}{{3.2.2}{8}{Same two named cells as Experiment 1 --- does the broader stream do better, worse, or the same?}{subsubsection.3.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \emph  {Model:} same starting checkpoint as Figure~\ref {fig:r10curve}, fine-tuned as in \S  \ref {sec:setup-full} (full $K{=}3$ distribution, $200{,}000$ steps). \emph  {Test set:} the same two named cells, $(15,15,16)$ and $(7,15,24)$. \emph  {Metric:} as in Figure~\ref {fig:r10curve}.}}{8}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:r10curvefull}{{6}{8}{\emph {Model:} same starting checkpoint as Figure~\ref {fig:r10curve}, fine-tuned as in \S \ref {sec:setup-full} (full $K{=}3$ distribution, $200{,}000$ steps). \emph {Test set:} the same two named cells, $(15,15,16)$ and $(7,15,24)$. \emph {Metric:} as in Figure~\ref {fig:r10curve}}{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \emph  {Model/training as in Figure~\ref {fig:r10curvefull}}. \emph  {Test set/metric:} as in Figure~\ref {fig:r10beyond}.}}{9}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:r10beyondfull}{{7}{9}{\emph {Model/training as in Figure~\ref {fig:r10curvefull}}. \emph {Test set/metric:} as in Figure~\ref {fig:r10beyond}}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}Own-family retention and scale/bias movement}{9}{subsubsection.3.2.3}\protected@file@percent }
+\newlabel{sec:res-full-ownfamily}{{3.2.3}{9}{Own-family retention and scale/bias movement}{subsubsection.3.2.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \emph  {Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after the full-distribution fine-tuning of \S  \ref {sec:setup-full}. \emph  {Test set/metric:} as in Figure~\ref {fig:r10ownfamily}.}}{9}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:r10ownfamilyfull}{{8}{9}{\emph {Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after the full-distribution fine-tuning of \S \ref {sec:setup-full}. \emph {Test set/metric:} as in Figure~\ref {fig:r10ownfamily}}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Reading, once the data is in}{10}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:verdict-b}{{3.3}{10}{Reading, once the data is in}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Combined verdict}{10}{section.4}\protected@file@percent }
+\newlabel{sec:verdict}{{4}{10}{Combined verdict}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Extending the four main paper experiments to 5 (two-path) / 10 (two-cycle) seeds --- and applying the same treatment to cycles}{11}{section.5}\protected@file@percent }
+\newlabel{sec:fiveseed}{{5}{11}{Extending the four main paper experiments to 5 (two-path) / 10 (two-cycle) seeds --- and applying the same treatment to cycles}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Two-path, odd/grid training (5 seeds) --- direct update of Table~1 / Figure~1}{11}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:fiveseed-chains-grid}{{5.1}{11}{Two-path, odd/grid training (5 seeds) --- direct update of Table~1 / Figure~1}{subsection.5.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Two-path model trained on the odd setting (n=46, similarity read-out, 5 seeds). Exact match, reach, and cut by test split.}}{11}{table.caption.17}\protected@file@percent }
+\newlabel{tab:beyond-threshold-5seed}{{2}{11}{Two-path model trained on the odd setting (n=46, similarity read-out, 5 seeds). Exact match, reach, and cut by test split}{table.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces \emph  {Model:} two-path, odd setting (training on $a\in \{3,5,7,9\}$ only), $n{=}46$, similarity read-out, 5 seeds. \emph  {Test set:} every split $a{=}1..23$, 300 graphs per split per seed. \emph  {Metric:} whole-graph exact match.}}{12}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:fiveseed-chains-grid}{{9}{12}{\emph {Model:} two-path, odd setting (training on $a\in \{3,5,7,9\}$ only), $n{=}46$, similarity read-out, 5 seeds. \emph {Test set:} every split $a{=}1..23$, 300 graphs per split per seed. \emph {Metric:} whole-graph exact match}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Two-path, full split-size distribution (5 seeds) --- direct update of the full-distribution-control appendix}{13}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:fiveseed-chains-continuous}{{5.2}{13}{Two-path, full split-size distribution (5 seeds) --- direct update of the full-distribution-control appendix}{subsection.5.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Two-path model trained on the full split-size distribution (n=46, similarity read-out, 5 seeds). Exact match, reach, and cut by test split.}}{13}{table.caption.19}\protected@file@percent }
+\newlabel{tab:full-dist-control-5seed}{{3}{13}{Two-path model trained on the full split-size distribution (n=46, similarity read-out, 5 seeds). Exact match, reach, and cut by test split}{table.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \emph  {Model:} two-path, full split-size distribution training ($a$ uniform over $1..45$), $n{=}46$, similarity read-out, 5 seeds. \emph  {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-grid}. No filled/hollow marker distinction: every split is in-distribution here.}}{13}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:fiveseed-chains-continuous}{{10}{13}{\emph {Model:} two-path, full split-size distribution training ($a$ uniform over $1..45$), $n{=}46$, similarity read-out, 5 seeds. \emph {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-grid}. No filled/hollow marker distinction: every split is in-distribution here}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Two-cycle, odd/grid training (10 seeds) --- new, not yet in the paper}{14}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:fiveseed-cycles-grid}{{5.3}{14}{Two-cycle, odd/grid training (10 seeds) --- new, not yet in the paper}{subsection.5.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Two-cycle model trained on the odd/grid setting (n=46, similarity read-out, 10 seeds). Exact match, reach, and cut by test split.}}{14}{table.caption.21}\protected@file@percent }
+\newlabel{tab:cycles-grid-10seed}{{4}{14}{Two-cycle model trained on the odd/grid setting (n=46, similarity read-out, 10 seeds). Exact match, reach, and cut by test split}{table.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces \emph  {Model:} two-cycle, odd/grid setting (training on $a\in \{3,5,7,9\}$ only), $n{=}46$, similarity read-out, 10 seeds. \emph  {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-grid}.}}{14}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:fiveseed-cycles-grid}{{11}{14}{\emph {Model:} two-cycle, odd/grid setting (training on $a\in \{3,5,7,9\}$ only), $n{=}46$, similarity read-out, 10 seeds. \emph {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-grid}}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Two-cycle, full split-size distribution (10 seeds) --- new, not yet in the paper}{15}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:fiveseed-cycles-continuous}{{5.4}{15}{Two-cycle, full split-size distribution (10 seeds) --- new, not yet in the paper}{subsection.5.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Two-cycle model trained on the full split-size distribution (n=46, similarity read-out, 10 seeds). Exact match, reach, and cut by test split.}}{15}{table.caption.23}\protected@file@percent }
+\newlabel{tab:cycles-continuous-10seed}{{5}{15}{Two-cycle model trained on the full split-size distribution (n=46, similarity read-out, 10 seeds). Exact match, reach, and cut by test split}{table.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces \emph  {Model:} two-cycle, full split-size distribution training, $n{=}46$, similarity read-out, 10 seeds. \emph  {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-continuous}.}}{16}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:fiveseed-cycles-continuous}{{12}{16}{\emph {Model:} two-cycle, full split-size distribution training, $n{=}46$, similarity read-out, 10 seeds. \emph {Test set/metric:} as in Figure~\ref {fig:fiveseed-chains-continuous}}{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {paragraph}{Grid vs.\ continuous training, for cycles specifically.}{16}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}K=3 path-union training at a new canvas, n=60}{17}{section.6}\protected@file@percent }
+\newlabel{sec:n60}{{6}{17}{K=3 path-union training at a new canvas, n=60}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Exact match for every 3-way split-size combination}{17}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:n60-grid}{{6.1}{17}{Exact match for every 3-way split-size combination}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Multipath test: does parallelism still rescue an unseen shared-endpoint graph?}{17}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:n60-multipath}{{6.2}{17}{Multipath test: does parallelism still rescue an unseen shared-endpoint graph?}{subsection.6.2}{}}
+\gdef \@abspage@last{18}

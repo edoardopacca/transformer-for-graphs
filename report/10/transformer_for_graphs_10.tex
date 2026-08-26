@@ -50,11 +50,9 @@ the paper's own conventions and evidentiary bar.}}
 \end{center}
 
 % =====================================================================
-% STATUS: SKELETON. The fine-tuning run (scripts/
-% r10_finetune_threeway_splitchains_seed1000.sbatch) has not been launched/pulled yet.
-% Fill in every [PENDING] block below once runs/report10/... has real data, using
-% plot_finetune_readout_threeway.py to regenerate the three figures locally (no GPU
-% needed once the run is pulled).
+% STATUS: DATA IN (pulled 2026-08-25, jobs 619502/619513). Both experiments analyzed
+% below with real numbers. Headline: the two-scalar fine-tune trades reach for cut
+% rather than fixing the K>=3 gap; see the combined verdict at the end.
 % =====================================================================
 
 \section{Where this comes from}
@@ -133,9 +131,17 @@ to check the two-scalar update did not cost anything in distribution.
 \subsubsection{Does it learn the two target cells?}
 \label{sec:res-curve}
 
-[PENDING --- run \texttt{scripts/r10\_finetune\_threeway\_splitchains\_seed1000.sbatch}, pull
-\texttt{runs/report10/}, then \texttt{python plot\_finetune\_readout\_threeway.py --tag
-n46\_splitchains\_seed1000\_threeway}.]
+Figure~\ref{fig:r10curve} answers this only partially. On $(15,15,16)$, cut$(2,3)$ climbs
+cleanly from $0.20$ at step $0$ to $1.000$ by step $\sim\!10{,}000$ and stays there for the
+remaining $40{,}000$ steps. Whole-graph exact match does not follow it up: it sits at $0$
+throughout, with one exception --- a transient spike to $0.22$ around step $9{,}000$ that
+collapses back to $0$ a thousand steps later. That spike lands exactly where cut$(2,3)$ is
+still mid-climb and scale/bias are moving fastest; it is training noise at a crossing point,
+not a solved cell. On $(7,15,24)$, cut$(2,3)$ only reaches a plateau around $0.50$ and exact
+match never leaves $0$. Both cells show the predicted-positive rate falling sharply as
+fine-tuning proceeds ($0.85\to0.27$ for $(15,15,16)$, $0.76\to0.54$ for $(7,15,24)$): the two
+scalars are pushing the whole graph toward predicting fewer pairs connected overall, not
+selectively toward the one pair that was wrong.
 
 \begin{figure}[H]
     \centering
@@ -151,7 +157,16 @@ n46\_splitchains\_seed1000\_threeway}.]
 \subsubsection{Does it learn past the doubled wall?}
 \label{sec:res-beyond}
 
-[PENDING analysis text.]
+Figure~\ref{fig:r10beyond} shows why the cut$(2,3)$ improvement on $(7,15,24)$ is not the win
+it looks like in isolation. Before fine-tuning, reach inside the 24-node component is
+$\approx1$ in all three distance buckets, including beyond the doubled wall $d>18$ ---
+consistent with Report~IX's finding that reach transfers even past $2\cdot3^L$. In the same
+window where cut$(2,3)$ rises (steps $\sim\!8{,}000$--$14{,}000$), reach beyond the doubled
+wall collapses from $\approx1.0$ to $\approx0.10$--$0.14$ and never recovers; the
+within-capacity and between-the-walls buckets take a smaller hit, settling around
+$0.89$--$0.94$. The two-scalar fine-tune does not learn past the doubled wall: it trades away
+almost all of the pre-existing long-range reach in the 24-node component for a partial fix to
+one cross-component cut, and even that trade only buys cut$(2,3)$ up to $\approx0.50$.
 
 \begin{figure}[H]
     \centering
@@ -165,7 +180,24 @@ n46\_splitchains\_seed1000\_threeway}.]
 \subsubsection{Does it forget the $K{=}2$ split-chains behaviour?}
 \label{sec:res-ownfamily}
 
-[PENDING analysis text.]
+Figure~\ref{fig:r10ownfamily} shows the cost on the behaviour the checkpoint already had.
+Before fine-tuning this is the clean step function from Report~IX
+(the beyond-threshold table in \texttt{paper\_draft.tex}, \S5.1): exact match $1.000$ for every
+$a\le11$, $0$ from $a=12$. After fine-tuning on $(15,15,16)$/$(7,15,24)$, the curve is worse
+in two distinct ways. First, a new failure appears well inside the previously-perfect region:
+$a=2$ drops to $0$ (recovering to $1.000$ again at $a=3,4$), even though $a=2$ has nothing to
+do with either target cell. Second, the region $a=5$--$11$, previously flat at $1.000$, now
+degrades gradually ($0.940, 0.887, 0.667, 0.567, 0.183, 0.333, 0.307$) instead of holding to
+the wall. The per-split numbers behind this curve
+(\texttt{runs/report10/asym\_chains\_n46/n46\_splitchains\_seed1000\_threeway\_post/asym\_chains.json})
+show cut staying at exactly $1.000$ at \emph{every single split}, unchanged from before
+fine-tuning: every new failure here is a reach story. At $a=2$, reach of the long component
+drops to $0.190$ while reach of the short component stays $1.000$; from $a=12$ on, reach of
+the long component collapses to $0.05$--$0.11$ (it was $1.000$ everywhere pre-fine-tuning).
+Fine-tuning has not just cost accuracy on the $K{=}2$ family, it has flipped which of
+reach/cut does the failing: the untouched checkpoint's $K{=}2$ wall was a pure cut failure
+(reach $1.000$ throughout, cut collapsing from $a=12$); this checkpoint's $K{=}2$ wall is now
+a reach failure with cut untouched.
 
 \begin{figure}[H]
     \centering
@@ -179,37 +211,112 @@ n46\_splitchains\_seed1000\_threeway}.]
 \subsubsection{How much did scale/bias actually move?}
 \label{sec:res-scalebias}
 
-[PENDING --- read off \texttt{runs/report10/finetune\_readout\_threeway/
-n46\_splitchains\_seed1000\_threeway/scale\_bias\_summary.json} and comment on the magnitude of
-the shift relative to the pre-fine-tuning values (comparable read-in-geometry tables in
-Reports~VII--IX: scale$\approx$27--33, bias$\approx-5$ to $-8$ across every checkpoint trained on
-this
-distribution family so far).]
+Before fine-tuning: scale $=31.12$, bias $=-1.38$. After the $50{,}000$-step targeted run:
+scale $=11.49$ ($-63\%$), bias $=-7.87$. The pair of decision-boundary scalars moved a lot, in
+both directions at once: scale shrinks toward $0$ (every cosine similarity counts for less),
+and bias moves sharply negative (the model needs stronger positive evidence before declaring
+two nodes connected). The post-fine-tuning bias is close to the $-5$ to $-8$ range typical of
+checkpoints trained on this distribution family from scratch (this checkpoint's own
+pre-fine-tuning bias, $-1.38$, was on the low/permissive end of that range); the fine-tune has
+moved the decision boundary toward a stricter operating point overall, not applied a small
+local correction. That fixing one specific miscalibrated cut required this large and global a
+shift is itself evidence against a pure threshold-calibration story: a small nudge would have
+sufficed if the two named cells' problem were only that.
 
 \subsubsection{Mechanistic comparison: attention and the five-stage geometry, before vs.\ after}
 \label{sec:res-mechanistic}
 
-[PENDING --- compare \texttt{runs/report9/heatmaps\_threeway/n46\_splitchains\_seed1000/} and
-\texttt{runs/report9/stagewise\_threeway/n46\_splitchains\_seed1000/} (before, already committed)
-against \texttt{runs/report10/heatmaps\_threeway/n46\_splitchains\_seed1000\_threeway\_post/} and
-\texttt{runs/report10/stagewise\_threeway/n46\_splitchains\_seed1000\_threeway\_post/} (after,
-produced by the same sbatch script): does the fine-tuned decision threshold visibly move the
-final-stage ($H^{(2)}$) heatmap's cross-component blocks from ``barely positive'' to
-``negative'', while leaving the within-component blocks and every earlier stage unchanged (since
-the trunk itself never updates)?]
+The post-fine-tuning stagewise battery
+(\texttt{runs/report10/stagewise\_threeway/n46\_splitchains\_seed1000\_threeway\_post/}) reused
+Report~IX's five probe cells, not just the two targets, so the untrained cells serve as a
+transfer check. Since the trunk is frozen, every stage up to $H^{(2)}$ (the final read-out
+geometry) is identical to Report~IX's --- only the $H^{(2)}$ decision itself can move, because
+only scale/bias changed. Comparing $H^{(2)}$ cut$(1,2)$/cut$(1,3)$/cut$(2,3)$ before
+(Report~IX) vs.\ after this fine-tuning:
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+Cell & cut$(1,2)$ before$\to$after & cut$(1,3)$ before$\to$after & cut$(2,3)$ before$\to$after \\
+\midrule
+$(1,22,23)$ -- untrained  & $1.000\to1.000$ & $1.000\to1.000$ & $0.000\to0.000$ \\
+$(4,15,27)$ -- untrained  & $1.000\to1.000$ & $1.000\to1.000$ & $0.000\to0.000$ \\
+$(2,10,34)$ -- untrained  & $1.000\to1.000$ & $0.000\to0.000$ & $1.000\to1.000$ \\
+$(7,15,24)$ -- \textbf{trained} & $0.999\to1.000$ & $0.923\to1.000$ & $0.000\to0.458$ \\
+$(15,15,16)$ -- \textbf{trained} & $0.246\to1.000$ & $0.198\to1.000$ & $0.188\to1.000$ \\
+\bottomrule
+\end{tabular}
+\caption{$H^{(2)}$ pairwise cut, Report~IX checkpoint vs.\ after Experiment~1's fine-tuning. The
+three untrained cells are numerically identical before and after, to three decimals.}
+\label{tab:r10stagewise}
+\end{table}
+
+The three cells never included in the fine-tuning stream are unchanged to three decimals ---
+including $(1,22,23)$ and $(4,15,27)$, whose cut$(2,3)$ was $0$ before and stays exactly $0$
+after. This is the clearest single number in this experiment: fine-tuning on two specific
+cells moves those two cells and nothing else, at this stage.
+
+\paragraph{Does that also hold across the whole $K{=}3$ grid, not just these five cells?}
+\label{sec:res-fullgrid}
+Regenerating Report~IX's full $176$-cell sweep
+(\texttt{plot\_threeway\_splitchains.py}) on the fine-tuned checkpoint gives a fuller and more
+surprising picture than the five named cells suggest. Figure~\ref{fig:r10fullgrid} plots
+cut$(1,2)$/cut$(1,3)$/cut$(2,3)$ and exact match, averaged over every feasible $s_2$ at each
+$s_1$, before vs.\ after. Before fine-tuning, cut$(1,2)$ and cut$(1,3)$ are moderate and noisy
+($0.5$--$0.95$ across most of $s_1\le11$), cut$(2,3)$ is close to $0$ almost everywhere except
+an isolated spike to $\approx1.0$ at $s_1{=}2$, and exact match is $0$ at every single cell.
+After fine-tuning on just two cells, cut$(1,2)$ jumps to $\approx1.0$ across the \emph{entire}
+range $s_1{=}1$--$15$, and cut$(1,3)$ turns from noisy into a clean rising trend from
+$\approx0.65$ up to $1.0$ by $s_1{=}12$. cut$(2,3)$ stays the hardest pair --- still a jagged
+function of $s_1$ with a wide dip through $s_1{\approx}6$--$9$ --- but it now reaches $1.0$
+by $s_1{=}12$, where before it never left $0$.
+
+Despite this broad, largely unintended improvement in the aggregate cut curves, whole-graph
+exact match barely moves: mean exact match over the $176$ cells is $0.0100$ after fine-tuning
+(a handful of cells reach as high as $0.87$, but almost all sit at $0$), essentially the same
+qualitative picture as the $0$ everywhere before. Two scalars that make two of the three
+pairwise cuts look substantially more solved in aggregate still cannot produce an exact match,
+because (per \S\ref{sec:res-ownfamily}) the same fine-tuning is simultaneously damaging reach
+--- and exact match needs every pair right at once, cut and reach together.
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report9/report9_figs/r9_threeway_exact_and_cut_by_s1_n46_splitchains_seed1000.png}{0.47}
+    \figorbox{runs/report10/report10_figs/r9_threeway_exact_and_cut_by_s1_n46_splitchains_seed1000_threeway_post.png}{0.47}
+    \caption{\emph{Model:} split-chains-only, $n{=}46$, seed $1000$ checkpoint, before (left,
+    Report~IX) vs.\ after (right) Experiment~1's fine-tuning. \emph{Test set:} every feasible
+    three-way split-chain cell, $s_1{=}1..15$, averaged over all feasible $s_2$ at each $s_1$,
+    $176$ cells total. \emph{Metric:} whole-graph exact match and the three pairwise cuts.}
+    \label{fig:r10fullgrid}
+\end{figure}
 
 \subsection{Reading, once the data is in}
 \label{sec:verdict-a}
 
-[PENDING --- to be written after \S\ref{sec:res-curve}--\ref{sec:res-mechanistic} have real
-numbers. Questions this subsection must answer plainly: (1) did it work on $(15,15,16)$; (2) did
-it transfer to $(7,15,24)$ or did the two cells trade off against each other; (3) did any of the
-learning happen on pairs beyond the doubled wall, or only within it; (4) was the $K{=}2$
-behaviour preserved; (5) is the fix a real geometric change (visible in the mechanistic
-comparison) or purely a threshold shift (scale/bias moved, nothing else did --- which, given
-everything but scale/bias is frozen, is definitionally the only thing that \emph{could} move, so
-this question is really about how much of the residual error the geometry itself already
-carries, cf.\ Report~IX \S sec:res-readout's raw-logit reading).]
+(1) \textbf{Did it work on $(15,15,16)$?} Not in the sense that matters: cut$(2,3)$ reaches
+$1.000$, but exact match never leaves $0$ (bar one transient noise spike) because reach on
+that same cell degrades from $1.000$ to $0.73$--$0.82$ across its three components. (2)
+\textbf{Did it transfer to $(7,15,24)$, or did the two cells trade off?} Partial transfer, not
+a trade-off in the zero-sum sense --- both cells' cut$(2,3)$ improve simultaneously (to $1.0$
+and $\approx0.50$ respectively) --- but neither reaches exact match, and $(7,15,24)$'s partial
+gain costs it almost all of its long-range reach beyond the doubled wall. (3) \textbf{Did any
+learning happen on pairs beyond the doubled wall?} No: reach beyond $d{=}18$ in the 24-node
+component \emph{regresses}, from $\approx1.0$ to $\approx0.10$--$0.14$; nothing was learned
+past the wall, something that was already there was lost. (4) \textbf{Was $K{=}2$ behaviour
+preserved?} No. Cut stays perfect everywhere, but a new reach failure appears both at a small,
+previously-irrelevant split ($a{=}2$) and gradually across $a{=}5$--$11$, where the checkpoint
+used to be exactly $1.000$. (5) \textbf{Is the fix a real geometric change, or a pure threshold
+shift?} Given everything but scale/bias is frozen, the only thing that can move \emph{is} the
+threshold by construction --- but \S\ref{sec:res-fullgrid} shows this single shift has a much
+broader effect than the two named cells: cut$(1,2)$ and cut$(1,3)$ improve across nearly the
+whole $K{=}3$ grid, not just on the trained distribution, while cut$(2,3)$ improves only
+partially and unevenly. That broad an effect from two scalars is itself informative: the
+geometry the trunk already produces evidently places most $K{=}3$ cross-component pairs close
+to the decision boundary, so a global bias/scale shift moves many of them at once --- in both
+directions. \textbf{Net verdict for Experiment~1}: the targeted fine-tune is not a free
+threshold correction. It trades reach (own-family and beyond-the-wall) for a partial, uneven
+improvement in cut, and does not produce exact match on either target cell.
 
 \section{Experiment 2: fine-tuning on the full $K{=}3$ split distribution}
 \label{sec:exp2}
@@ -249,9 +356,19 @@ directories.
 could only overfit two cells?}
 \label{sec:res-full-aggregate}
 
-[PENDING --- run \texttt{scripts/r10\_finetune\_full3way\_splitchains\_seed1000.sbatch}, pull
-\texttt{runs/report10/}, then \texttt{python plot\_finetune\_readout\_threeway.py --tag
-n46\_splitchains\_seed1000\_full3way --run\_subdir finetune\_readout\_full3way}.]
+Figure~\ref{fig:r10fullaggregate} gives the direct answer: no. Aggregate exact match over
+freshly sampled, generic three-component graphs rises from $0.0$ at step $0$ to a peak of
+$\approx0.05$ around step $15{,}000$--$20{,}000$, then settles back down to $\approx0.01$--$0.02$
+for the remaining $180{,}000$ steps --- a handful of graphs out of $300$ per evaluation, not a
+general rule. Pairwise accuracy rises more substantially, from $0.62$ to a plateau around
+$0.74$, but pairwise accuracy is a much weaker bar than exact match (a graph with one wrong
+pair out of hundreds still scores highly on it). Four times the steps and exposure to the
+entire $K{=}3$ split space, instead of two named cells, does not turn read-out-only
+fine-tuning into a general three-component rule: it confirms, at a longer budget and a purer
+$K{=}3$ stream than Report~IX's own probe
+(\texttt{scratch\_prof\_experiments.tex}, \S6, $3{,}000$ steps on a mixed $K\in\{3,4,5,6\}$
+stream), that the representational gap sits in the frozen trunk, not in the read-out
+threshold.
 
 \begin{figure}[H]
     \centering
@@ -267,37 +384,330 @@ n46\_splitchains\_seed1000\_full3way --run\_subdir finetune\_readout\_full3way}.
 worse, or the same?}
 \label{sec:res-full-named}
 
-[PENDING --- regenerate Figures~\ref{fig:r10curve}--\ref{fig:r10beyond}-equivalent plots with
-\texttt{--tag n46\_splitchains\_seed1000\_full3way --run\_subdir finetune\_readout\_full3way}
-and compare the resulting curves directly against Experiment~1's, side by side.]
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_curve_n46_splitchains_seed1000_full3way.png}{0.95}
+    \caption{\emph{Model:} same starting checkpoint as Figure~\ref{fig:r10curve}, fine-tuned as
+    in \S\ref{sec:setup-full} (full $K{=}3$ distribution, $200{,}000$ steps). \emph{Test set:}
+    the same two named cells, $(15,15,16)$ and $(7,15,24)$. \emph{Metric:} as in
+    Figure~\ref{fig:r10curve}.}
+    \label{fig:r10curvefull}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_beyondwall_n46_splitchains_seed1000_full3way.png}{0.72}
+    \caption{\emph{Model/training as in Figure~\ref{fig:r10curvefull}}. \emph{Test set/metric:}
+    as in Figure~\ref{fig:r10beyond}.}
+    \label{fig:r10beyondfull}
+\end{figure}
+
+On the two named cells, the broader stream does slightly better on $(7,15,24)$'s cut$(2,3)$
+($0.72$ at step $200{,}000$ vs.\ Experiment~1's $0.50$) but slightly \emph{worse} everywhere
+else. $(15,15,16)$'s reach degrades further (components at $0.57$--$0.67$ vs.\ Experiment~1's
+$0.73$--$0.82$; between-the-walls reach on its own down to $0.13$ vs.\ $0.29$). $(7,15,24)$'s
+reach beyond the doubled wall is essentially fully destroyed either way ($0.025$ here vs.\
+$0.14$ for the targeted run --- both near-zero). Exact match on both named cells stays $0$ in
+both experiments. The pattern from \S\ref{sec:res-fullgrid} repeats at the level of the full
+grid: cut$(1,2)$/cut$(1,3)$ again jump to $\approx1.0$ almost everywhere and cut$(2,3)$ again
+follows the same jagged shape with a dip through $s_1{\approx}6$--$9$, but mean exact match
+over the $176$ cells is $0.0174$ --- marginally higher than Experiment~1's $0.0100$, still
+nowhere near a general rule. Longer, broader exposure does not change the qualitative story,
+only nudges a few numbers in either direction.
 
 \subsubsection{Own-family retention and scale/bias movement}
 \label{sec:res-full-ownfamily}
 
-[PENDING --- same construction as \S\ref{sec:res-ownfamily}/\S\ref{sec:res-scalebias}, on the
-\texttt{\_full3way}-tagged outputs.]
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_finetune_threeway_ownfamily_n46_splitchains_seed1000_full3way.png}{0.72}
+    \caption{\emph{Model:} the same checkpoint, before (Report~IX, untouched) vs.\ after the
+    full-distribution fine-tuning of \S\ref{sec:setup-full}. \emph{Test set/metric:} as in
+    Figure~\ref{fig:r10ownfamily}.}
+    \label{fig:r10ownfamilyfull}
+\end{figure}
+
+Scale/bias: before $=(31.12,-1.38)$, after $200{,}000$ full-distribution steps
+$=(4.83,-3.59)$ --- scale shrinks even further than Experiment~1's ($-84\%$ vs.\ $-63\%$),
+while bias ends up \emph{less} negative than Experiment~1's ($-3.59$ vs.\ $-7.87$). The
+own-family sweep is damaged in the same qualitative way as Experiment~1 (new failure at
+$a{=}2$, gradual decay through $a{=}5$--$11$, cut untouched at $1.000$ throughout), but more
+severely in the middle of the range: exact match at $a{=}7$--$10$ drops to $0.06, 0.02, 0.003,
+0.003$ (vs.\ Experiment~1's $0.667, 0.567, 0.183, 0.333$), and reach\_long at $a{=}11$ already
+dips to $0.925$ where Experiment~1 still held $0.978$. Four times the fine-tuning budget does
+not stabilize the own-family behaviour; it erodes it somewhat further.
 
 \subsection{Reading, once the data is in}
 \label{sec:verdict-b}
 
-[PENDING. Central question: does the aggregate K=3 exact match (Figure~\ref{fig:r10fullaggregate})
-move meaningfully above $0$, i.e.\ does read-out-only fine-tuning ever produce a genuinely general
-three-component rule given enough coverage and steps --- or does it plateau near $0$ the way
-Report~IX's shorter, mixed-$K$ probe did, just confirming at higher confidence (longer run, purer
-$K{=}3$ stream) that the representational gap is in the frozen trunk, not the read-out threshold?
-Compare directly against Experiment~1: if the full-distribution run does \emph{worse} on the two
-named cells than the targeted run, that is itself informative (spreading two scalars' worth of
-capacity over the whole $K{=}3$ space costs the two hardest cells something the narrow fine-tune
-did not have to pay).]
+The aggregate $K{=}3$ exact match does not move meaningfully above $0$ ($0.013$ at
+$200{,}000$ steps, after a small transient peak of $0.05$): read-out-only fine-tuning does not
+produce a genuinely general three-component rule, no matter how much coverage or how long the
+budget. This confirms, at much higher confidence than Report~IX's shorter, mixed-$K$ probe
+(\S6 of \texttt{scratch\_prof\_experiments.tex}, $3{,}000$ steps), that the representational
+gap is in the frozen trunk, not the read-out threshold. Comparing directly against
+Experiment~1: the full-distribution run does not do uniformly worse or better on the two named
+cells --- it trades a slightly better cut$(2,3)$ on $(7,15,24)$ for slightly worse reach
+everywhere else, and a somewhat more damaged own-family sweep in the middle range. Spreading
+two scalars' worth of capacity over the whole $K{=}3$ space does not cost the two hardest
+cells much relative to the targeted run, because neither run was ever going to reach exact
+match on them: both are re-arranging the same fixed, frozen geometry along the one axis
+(scale/bias) available to them, and that axis is not expressive enough to fix more than a
+fraction of the cross-component pairs at once.
 
 \section{Combined verdict}
 \label{sec:verdict}
 
-[PENDING --- write only after both \S\ref{sec:verdict-a} and \S\ref{sec:verdict-b} are filled in.
-This is the section whose conclusion actually matters for the paper's \S5.3: state plainly whether
-\emph{any} amount of read-out-only fine-tuning (targeted or general, $50$k or $200$k steps) gets a
-three-component graph right, and if so under which condition specifically, in one or two
-sentences Edoardo can lift almost verbatim into a conversation with the professor about what
-\S5.3 should claim.]
+\textbf{No amount of read-out-only fine-tuning tested here --- targeted on two cells for
+$50$k steps, or exposed to the entire $K{=}3$ split space for $200$k steps --- gets a
+three-component split-chains graph exactly right.} Both runs move the aggregate pairwise cuts
+substantially (cut$(1,2)$ and cut$(1,3)$ go from noisy/moderate to $\approx1.0$ across nearly
+the whole grid; cut$(2,3)$ improves unevenly), which on first glance looks like real progress
+on \S5.3's question. But whole-graph exact match stays at $\approx0$--$0.02$ throughout,
+because the same fine-tuning damages reach: on the very $K{=}2$ split-chains family the
+checkpoint used to solve perfectly, exact match now degrades gradually from $a{=}5$ and fails
+outright at a small split ($a{=}2$) that was never a problem before, and reach beyond the
+doubled wall in the 24-node component of $(7,15,24)$ collapses from $\approx1$ to
+$\approx0.03$--$0.14$. The two read-out scalars are expressive enough to move a decision
+boundary that affects most pairs in the graph at once, but not expressive enough to separate
+``pairs that need a stricter threshold'' (the failing cross-component cuts) from ``pairs that
+need the old, looser threshold'' (long-range within-component reach) --- because both kinds of
+pairs sit in the same region of the cosine-similarity geometry the frozen trunk already
+produces. \textbf{For \S5.3: the fine-tuning experiments support describing the $K{\ge}3$
+failure as a genuine representational gap in the trunk, not a miscalibrated read-out threshold
+--- and additionally show that trying to patch the threshold anyway has a real cost, silently
+breaking $K{=}2$ behaviour that was previously perfect.} This is consistent with, and now more
+thoroughly evidenced than, Report~IX's own generic fine-tuning probe
+(\texttt{scratch\_prof\_experiments.tex}, \S6, experiment 6), which reached the same
+conclusion at a shorter budget and a narrower training stream.
+
+\section{Extending the four main paper experiments to 5 (two-path) / 10 (two-cycle) seeds ---
+and applying the same treatment to cycles}
+\label{sec:fiveseed}
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\centering\bfseries
+This section is analysis for Edoardo to review, not paper text. The two-path tables/figures
+below are the direct 5-seed update of \texttt{paper\_draft.tex} \S5.1 and its
+full-distribution-control appendix. The two-cycle tables/figures are new --- built with the
+identical method and style, since \S5.2 ``Cycles graphs'' is still an empty placeholder in
+\texttt{paper\_draft.tex} and nothing like this has been produced for cycles before --- and,
+following the seed-lottery variability the first 5 cycle seeds showed, extended straight to
+10 seeds per \texttt{istruzioni.md}'s policy for high-variance conditions.}}
+\end{center}
+
+All four tables use the same columns as \texttt{paper\_draft.tex}'s Table~1 (test split,
+exact match, reach, cut; mean $\pm$ std over seeds, consecutive rows grouped only where all
+three values match to three decimals). All four figures use the same style as
+\texttt{paper\_figures/fig\_oddtrain\_exactmatch\_vs\_a.pdf}: thick blue line = mean over
+seeds, thin gray lines = individual seeds, filled/hollow markers for split
+present/never-present in training where the condition has a training grid, dashed vertical
+line at the empirical break with an honest label (never ``capacity boundary''). Source:
+\texttt{plot\_report10\_fiveseed.py} (new script, added for this section; reads
+\texttt{runs/report9/asym\_chains\_n46/*/asym\_chains.json} for the two chain conditions and
+\texttt{runs/report9/mechanistic/*/metrics.csv} for the two cycle conditions, since
+\texttt{eval\_asym\_chains.py} is chain-only and the cycle sweep was only ever produced via
+\texttt{mechanistic\_asym\_chains.py --topology cycle}, in the long/tidy CSV format).
+
+\subsection{Two-path, odd/grid training (5 seeds) --- direct update of Table~1 / Figure~1}
+\label{sec:fiveseed-chains-grid}
+
+\input{../../runs/report10/report10_figs/r10_table_chains_grid_5seed.tex}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_exactmatch_vs_a_chains_grid_5seed.png}{0.85}
+    \caption{\emph{Model:} two-path, odd setting (training on $a\in\{3,5,7,9\}$ only), $n{=}46$,
+    similarity read-out, 5 seeds. \emph{Test set:} every split $a{=}1..23$, 300 graphs per
+    split per seed. \emph{Metric:} whole-graph exact match.}
+    \label{fig:fiveseed-chains-grid}
+\end{figure}
+
+Extending from 2 to 5 seeds changes nothing about the story already in
+\texttt{paper\_draft.tex}: exact match $1.000$ for $a{=}2$--$10$ (seen or not), $0.999$ at
+$a{=}11$, breaking at $a{=}12$, cut collapsing to $0$ by $a{=}14$. The two new seeds mostly
+tighten the error bars at the break ($a{=}12$ cut: $0.469\pm0.026$ vs.\ the 2-seed
+$0.465\pm0.009$; $a{=}13$: $0.019\pm0.009$ vs.\ $0.028\pm0.002$) rather than changing the
+picture. The one genuinely new data point is $a{=}1$ (a single isolated node as the short
+component, outside \texttt{paper\_draft.tex}'s reported range which starts at $a{=}2$): here
+exact match is $0.301\pm0.275$ and cut $0.442\pm0.339$ --- wildly seed-dependent even though
+$a{=}1$ is deep inside the trained-adjacent region and has nothing to do with the $a{=}12$
+wall. This is visible directly in Figure~\ref{fig:fiveseed-chains-grid} as the individual seed
+lines fanning out only at $a{=}1$. Consistent with the isolated-node fragility already
+documented in \texttt{scratch\_prof\_experiments.tex} \S5 (Report~IX follow-up experiment 5),
+now seen here as a seed-lottery-flavoured instability rather than a uniform failure.
+
+\subsection{Two-path, full split-size distribution (5 seeds) --- direct update of the
+full-distribution-control appendix}
+\label{sec:fiveseed-chains-continuous}
+
+\input{../../runs/report10/report10_figs/r10_table_chains_continuous_5seed.tex}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_exactmatch_vs_a_chains_continuous_5seed.png}{0.85}
+    \caption{\emph{Model:} two-path, full split-size distribution training ($a$ uniform over
+    $1..45$), $n{=}46$, similarity read-out, 5 seeds. \emph{Test set/metric:} as in
+    Figure~\ref{fig:fiveseed-chains-grid}. No filled/hollow marker distinction: every split is
+    in-distribution here.}
+    \label{fig:fiveseed-chains-continuous}
+\end{figure}
+
+The 5th seed changes essentially nothing: identical break at $a{=}12$, reach recovering
+gradually from $0.786$ to $0.960$ exactly as in the 4-seed appendix table, error bars
+uniformly tiny ($\le0.02$ everywhere). This condition is fully stable across seeds, unlike
+either cycle condition below.
+
+\subsection{Two-cycle, odd/grid training (10 seeds) --- new, not yet in the paper}
+\label{sec:fiveseed-cycles-grid}
+
+\input{../../runs/report10/report10_figs/r10_table_cycles_grid_10seed.tex}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_exactmatch_vs_a_cycles_grid_10seed.png}{0.85}
+    \caption{\emph{Model:} two-cycle, odd/grid setting (training on $a\in\{3,5,7,9\}$ only),
+    $n{=}46$, similarity read-out, 10 seeds. \emph{Test set/metric:} as in
+    Figure~\ref{fig:fiveseed-chains-grid}.}
+    \label{fig:fiveseed-cycles-grid}
+\end{figure}
+
+Qualitatively different from the two-path conditions in every respect. There is no clean
+plateau-then-cliff: exact match already sags within the trained sizes $a{=}3$--$5$, drops
+further and unevenly through $a{=}6$--$12$ (individual seeds visibly disagree on the shape,
+not just the level --- see the crossing lines in Figure~\ref{fig:fiveseed-cycles-grid}), and
+almost every seed reaches a clean $0$ from $a{=}13$. Extending from 5 to 10 seeds adds one
+genuinely new pattern rather than just more of the same: cut at $a{=}12$--$23$, per seed ---
+$1000{=}0.00$ (throughout), $2000{=}0.92\to0.00$ (from $a{=}13$), $3000{=}0.00$,
+$4000{=}0.00$, $5000{=}\mathbf{0.14\to0.12\text{--}0.13}$ (\emph{stays there for the rest of
+the sweep}), $6000{=}0.77\to0.00$, $7000{=}0.17\to0.00$, $8000{=}0.48\to0.00$,
+$9000{=}1.00\to0.00$ (perfect exactly at the break, then a cliff one step later),
+$10000{=}0.95\to0.00$. \textbf{No seed reaches a sustained solve, but seed $5000$ is the only
+one that settles into a low, stable, non-zero plateau ($\approx0.12$--$0.14$) instead of
+collapsing to exactly $0$} --- a third outcome distinct from both ``solves'' and ``collapses
+completely,'' visible only because the other five seeds gave a wide enough sample to see it is
+not the norm. At the fully balanced split $a{=}23$: only seed $5000$ is above $0$
+($0.13$); every other seed is exactly $0.000$.
+
+\subsection{Two-cycle, full split-size distribution (10 seeds) --- new, not yet in the paper}
+\label{sec:fiveseed-cycles-continuous}
+
+\input{../../runs/report10/report10_figs/r10_table_cycles_continuous_10seed.tex}
+
+\begin{figure}[H]
+    \centering
+    \figorbox{runs/report10/report10_figs/r10_exactmatch_vs_a_cycles_continuous_10seed.png}{0.85}
+    \caption{\emph{Model:} two-cycle, full split-size distribution training, $n{=}46$,
+    similarity read-out, 10 seeds. \emph{Test set/metric:} as in
+    Figure~\ref{fig:fiveseed-chains-continuous}.}
+    \label{fig:fiveseed-cycles-continuous}
+\end{figure}
+
+\textbf{The mean column in this table is misleading on its own and should not be quoted
+without the per-seed breakdown next to it.} From $a{=}12$ on, mean exact match and mean cut
+sit well below $1$ with a large std --- not because every seed gets a middling fraction of
+graphs right, but because the seeds split into qualitatively different groups. Cut at
+$a{=}12$--$23$, per seed: $1000{=}0.00$, $2000{=}0.00$, $3000{=}\mathbf{1.00}$, $4000{=}0.00$,
+$5000{=}\mathbf{1.00}$, $6000{=}0.00$, $7000{=}0.00$, $8000{=}0.00$,
+$9000{=}0.99\text{--}1.00$, $10000{=}0.99\text{--}1.00$ --- \textbf{6 of 10 seeds collapse to
+``everything connected'' at every split from $a{=}12$ on; 4 of 10 solve the cut cleanly.} That
+$4/10$ matches the $2/5$ estimate from the first 5 seeds almost exactly (seeds $6000$--$8000$
+collapse, $9000$ and $10000$ join $3000$/$5000$ in solving), so \textbf{the solving fraction
+itself looks stable at $\approx40\%$ across both seed batches} --- the earlier caution about
+``1/4 vs.\ 2/5'' being different claims (previous version of this section) undersold how
+close the two independent 5-seed estimates actually turned out to be.
+
+What extending to 10 seeds actually changes is qualitative, not just the count: \textbf{seed
+$9000$ solves cut almost immediately ($0.99$--$1.00$ from $a{=}12$) but its \emph{reach}
+inside the long component starts badly broken ($0.729$ at $a{=}12$) and recovers gradually
+and monotonically as the split balances (0.729, 0.752, 0.776, 0.802, 0.829, 0.858, 0.890,
+0.924, 0.961, then $1.000$ from $a{=}21$ on)} --- exact match for this seed is exactly $0$
+through $a{=}20$ purely because of this reach gap, then jumps to $0.245$/$0.245$/$0.185$ at
+$a{=}21,22,23$ once reach finally catches up. \textbf{This is the ``some seeds grow after
+$a{=}12$'' pattern noted before downloading these seeds}, and it is a real, distinct third
+regime: not the flat collapse of the 6 failing seeds, not the near-perfect immediate solve of
+seeds $3000$/$5000$/$10000$ (whose own exact match is noisy but stays high, driven by small
+residual cut/reach jitter rather than a genuine gap that closes over the sweep), but a
+gradual-recovery shape identical in kind to the two-path \emph{continuous} condition's own
+reach recovery (\S\ref{sec:fiveseed-chains-continuous}, reach $0.786\to0.960$) --- the first
+time this specific failure/recovery shape has shown up on a cycle rather than a chain.
+Figure~\ref{fig:fiveseed-cycles-continuous} shows all of this at once: past $a{=}12$ the
+individual seed lines split into a group pinned near $1.0$, a group pinned at exactly $0.0$,
+and (less visually obvious among the noise, but confirmed in the per-seed numbers above) seed
+$9000$ climbing steadily from the bottom group into the top one as $a\to23$.
+
+\paragraph{Grid vs.\ continuous training, for cycles specifically.} The two cycle conditions
+are still not just noisier versions of each other now that both have more seeds: continuous
+training gives close to even odds of landing a fully-solving seed at the hardest split
+($4/10$, plus one seed --- $9000$ --- that gets there eventually via gradual reach recovery),
+while grid training gives none ($0/10$ sustained solves; one seed, $5000$, reaches only a
+stable partial plateau $\approx0.12$--$0.14$, never above it). This still suggests the seed
+lottery on cycles interacts with \emph{how} the training distribution is built
+(dense/continuous vs.\ sparse/grid), not only with initialization --- a comparison that was
+not possible before, since \S2 of \texttt{scratch\_prof\_experiments.tex} only had 2 seeds for
+the grid condition and reported seed disagreement without being able to say anything about the
+continuous condition's own seed
+count at the time.
+
+\section{K=3 path-union training at a new canvas, n=60}
+\label{sec:n60}
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\centering\bfseries
+This section is analysis for Edoardo to review, not paper text. Feeds the multipath
+generalisation question, not \S5.3 directly.}}
+\end{center}
+
+New family \texttt{path\_union\_k3} added to \texttt{experiments2/train\_families\_n20.py}
+(\texttt{generate\_path\_union\_graph(n, rng, max\_paths{=}3, min\_paths{=}3)} as a full
+TRAINING distribution, not only a read-out-only fine-tuning stream as in
+\texttt{finetune\_readout\_threeway\_full.py}). Trained at $n{=}60$ (never used before in this
+project), seeds $1000$/$2000$, otherwise identical setup to every other training in this
+report (RoBERTa, similarity read-out, normalized-ReLU attention, $10^6$ steps, batch $1000$).
+Both seeds COMPLETED 2026-08-26 in $\approx4.5$h (well under the $30$h budgeted --- no
+historical timing existed yet for $n{=}60$, see \texttt{scripts/r10\_n60\_pathunion\_k3\_seed\{1000,2000\}.sbatch}).
+In-distribution validation exact match plateaus low for both seeds (best $0.194$/$0.195$,
+final $0.187$/$0.187$) --- even on its own training distribution this checkpoint rarely gets
+every pair in a $K{=}3$ graph right at once, consistent with the K$\geq$3 representational-gap
+reading from \S\ref{sec:verdict} above, now seen at initial training rather than only after
+read-out fine-tuning of an already-frozen $K{=}2$ trunk.
+
+\subsection{Exact match for every 3-way split-size combination}
+\label{sec:n60-grid}
+
+[PENDING --- eval scripts written and smoke-tested, not yet run (checkpoints exist only on
+HPC): \texttt{scripts/r10\_n60\_pathunion\_k3\_eval\_seed\{1000,2000\}.sbatch} runs
+\texttt{eval\_threeway\_splitchains.py} (already generic on $n$/checkpoint, the same tool used
+for the $n{=}46$ full-grid check in \S\ref{sec:res-fullgrid}) over every partition of $60$ into
+3 parts. Once pulled, regenerate with \texttt{plot\_threeway\_splitchains.py --tag
+n60\_pathunion\_k3\_seed\{1000,2000\} --report\_root report10} and fill in this subsection.
+Planned reading, per Edoardo (2026-08-26): on the fully balanced cell $(20,20,20)$, expect the
+opposite failure direction from the two-path balanced case (which over-connects/fails on cut
+with reach staying perfect) --- here, since no component is short enough to anchor an
+endpoint-completion signal for the others, the prediction is under-connection: each path's own
+two endpoints (nodes $1$/$20$, $21$/$40$, $41$/$60$) called disconnected from each other, i.e.\
+a within-component long-range reach failure on all three components symmetrically, not a
+cross-component cut failure.]
+
+\subsection{Multipath test: does parallelism still rescue an unseen shared-endpoint graph?}
+\label{sec:n60-multipath}
+
+[PENDING --- new script \texttt{mechanistic\_multipath\_geometry.py} (smoke-tested locally on
+a random-weight $n{=}60$ checkpoint, not yet run on the real checkpoints), invoked by the same
+\texttt{scripts/r10\_n60\_pathunion\_k3\_eval\_seed\{1000,2000\}.sbatch}. Tests, on
+\texttt{generate\_multipath\_graph} graphs (two terminals $s,t$ joined by $k\in\{1,2,3\}$
+parallel routes of $19$ edges each, terminal degree fixed at $4$ regardless of $k$, leaf
+padding + sparse filler for the rest of the canvas) --- a structure this checkpoint never saw
+in training (only disjoint 3-way splits, no shared endpoints, no leaves/filler, max degree
+$2$): (1) \texttt{term\_connect}, whether $s$--$t$ is predicted connected, for $k{=}1,2,3$
+--- the direct test of whether more parallel routes rescue the connection the way they did for
+every path\_union-trained checkpoint since Report~VI; (2) the final-stage ($H^{(2)}$,
+i.e.\ after the last layer's MLP) cosine-similarity geometry, block-averaged by node-pair
+category (the $s$-$t$ pair itself, within-route pairs, route-vs-route pairs, terminal-to-leaf,
+leaf-to-leaf, active-to-filler, within-filler), each converted through the checkpoint's own
+scale/bias into an implied logit and connected/disconnected call --- to see whether the
+geometry treats $s$-$t$ as similar even in the $k$ where the raw decision is wrong (cf.\
+Report~X Experiment~1's own reading, \S\ref{sec:verdict-a}, question 5, on how much of the
+residual error the geometry itself already carries). Fill in this subsection once pulled.]
 
 \end{document}
