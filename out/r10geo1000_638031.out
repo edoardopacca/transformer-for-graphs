@@ -1,0 +1,6 @@
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+wrote runs/report10/geometry_heatmap/n60_pathunion_k3_seed1000/disjoint_h2_heatmap.png
+wrote runs/report10/geometry_heatmap/n60_pathunion_k3_seed1000/multipath_h2_heatmap.png
+done: n60_pathunion_k3_seed1000 geometry heatmap
