@@ -1,0 +1,136 @@
+[
+  {
+    "k": 1,
+    "path_len": 19,
+    "term_deg": 4,
+    "n_graphs": 50,
+    "term_connect": 0.96,
+    "reach_route": 0.9313,
+    "pred_positive_rate": 0.9351,
+    "geometry_H2": {
+      "s_t": {
+        "mean_cosine_H2": 0.999,
+        "implied_logit": 25.9203,
+        "implied_connected": true
+      },
+      "within_route": {
+        "mean_cosine_H2": 0.6835,
+        "implied_logit": 16.7016,
+        "implied_connected": true
+      },
+      "route_to_route": null,
+      "terminal_leaf": {
+        "mean_cosine_H2": 0.299,
+        "implied_logit": 5.4625,
+        "implied_connected": true
+      },
+      "leaf_leaf": {
+        "mean_cosine_H2": 0.8085,
+        "implied_logit": 20.3543,
+        "implied_connected": true
+      },
+      "active_filler": {
+        "mean_cosine_H2": 0.6108,
+        "implied_logit": 14.5751,
+        "implied_connected": true
+      },
+      "within_filler": {
+        "mean_cosine_H2": 0.8492,
+        "implied_logit": 21.5433,
+        "implied_connected": true
+      }
+    }
+  },
+  {
+    "k": 2,
+    "path_len": 19,
+    "term_deg": 4,
+    "n_graphs": 50,
+    "term_connect": 0.04,
+    "reach_route": 0.8478,
+    "pred_positive_rate": 0.8815,
+    "geometry_H2": {
+      "s_t": {
+        "mean_cosine_H2": 0.9607,
+        "implied_logit": 24.8028,
+        "implied_connected": true
+      },
+      "within_route": {
+        "mean_cosine_H2": 0.3939,
+        "implied_logit": 8.2382,
+        "implied_connected": true
+      },
+      "route_to_route": {
+        "mean_cosine_H2": 0.4303,
+        "implied_logit": 9.3013,
+        "implied_connected": true
+      },
+      "terminal_leaf": {
+        "mean_cosine_H2": -0.1968,
+        "implied_logit": -9.0258,
+        "implied_connected": false
+      },
+      "leaf_leaf": {
+        "mean_cosine_H2": 0.766,
+        "implied_logit": 19.1113,
+        "implied_connected": true
+      },
+      "active_filler": {
+        "mean_cosine_H2": 0.316,
+        "implied_logit": 5.9618,
+        "implied_connected": true
+      },
+      "within_filler": {
+        "mean_cosine_H2": 0.6837,
+        "implied_logit": 16.7054,
+        "implied_connected": true
+      }
+    }
+  },
+  {
+    "k": 3,
+    "path_len": 19,
+    "term_deg": 4,
+    "n_graphs": 50,
+    "term_connect": 0.1,
+    "reach_route": 0.8734,
+    "pred_positive_rate": 0.9356,
+    "geometry_H2": {
+      "s_t": {
+        "mean_cosine_H2": 0.9489,
+        "implied_logit": 24.4565,
+        "implied_connected": true
+      },
+      "within_route": {
+        "mean_cosine_H2": 0.5345,
+        "implied_logit": 12.347,
+        "implied_connected": true
+      },
+      "route_to_route": {
+        "mean_cosine_H2": 0.6611,
+        "implied_logit": 16.0458,
+        "implied_connected": true
+      },
+      "terminal_leaf": {
+        "mean_cosine_H2": -0.1499,
+        "implied_logit": -7.6535,
+        "implied_connected": false
+      },
+      "leaf_leaf": {
+        "mean_cosine_H2": 0.8964,
+        "implied_logit": 22.9235,
+        "implied_connected": true
+      },
+      "active_filler": {
+        "mean_cosine_H2": 0.5084,
+        "implied_logit": 11.5836,
+        "implied_connected": true
+      },
+      "within_filler": {
+        "mean_cosine_H2": 1.0,
+        "implied_logit": 25.95,
+        "implied_connected": true
+      }
+    }
+  }
+]

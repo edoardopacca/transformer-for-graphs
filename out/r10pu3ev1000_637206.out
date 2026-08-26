@@ -1,0 +1,335 @@
+== eval_threeway_splitchains.py (exact match for every 3-way split combination) ==
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda topology=chain
+testing 300 distinct 3-way size combinations (partitions of 60, min_size=1)
+  sizes=(1, 1, 58) exact=0.000 reach=(None,None,1.0) cut=(0.0,1.0,1.0) pos_rate=0.936
+  sizes=(1, 2, 57) exact=0.487 reach=(None,1.0,1.0) cut=(0.4867,1.0,1.0) pos_rate=0.904
+  sizes=(1, 3, 56) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.874
+  sizes=(1, 4, 55) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.845
+  sizes=(1, 5, 54) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.817
+  sizes=(1, 6, 53) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.791
+  sizes=(1, 7, 52) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.765
+  sizes=(1, 8, 51) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.741
+  sizes=(1, 9, 50) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.717
+  sizes=(1, 10, 49) exact=1.000 reach=(None,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.695
+  sizes=(1, 11, 48) exact=0.977 reach=(None,1.0,0.9919) cut=(1.0,1.0,1.0) pos_rate=0.669
+  sizes=(1, 12, 47) exact=0.000 reach=(None,1.0,0.6287) cut=(1.0,1.0,1.0) pos_rate=0.431
+  sizes=(1, 13, 46) exact=0.000 reach=(None,1.0,0.6378) cut=(1.0,1.0,1.0) pos_rate=0.427
+  sizes=(1, 14, 45) exact=0.000 reach=(None,1.0,0.6474) cut=(1.0,1.0,1.0) pos_rate=0.423
+  sizes=(1, 15, 44) exact=0.000 reach=(None,1.0,0.6575) cut=(1.0,1.0,1.0) pos_rate=0.420
+  sizes=(1, 16, 43) exact=0.000 reach=(None,1.0,0.6681) cut=(1.0,1.0,0.9999) pos_rate=0.418
+  sizes=(1, 17, 42) exact=0.000 reach=(None,1.0,0.679) cut=(1.0,1.0,0.9999) pos_rate=0.417
+  sizes=(1, 18, 41) exact=0.000 reach=(None,1.0,0.691) cut=(1.0,1.0,0.9999) pos_rate=0.416
+  sizes=(1, 19, 40) exact=0.000 reach=(None,0.9998,0.7029) cut=(1.0,1.0,0.9996) pos_rate=0.416
+  sizes=(1, 20, 39) exact=0.000 reach=(None,0.9945,0.7157) cut=(1.0,1.0,0.9998) pos_rate=0.416
+  sizes=(1, 21, 38) exact=0.000 reach=(None,0.9853,0.7288) cut=(1.0,1.0,0.9998) pos_rate=0.416
+  sizes=(1, 22, 37) exact=0.000 reach=(None,0.9735,0.7423) cut=(1.0,1.0,0.9992) pos_rate=0.417
+  sizes=(1, 23, 36) exact=0.000 reach=(None,0.9597,0.7562) cut=(1.0,1.0,0.9986) pos_rate=0.417
+  sizes=(1, 24, 35) exact=0.000 reach=(None,0.9449,0.7704) cut=(1.0,1.0,0.9976) pos_rate=0.417
+  sizes=(1, 25, 34) exact=0.000 reach=(None,0.9293,0.785) cut=(1.0,1.0,0.9964) pos_rate=0.418
+  sizes=(1, 26, 33) exact=0.000 reach=(None,0.9132,0.8001) cut=(1.0,1.0,0.9957) pos_rate=0.418
+  sizes=(1, 27, 32) exact=0.000 reach=(None,0.8965,0.8156) cut=(1.0,1.0,0.9967) pos_rate=0.418
+  sizes=(1, 28, 31) exact=0.000 reach=(None,0.88,0.8313) cut=(1.0,1.0,0.9984) pos_rate=0.417
+  sizes=(1, 29, 30) exact=0.000 reach=(None,0.8636,0.8473) cut=(1.0,1.0,0.9999) pos_rate=0.416
+  sizes=(2, 2, 56) exact=0.790 reach=(1.0,1.0,1.0) cut=(0.79,1.0,1.0) pos_rate=0.874
+  sizes=(2, 3, 55) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.844
+  sizes=(2, 4, 54) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.816
+  sizes=(2, 5, 53) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.788
+  sizes=(2, 6, 52) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.762
+  sizes=(2, 7, 51) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.737
+  sizes=(2, 8, 50) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.713
+  sizes=(2, 9, 49) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.691
+  sizes=(2, 10, 48) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.669
+  sizes=(2, 11, 47) exact=0.967 reach=(1.0,1.0,0.9889) cut=(1.0,1.0,1.0) pos_rate=0.642
+  sizes=(2, 12, 46) exact=0.000 reach=(1.0,1.0,0.6393) cut=(1.0,1.0,1.0) pos_rate=0.421
+  sizes=(2, 13, 45) exact=0.000 reach=(1.0,1.0,0.6483) cut=(1.0,1.0,1.0) pos_rate=0.417
+  sizes=(2, 14, 44) exact=0.000 reach=(1.0,1.0,0.6582) cut=(1.0,1.0,1.0) pos_rate=0.414
+  sizes=(2, 15, 43) exact=0.000 reach=(1.0,1.0,0.6682) cut=(1.0,1.0,1.0) pos_rate=0.411
+  sizes=(2, 16, 42) exact=0.000 reach=(1.0,1.0,0.6797) cut=(1.0,1.0,0.9999) pos_rate=0.409
+  sizes=(2, 17, 41) exact=0.000 reach=(1.0,1.0,0.691) cut=(1.0,1.0,0.9998) pos_rate=0.408
+  sizes=(2, 18, 40) exact=0.000 reach=(1.0,1.0,0.7032) cut=(1.0,1.0,0.9995) pos_rate=0.407
+  sizes=(2, 19, 39) exact=0.000 reach=(1.0,0.9998,0.7158) cut=(1.0,1.0,0.9996) pos_rate=0.407
+  sizes=(2, 20, 38) exact=0.000 reach=(1.0,0.9945,0.729) cut=(1.0,1.0,0.9994) pos_rate=0.407
+  sizes=(2, 21, 37) exact=0.000 reach=(1.0,0.9852,0.7424) cut=(1.0,1.0,0.9994) pos_rate=0.407
+  sizes=(2, 22, 36) exact=0.000 reach=(1.0,0.9734,0.7562) cut=(1.0,1.0,0.9988) pos_rate=0.407
+  sizes=(2, 23, 35) exact=0.000 reach=(1.0,0.9598,0.7704) cut=(1.0,1.0,0.9979) pos_rate=0.408
+  sizes=(2, 24, 34) exact=0.000 reach=(1.0,0.9448,0.7852) cut=(1.0,1.0,0.9969) pos_rate=0.408
+  sizes=(2, 25, 33) exact=0.000 reach=(1.0,0.9293,0.8001) cut=(1.0,1.0,0.9964) pos_rate=0.408
+  sizes=(2, 26, 32) exact=0.000 reach=(1.0,0.9131,0.8156) cut=(1.0,1.0,0.9961) pos_rate=0.409
+  sizes=(2, 27, 31) exact=0.000 reach=(1.0,0.8966,0.8313) cut=(1.0,1.0,0.9978) pos_rate=0.408
+  sizes=(2, 28, 30) exact=0.000 reach=(1.0,0.8801,0.8473) cut=(1.0,1.0,1.0) pos_rate=0.407
+  sizes=(2, 29, 29) exact=0.000 reach=(1.0,0.8637,0.8636) cut=(1.0,1.0,1.0) pos_rate=0.407
+  sizes=(3, 3, 54) exact=0.580 reach=(1.0,1.0,1.0) cut=(0.897,1.0,1.0) pos_rate=0.816
+  sizes=(3, 4, 53) exact=0.763 reach=(1.0,1.0,1.0) cut=(0.9486,1.0,1.0) pos_rate=0.788
+  sizes=(3, 5, 52) exact=0.983 reach=(1.0,1.0,1.0) cut=(0.9982,1.0,1.0) pos_rate=0.761
+  sizes=(3, 6, 51) exact=0.633 reach=(1.0,1.0,1.0) cut=(0.9615,1.0,1.0) pos_rate=0.735
+  sizes=(3, 7, 50) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.711
+  sizes=(3, 8, 49) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.687
+  sizes=(3, 9, 48) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.665
+  sizes=(3, 10, 47) exact=1.000 reach=(1.0,1.0,1.0) cut=(1.0,1.0,1.0) pos_rate=0.644
+  sizes=(3, 11, 46) exact=0.963 reach=(1.0,1.0,0.9885) cut=(1.0,1.0,1.0) pos_rate=0.617
+  sizes=(3, 12, 45) exact=0.000 reach=(1.0,1.0,0.6544) cut=(1.0,1.0,1.0) pos_rate=0.415
+  sizes=(3, 13, 44) exact=0.000 reach=(1.0,1.0,0.6624) cut=(1.0,1.0,1.0) pos_rate=0.410
+  sizes=(3, 14, 43) exact=0.000 reach=(1.0,1.0,0.6705) cut=(1.0,1.0,1.0) pos_rate=0.405
+  sizes=(3, 15, 42) exact=0.000 reach=(1.0,1.0,0.681) cut=(1.0,1.0,1.0) pos_rate=0.402
+  sizes=(3, 16, 41) exact=0.000 reach=(1.0,1.0,0.692) cut=(1.0,1.0,0.9992) pos_rate=0.401
+  sizes=(3, 17, 40) exact=0.000 reach=(1.0,1.0,0.7038) cut=(1.0,1.0,0.9995) pos_rate=0.399
+  sizes=(3, 18, 39) exact=0.000 reach=(1.0,1.0,0.7165) cut=(1.0,1.0,0.9985) pos_rate=0.399
+  sizes=(3, 19, 38) exact=0.000 reach=(1.0,0.9997,0.7295) cut=(1.0,1.0,0.9984) pos_rate=0.399
+  sizes=(3, 20, 37) exact=0.000 reach=(1.0,0.9944,0.7425) cut=(1.0,1.0,0.9988) pos_rate=0.399
+  sizes=(3, 21, 36) exact=0.000 reach=(1.0,0.9852,0.7565) cut=(1.0,1.0,0.9983) pos_rate=0.399
+  sizes=(3, 22, 35) exact=0.000 reach=(1.0,0.9735,0.7706) cut=(1.0,1.0,0.9976) pos_rate=0.399
+  sizes=(3, 23, 34) exact=0.000 reach=(1.0,0.9597,0.7852) cut=(1.0,1.0,0.9957) pos_rate=0.400
+  sizes=(3, 24, 33) exact=0.000 reach=(1.0,0.945,0.8001) cut=(1.0,1.0,0.994) pos_rate=0.401
+  sizes=(3, 25, 32) exact=0.000 reach=(1.0,0.9292,0.8156) cut=(1.0,1.0,0.9941) pos_rate=0.401
+  sizes=(3, 26, 31) exact=0.000 reach=(1.0,0.9131,0.8314) cut=(1.0,1.0,0.9954) pos_rate=0.400
+  sizes=(3, 27, 30) exact=0.000 reach=(1.0,0.8966,0.8473) cut=(1.0,1.0,0.9997) pos_rate=0.398
+  sizes=(3, 28, 29) exact=0.000 reach=(1.0,0.8801,0.8636) cut=(1.0,1.0,1.0) pos_rate=0.398
+  sizes=(4, 4, 52) exact=0.557 reach=(1.0,1.0,1.0) cut=(0.9008,1.0,1.0) pos_rate=0.761
+  sizes=(4, 5, 51) exact=0.987 reach=(1.0,1.0,1.0) cut=(0.9985,1.0,1.0) pos_rate=0.734
+  sizes=(4, 6, 50) exact=0.770 reach=(1.0,1.0,1.0) cut=(0.9804,1.0,1.0) pos_rate=0.709
+  sizes=(4, 7, 49) exact=0.957 reach=(1.0,1.0,1.0) cut=(0.9973,1.0,1.0) pos_rate=0.685
+  sizes=(4, 8, 48) exact=0.997 reach=(1.0,1.0,1.0) cut=(0.9999,1.0,1.0) pos_rate=0.662
+  sizes=(4, 9, 47) exact=0.997 reach=(1.0,1.0,1.0) cut=(0.9999,1.0,1.0) pos_rate=0.641
+  sizes=(4, 10, 46) exact=0.997 reach=(1.0,1.0,1.0) cut=(0.9998,1.0,1.0) pos_rate=0.620
+  sizes=(4, 11, 45) exact=0.953 reach=(1.0,1.0,0.991) cut=(0.9995,1.0,1.0) pos_rate=0.596
+  sizes=(4, 12, 44) exact=0.000 reach=(1.0,1.0,0.6614) cut=(1.0,1.0,1.0) pos_rate=0.404
+  sizes=(4, 13, 43) exact=0.000 reach=(1.0,1.0,0.6702) cut=(0.9999,1.0,1.0) pos_rate=0.400
+  sizes=(4, 14, 42) exact=0.000 reach=(1.0,1.0,0.6803) cut=(1.0,1.0,1.0) pos_rate=0.396
+  sizes=(4, 15, 41) exact=0.000 reach=(1.0,1.0,0.6916) cut=(1.0,1.0,1.0) pos_rate=0.393
+  sizes=(4, 16, 40) exact=0.000 reach=(1.0,1.0,0.7036) cut=(1.0,1.0,0.9997) pos_rate=0.392
+  sizes=(4, 17, 39) exact=0.000 reach=(1.0,1.0,0.716) cut=(1.0,1.0,0.9996) pos_rate=0.391
+  sizes=(4, 18, 38) exact=0.000 reach=(1.0,1.0,0.729) cut=(1.0,1.0,0.9992) pos_rate=0.390
+  sizes=(4, 19, 37) exact=0.000 reach=(1.0,0.9997,0.7425) cut=(1.0,1.0,0.9992) pos_rate=0.390
+  sizes=(4, 20, 36) exact=0.000 reach=(1.0,0.9945,0.7562) cut=(1.0,1.0,0.9994) pos_rate=0.390
+  sizes=(4, 21, 35) exact=0.000 reach=(1.0,0.9851,0.7706) cut=(1.0,1.0,0.9993) pos_rate=0.390
+  sizes=(4, 22, 34) exact=0.000 reach=(1.0,0.9736,0.7851) cut=(1.0,1.0,0.9981) pos_rate=0.390
+  sizes=(4, 23, 33) exact=0.000 reach=(1.0,0.9598,0.8002) cut=(1.0,1.0,0.9968) pos_rate=0.391
+  sizes=(4, 24, 32) exact=0.000 reach=(1.0,0.945,0.8155) cut=(1.0,1.0,0.9961) pos_rate=0.391
+  sizes=(4, 25, 31) exact=0.000 reach=(1.0,0.9292,0.8313) cut=(1.0,1.0,0.9968) pos_rate=0.391
+  sizes=(4, 26, 30) exact=0.000 reach=(1.0,0.913,0.8473) cut=(1.0,1.0,0.9999) pos_rate=0.390
+  sizes=(4, 27, 29) exact=0.000 reach=(1.0,0.8965,0.8637) cut=(1.0,1.0,1.0) pos_rate=0.390
+  sizes=(4, 28, 28) exact=0.000 reach=(1.0,0.8802,0.88) cut=(1.0,1.0,1.0) pos_rate=0.390
+  sizes=(5, 5, 50) exact=0.947 reach=(1.0,1.0,1.0) cut=(0.9955,1.0,1.0) pos_rate=0.708
+  sizes=(5, 6, 49) exact=0.833 reach=(1.0,1.0,1.0) cut=(0.9849,1.0,1.0) pos_rate=0.684
+  sizes=(5, 7, 48) exact=0.903 reach=(1.0,1.0,1.0) cut=(0.9936,1.0,1.0) pos_rate=0.661
+  sizes=(5, 8, 47) exact=0.993 reach=(1.0,1.0,1.0) cut=(0.9996,1.0,1.0) pos_rate=0.638
+  sizes=(5, 9, 46) exact=0.970 reach=(1.0,1.0,1.0) cut=(0.9987,1.0,1.0) pos_rate=0.617
+  sizes=(5, 10, 45) exact=0.987 reach=(1.0,1.0,1.0) cut=(0.9997,1.0,1.0) pos_rate=0.597
+  sizes=(5, 11, 44) exact=0.840 reach=(1.0,1.0,0.993) cut=(0.9999,1.0,1.0) pos_rate=0.575
+  sizes=(5, 12, 43) exact=0.000 reach=(1.0,1.0,0.6899) cut=(1.0,1.0,1.0) pos_rate=0.405
+  sizes=(5, 13, 42) exact=0.000 reach=(1.0,1.0,0.6992) cut=(1.0,1.0,1.0) pos_rate=0.400
+  sizes=(5, 14, 41) exact=0.000 reach=(1.0,1.0,0.7058) cut=(1.0,1.0,1.0) pos_rate=0.394
+  sizes=(5, 15, 40) exact=0.000 reach=(1.0,1.0,0.7157) cut=(1.0,1.0,0.9998) pos_rate=0.391
+  sizes=(5, 16, 39) exact=0.000 reach=(1.0,1.0,0.7276) cut=(1.0,1.0,0.9913) pos_rate=0.391
+  sizes=(5, 17, 38) exact=0.000 reach=(1.0,1.0,0.7362) cut=(1.0,1.0,0.9881) pos_rate=0.390
+  sizes=(5, 18, 37) exact=0.000 reach=(1.0,1.0,0.7472) cut=(1.0,1.0,0.984) pos_rate=0.390
+  sizes=(5, 19, 36) exact=0.000 reach=(1.0,0.9997,0.7585) cut=(1.0,1.0,0.9822) pos_rate=0.390
+  sizes=(5, 20, 35) exact=0.000 reach=(1.0,0.9942,0.7718) cut=(1.0,1.0,0.981) pos_rate=0.390
+  sizes=(5, 21, 34) exact=0.000 reach=(1.0,0.9853,0.7852) cut=(1.0,1.0,0.9859) pos_rate=0.388
+  sizes=(5, 22, 33) exact=0.000 reach=(1.0,0.9735,0.8003) cut=(1.0,1.0,0.9854) pos_rate=0.388
+  sizes=(5, 23, 32) exact=0.000 reach=(1.0,0.9598,0.8158) cut=(1.0,1.0,0.9875) pos_rate=0.387
+  sizes=(5, 24, 31) exact=0.000 reach=(1.0,0.9449,0.8313) cut=(1.0,1.0,0.9915) pos_rate=0.385
+  sizes=(5, 25, 30) exact=0.000 reach=(1.0,0.9292,0.8473) cut=(1.0,1.0,0.998) pos_rate=0.383
+  sizes=(5, 26, 29) exact=0.000 reach=(1.0,0.9132,0.8637) cut=(1.0,1.0,0.9991) pos_rate=0.382
+  sizes=(5, 27, 28) exact=0.000 reach=(1.0,0.8965,0.8801) cut=(1.0,1.0,0.9998) pos_rate=0.382
+  sizes=(6, 6, 48) exact=0.393 reach=(1.0,1.0,1.0) cut=(0.9235,1.0,1.0) pos_rate=0.661
+  sizes=(6, 7, 47) exact=0.620 reach=(1.0,1.0,1.0) cut=(0.9683,1.0,1.0) pos_rate=0.638
+  sizes=(6, 8, 46) exact=0.790 reach=(1.0,1.0,1.0) cut=(0.9869,1.0,1.0) pos_rate=0.616
+  sizes=(6, 9, 45) exact=0.903 reach=(1.0,1.0,1.0) cut=(0.9946,1.0,1.0) pos_rate=0.595
+  sizes=(6, 10, 44) exact=0.950 reach=(1.0,1.0,1.0) cut=(0.9973,1.0,1.0) pos_rate=0.576
+  sizes=(6, 11, 43) exact=0.747 reach=(1.0,1.0,0.9936) cut=(0.9981,1.0,1.0) pos_rate=0.554
+  sizes=(6, 12, 42) exact=0.000 reach=(1.0,1.0,0.7094) cut=(0.9991,1.0,1.0) pos_rate=0.401
+  sizes=(6, 13, 41) exact=0.000 reach=(1.0,1.0,0.7144) cut=(1.0,1.0,1.0) pos_rate=0.394
+  sizes=(6, 14, 40) exact=0.000 reach=(1.0,1.0,0.7245) cut=(0.9999,1.0,1.0) pos_rate=0.390
+  sizes=(6, 15, 39) exact=0.000 reach=(1.0,1.0,0.7319) cut=(1.0,1.0,0.9994) pos_rate=0.385
+  sizes=(6, 16, 38) exact=0.000 reach=(1.0,1.0,0.7402) cut=(1.0,1.0,0.9883) pos_rate=0.385
+  sizes=(6, 17, 37) exact=0.000 reach=(1.0,1.0,0.7502) cut=(1.0,1.0,0.9809) pos_rate=0.385
+  sizes=(6, 18, 36) exact=0.000 reach=(1.0,1.0,0.7604) cut=(1.0,1.0,0.9766) pos_rate=0.385
+  sizes=(6, 19, 35) exact=0.000 reach=(1.0,0.9997,0.7727) cut=(1.0,1.0,0.9768) pos_rate=0.384
+  sizes=(6, 20, 34) exact=0.000 reach=(1.0,0.9944,0.7853) cut=(1.0,1.0,0.98) pos_rate=0.382
+  sizes=(6, 21, 33) exact=0.000 reach=(1.0,0.9852,0.8003) cut=(1.0,1.0,0.9817) pos_rate=0.382
+  sizes=(6, 22, 32) exact=0.000 reach=(1.0,0.9735,0.8157) cut=(1.0,1.0,0.9845) pos_rate=0.381
+  sizes=(6, 23, 31) exact=0.000 reach=(1.0,0.9599,0.8314) cut=(1.0,1.0,0.9905) pos_rate=0.379
+  sizes=(6, 24, 30) exact=0.000 reach=(1.0,0.9449,0.8475) cut=(1.0,1.0,0.9978) pos_rate=0.376
+  sizes=(6, 25, 29) exact=0.000 reach=(1.0,0.9294,0.8637) cut=(1.0,1.0,0.999) pos_rate=0.375
+  sizes=(6, 26, 28) exact=0.000 reach=(1.0,0.9132,0.88) cut=(1.0,1.0,0.9987) pos_rate=0.375
+  sizes=(6, 27, 27) exact=0.000 reach=(1.0,0.8964,0.8966) cut=(1.0,1.0,0.9997) pos_rate=0.375
+  sizes=(7, 7, 46) exact=0.700 reach=(1.0,1.0,1.0) cut=(0.9743,1.0,1.0) pos_rate=0.616
+  sizes=(7, 8, 45) exact=0.750 reach=(1.0,1.0,1.0) cut=(0.9843,1.0,1.0) pos_rate=0.594
+  sizes=(7, 9, 44) exact=0.883 reach=(1.0,1.0,1.0) cut=(0.9936,1.0,1.0) pos_rate=0.574
+  sizes=(7, 10, 43) exact=0.950 reach=(1.0,1.0,1.0) cut=(0.9986,1.0,1.0) pos_rate=0.555
+  sizes=(7, 11, 42) exact=0.603 reach=(1.0,1.0,0.9863) cut=(0.9976,1.0,1.0) pos_rate=0.531
+  sizes=(7, 12, 41) exact=0.000 reach=(1.0,1.0,0.7031) cut=(0.9992,1.0,1.0) pos_rate=0.385
+  sizes=(7, 13, 40) exact=0.000 reach=(1.0,1.0,0.713) cut=(0.9998,1.0,1.0) pos_rate=0.381
+  sizes=(7, 14, 39) exact=0.000 reach=(1.0,1.0,0.7235) cut=(0.9999,1.0,1.0) pos_rate=0.377
+  sizes=(7, 15, 38) exact=0.000 reach=(1.0,1.0,0.7353) cut=(1.0,1.0,0.9999) pos_rate=0.374
+  sizes=(7, 16, 37) exact=0.000 reach=(1.0,1.0,0.7457) cut=(1.0,1.0,0.995) pos_rate=0.372
+  sizes=(7, 17, 36) exact=0.000 reach=(1.0,1.0,0.7585) cut=(1.0,1.0,0.9912) pos_rate=0.372
+  sizes=(7, 18, 35) exact=0.000 reach=(1.0,1.0,0.7714) cut=(1.0,1.0,0.9913) pos_rate=0.371
+  sizes=(7, 19, 34) exact=0.000 reach=(1.0,0.9998,0.7852) cut=(1.0,1.0,0.991) pos_rate=0.371
+  sizes=(7, 20, 33) exact=0.000 reach=(1.0,0.9945,0.8001) cut=(1.0,1.0,0.991) pos_rate=0.371
+  sizes=(7, 21, 32) exact=0.000 reach=(1.0,0.9853,0.8156) cut=(1.0,1.0,0.9939) pos_rate=0.370
+  sizes=(7, 22, 31) exact=0.000 reach=(1.0,0.9735,0.8314) cut=(1.0,1.0,0.9955) pos_rate=0.370
+  sizes=(7, 23, 30) exact=0.000 reach=(1.0,0.9598,0.8474) cut=(1.0,1.0,0.9992) pos_rate=0.368
+  sizes=(7, 24, 29) exact=0.000 reach=(1.0,0.9451,0.8636) cut=(1.0,1.0,0.9996) pos_rate=0.368
+  sizes=(7, 25, 28) exact=0.000 reach=(1.0,0.929,0.8802) cut=(1.0,1.0,1.0) pos_rate=0.368
+  sizes=(7, 26, 27) exact=0.000 reach=(1.0,0.9129,0.8966) cut=(1.0,1.0,1.0) pos_rate=0.368
+  sizes=(8, 8, 44) exact=0.603 reach=(1.0,1.0,1.0) cut=(0.9804,1.0,1.0) pos_rate=0.574
+  sizes=(8, 9, 43) exact=0.600 reach=(1.0,1.0,1.0) cut=(0.981,1.0,1.0) pos_rate=0.555
+  sizes=(8, 10, 42) exact=0.840 reach=(1.0,1.0,1.0) cut=(0.9945,1.0,1.0) pos_rate=0.536
+  sizes=(8, 11, 41) exact=0.587 reach=(1.0,1.0,0.9855) cut=(0.9938,1.0,1.0) pos_rate=0.512
+  sizes=(8, 12, 40) exact=0.000 reach=(1.0,1.0,0.7206) cut=(0.9968,1.0,1.0) pos_rate=0.381
+  sizes=(8, 13, 39) exact=0.000 reach=(1.0,1.0,0.7296) cut=(0.9982,1.0,1.0) pos_rate=0.376
+  sizes=(8, 14, 38) exact=0.000 reach=(1.0,1.0,0.7394) cut=(0.9988,1.0,1.0) pos_rate=0.372
+  sizes=(8, 15, 37) exact=0.000 reach=(1.0,1.0,0.7491) cut=(0.999,1.0,0.9997) pos_rate=0.368
+  sizes=(8, 16, 36) exact=0.000 reach=(1.0,1.0,0.7599) cut=(0.9999,1.0,0.9918) pos_rate=0.367
+  sizes=(8, 17, 35) exact=0.000 reach=(1.0,1.0,0.7722) cut=(0.9999,1.0,0.9862) pos_rate=0.368
+  sizes=(8, 18, 34) exact=0.000 reach=(1.0,1.0,0.7853) cut=(0.9999,1.0,0.9846) pos_rate=0.367
+  sizes=(8, 19, 33) exact=0.000 reach=(1.0,0.9998,0.8001) cut=(1.0,1.0,0.9848) pos_rate=0.367
+  sizes=(8, 20, 32) exact=0.000 reach=(1.0,0.9944,0.8156) cut=(1.0,1.0,0.9882) pos_rate=0.366
+  sizes=(8, 21, 31) exact=0.000 reach=(1.0,0.9853,0.8314) cut=(1.0,1.0,0.9934) pos_rate=0.364
+  sizes=(8, 22, 30) exact=0.000 reach=(1.0,0.9735,0.8474) cut=(1.0,1.0,0.9993) pos_rate=0.362
+  sizes=(8, 23, 29) exact=0.000 reach=(1.0,0.9599,0.8636) cut=(1.0,1.0,1.0) pos_rate=0.362
+  sizes=(8, 24, 28) exact=0.000 reach=(1.0,0.9449,0.8801) cut=(1.0,1.0,0.9999) pos_rate=0.362
+  sizes=(8, 25, 27) exact=0.000 reach=(1.0,0.9293,0.8967) cut=(1.0,1.0,0.9995) pos_rate=0.362
+  sizes=(8, 26, 26) exact=0.000 reach=(1.0,0.9131,0.913) cut=(1.0,1.0,0.9996) pos_rate=0.362
+  sizes=(9, 9, 42) exact=0.503 reach=(1.0,1.0,1.0) cut=(0.9744,1.0,1.0) pos_rate=0.536
+  sizes=(9, 10, 41) exact=0.660 reach=(1.0,1.0,1.0) cut=(0.9877,1.0,1.0) pos_rate=0.518
+  sizes=(9, 11, 40) exact=0.653 reach=(1.0,1.0,0.9943) cut=(0.99,1.0,1.0) pos_rate=0.499
+  sizes=(9, 12, 39) exact=0.000 reach=(1.0,1.0,0.7417) cut=(0.9963,1.0,1.0) pos_rate=0.379
+  sizes=(9, 13, 38) exact=0.000 reach=(1.0,1.0,0.7483) cut=(0.9978,1.0,1.0) pos_rate=0.372
+  sizes=(9, 14, 37) exact=0.000 reach=(1.0,1.0,0.7554) cut=(0.9971,1.0,1.0) pos_rate=0.367
+  sizes=(9, 15, 36) exact=0.000 reach=(1.0,1.0,0.7634) cut=(0.9989,1.0,0.9995) pos_rate=0.362
+  sizes=(9, 16, 35) exact=0.000 reach=(1.0,1.0,0.7741) cut=(0.9998,1.0,0.9877) pos_rate=0.363
+  sizes=(9, 17, 34) exact=0.000 reach=(1.0,1.0,0.7854) cut=(1.0,1.0,0.9804) pos_rate=0.363
+  sizes=(9, 18, 33) exact=0.000 reach=(1.0,1.0,0.8006) cut=(0.9998,1.0,0.9785) pos_rate=0.364
+  sizes=(9, 19, 32) exact=0.000 reach=(1.0,0.9999,0.8155) cut=(1.0,1.0,0.9812) pos_rate=0.363
+  sizes=(9, 20, 31) exact=0.000 reach=(1.0,0.9944,0.8318) cut=(1.0,1.0,0.9875) pos_rate=0.361
+  sizes=(9, 21, 30) exact=0.000 reach=(1.0,0.9852,0.8476) cut=(1.0,1.0,0.9972) pos_rate=0.357
+  sizes=(9, 22, 29) exact=0.000 reach=(1.0,0.9735,0.8638) cut=(1.0,1.0,0.9981) pos_rate=0.357
+  sizes=(9, 23, 28) exact=0.000 reach=(1.0,0.9598,0.8801) cut=(1.0,1.0,0.9982) pos_rate=0.357
+  sizes=(9, 24, 27) exact=0.000 reach=(1.0,0.9448,0.8967) cut=(1.0,1.0,0.9989) pos_rate=0.357
+  sizes=(9, 25, 26) exact=0.000 reach=(1.0,0.9294,0.9131) cut=(1.0,1.0,0.9974) pos_rate=0.357
+  sizes=(10, 10, 40) exact=0.820 reach=(1.0,1.0,1.0) cut=(0.9953,1.0,1.0) pos_rate=0.500
+  sizes=(10, 11, 39) exact=0.737 reach=(1.0,1.0,0.9938) cut=(0.9969,1.0,1.0) pos_rate=0.481
+  sizes=(10, 12, 38) exact=0.000 reach=(1.0,1.0,0.756) cut=(0.9985,1.0,1.0) pos_rate=0.374
+  sizes=(10, 13, 37) exact=0.000 reach=(1.0,1.0,0.7607) cut=(0.9988,1.0,1.0) pos_rate=0.366
+  sizes=(10, 14, 36) exact=0.000 reach=(1.0,1.0,0.7678) cut=(0.9994,1.0,1.0) pos_rate=0.361
+  sizes=(10, 15, 35) exact=0.000 reach=(1.0,1.0,0.7749) cut=(0.9993,1.0,0.9995) pos_rate=0.356
+  sizes=(10, 16, 34) exact=0.000 reach=(1.0,1.0,0.787) cut=(0.9998,1.0,0.9859) pos_rate=0.358
+  sizes=(10, 17, 33) exact=0.000 reach=(1.0,1.0,0.801) cut=(1.0,1.0,0.9813) pos_rate=0.358
+  sizes=(10, 18, 32) exact=0.000 reach=(1.0,1.0,0.8163) cut=(1.0,1.0,0.9806) pos_rate=0.358
+  sizes=(10, 19, 31) exact=0.000 reach=(1.0,0.9998,0.8323) cut=(1.0,1.0,0.986) pos_rate=0.356
+  sizes=(10, 20, 30) exact=0.000 reach=(1.0,0.9944,0.8479) cut=(1.0,1.0,0.9952) pos_rate=0.353
+  sizes=(10, 21, 29) exact=0.000 reach=(1.0,0.9853,0.8645) cut=(1.0,1.0,0.9948) pos_rate=0.353
+  sizes=(10, 22, 28) exact=0.000 reach=(1.0,0.9735,0.8803) cut=(1.0,1.0,0.9965) pos_rate=0.353
+  sizes=(10, 23, 27) exact=0.000 reach=(1.0,0.96,0.8967) cut=(1.0,1.0,0.9946) pos_rate=0.353
+  sizes=(10, 24, 26) exact=0.000 reach=(1.0,0.9451,0.9133) cut=(1.0,1.0,0.9917) pos_rate=0.354
+  sizes=(10, 25, 25) exact=0.000 reach=(1.0,0.9294,0.9292) cut=(1.0,1.0,0.9937) pos_rate=0.354
+  sizes=(11, 11, 38) exact=0.087 reach=(1.0,1.0,0.8932) cut=(0.9957,1.0,1.0) pos_rate=0.427
+  sizes=(11, 12, 37) exact=0.000 reach=(1.0,1.0,0.7439) cut=(0.9969,1.0,1.0) pos_rate=0.359
+  sizes=(11, 13, 36) exact=0.000 reach=(1.0,1.0,0.7571) cut=(0.9985,1.0,1.0) pos_rate=0.356
+  sizes=(11, 14, 35) exact=0.000 reach=(1.0,1.0,0.7709) cut=(0.9992,1.0,1.0) pos_rate=0.353
+  sizes=(11, 15, 34) exact=0.000 reach=(1.0,1.0,0.7851) cut=(0.9998,1.0,1.0) pos_rate=0.350
+  sizes=(11, 16, 33) exact=0.000 reach=(1.0,1.0,0.8002) cut=(1.0,1.0,0.999) pos_rate=0.349
+  sizes=(11, 17, 32) exact=0.000 reach=(1.0,1.0,0.8156) cut=(0.9999,1.0,0.9983) pos_rate=0.348
+  sizes=(11, 18, 31) exact=0.000 reach=(1.0,1.0,0.8313) cut=(0.9999,1.0,0.9987) pos_rate=0.347
+  sizes=(11, 19, 30) exact=0.000 reach=(1.0,0.9998,0.8473) cut=(1.0,1.0,0.9998) pos_rate=0.347
+  sizes=(11, 20, 29) exact=0.000 reach=(1.0,0.9943,0.8636) cut=(1.0,1.0,1.0) pos_rate=0.347
+  sizes=(11, 21, 28) exact=0.000 reach=(1.0,0.9852,0.8801) cut=(1.0,1.0,1.0) pos_rate=0.347
+  sizes=(11, 22, 27) exact=0.000 reach=(1.0,0.9735,0.8964) cut=(1.0,1.0,1.0) pos_rate=0.347
+  sizes=(11, 23, 26) exact=0.000 reach=(1.0,0.9597,0.913) cut=(1.0,1.0,1.0) pos_rate=0.347
+  sizes=(11, 24, 25) exact=0.000 reach=(1.0,0.9449,0.9293) cut=(1.0,1.0,1.0) pos_rate=0.347
+  sizes=(12, 12, 36) exact=0.000 reach=(1.0,1.0,0.7563) cut=(0.9944,1.0,1.0) pos_rate=0.355
+  sizes=(12, 13, 35) exact=0.000 reach=(1.0,1.0,0.7705) cut=(0.9977,1.0,1.0) pos_rate=0.352
+  sizes=(12, 14, 34) exact=0.000 reach=(1.0,1.0,0.7852) cut=(0.9989,1.0,1.0) pos_rate=0.349
+  sizes=(12, 15, 33) exact=0.000 reach=(1.0,1.0,0.8001) cut=(0.9995,1.0,1.0) pos_rate=0.346
+  sizes=(12, 16, 32) exact=0.000 reach=(1.0,1.0,0.8156) cut=(1.0,1.0,1.0) pos_rate=0.345
+  sizes=(12, 17, 31) exact=0.000 reach=(1.0,1.0,0.8312) cut=(1.0,1.0,1.0) pos_rate=0.344
+  sizes=(12, 18, 30) exact=0.000 reach=(1.0,1.0,0.8474) cut=(0.9999,1.0,1.0) pos_rate=0.343
+  sizes=(12, 19, 29) exact=0.000 reach=(1.0,0.9998,0.8637) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(12, 20, 28) exact=0.000 reach=(1.0,0.9944,0.8802) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(12, 21, 27) exact=0.000 reach=(1.0,0.9853,0.8965) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(12, 22, 26) exact=0.000 reach=(1.0,0.9733,0.9131) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(12, 23, 25) exact=0.000 reach=(1.0,0.9598,0.9291) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(12, 24, 24) exact=0.000 reach=(1.0,0.9448,0.9451) cut=(1.0,1.0,1.0) pos_rate=0.343
+  sizes=(13, 13, 34) exact=0.000 reach=(1.0,1.0,0.7851) cut=(0.9988,1.0,1.0) pos_rate=0.348
+  sizes=(13, 14, 33) exact=0.000 reach=(1.0,1.0,0.8002) cut=(0.9995,1.0,1.0) pos_rate=0.345
+  sizes=(13, 15, 32) exact=0.000 reach=(1.0,1.0,0.8155) cut=(0.9999,1.0,1.0) pos_rate=0.343
+  sizes=(13, 16, 31) exact=0.000 reach=(1.0,1.0,0.8313) cut=(1.0,1.0,1.0) pos_rate=0.341
+  sizes=(13, 17, 30) exact=0.000 reach=(1.0,1.0,0.8474) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 18, 29) exact=0.000 reach=(1.0,1.0,0.8637) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 19, 28) exact=0.000 reach=(1.0,0.9999,0.8801) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 20, 27) exact=0.000 reach=(1.0,0.9944,0.8965) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 21, 26) exact=0.000 reach=(1.0,0.9851,0.913) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 22, 25) exact=0.000 reach=(1.0,0.9735,0.9293) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(13, 23, 24) exact=0.000 reach=(1.0,0.9599,0.945) cut=(1.0,1.0,1.0) pos_rate=0.340
+  sizes=(14, 14, 32) exact=0.000 reach=(1.0,1.0,0.8155) cut=(0.9998,1.0,1.0) pos_rate=0.343
+  sizes=(14, 15, 31) exact=0.000 reach=(1.0,1.0,0.8312) cut=(0.9999,1.0,1.0) pos_rate=0.340
+  sizes=(14, 16, 30) exact=0.000 reach=(1.0,1.0,0.8473) cut=(1.0,1.0,1.0) pos_rate=0.339
+  sizes=(14, 17, 29) exact=0.000 reach=(1.0,1.0,0.8638) cut=(1.0,1.0,1.0) pos_rate=0.338
+  sizes=(14, 18, 28) exact=0.000 reach=(1.0,1.0,0.8803) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(14, 19, 27) exact=0.000 reach=(1.0,0.9998,0.8965) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(14, 20, 26) exact=0.000 reach=(1.0,0.9944,0.9131) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(14, 21, 25) exact=0.000 reach=(1.0,0.9854,0.9292) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(14, 22, 24) exact=0.000 reach=(1.0,0.9735,0.945) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(14, 23, 23) exact=0.000 reach=(1.0,0.9597,0.9598) cut=(1.0,1.0,1.0) pos_rate=0.337
+  sizes=(15, 15, 30) exact=0.000 reach=(1.0,1.0,0.8473) cut=(0.9999,1.0,1.0) pos_rate=0.338
+  sizes=(15, 16, 29) exact=0.000 reach=(1.0,1.0,0.8636) cut=(1.0,1.0,1.0) pos_rate=0.336
+  sizes=(15, 17, 28) exact=0.000 reach=(1.0,1.0,0.88) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(15, 18, 27) exact=0.000 reach=(1.0,1.0,0.8964) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(15, 19, 26) exact=0.000 reach=(1.0,0.9998,0.9129) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(15, 20, 25) exact=0.000 reach=(1.0,0.9944,0.9293) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(15, 21, 24) exact=0.000 reach=(1.0,0.9852,0.9448) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(15, 22, 23) exact=0.000 reach=(1.0,0.9735,0.9598) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(16, 16, 28) exact=0.000 reach=(1.0,1.0,0.8801) cut=(1.0,1.0,1.0) pos_rate=0.335
+  sizes=(16, 17, 27) exact=0.000 reach=(1.0,1.0,0.8966) cut=(1.0,1.0,1.0) pos_rate=0.334
+  sizes=(16, 18, 26) exact=0.000 reach=(1.0,1.0,0.9129) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(16, 19, 25) exact=0.000 reach=(1.0,0.9997,0.9293) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(16, 20, 24) exact=0.000 reach=(1.0,0.9943,0.9449) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(16, 21, 23) exact=0.000 reach=(1.0,0.9853,0.9597) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(16, 22, 22) exact=0.000 reach=(1.0,0.9734,0.9734) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(17, 17, 26) exact=0.000 reach=(1.0,1.0,0.9129) cut=(1.0,1.0,1.0) pos_rate=0.333
+  sizes=(17, 18, 25) exact=0.000 reach=(1.0,1.0,0.9291) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(17, 19, 24) exact=0.000 reach=(1.0,0.9998,0.945) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(17, 20, 23) exact=0.000 reach=(1.0,0.9944,0.9597) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(17, 21, 22) exact=0.000 reach=(1.0,0.9852,0.9734) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(18, 18, 24) exact=0.000 reach=(1.0,1.0,0.945) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(18, 19, 23) exact=0.000 reach=(1.0,0.9998,0.9598) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(18, 20, 22) exact=0.000 reach=(1.0,0.9943,0.9735) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(18, 21, 21) exact=0.000 reach=(1.0,0.9851,0.9852) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(19, 19, 22) exact=0.000 reach=(0.9998,0.9998,0.9735) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(19, 20, 21) exact=0.000 reach=(0.9998,0.9944,0.9851) cut=(1.0,1.0,1.0) pos_rate=0.332
+  sizes=(20, 20, 20) exact=0.000 reach=(0.9943,0.9944,0.9944) cut=(1.0,1.0,1.0) pos_rate=0.332
+  saved -> runs/report10/threeway_splitchains/n60_pathunion_k3_seed1000/threeway_split.csv
+== mechanistic_multipath_geometry.py (multipath accuracy + H2 geometry, k=1,2,3) ==
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  k=1: term_connect=0.300 reach_route=0.868 pred_pos=0.931
+    s_t              mean_cos=+0.995 logit=+26.544 connected=True
+    within_route     mean_cos=+0.525 logit=+12.480 connected=True
+    terminal_leaf    mean_cos=+0.022 logit=-2.599 connected=False
+    leaf_leaf        mean_cos=+0.915 logit=+24.140 connected=True
+    active_filler    mean_cos=+0.572 logit=+13.883 connected=True
+    within_filler    mean_cos=+0.827 logit=+21.515 connected=True
+  k=2: term_connect=0.040 reach_route=0.876 pred_pos=0.934
+    s_t              mean_cos=+0.981 logit=+26.110 connected=True
+    within_route     mean_cos=+0.440 logit=+9.919 connected=True
+    route_to_route   mean_cos=+0.557 logit=+13.419 connected=True
+    terminal_leaf    mean_cos=-0.202 logit=-9.299 connected=False
+    leaf_leaf        mean_cos=+0.854 logit=+22.307 connected=True
+    active_filler    mean_cos=+0.488 logit=+11.362 connected=True
+    within_filler    mean_cos=+0.774 logit=+19.941 connected=True
+  k=3: term_connect=0.100 reach_route=0.873 pred_pos=0.936
+    s_t              mean_cos=+0.976 logit=+25.979 connected=True
+    within_route     mean_cos=+0.526 logit=+12.497 connected=True
+    route_to_route   mean_cos=+0.709 logit=+17.966 connected=True
+    terminal_leaf    mean_cos=-0.161 logit=-8.066 connected=False
+    leaf_leaf        mean_cos=+0.856 logit=+22.383 connected=True
+    active_filler    mean_cos=+0.483 logit=+11.218 connected=True
+    within_filler    mean_cos=+1.000 logit=+26.694 connected=True
+  saved -> runs/report10/multipath_geometry/n60_pathunion_k3_seed1000/multipath_geometry.json
+wrote runs/report10/multipath_geometry/n60_pathunion_k3_seed1000/term_connect_vs_k.png and h2_geometry_by_category.png
+done: n60_pathunion_k3_seed1000
