@@ -78,8 +78,8 @@ def multipath_heatmap_probe(model, dev, n, ks, ell, term_deg, rng, n_graphs):
             d[f"row_mass{li}"] = unperm_pair(alpha).sum(-1)
         d["s"] = np.array([meta["s"]]); d["t"] = np.array([meta["t"]])
         d["route_bounds"] = np.array(_route_bounds(meta))
-        d["n_full"] = np.array([meta["n_full"]]); d["path_len"] = np.array([meta["path_len"]])
-        d["n_active"] = np.array([2 + meta["n_full"] * (meta["path_len"] - 1)
+        d["n_full"] = np.array([meta["n_full"]]); d["path_len"] = np.array(meta["path_len"])
+        d["n_active"] = np.array([2 + sum(pl - 1 for pl in meta["path_len"])
                                   + len(meta["leaves"])])
         out[f"k{k}"] = d
         print(f"  multipath probe k={k} ell={ell} done "

@@ -465,7 +465,7 @@ def generate_parallel_paths_graph(n: int, n_paths: int, path_len: int) -> np.nda
     return adj
 
 
-def generate_multipath_graph(n: int, n_full: int, path_len: int,
+def generate_multipath_graph(n: int, n_full: int, path_len: int | list[int],
                              rng: np.random.Generator, n_trunc: int = 0,
                              term_deg: int = 4, trunc_len: int | None = None,
                              fill: bool = True):
@@ -473,35 +473,42 @@ def generate_multipath_graph(n: int, n_full: int, path_len: int,
     Report IV, generalised + carrying its own structure for per-path analysis, and
     supporting TRUNCATED dead-end routes for Thread A3).
 
-    Two terminals ``s=0``, ``t=1`` are joined by ``n_full`` internally-disjoint paths
-    of ``path_len`` edges, so ``dist(s,t)=path_len`` for any ``n_full`` while the
-    effective resistance is ``path_len/n_full``. Optionally ``n_trunc`` DEAD-END paths
-    of ``trunc_len`` edges hang off ``s`` only (they never reach ``t``): these are the
-    truncated routes. Each terminal is padded with leaf nodes to keep its degree near
-    ``term_deg`` (so a terminal does not become a higher-degree hub as the number of
-    routes grows), and the remaining canvas is wired into one sparse filler path (a
-    separate component) so the mean degree stays ~2 like the sparse training graphs.
+    Two terminals ``s=0``, ``t=1`` are joined by ``n_full`` internally-disjoint paths.
+    ``path_len`` is either a single int (every route the same length, the original
+    behaviour: ``dist(s,t)=path_len`` for any ``n_full``) or a list of ``n_full`` ints
+    (Report X: routes of DIFFERENT lengths, e.g. to match a disjoint K-way split's
+    component sizes as closely as possible) -- ``dist(s,t)`` is then ``min(path_len)``.
+    Optionally ``n_trunc`` DEAD-END paths of ``trunc_len`` edges hang off ``s`` only
+    (they never reach ``t``): these are the truncated routes. Each terminal is padded
+    with leaf nodes to keep its degree near ``term_deg`` (so a terminal does not become
+    a higher-degree hub as the number of routes grows), and the remaining canvas is
+    wired into one sparse filler path (a separate component) so the mean degree stays
+    ~2 like the sparse training graphs.
 
     ``s`` and ``t`` are in the same component iff ``n_full >= 1``. Returns
     ``(adj_no_loops, meta)`` on UNPERMUTED indices (permute with
     :func:`permute_with_meta`), or ``None`` if the construction does not fit in ``n``.
     ``meta`` carries ``s, t, full_paths, trunc_paths, leaves, filler, n_full, n_trunc,
-    path_len`` (every path is the list of its INTERNAL node indices)."""
+    path_len`` (every path is the list of its INTERNAL node indices; ``path_len`` in
+    ``meta`` is always the per-route list, even if a single int was passed in)."""
     s, t = 0, 1
+    path_lens = [path_len] * n_full if isinstance(path_len, int) else list(path_len)
+    if len(path_lens) != n_full:
+        raise ValueError(f"path_len list must have n_full={n_full} entries, got {len(path_lens)}")
     if trunc_len is None:
-        trunc_len = max(1, path_len - 1)
+        trunc_len = max(1, path_lens[0] - 1)
     leaves_s = max(0, term_deg - n_full - n_trunc)
     leaves_t = max(0, term_deg - n_full)
-    need = (2 + n_full * (path_len - 1) + n_trunc * trunc_len + leaves_s + leaves_t)
+    need = (2 + sum(pl - 1 for pl in path_lens) + n_trunc * trunc_len + leaves_s + leaves_t)
     if need > n:
         return None
     adj = np.zeros((n, n), dtype=np.float32)
     cur = 2
     full_paths: list[list[int]] = []
     trunc_paths: list[list[int]] = []
-    for _ in range(n_full):
+    for pl in path_lens:
         prev = s; nodes: list[int] = []
-        for _ in range(path_len - 1):
+        for _ in range(pl - 1):
             adj[prev, cur] = adj[cur, prev] = 1.0
             nodes.append(cur); prev = cur; cur += 1
         adj[prev, t] = adj[t, prev] = 1.0
@@ -523,7 +530,7 @@ def generate_multipath_graph(n: int, n_full: int, path_len: int,
             adj[filler[i], filler[i + 1]] = adj[filler[i + 1], filler[i]] = 1.0
     meta = {"s": s, "t": t, "full_paths": full_paths, "trunc_paths": trunc_paths,
             "leaves": leaves, "filler": filler, "n_full": n_full, "n_trunc": n_trunc,
-            "path_len": path_len}
+            "path_len": path_lens}
     return adj, meta
 
 
