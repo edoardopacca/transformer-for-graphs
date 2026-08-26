@@ -1,0 +1,68 @@
+#!/bin/bash
+#SBATCH --job-name=r10splch8
+#SBATCH --account=3352759
+#SBATCH --partition=long_gpuh200
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=40G
+#SBATCH --time=16:00:00
+#SBATCH --output=out/%x_%A.out
+#SBATCH --error=out/%x_%A.out
+#
+# Report X -- split_chains-only (full split-size distribution) n=46, seed 8000 -- extending
+# this paper experiment from 5 to 10 seeds (istruzioni.md seed policy: main paper claims go to
+# 10 seeds), matching the two-cycle experiments already extended to 10 seeds. Same
+# family/architecture/read-out/step budget/battery as seed1000-5000
+# (scripts/r9_n46_splitchains_seed5000.sbatch).
+#   sbatch scripts/r10_n46_splitchains_seed8000.sbatch
+
+mkdir -p out
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONUNBUFFERED=1
+source ~/.bashrc
+conda activate graph_tf
+cd $SLURM_SUBMIT_DIR
+
+SEED=8000
+OUT_ROOT="runs/report9/n46_train"
+
+python experiments2/train_families_n20.py \
+    --output_root "$OUT_ROOT" \
+    --families split_chains --arch roberta --readout similarity --lambda_lap 0 \
+    --n_nodes 46 --p 0.05 \
+    --train_steps 1000000 --batch_size 1000 --num_workers 16 --seed "$SEED"
+
+CKPT="$OUT_ROOT/n46_split_chains_roberta_similarity_lam0_seed8000/last.pt"
+if [ ! -f "$CKPT" ]; then
+  echo "training did not produce a checkpoint at $CKPT"
+  exit 1
+fi
+
+FAIL=0
+TAG="n46_splitchains_seed8000"
+
+echo "== eval_asym_chains.py (quick behavioural sweep) =="
+python eval_asym_chains.py --checkpoint "$CKPT" \
+    --output_dir "runs/report9/asym_chains_n46/${TAG}" --n_graphs 300
+[ $? -ne 0 ] && { echo "FAILED: eval_asym_chains.py"; FAIL=1; }
+
+echo "== mechanistic_asym_chains.py (sweep + logit -> Table 1 / Figure 1) =="
+python mechanistic_asym_chains.py --checkpoint "$CKPT" \
+    --output_dir "runs/report9/mechanistic/${TAG}" --attn_splits 4 23
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_asym_chains.py"; FAIL=1; }
+
+echo "== mechanistic_heatmaps.py (attention scores/alpha -> Figure 3) =="
+python mechanistic_heatmaps.py --checkpoint "$CKPT" \
+    --output_dir "runs/report9/heatmaps/${TAG}" --splits 4 23
+[ $? -ne 0 ] && { echo "FAILED: mechanistic_heatmaps.py"; FAIL=1; }
+
+echo "== stagewise_diagnostics.py (layerwise cosine geometry) =="
+python stagewise_diagnostics.py --checkpoint "$CKPT" \
+    --output_dir "runs/report9/stagewise/${TAG}" --splits 4 23 --n_graphs 64
+[ $? -ne 0 ] && { echo "FAILED: stagewise_diagnostics.py"; FAIL=1; }
+
+if [ "$FAIL" -ne 0 ]; then
+  echo "one or more eval steps FAILED -- see FAILED markers above"
+  exit 1
+fi
+echo "done: $TAG"
