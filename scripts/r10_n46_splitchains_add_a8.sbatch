@@ -1,10 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=r10splch8
 #SBATCH --account=3352759
-#SBATCH --partition=short_cpu
+#SBATCH --partition=short_gpuh200
+#SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=00:20:00
+#SBATCH --time=00:30:00
 #SBATCH --output=out/%x_%A.out
 #SBATCH --error=out/%x_%A.out
 #
