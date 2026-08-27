@@ -71,6 +71,8 @@ def _forward(model, dev, n, base_adj, rng, n_graphs):
 def eval_behaviour(model, dev, n, base_adj, target_pair, route_masks, rng, n_graphs, n_repeats):
     tc_list, rr_list, pp_list, ec_list = [], [], [], []
     offdiag = ~np.eye(n, dtype=bool)
+    pred_sum = np.zeros((n, n), dtype=np.float64)
+    pred_count = 0
     for rep in range(n_repeats):
         logits_base, _ = _forward(model, dev, n, base_adj, rng, n_graphs)
         pred = logits_base > 0
@@ -84,15 +86,23 @@ def eval_behaviour(model, dev, n, base_adj, target_pair, route_masks, rng, n_gra
         # for this number directly, was never computed by the original eval_behaviour, which
         # only pooled target-pair/route/global-positive-rate accuracy).
         ec_list.append(float(pred[:, offdiag].all(axis=1).mean()))
+        # per-pair predicted-connected rate over every test graph and repeat -- ground truth is
+        # "connected" everywhere, so this rate IS the per-pair accuracy; lets us see WHICH pairs
+        # drive the near-zero exact match above, not just that some pair is wrong somewhere
+        # (Edoardo, 2026-08-27: "sarebbe per capire quali coppie sbaglia").
+        pred_sum += pred.sum(axis=0)
+        pred_count += pred.shape[0]
     def agg(v): return float(np.mean(v)), float(np.std(v))
     tc_m, tc_s = agg(tc_list); rr_m, rr_s = agg(rr_list); pp_m, pp_s = agg(pp_list)
     ec_m, ec_s = agg(ec_list)
+    per_pair_acc = pred_sum / pred_count
     return {"target_pair_connected": round(tc_m, 4), "target_pair_connected_std": round(tc_s, 4),
             "reach_route": round(rr_m, 4), "reach_route_std": round(rr_s, 4),
             "pred_positive_rate": round(pp_m, 4), "pred_positive_rate_std": round(pp_s, 4),
             "exact": round(ec_m, 4), "exact_std": round(ec_s, 4),
             "per_repeat_target_pair": [round(v, 4) for v in tc_list],
-            "per_repeat_exact": [round(v, 4) for v in ec_list]}
+            "per_repeat_exact": [round(v, 4) for v in ec_list],
+            "per_pair_acc": per_pair_acc}
 
 
 def h2_Z_matrix(model, dev, n, base_adj, rng, n_graphs):
@@ -205,6 +215,10 @@ def main():
         np.savez(out / f"{name}_Z.npz", Z=Z, boundaries=bounds, target_pair=pair)
         plot_heatmap(Z, bounds, f"Construction {name}, $n$={n}, H$^{{(2)}}$ geometry ({args.tag})",
                      out / f"{name}_h2_heatmap.png")
+
+        per_pair_acc = beh.pop("per_pair_acc")
+        np.savez(out / f"{name}_per_pair_acc.npz", acc=per_pair_acc, boundaries=bounds,
+                 target_pair=pair)
         results[name] = beh
 
     (out / "multipath_v2.json").write_text(json.dumps(results, indent=2))
