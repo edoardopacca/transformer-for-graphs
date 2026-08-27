@@ -1,0 +1,17 @@
+checkpoint=runs/report9/n46_train/n46_split_chains_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=46 device=cuda
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  a=12: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a12_Z.npz
+  a=13: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a13_Z.npz
+  a=14: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a14_Z.npz
+  a=15: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a15_Z.npz
+  a=16: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a16_Z.npz
+  a=17: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a17_Z.npz
+  a=18: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a18_Z.npz
+  a=19: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a19_Z.npz
+  a=20: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a20_Z.npz
+  a=21: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a21_Z.npz
+  a=22: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a22_Z.npz
+  a=23: wrote runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000/a23_Z.npz
+DONE: 12/12 splits written to runs/report10/beyond_threshold_heatmaps/n46_splitchains_full_seed1000
+done: n46_splitchains_full_seed1000 beyond-threshold heatmaps
