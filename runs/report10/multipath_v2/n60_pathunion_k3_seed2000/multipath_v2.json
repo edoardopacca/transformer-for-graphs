@@ -6,12 +6,21 @@
     "reach_route_std": 0.0004,
     "pred_positive_rate": 0.9814,
     "pred_positive_rate_std": 0.0003,
+    "exact": 0.0,
+    "exact_std": 0.0,
     "per_repeat_target_pair": [
       1.0,
       1.0,
       1.0,
       1.0,
       1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
     ],
     "target_pair": [
       0,
@@ -25,12 +34,21 @@
     "reach_route_std": 0.0004,
     "pred_positive_rate": 0.9822,
     "pred_positive_rate_std": 0.0003,
+    "exact": 0.0,
+    "exact_std": 0.0,
     "per_repeat_target_pair": [
       1.0,
       1.0,
       1.0,
       1.0,
       1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
     ],
     "target_pair": [
       20,
