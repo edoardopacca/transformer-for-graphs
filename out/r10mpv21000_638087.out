@@ -1,0 +1,9 @@
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda seed_base=1000
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+  [A_clean] target_pair=(0, 1): connected=1.000+-0.000 reach_route=0.999+-0.000 pred_pos=0.992
+wrote runs/report10/multipath_v2/n60_pathunion_k3_seed1000/A_clean_h2_heatmap.png
+  [B_stitched] target_pair=(20, 39): connected=1.000+-0.000 reach_route=0.999+-0.000 pred_pos=0.992
+wrote runs/report10/multipath_v2/n60_pathunion_k3_seed1000/B_stitched_h2_heatmap.png
+saved -> runs/report10/multipath_v2/n60_pathunion_k3_seed1000/multipath_v2.json
+done: n60_pathunion_k3_seed1000 multipath v2

@@ -1,0 +1,40 @@
+{
+  "A_clean": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.9991,
+    "reach_route_std": 0.0001,
+    "pred_positive_rate": 0.9917,
+    "pred_positive_rate_std": 0.0003,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "target_pair": [
+      0,
+      1
+    ]
+  },
+  "B_stitched": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.999,
+    "reach_route_std": 0.0004,
+    "pred_positive_rate": 0.9919,
+    "pred_positive_rate_std": 0.0005,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "target_pair": [
+      20,
+      39
+    ]
+  }
+}
