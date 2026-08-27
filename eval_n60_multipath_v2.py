@@ -69,7 +69,8 @@ def _forward(model, dev, n, base_adj, rng, n_graphs):
 
 
 def eval_behaviour(model, dev, n, base_adj, target_pair, route_masks, rng, n_graphs, n_repeats):
-    tc_list, rr_list, pp_list = [], [], []
+    tc_list, rr_list, pp_list, ec_list = [], [], [], []
+    offdiag = ~np.eye(n, dtype=bool)
     for rep in range(n_repeats):
         logits_base, _ = _forward(model, dev, n, base_adj, rng, n_graphs)
         pred = logits_base > 0
@@ -77,12 +78,21 @@ def eval_behaviour(model, dev, n, base_adj, target_pair, route_masks, rng, n_gra
         tc_list.append(float(pred[:, i, j].mean()))
         rr_list.append(float(pred[:, route_masks].mean()))
         pp_list.append(float(pred.mean()))
+        # whole-graph exact match: this graph is one connected component (every route joins at
+        # the target pair / hubs), so ground truth is "every off-diagonal pair connected" --
+        # exact match iff pred is True on every off-diagonal entry (Edoardo, 2026-08-27: asked
+        # for this number directly, was never computed by the original eval_behaviour, which
+        # only pooled target-pair/route/global-positive-rate accuracy).
+        ec_list.append(float(pred[:, offdiag].all(axis=1).mean()))
     def agg(v): return float(np.mean(v)), float(np.std(v))
     tc_m, tc_s = agg(tc_list); rr_m, rr_s = agg(rr_list); pp_m, pp_s = agg(pp_list)
+    ec_m, ec_s = agg(ec_list)
     return {"target_pair_connected": round(tc_m, 4), "target_pair_connected_std": round(tc_s, 4),
             "reach_route": round(rr_m, 4), "reach_route_std": round(rr_s, 4),
             "pred_positive_rate": round(pp_m, 4), "pred_positive_rate_std": round(pp_s, 4),
-            "per_repeat_target_pair": [round(v, 4) for v in tc_list]}
+            "exact": round(ec_m, 4), "exact_std": round(ec_s, 4),
+            "per_repeat_target_pair": [round(v, 4) for v in tc_list],
+            "per_repeat_exact": [round(v, 4) for v in ec_list]}
 
 
 def h2_Z_matrix(model, dev, n, base_adj, rng, n_graphs):
