@@ -1,0 +1,10 @@
+checkpoint=runs/report10/n60_train/n60_path_union_k3_roberta_similarity_lam0_seed1000/last.pt
+  arch=roberta readout=similarity n=60 device=cuda
+  [selftest] run_with_stages H2/logits match model.forward_and_embeddings exactly
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/disjoint_layer1_attention.png
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/disjoint_layer2_attention.png
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/A_clean_layer1_attention.png
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/A_clean_layer2_attention.png
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/B_stitched_layer1_attention.png
+wrote runs/report10/attention_heatmap/n60_pathunion_k3_seed1000/B_stitched_layer2_attention.png
+done: n60_pathunion_k3_seed1000 attention heatmaps
