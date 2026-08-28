@@ -22,7 +22,12 @@
 #     or just the degree>1 cue at s/t. New script eval_n60_multipath_v2.py (smoke-tested
 #     locally on a random-weight n=60 checkpoint; Construction C's edge-cutting logic
 #     separately verified with networkx: s/t degree unchanged at 3, graph stays connected via
-#     exactly one route, at the same distance 20 as A's target pair).
+#     exactly one route, at the same distance 20 as A's target pair); (D) 2026-08-27 --
+#     degree-control follow-up to C's result (target pair still 1.000 even with only one real
+#     route): moves the tested pair one hop further out to two new nodes B,M with perfectly
+#     ORDINARY degree 2 (A-B-[hub s]=3 routes=[hub t]-M-N; hubs s,t keep degree 4, not
+#     tested), so any degree-anomaly shortcut is gone. Verified locally: B,M degree 2/2 (same
+#     as 54 other nodes), hubs degree 4/4, B-M distance 20 (same as A's original pair).
 # On short_gpuh200 deliberately (separate queue from the 10-seed long_gpuh200 trainings
 # currently pending, so this does not wait behind them).
 #   sbatch scripts/r10_n60_multipath_v2_seed2000.sbatch

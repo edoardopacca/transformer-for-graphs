@@ -220,6 +220,58 @@ def build_construction_b(n, sizes=(20, 20, 20)):
     return adj, (hub1, hub2), within, bounds
 
 
+def build_construction_d(n, route_lens, term_deg, core_n):
+    """Degree-controlled follow-up requested by Edoardo (2026-08-27), NOT to be written up
+    anywhere -- purely investigative. Construction A's s,t are the ONLY degree-3 nodes in the
+    whole graph (every other node has degree <=2, since the K=3 path-union training
+    distribution never contains a degree-3 node), which is a plausible confound: the model
+    may be keying off s/t's rare degree signature rather than genuine path redundancy.
+
+    This construction moves the tested pair one hop further out, to two new nodes with
+    perfectly ORDINARY degree 2 -- no different from any other interior path node -- so the
+    degree confound is gone:
+
+        A --- B --- [hub s] === (3 parallel routes, route_lens) === [hub t] --- M --- N
+
+    A/N: new degree-1 endpoints (the actual open ends of the graph now).
+    B/M: new degree-2 nodes -- one edge to the true endpoint (A/N), one edge to the hub
+         (s/t). THESE are the tested pair, not the hubs.
+    s/t: unchanged from Construction A structurally (term_deg=3 route hub), but now ALSO
+         carry the extra edge to B/M, so their own degree is 4 -- irrelevant here since s/t
+         are not the tested pair anymore.
+
+    route_lens should sum so that 2 (hubs) + sum(route_lens)-3 (route interior nodes) + 4
+    (A,B,M,N) <= n; any leftover canvas is auto-filled by generate_multipath_graph into a
+    small inert separate component (harmless, not connected to anything tested).
+    """
+    built = generate_multipath_graph(core_n, len(route_lens), route_lens,
+                                      np.random.default_rng(0), term_deg=term_deg)
+    if built is None:
+        raise ValueError(f"route_lens={route_lens} term_deg={term_deg} does not fit core_n={core_n}")
+    core_adj, meta = built
+    s, t = meta["s"], meta["t"]
+
+    adj = np.zeros((n, n), dtype=np.float32)
+    adj[:core_n, :core_n] = core_adj
+    b, a, m, nn = core_n, core_n + 1, core_n + 2, core_n + 3
+    assert nn == n - 1, f"expected exactly 4 extra nodes to reach n={n}, got core_n={core_n}"
+    adj[s, b] = adj[b, s] = 1.0
+    adj[b, a] = adj[a, b] = 1.0
+    adj[t, m] = adj[m, t] = 1.0
+    adj[m, nn] = adj[nn, m] = 1.0
+
+    within = np.zeros((n, n), dtype=bool)
+    for route in meta["full_paths"]:
+        idx = np.array([s, t] + route, dtype=int)
+        within[np.ix_(idx, idx)] = True
+    np.fill_diagonal(within, False)
+    within[b, m] = within[m, b] = False   # tested pair excluded from the pooled route metric
+
+    bounds = [core_n - 0.5]  # separates the core (hub+routes) from the new A,B,M,N tail nodes
+    return adj, (b, m), within, bounds, dict(s=int(s), t=int(t), a=a, b=b, m=m, n_node=nn,
+                                              filler=meta["filler"])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True)
@@ -235,6 +287,12 @@ def main():
                          "leaving s/t degree unchanged -- default cuts the 21-edge route "
                          "and the first 20-edge route, leaving the second 20-edge route as "
                          "the sole real s-t path")
+    ap.add_argument("--route_lens_d", type=int, nargs=3, default=[18, 18, 19])
+    ap.add_argument("--term_deg_d", type=int, default=3)
+    ap.add_argument("--core_n_d", type=int, default=56,
+                    help="Construction D: canvas for the hub+routes core; the remaining "
+                         "n-core_n_d nodes are the new A,B,M,N tail (4) plus any leftover "
+                         "auto-filler from generate_multipath_graph")
     ap.add_argument("--seed", type=int, default=12345,
                     help="MUST differ across checkpoints -- see istruzioni.md error #34/report/10 "
                          "sec:n60-multipath history")
@@ -256,11 +314,19 @@ def main():
     print(f"  [C_ablated] cut internal edges: {cut_edges_c} "
           f"(s,t degree preserved at {args.term_deg_a})", flush=True)
 
+    adj_d, pair_d, within_d, bounds_d, info_d = build_construction_d(
+        n, args.route_lens_d, args.term_deg_d, args.core_n_d)
+    print(f"  [D_degreecontrol] tested pair (B,M)={pair_d}, degree "
+          f"{int(adj_d[pair_d[0]].sum())}/{int(adj_d[pair_d[1]].sum())}; hubs s,t={info_d['s']},{info_d['t']} "
+          f"degree {int(adj_d[info_d['s']].sum())}/{int(adj_d[info_d['t']].sum())}; "
+          f"filler={info_d['filler']}", flush=True)
+
     results = {}
     for name, (adj, pair, within, bounds) in [
         ("A_clean", build_construction_a(n, args.route_lens_a, args.term_deg_a)),
         ("B_stitched", build_construction_b(n, tuple(args.disjoint_sizes_b))),
         ("C_ablated", (adj_c, pair_c, within_c, bounds_c)),
+        ("D_degreecontrol", (adj_d, pair_d, within_d, bounds_d)),
     ]:
         rng = np.random.default_rng(args.seed)
         beh = eval_behaviour(model, dev, n, adj, pair, within, rng,
@@ -268,6 +334,9 @@ def main():
         beh["target_pair"] = pair
         if name == "C_ablated":
             beh["cut_edges"] = cut_edges_c
+        if name == "D_degreecontrol":
+            beh["hub_s_t"] = [info_d["s"], info_d["t"]]
+            beh["tested_pair_degree"] = [int(adj[pair[0]].sum()), int(adj[pair[1]].sum())]
         print(f"  [{name}] target_pair={pair}: "
               f"connected={beh['target_pair_connected']:.3f}+-{beh['target_pair_connected_std']:.3f} "
               f"reach_route={beh['reach_route']:.3f}+-{beh['reach_route_std']:.3f} "
