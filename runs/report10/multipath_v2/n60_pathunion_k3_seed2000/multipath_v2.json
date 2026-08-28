@@ -54,5 +54,43 @@
       20,
       39
     ]
+  },
+  "C_ablated": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.7121,
+    "reach_route_std": 0.0046,
+    "pred_positive_rate": 0.7175,
+    "pred_positive_rate_std": 0.0031,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      0,
+      1
+    ],
+    "cut_edges": [
+      [
+        10,
+        11
+      ],
+      [
+        30,
+        31
+      ]
+    ]
   }
 }
