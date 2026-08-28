@@ -10,13 +10,19 @@
 #SBATCH --error=out/%x_%A.out
 #
 # Report X -- REPLACES the earlier leaf-padded multipath test (Edoardo's objection: leaves
-# help the transformer recognise terminals, so they are not a clean test). Two leaf-free
-# constructions instead, both using every one of n=60's nodes as a real route node:
+# help the transformer recognise terminals, so they are not a clean test). Three leaf-free
+# constructions, all using every one of n=60's nodes as a real route node:
 # (A) clean 3 parallel routes s-t, edge-lengths [20,21,20], term_deg=3 (no leaves/filler by
 #     construction); (B) the disjoint (20,20,20) split (sec:n60-grid) plus 4 stitching edges
 #     (1-indexed (1,21),(20,40),(21,41),(40,60)) turning component B's own endpoints into two
-#     degree-3 hubs with 3 routes between them (19/21/21 edges). New script
-#     eval_n60_multipath_v2.py (smoke-tested locally on a random-weight n=60 checkpoint).
+#     degree-3 hubs with 3 routes between them (19/21/21 edges); (C) 2026-08-27 addition --
+#     same s,t hub structure as A (degree 3, unchanged) but with one INTERNAL edge deleted
+#     from 2 of the 3 routes (the 21-edge route and the first 20-edge route), leaving only ONE
+#     route actually connecting s to t -- tests whether A's rescue tracks real path redundancy
+#     or just the degree>1 cue at s/t. New script eval_n60_multipath_v2.py (smoke-tested
+#     locally on a random-weight n=60 checkpoint; Construction C's edge-cutting logic
+#     separately verified with networkx: s/t degree unchanged at 3, graph stays connected via
+#     exactly one route, at the same distance 20 as A's target pair).
 # On short_gpuh200 deliberately (separate queue from the 10-seed long_gpuh200 trainings
 # currently pending, so this does not wait behind them).
 #   sbatch scripts/r10_n60_multipath_v2_seed2000.sbatch

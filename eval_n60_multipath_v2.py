@@ -151,6 +151,55 @@ def build_construction_a(n, route_lens, term_deg):
     return adj, (s, t), within, bounds
 
 
+def build_construction_c(n, route_lens, term_deg, cut_routes=(0, 1)):
+    """Ablation requested by Edoardo (2026-08-27): same s,t hub structure as Construction A
+    (term_deg=3, so s and t keep degree 3, i.e. they still look locally like hubs, not simple
+    path endpoints) but sever two of the three routes by deleting one INTERNAL edge from each
+    (an edge strictly between two interior nodes, never the edge touching s or t itself, so
+    s/t's own degree is untouched). Only one route -- the one NOT in cut_routes -- still
+    actually connects s to t. Tests whether the model's success on Construction A tracks real
+    path redundancy, or just the superficial degree>1 cue at s/t: if accuracy on the target
+    pair collapses back toward the plain single-path failure once only one route is real, the
+    redundancy interpretation is confirmed; if it stays near 1.0, the model was keying off
+    degree/hub-ness rather than genuine multi-route connectivity.
+
+    Default cut_routes=(0,1) leaves route index 2 (the second length-route_lens[2] route) as
+    the sole real path; with route_lens=[20,21,20] that cuts the 21-edge route and the first
+    20-edge route, leaving the second 20-edge route intact.
+    """
+    built = generate_multipath_graph(n, len(route_lens), route_lens, np.random.default_rng(0),
+                                      term_deg=term_deg)
+    if built is None:
+        raise ValueError(f"route_lens={route_lens} term_deg={term_deg} does not fit n={n}")
+    adj, meta = built
+    assert len(meta["leaves"]) == 0 and len(meta["filler"]) == 0
+    s, t = meta["s"], meta["t"]
+    within = np.zeros((n, n), dtype=bool)
+    for route in meta["full_paths"]:
+        idx = np.array([s, t] + route, dtype=int)
+        within[np.ix_(idx, idx)] = True
+    np.fill_diagonal(within, False)
+    within[s, t] = within[t, s] = False
+    bounds = [1.5]
+    cur = 2
+    for route in meta["full_paths"][:-1]:
+        cur += len(route)
+        bounds.append(cur - 0.5)
+
+    cut_edges = []
+    for r in cut_routes:
+        nodes = meta["full_paths"][r]
+        assert len(nodes) >= 2, f"route {r} too short to cut an internal edge ({len(nodes)} nodes)"
+        mid = len(nodes) // 2
+        u, v = nodes[mid - 1], nodes[mid]
+        assert adj[u, v] == 1.0, f"expected an edge at ({u},{v})"
+        adj[u, v] = adj[v, u] = 0.0
+        cut_edges.append((int(u), int(v)))
+    assert adj[s].sum() == term_deg and adj[t].sum() == term_deg, \
+        "s/t degree changed -- cut edge must be strictly internal, not touching s or t"
+    return adj, (s, t), within, bounds, cut_edges
+
+
 def build_construction_b(n, sizes=(20, 20, 20)):
     adj = generate_multi_path_split_graph(n, sizes).copy()
     a0, a1 = 0, sizes[0] - 1
@@ -181,6 +230,11 @@ def main():
     ap.add_argument("--route_lens_a", type=int, nargs=3, default=[20, 21, 20])
     ap.add_argument("--term_deg_a", type=int, default=3)
     ap.add_argument("--disjoint_sizes_b", type=int, nargs=3, default=[20, 20, 20])
+    ap.add_argument("--cut_routes_c", type=int, nargs="+", default=[0, 1],
+                    help="Construction C (ablation): route indices to sever internally, "
+                         "leaving s/t degree unchanged -- default cuts the 21-edge route "
+                         "and the first 20-edge route, leaving the second 20-edge route as "
+                         "the sole real s-t path")
     ap.add_argument("--seed", type=int, default=12345,
                     help="MUST differ across checkpoints -- see istruzioni.md error #34/report/10 "
                          "sec:n60-multipath history")
@@ -197,15 +251,23 @@ def main():
           f"seed_base={args.seed}")
     _selftest(model, dev, n)
 
+    adj_c, pair_c, within_c, bounds_c, cut_edges_c = build_construction_c(
+        n, args.route_lens_a, args.term_deg_a, tuple(args.cut_routes_c))
+    print(f"  [C_ablated] cut internal edges: {cut_edges_c} "
+          f"(s,t degree preserved at {args.term_deg_a})", flush=True)
+
     results = {}
     for name, (adj, pair, within, bounds) in [
         ("A_clean", build_construction_a(n, args.route_lens_a, args.term_deg_a)),
         ("B_stitched", build_construction_b(n, tuple(args.disjoint_sizes_b))),
+        ("C_ablated", (adj_c, pair_c, within_c, bounds_c)),
     ]:
         rng = np.random.default_rng(args.seed)
         beh = eval_behaviour(model, dev, n, adj, pair, within, rng,
                               args.n_graphs_behaviour, args.n_repeats)
         beh["target_pair"] = pair
+        if name == "C_ablated":
+            beh["cut_edges"] = cut_edges_c
         print(f"  [{name}] target_pair={pair}: "
               f"connected={beh['target_pair_connected']:.3f}+-{beh['target_pair_connected_std']:.3f} "
               f"reach_route={beh['reach_route']:.3f}+-{beh['reach_route_std']:.3f} "
