@@ -92,5 +92,41 @@
         31
       ]
     ]
+  },
+  "D_degreecontrol": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.8042,
+    "reach_route_std": 0.0006,
+    "pred_positive_rate": 0.9349,
+    "pred_positive_rate_std": 0.0007,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      56,
+      58
+    ],
+    "hub_s_t": [
+      0,
+      1
+    ],
+    "tested_pair_degree": [
+      2,
+      2
+    ]
   }
 }
