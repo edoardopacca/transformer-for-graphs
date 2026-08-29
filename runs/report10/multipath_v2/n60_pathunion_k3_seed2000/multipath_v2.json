@@ -128,55 +128,5 @@
       2,
       2
     ]
-  },
-  "F_isolated": {
-    "target_pair_connected": 1.0,
-    "target_pair_connected_std": 0.0,
-    "reach_route": 1.0,
-    "reach_route_std": 0.0,
-    "pred_positive_rate": 1.0,
-    "pred_positive_rate_std": 0.0,
-    "exact": 1.0,
-    "exact_std": 0.0,
-    "per_repeat_target_pair": [
-      1.0,
-      1.0,
-      1.0,
-      1.0,
-      1.0
-    ],
-    "per_repeat_exact": [
-      1.0,
-      1.0,
-      1.0,
-      1.0,
-      1.0
-    ],
-    "target_pair": [
-      0,
-      1
-    ],
-    "isolated_nodes": [
-      40,
-      41,
-      42,
-      43,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51,
-      52,
-      53,
-      54,
-      55,
-      56,
-      57,
-      58,
-      59
-    ]
   }
 }

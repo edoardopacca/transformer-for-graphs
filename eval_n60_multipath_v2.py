@@ -272,34 +272,6 @@ def build_construction_d(n, route_lens, term_deg, core_n):
                                               filler=meta["filler"])
 
 
-def build_construction_f(n, route_lens, term_deg):
-    """Requested by Edoardo (2026-08-29): s,t joined by len(route_lens) independent routes
-    (route_lens edges each -- default [20,20], both routes the same length this time, unlike
-    Construction A's [20,21,20]), s/t at ordinary degree = len(route_lens) (2 here). The
-    leftover canvas is left as ISOLATED nodes (no edges at all, not even a filler chain --
-    "nodi liberi sparsi") rather than auto-filled into a chain. Target pair: s,t themselves.
-    """
-    built = generate_multipath_graph(n, len(route_lens), route_lens, np.random.default_rng(0),
-                                      term_deg=term_deg, fill=False)
-    if built is None:
-        raise ValueError(f"route_lens={route_lens} term_deg={term_deg} does not fit n={n}")
-    adj, meta = built
-    assert len(meta["leaves"]) == 0, f"expected no leaves, got {len(meta['leaves'])}"
-    s, t = meta["s"], meta["t"]
-    within = np.zeros((n, n), dtype=bool)
-    for route in meta["full_paths"]:
-        idx = np.array([s, t] + route, dtype=int)
-        within[np.ix_(idx, idx)] = True
-    np.fill_diagonal(within, False)
-    within[s, t] = within[t, s] = False
-    bounds = [1.5]
-    cur = 2
-    for route in meta["full_paths"][:-1]:
-        cur += len(route)
-        bounds.append(cur - 0.5)
-    return adj, (s, t), within, bounds, meta["filler"]
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True)
@@ -321,8 +293,6 @@ def main():
                     help="Construction D: canvas for the hub+routes core; the remaining "
                          "n-core_n_d nodes are the new A,B,M,N tail (4) plus any leftover "
                          "auto-filler from generate_multipath_graph")
-    ap.add_argument("--route_lens_f", type=int, nargs=2, default=[20, 20])
-    ap.add_argument("--term_deg_f", type=int, default=2)
     ap.add_argument("--seed", type=int, default=12345,
                     help="MUST differ across checkpoints -- see istruzioni.md error #34/report/10 "
                          "sec:n60-multipath history")
@@ -351,19 +321,12 @@ def main():
           f"degree {int(adj_d[info_d['s']].sum())}/{int(adj_d[info_d['t']].sum())}; "
           f"filler={info_d['filler']}", flush=True)
 
-    adj_f, pair_f, within_f, bounds_f, filler_f = build_construction_f(
-        n, args.route_lens_f, args.term_deg_f)
-    print(f"  [F_isolated] target_pair={pair_f}, degree "
-          f"{int(adj_f[pair_f[0]].sum())}/{int(adj_f[pair_f[1]].sum())} (ordinary); "
-          f"isolated nodes={filler_f}", flush=True)
-
     results = {}
     for name, (adj, pair, within, bounds) in [
         ("A_clean", build_construction_a(n, args.route_lens_a, args.term_deg_a)),
         ("B_stitched", build_construction_b(n, tuple(args.disjoint_sizes_b))),
         ("C_ablated", (adj_c, pair_c, within_c, bounds_c)),
         ("D_degreecontrol", (adj_d, pair_d, within_d, bounds_d)),
-        ("F_isolated", (adj_f, pair_f, within_f, bounds_f)),
     ]:
         rng = np.random.default_rng(args.seed)
         beh = eval_behaviour(model, dev, n, adj, pair, within, rng,
@@ -371,8 +334,6 @@ def main():
         beh["target_pair"] = pair
         if name == "C_ablated":
             beh["cut_edges"] = cut_edges_c
-        if name == "F_isolated":
-            beh["isolated_nodes"] = [int(x) for x in filler_f]
         if name == "D_degreecontrol":
             beh["hub_s_t"] = [info_d["s"], info_d["t"]]
             beh["tested_pair_degree"] = [int(adj[pair[0]].sum()), int(adj[pair[1]].sum())]
