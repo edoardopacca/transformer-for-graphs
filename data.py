@@ -410,6 +410,20 @@ def generate_one_chain_graph(n: int) -> np.ndarray:
     return adj
 
 
+def generate_directed_chain_graph(n: int) -> np.ndarray:
+    """DIRECTED analogue of generate_one_chain_graph, for the directed-reachability /
+    "genuine reasoning chain" task (2026-08-28, Edoardo -- testing whether the multipath-
+    redundancy connectivity finding generalises to directed implication-style chains,
+    A=>B=>C..., in the spirit of Abbe et al.'s syllogism-composition task). A single directed
+    Hamiltonian path 0->1->...->(n-1): edge i->i+1 only, no reverse edge. Node identity is
+    randomised the same way as every other family (sample_family's permutation step applies
+    to both rows and columns, which correctly preserves directed edges under relabelling)."""
+    adj = np.zeros((n, n), dtype=np.float32)
+    for i in range(n - 1):
+        adj[i, i + 1] = 1.0
+    return adj
+
+
 def generate_path_union_graph(n: int, rng: np.random.Generator,
                               max_paths: int = 4, min_paths: int = 1) -> np.ndarray:
     """Disjoint union of min_paths..max_paths paths that partition all n nodes.
@@ -757,6 +771,22 @@ def compute_connectivity_matrix(adj_no_loops: np.ndarray) -> np.ndarray:
         idx = np.array(comp, dtype=np.int64)
         conn[np.ix_(idx, idx)] = 1.0
     return conn
+
+
+def compute_directed_reachability_matrix(adj_no_loops: np.ndarray) -> np.ndarray:
+    """Directed reachability: reach[i,j]=1 iff j is reachable from i by following directed
+    edges forward only (reach[i,i]=1 always, matching compute_connectivity_matrix's own
+    diagonal convention). Reuses _bfs_distances as-is -- it already only follows outgoing
+    edges (row u = u's out-neighbours), so it is directed-correct without any change, whether
+    adj_no_loops is symmetric or not. NOT symmetric in general: reach[i,j] != reach[j,i] for a
+    directed graph, unlike compute_connectivity_matrix. Used only by the "directed_chain"
+    family (2026-08-28); every other family stays on compute_connectivity_matrix."""
+    n = adj_no_loops.shape[0]
+    reach = np.zeros((n, n), dtype=np.float32)
+    for i in range(n):
+        dist = _bfs_distances(adj_no_loops, i)
+        reach[i] = (dist >= 0).astype(np.float32)
+    return reach
 
 
 def compute_graph_diameter(adj_no_loops: np.ndarray) -> int:

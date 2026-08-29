@@ -36,6 +36,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader, IterableDataset, get_worker_info
 
 from data import (add_self_loops, compute_connectivity_matrix,
+                  compute_directed_reachability_matrix,
                   generate_er_graph, generate_two_chains_graph,
                   generate_two_cliques_graph, generate_one_cycle_graph,
                   generate_two_cycles_graph, generate_one_chain_graph,
@@ -43,7 +44,13 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_bridged_cliques_graph, generate_split_cliques_graph,
                   generate_split_chains_graph, generate_split_cycles_graph,
                   generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
-                  generate_split_regular_graph)
+                  generate_split_regular_graph, generate_directed_chain_graph)
+
+# Families whose target is directed reachability (compute_directed_reachability_matrix)
+# instead of undirected connectivity (compute_connectivity_matrix). 2026-08-28: the
+# "genuine reasoning chain" family, testing whether the multipath-redundancy connectivity
+# finding generalises to directed implication-style chains (Abbe et al.-style task).
+DIRECTED_FAMILIES = {"directed_chain"}
 from model import (GraphConnectivityTransformer, RobertaGraphTransformer,
                    ModelConfig, laplacian_smoothness)
 from utils import ensure_dir, get_device, save_json, set_seed
@@ -113,6 +120,8 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
                     if s % 2 == 0 and (n - s) % 2 == 0 and (n - s) > 3]
         short_len = int(rng.choice(feasible))
         a = generate_split_regular_graph(n, 3, short_len, rng)
+    elif kind == "directed_chain":
+        a = generate_directed_chain_graph(n)
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -134,7 +143,9 @@ class OnlineFamilyStream(IterableDataset):
             kind = self.families[int(rng.integers(len(self.families)))]
             a = sample_family(kind, n, rng, self.p)
             x = add_self_loops(a).astype(np.float32)
-            y = compute_connectivity_matrix(a).astype(np.float32)
+            label_fn = compute_directed_reachability_matrix if kind in DIRECTED_FAMILIES \
+                else compute_connectivity_matrix
+            y = label_fn(a).astype(np.float32)
             yield x, y
 
 
@@ -149,7 +160,10 @@ def build_fixed_test(families: List[str], n: int, size: int, seed: int, p: float
     for i in range(size):
         kind = families[int(rng.integers(len(families)))]
         a = sample_family(kind, n, rng, p)
-        xs[i] = add_self_loops(a); ys[i] = compute_connectivity_matrix(a).astype(np.int8)
+        xs[i] = add_self_loops(a)
+        label_fn = compute_directed_reachability_matrix if kind in DIRECTED_FAMILIES \
+            else compute_connectivity_matrix
+        ys[i] = label_fn(a).astype(np.int8)
     return xs, ys
 
 
@@ -228,7 +242,7 @@ def main():
         families = [f.strip() for f in args.families.split(",") if f.strip()]
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
-                       "path_union_k3"]
+                       "path_union_k3", "directed_chain"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
