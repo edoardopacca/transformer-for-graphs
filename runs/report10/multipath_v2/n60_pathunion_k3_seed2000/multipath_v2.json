@@ -128,55 +128,5 @@
       2,
       2
     ]
-  },
-  "E_tworoute": {
-    "target_pair_connected": 1.0,
-    "target_pair_connected_std": 0.0,
-    "reach_route": 1.0,
-    "reach_route_std": 0.0,
-    "pred_positive_rate": 0.9893,
-    "pred_positive_rate_std": 0.0023,
-    "exact": 0.42,
-    "exact_std": 0.0283,
-    "per_repeat_target_pair": [
-      1.0,
-      1.0,
-      1.0,
-      1.0,
-      1.0
-    ],
-    "per_repeat_exact": [
-      0.4,
-      0.44,
-      0.42,
-      0.38,
-      0.46
-    ],
-    "target_pair": [
-      0,
-      1
-    ],
-    "filler_chain": [
-      40,
-      41,
-      42,
-      43,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51,
-      52,
-      53,
-      54,
-      55,
-      56,
-      57,
-      58,
-      59
-    ]
   }
 }
