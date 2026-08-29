@@ -27,7 +27,13 @@
 #     route): moves the tested pair one hop further out to two new nodes B,M with perfectly
 #     ORDINARY degree 2 (A-B-[hub s]=3 routes=[hub t]-M-N; hubs s,t keep degree 4, not
 #     tested), so any degree-anomaly shortcut is gone. Verified locally: B,M degree 2/2 (same
-#     as 54 other nodes), hubs degree 4/4, B-M distance 20 (same as A's original pair).
+#     as 54 other nodes), hubs degree 4/4, B-M distance 20 (same as A's original pair);
+#     (E) 2026-08-28 -- TWO-route (not three) version of A: s,t joined by a 19-edge and a
+#     21-edge route (true distance 19, still past the wall), s/t at perfectly ORDINARY
+#     degree 2 this time (one edge per route -- no degree confound at all), leftover canvas
+#     auto-filled into one separate disjoint 20-node chain so the whole graph looks closer to
+#     the K=3 training distribution's own disjoint-path shape. Verified locally with
+#     networkx: deg(s)=deg(t)=2, distance 19, filler is a clean disjoint 20-node chain.
 # On short_gpuh200 deliberately (separate queue from the 10-seed long_gpuh200 trainings
 # currently pending, so this does not wait behind them).
 #   sbatch scripts/r10_n60_multipath_v2_seed1000.sbatch

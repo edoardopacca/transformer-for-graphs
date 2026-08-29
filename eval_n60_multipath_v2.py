@@ -272,6 +272,40 @@ def build_construction_d(n, route_lens, term_deg, core_n):
                                               filler=meta["filler"])
 
 
+def build_construction_e(n, route_lens, term_deg):
+    """Requested by Edoardo (2026-08-28): a TWO-route (not three) version of Construction A,
+    with the leftover canvas wired into a separate, fully disjoint chain -- so the whole graph
+    looks structurally closer to the K=3 training distribution's own disjoint-path graphs
+    (one extra, unrelated simple-path component alongside the s-t structure), and s,t end up
+    at perfectly ORDINARY degree 2 (one edge into each of the 2 routes) -- no degree-anomaly
+    confound at all this time, not even the milder one Construction D worked around.
+
+    route_lens=[19,21] (default): s-t joined by a 19-edge route and a 21-edge route (true
+    distance 19, past the 2*3^L=18 wall); leftover nodes auto-fill into one disjoint chain
+    (generate_multipath_graph's own fill=True mechanism -- no separate construction needed).
+    Target pair: s,t themselves.
+    """
+    built = generate_multipath_graph(n, len(route_lens), route_lens, np.random.default_rng(0),
+                                      term_deg=term_deg)
+    if built is None:
+        raise ValueError(f"route_lens={route_lens} term_deg={term_deg} does not fit n={n}")
+    adj, meta = built
+    assert len(meta["leaves"]) == 0, f"expected no leaves, got {len(meta['leaves'])}"
+    s, t = meta["s"], meta["t"]
+    within = np.zeros((n, n), dtype=bool)
+    for route in meta["full_paths"]:
+        idx = np.array([s, t] + route, dtype=int)
+        within[np.ix_(idx, idx)] = True
+    np.fill_diagonal(within, False)
+    within[s, t] = within[t, s] = False
+    bounds = [1.5]
+    cur = 2
+    for route in meta["full_paths"][:-1]:
+        cur += len(route)
+        bounds.append(cur - 0.5)
+    return adj, (s, t), within, bounds, meta["filler"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--checkpoint", required=True)
@@ -293,6 +327,8 @@ def main():
                     help="Construction D: canvas for the hub+routes core; the remaining "
                          "n-core_n_d nodes are the new A,B,M,N tail (4) plus any leftover "
                          "auto-filler from generate_multipath_graph")
+    ap.add_argument("--route_lens_e", type=int, nargs=2, default=[19, 21])
+    ap.add_argument("--term_deg_e", type=int, default=2)
     ap.add_argument("--seed", type=int, default=12345,
                     help="MUST differ across checkpoints -- see istruzioni.md error #34/report/10 "
                          "sec:n60-multipath history")
@@ -321,12 +357,19 @@ def main():
           f"degree {int(adj_d[info_d['s']].sum())}/{int(adj_d[info_d['t']].sum())}; "
           f"filler={info_d['filler']}", flush=True)
 
+    adj_e, pair_e, within_e, bounds_e, filler_e = build_construction_e(
+        n, args.route_lens_e, args.term_deg_e)
+    print(f"  [E_tworoute] target_pair={pair_e}, degree "
+          f"{int(adj_e[pair_e[0]].sum())}/{int(adj_e[pair_e[1]].sum())} (ordinary, no confound); "
+          f"filler chain={filler_e}", flush=True)
+
     results = {}
     for name, (adj, pair, within, bounds) in [
         ("A_clean", build_construction_a(n, args.route_lens_a, args.term_deg_a)),
         ("B_stitched", build_construction_b(n, tuple(args.disjoint_sizes_b))),
         ("C_ablated", (adj_c, pair_c, within_c, bounds_c)),
         ("D_degreecontrol", (adj_d, pair_d, within_d, bounds_d)),
+        ("E_tworoute", (adj_e, pair_e, within_e, bounds_e)),
     ]:
         rng = np.random.default_rng(args.seed)
         beh = eval_behaviour(model, dev, n, adj, pair, within, rng,
@@ -334,6 +377,8 @@ def main():
         beh["target_pair"] = pair
         if name == "C_ablated":
             beh["cut_edges"] = cut_edges_c
+        if name == "E_tworoute":
+            beh["filler_chain"] = [int(x) for x in filler_e]
         if name == "D_degreecontrol":
             beh["hub_s_t"] = [info_d["s"], info_d["t"]]
             beh["tested_pair_degree"] = [int(adj[pair[0]].sum()), int(adj[pair[1]].sum())]
