@@ -130,6 +130,29 @@ def generate_multi_path_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarra
     return adj
 
 
+def generate_stitched_theta_graph(n: int, sizes: tuple[int, ...] = (20, 20, 20)) -> np.ndarray:
+    """Training-distribution version of eval_n60_multipath_v2.py's Construction B
+    (2026-08-31, Edoardo -- train directly on graphs containing a genuine long-range
+    redundant-route pair, instead of testing an already-trained plain-disjoint-path model
+    OOD on one). Same construction: start from the disjoint ``len(sizes)``-way path split
+    (generate_multi_path_split_graph), then add 4 edges joining the middle component's own
+    two endpoints to its two neighbours, turning them into a pair of hubs connected by
+    THREE routes -- directly through the middle component, and two there-and-back loops
+    through the outer two. With sizes=(20,20,20) the three routes are 19/21/21 edges, so the
+    hub pair's true shortest-path distance is 19, past the 2*3^L=18 wall, in EVERY sample of
+    this family (not just some, unlike a fully randomised route-length design). No self-loops;
+    node order NOT permuted (permute at the call site, as in every other generator here)."""
+    if len(sizes) != 3:
+        raise ValueError(f"expected exactly 3 components (theta needs a middle one), got {sizes}")
+    adj = generate_multi_path_split_graph(n, sizes)
+    a0, a1 = 0, sizes[0] - 1
+    b0, b1 = sizes[0], sizes[0] + sizes[1] - 1
+    c0, c1 = sizes[0] + sizes[1], n - 1
+    for u, v in [(a0, b0), (a1, b1), (b0, c0), (b1, c1)]:
+        adj[u, v] = adj[v, u] = 1.0
+    return adj
+
+
 def generate_multi_cycle_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarray:
     """``len(sizes)`` disjoint CYCLES partitioning ALL n nodes into components of the given
     ordered sizes (``sum(sizes) == n``) -- the cycle analogue of

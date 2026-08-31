@@ -44,7 +44,8 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_bridged_cliques_graph, generate_split_cliques_graph,
                   generate_split_chains_graph, generate_split_cycles_graph,
                   generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
-                  generate_split_regular_graph, generate_directed_chain_graph)
+                  generate_split_regular_graph, generate_directed_chain_graph,
+                  generate_stitched_theta_graph, generate_multipath_graph)
 
 # Families whose target is directed reachability (compute_directed_reachability_matrix)
 # instead of undirected connectivity (compute_connectivity_matrix). 2026-08-28: the
@@ -122,6 +123,21 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
         a = generate_split_regular_graph(n, 3, short_len, rng)
     elif kind == "directed_chain":
         a = generate_directed_chain_graph(n)
+    # Report X (2026-08-31, Edoardo): train directly on graphs containing a genuine
+    # long-range redundant-route pair, rather than testing an already-trained plain-path
+    # model OOD on one (eval_n60_multipath_v2.py's Constructions B and F). Fixed 50/50 mix
+    # of exactly two shapes (not a fully randomised route-length design): (1) the stitched
+    # theta graph (disjoint (20,20,20) + 4 stitching edges, hub pair at true distance 19,
+    # 3 routes of 19/21/21 edges -- Construction B); (2) two parallel 20-edge routes between
+    # a fresh s,t pair (true distance 20), remainder auto-filled into one separate chain
+    # (generate_multipath_graph's own fill=True). Both put the redundant pair's true
+    # distance safely past the 2*3^L=18 wall in EVERY sample, on purpose.
+    elif kind == "redundant_mix":
+        if rng.random() < 0.5:
+            a = generate_stitched_theta_graph(n, (20, 20, 20))
+        else:
+            built = generate_multipath_graph(n, 2, [20, 20], rng, term_deg=2, fill=True)
+            a = built[0]
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -242,7 +258,7 @@ def main():
         families = [f.strip() for f in args.families.split(",") if f.strip()]
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
-                       "path_union_k3", "directed_chain"]
+                       "path_union_k3", "directed_chain", "redundant_mix"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
