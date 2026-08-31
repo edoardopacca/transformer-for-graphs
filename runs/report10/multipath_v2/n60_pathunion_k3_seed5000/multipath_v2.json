@@ -1,0 +1,132 @@
+{
+  "A_clean": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.9999,
+    "reach_route_std": 0.0,
+    "pred_positive_rate": 0.9871,
+    "pred_positive_rate_std": 0.0007,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      0,
+      1
+    ]
+  },
+  "B_stitched": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.9998,
+    "reach_route_std": 0.0,
+    "pred_positive_rate": 0.9877,
+    "pred_positive_rate_std": 0.0007,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      20,
+      39
+    ]
+  },
+  "C_ablated": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.6329,
+    "reach_route_std": 0.0025,
+    "pred_positive_rate": 0.6391,
+    "pred_positive_rate_std": 0.0032,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      0,
+      1
+    ],
+    "cut_edges": [
+      [
+        10,
+        11
+      ],
+      [
+        30,
+        31
+      ]
+    ]
+  },
+  "D_degreecontrol": {
+    "target_pair_connected": 1.0,
+    "target_pair_connected_std": 0.0,
+    "reach_route": 0.8038,
+    "reach_route_std": 0.0,
+    "pred_positive_rate": 0.9345,
+    "pred_positive_rate_std": 0.0004,
+    "exact": 0.0,
+    "exact_std": 0.0,
+    "per_repeat_target_pair": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "per_repeat_exact": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_pair": [
+      56,
+      58
+    ],
+    "hub_s_t": [
+      0,
+      1
+    ],
+    "tested_pair_degree": [
+      2,
+      2
+    ]
+  }
+}

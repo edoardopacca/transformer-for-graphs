@@ -1,0 +1,30 @@
+[
+  {
+    "n_routes": 1,
+    "route_len": 11,
+    "distance": 11,
+    "s_t_connected_acc": 1.0,
+    "n_graphs": 200
+  },
+  {
+    "n_routes": 2,
+    "route_len": 11,
+    "distance": 11,
+    "s_t_connected_acc": 0.02,
+    "n_graphs": 200
+  },
+  {
+    "n_routes": 3,
+    "route_len": 11,
+    "distance": 11,
+    "s_t_connected_acc": 0.035,
+    "n_graphs": 200
+  },
+  {
+    "n_routes": 4,
+    "route_len": 10,
+    "distance": 10,
+    "s_t_connected_acc": 0.075,
+    "n_graphs": 200
+  }
+]
