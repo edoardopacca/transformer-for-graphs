@@ -46,7 +46,7 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
                   generate_split_regular_graph, generate_directed_chain_graph,
                   generate_stitched_theta_graph, generate_multipath_graph,
-                  generate_multi_path_split_graph)
+                  generate_multi_path_split_graph, generate_stitched_theta_graph_truncated)
 
 # Families whose target is directed reachability (compute_directed_reachability_matrix)
 # instead of undirected connectivity (compute_connectivity_matrix). 2026-08-28: the
@@ -161,6 +161,15 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
             a = generate_stitched_theta_graph(n, (20, 20, 20))
         else:
             a = generate_stitched_theta_graph(n, (19, 20, 19), n_isolated=2)
+    # Report X (2026-09-01, Edoardo): train directly on the Construction-C-style ablation
+    # of theta_20_20_20 (rather than testing an already-trained theta_20_20_20 checkpoint
+    # OOD on it, as eval_n60_multipath_v2.py's build_construction_c did) -- hub pair still
+    # looks locally like a degree-3, 3-route hub, but the two outer routes are severed by
+    # an internal edge cut each, so only the direct through-middle route (dist 19) actually
+    # connects s,t. Tests whether the model can still learn the target pair when 2 of the
+    # 3 apparent routes are fake.
+    elif kind == "theta_20_20_20_truncated":
+        a = generate_stitched_theta_graph_truncated(n, (20, 20, 20))
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -282,7 +291,8 @@ def main():
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
                        "path_union_k3", "directed_chain", "redundant_mix",
-                       "theta_20_20_20", "chain3_20_20_20", "theta_19_20_19", "redundant_mix2"]
+                       "theta_20_20_20", "chain3_20_20_20", "theta_19_20_19", "redundant_mix2",
+                       "theta_20_20_20_truncated"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "

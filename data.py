@@ -163,6 +163,38 @@ def generate_stitched_theta_graph(n: int, sizes: tuple[int, ...] = (20, 20, 20),
     return adj
 
 
+def generate_stitched_theta_graph_truncated(n: int, sizes: tuple[int, ...] = (20, 20, 20),
+                                             cut: tuple[str, ...] = ("A", "C")) -> np.ndarray:
+    """Training-distribution version of eval_n60_multipath_v2.py's Construction C ablation
+    (2026-09-01, Edoardo -- train directly on a graph where the hub pair LOOKS like it has
+    3 redundant routes but only 1 is real, instead of testing an already-trained
+    theta_20_20_20 checkpoint OOD on one). Starts from generate_stitched_theta_graph, then
+    removes one INTERNAL edge (strictly between two interior nodes, never touching a hub or
+    a stitch endpoint) from each outer route named in ``cut`` ("A" = the route via the first
+    component, "C" = via the third) -- so the hub pair (still degree 3 each, still looks
+    like a 3-route hub locally) is only actually connected by whichever route(s) are NOT
+    cut. Default cuts both outer routes, leaving only the direct through-middle route (dist
+    19) functional; the severed outer components become two dead-end arms hanging off each
+    hub (the whole graph stays one connected component -- no new isolated nodes). No
+    self-loops; node order NOT permuted (permute at the call site, as in every other
+    generator here)."""
+    if len(sizes) != 3:
+        raise ValueError(f"expected exactly 3 components (theta needs a middle one), got {sizes}")
+    adj = generate_stitched_theta_graph(n, sizes).copy()
+    a0, a1 = 0, sizes[0] - 1
+    c0, c1 = sizes[0] + sizes[1], sizes[0] + sizes[1] + sizes[2] - 1
+    ranges = {"A": (a0, a1), "C": (c0, c1)}
+    for name in cut:
+        lo, hi = ranges[name]
+        if hi - lo < 2:
+            raise ValueError(f"route {name} (size {hi - lo + 1}) too short for an internal cut")
+        u, v = (lo + hi) // 2, (lo + hi) // 2 + 1
+        if adj[u, v] != 1.0:
+            raise AssertionError(f"expected an edge at ({u},{v})")
+        adj[u, v] = adj[v, u] = 0.0
+    return adj
+
+
 def generate_multi_cycle_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarray:
     """``len(sizes)`` disjoint CYCLES partitioning ALL n nodes into components of the given
     ordered sizes (``sum(sizes) == n``) -- the cycle analogue of
