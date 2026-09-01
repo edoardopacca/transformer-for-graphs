@@ -1,0 +1,16 @@
+{
+  "theta_exact_match": 1.0,
+  "theta_n_graphs": 500,
+  "theta_target_pair_accuracy": 1.0,
+  "theta_other_pairs_accuracy": 1.0,
+  "theta_other_pairs_n": 1769,
+  "twopath_exact_match": 0.0,
+  "twopath_n_graphs": 500,
+  "twopath_target_pair_accuracy": 1.0,
+  "twopath_route_other_accuracy": 1.0,
+  "twopath_route_other_n": 779,
+  "twopath_cross_component_accuracy": 0.9,
+  "twopath_cross_component_n": 800,
+  "twopath_filler_internal_accuracy": 0.988421052631579,
+  "twopath_filler_internal_n": 190
+}
