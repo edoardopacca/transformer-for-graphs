@@ -171,6 +171,12 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     # 3 apparent routes are fake.
     elif kind == "theta_20_20_20_truncated":
         a = generate_stitched_theta_graph_truncated(n, (20, 20, 20))
+    # Report X (2026-09-01, Edoardo): same truncation ablation as theta_20_20_20_truncated
+    # (both outer routes severed, only the direct through-middle route real), now applied to
+    # the theta_19_20_19 shape instead: routes 19/20/20 (direct middle unchanged at 19, the
+    # two outer routes would be 20 each if not cut) plus the same 2 isolated padding nodes.
+    elif kind == "theta_19_20_19_truncated":
+        a = generate_stitched_theta_graph_truncated(n, (19, 20, 19), n_isolated=2)
     # Report X (2026-09-01, Edoardo): another truncated-hub ablation, requested with
     # specific asymmetric sizes -- s,t joined by a single real route through 25 interior
     # nodes (true distance 26), plus TWO independent truncated "false route" arms (top and
@@ -303,7 +309,8 @@ def main():
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
                        "path_union_k3", "directed_chain", "redundant_mix",
                        "theta_20_20_20", "chain3_20_20_20", "theta_19_20_19", "redundant_mix2",
-                       "theta_20_20_20_truncated", "hub2arm_truncated_n60"]
+                       "theta_20_20_20_truncated", "hub2arm_truncated_n60",
+                       "theta_19_20_19_truncated"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
