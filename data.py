@@ -130,7 +130,8 @@ def generate_multi_path_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarra
     return adj
 
 
-def generate_stitched_theta_graph(n: int, sizes: tuple[int, ...] = (20, 20, 20)) -> np.ndarray:
+def generate_stitched_theta_graph(n: int, sizes: tuple[int, ...] = (20, 20, 20),
+                                   n_isolated: int = 0) -> np.ndarray:
     """Training-distribution version of eval_n60_multipath_v2.py's Construction B
     (2026-08-31, Edoardo -- train directly on graphs containing a genuine long-range
     redundant-route pair, instead of testing an already-trained plain-disjoint-path model
@@ -141,13 +142,22 @@ def generate_stitched_theta_graph(n: int, sizes: tuple[int, ...] = (20, 20, 20))
     through the outer two. With sizes=(20,20,20) the three routes are 19/21/21 edges, so the
     hub pair's true shortest-path distance is 19, past the 2*3^L=18 wall, in EVERY sample of
     this family (not just some, unlike a fully randomised route-length design). No self-loops;
-    node order NOT permuted (permute at the call site, as in every other generator here)."""
+    node order NOT permuted (permute at the call site, as in every other generator here).
+
+    ``n_isolated`` (2026-09-01, Edoardo): pads the canvas with that many degree-0 singleton
+    nodes when ``sum(sizes) < n`` (e.g. sizes=(19,20,19), n_isolated=2 at n=60 -- the middle
+    component still gives a direct hub-hub route of 19 edges, but the two outer components
+    now give 20-edge routes instead of 21, i.e. routes 19/20/20 -- plus 2 nodes with no edges
+    at all)."""
     if len(sizes) != 3:
         raise ValueError(f"expected exactly 3 components (theta needs a middle one), got {sizes}")
-    adj = generate_multi_path_split_graph(n, sizes)
+    if sum(sizes) + n_isolated != n:
+        raise ValueError(f"sizes+n_isolated must sum to n={n}, got {sizes}+{n_isolated}")
+    full_sizes = tuple(sizes) + (1,) * n_isolated
+    adj = generate_multi_path_split_graph(n, full_sizes)
     a0, a1 = 0, sizes[0] - 1
     b0, b1 = sizes[0], sizes[0] + sizes[1] - 1
-    c0, c1 = sizes[0] + sizes[1], n - 1
+    c0, c1 = sizes[0] + sizes[1], sizes[0] + sizes[1] + sizes[2] - 1
     for u, v in [(a0, b0), (a1, b1), (b0, c0), (b1, c1)]:
         adj[u, v] = adj[v, u] = 1.0
     return adj

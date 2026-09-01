@@ -45,7 +45,8 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_split_chains_graph, generate_split_cycles_graph,
                   generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
                   generate_split_regular_graph, generate_directed_chain_graph,
-                  generate_stitched_theta_graph, generate_multipath_graph)
+                  generate_stitched_theta_graph, generate_multipath_graph,
+                  generate_multi_path_split_graph)
 
 # Families whose target is directed reachability (compute_directed_reachability_matrix)
 # instead of undirected connectivity (compute_connectivity_matrix). 2026-08-28: the
@@ -138,6 +139,28 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
         else:
             built = generate_multipath_graph(n, 2, [20, 20], rng, term_deg=2, fill=True)
             a = built[0]
+    # Report X (2026-09-01, Edoardo): the redundant_mix run above (theta 19/21/21 vs
+    # two-route+filler) timed out with val_exact frozen -- these four narrower families
+    # isolate WHICH of three shapes a model can learn on its own, plus a redo of the 50/50
+    # mix with a cleaner second shape (same theta construction, not the two-route+filler
+    # one, so both halves of the mix are structurally comparable): (1) "theta_20_20_20", the
+    # usual stitched theta alone (routes 19/21/21); (2) "chain3_20_20_20", the plain
+    # disjoint (20,20,20) 3-chain alone, NO stitching -- the no-redundancy baseline, fixed
+    # at this one split (unlike "path_union_k3"'s uniform-over-all-splits distribution);
+    # (3) "theta_19_20_19", stitched theta with sizes (19,20,19) + 2 isolated singleton
+    # nodes (routes 19/20/20, still past the 2*3^L=18 wall); (4) "redundant_mix2", a 50/50
+    # mix of (1) and (3).
+    elif kind == "theta_20_20_20":
+        a = generate_stitched_theta_graph(n, (20, 20, 20))
+    elif kind == "chain3_20_20_20":
+        a = generate_multi_path_split_graph(n, (20, 20, 20))
+    elif kind == "theta_19_20_19":
+        a = generate_stitched_theta_graph(n, (19, 20, 19), n_isolated=2)
+    elif kind == "redundant_mix2":
+        if rng.random() < 0.5:
+            a = generate_stitched_theta_graph(n, (20, 20, 20))
+        else:
+            a = generate_stitched_theta_graph(n, (19, 20, 19), n_isolated=2)
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -258,7 +281,8 @@ def main():
         families = [f.strip() for f in args.families.split(",") if f.strip()]
         known_extra = ["bridged", "split", "split_chains", "split_chains_grid", "split_cycles",
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
-                       "path_union_k3", "directed_chain", "redundant_mix"]
+                       "path_union_k3", "directed_chain", "redundant_mix",
+                       "theta_20_20_20", "chain3_20_20_20", "theta_19_20_19", "redundant_mix2"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "
