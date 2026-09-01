@@ -46,7 +46,8 @@ from data import (add_self_loops, compute_connectivity_matrix,
                   generate_split_cliques_asym_graph, generate_chorded_cycles_graph,
                   generate_split_regular_graph, generate_directed_chain_graph,
                   generate_stitched_theta_graph, generate_multipath_graph,
-                  generate_multi_path_split_graph, generate_stitched_theta_graph_truncated)
+                  generate_multi_path_split_graph, generate_stitched_theta_graph_truncated,
+                  generate_hub_truncated_arms_graph)
 
 # Families whose target is directed reachability (compute_directed_reachability_matrix)
 # instead of undirected connectivity (compute_connectivity_matrix). 2026-08-28: the
@@ -170,6 +171,16 @@ def sample_family(kind: str, n: int, rng: np.random.Generator, p: float) -> np.n
     # 3 apparent routes are fake.
     elif kind == "theta_20_20_20_truncated":
         a = generate_stitched_theta_graph_truncated(n, (20, 20, 20))
+    # Report X (2026-09-01, Edoardo): another truncated-hub ablation, requested with
+    # specific asymmetric sizes -- s,t joined by a single real route through 25 interior
+    # nodes (true distance 26), plus TWO independent truncated "false route" arms (top and
+    # bottom), each a 7-node dead-end off s and an 8-node dead-end off t (NOT joined to
+    # each other), so s,t still look like degree-3 hubs with 3 apparent routes but only the
+    # direct one is real; plus 3 fully isolated padding nodes.
+    # 2 + 25 + (7+8) + (7+8) + 3 = 60.
+    elif kind == "hub2arm_truncated_n60":
+        a = generate_hub_truncated_arms_graph(n, mid_interior=25, arms=[(7, 8), (7, 8)],
+                                               n_isolated=3)
     else: raise ValueError(kind)
     perm = rng.permutation(n)
     return a[np.ix_(perm, perm)]
@@ -292,7 +303,7 @@ def main():
                        "split_cycles_grid", "split_cliques", "chorded_cycles", "split_regular3",
                        "path_union_k3", "directed_chain", "redundant_mix",
                        "theta_20_20_20", "chain3_20_20_20", "theta_19_20_19", "redundant_mix2",
-                       "theta_20_20_20_truncated"]
+                       "theta_20_20_20_truncated", "hub2arm_truncated_n60"]
         unknown = [f for f in families if f not in (MIXED_FAMILIES + known_extra)]
         if unknown:
             raise ValueError(f"unknown family/families {unknown}; known: "

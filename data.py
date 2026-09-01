@@ -195,6 +195,43 @@ def generate_stitched_theta_graph_truncated(n: int, sizes: tuple[int, ...] = (20
     return adj
 
 
+def generate_hub_truncated_arms_graph(n: int, mid_interior: int, arms: list,
+                                       n_isolated: int = 0) -> np.ndarray:
+    """Two hub nodes s=0, t=1 joined by a SINGLE direct route through ``mid_interior``
+    interior nodes (true distance ``mid_interior+1``). For each ``(a, b)`` pair in
+    ``arms``, adds a truncated "false route": a dead-end chain of ``a`` nodes hanging off
+    s and a SEPARATE dead-end chain of ``b`` nodes hanging off t -- the two halves are
+    never joined, so s and t still look locally like degree-``1+len(arms)`` hubs (as many
+    apparent routes as ``len(arms)+1``) but only the direct middle route actually connects
+    them (2026-09-01, Edoardo -- generalises generate_stitched_theta_graph_truncated to
+    asymmetric arm lengths and an arbitrary number of arms, plus fully isolated padding
+    nodes). ``n_isolated`` extra nodes carry no edges at all. Requires
+    ``2 + mid_interior + sum(a+b for a,b in arms) + n_isolated == n``. No self-loops; node
+    order NOT permuted (permute at the call site, as in every other generator here)."""
+    total = 2 + mid_interior + sum(a + b for a, b in arms) + n_isolated
+    if total != n:
+        raise ValueError(f"sizes must sum to n={n}, got {total} "
+                          f"(mid_interior={mid_interior}, arms={arms}, n_isolated={n_isolated})")
+    adj = np.zeros((n, n), dtype=np.float32)
+    s, t = 0, 1
+    cur = 2
+    prev = s
+    for _ in range(mid_interior):
+        adj[prev, cur] = adj[cur, prev] = 1.0
+        prev = cur; cur += 1
+    adj[prev, t] = adj[t, prev] = 1.0
+    for a, b in arms:
+        prev = s
+        for _ in range(a):
+            adj[prev, cur] = adj[cur, prev] = 1.0
+            prev = cur; cur += 1
+        prev = t
+        for _ in range(b):
+            adj[prev, cur] = adj[cur, prev] = 1.0
+            prev = cur; cur += 1
+    return adj
+
+
 def generate_multi_cycle_split_graph(n: int, sizes: tuple[int, ...]) -> np.ndarray:
     """``len(sizes)`` disjoint CYCLES partitioning ALL n nodes into components of the given
     ordered sizes (``sum(sizes) == n``) -- the cycle analogue of
