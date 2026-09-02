@@ -60,7 +60,12 @@ def main():
     ap.add_argument("--n_graphs", type=int, default=64)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--tag", default="")
+    ap.add_argument("--splits", default="",
+                    help="comma-separated list of a values to compute (default: the module "
+                         "constant SPLITS, a=12..23); e.g. --splits 3,5,7,9,11 for the "
+                         "professor-requested a<12 panels (2026-09-02, Edoardo)")
     args = ap.parse_args()
+    splits = [int(x) for x in args.splits.split(",") if x.strip()] if args.splits else SPLITS
 
     out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -74,7 +79,7 @@ def main():
     rng = np.random.default_rng(args.seed)
 
     n_done = 0
-    for a in SPLITS:
+    for a in splits:
         base_adj = generate_split_chains_graph(n, a)
         Z = h2_Z_matrix(model, dev, n, base_adj, rng, args.n_graphs)
         boundary = a - 0.5
@@ -83,9 +88,9 @@ def main():
         print(f"  a={a}: wrote {out_f}")
         n_done += 1
 
-    print(f"DONE: {n_done}/{len(SPLITS)} splits written to {out}")
-    if n_done != len(SPLITS):
-        raise RuntimeError(f"only {n_done}/{len(SPLITS)} splits completed -- check the log above")
+    print(f"DONE: {n_done}/{len(splits)} splits written to {out}")
+    if n_done != len(splits):
+        raise RuntimeError(f"only {n_done}/{len(splits)} splits completed -- check the log above")
 
 
 if __name__ == "__main__":
