@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=r10th2020_1000
+#SBATCH --job-name=r10th2020_3000
 #SBATCH --account=3352759
 #SBATCH --partition=gpuh200
 #SBATCH --gpus=1
@@ -13,7 +13,7 @@
 # routes 19/21/21, all connected). seed 1000's earlier attempt (job 645336) was CANCELLED
 # and never resubmitted -- so ALL 5 seeds are fresh here, unlike the other 4 families in
 # this batch which already have a completed seed 1000.
-#   sbatch scripts/r10_n60_theta202020_seed1000.sbatch
+#   sbatch scripts/r10_n60_theta202020_seed3000.sbatch
 
 mkdir -p out
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
@@ -22,7 +22,7 @@ source ~/.bashrc
 conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
-SEED=1000
+SEED=3000
 OUT_ROOT="runs/report10/n60_train"
 
 python experiments2/train_families_n20.py \

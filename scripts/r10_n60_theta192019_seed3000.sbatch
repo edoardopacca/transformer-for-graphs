@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=r10th2020_1000
+#SBATCH --job-name=r10th1920_3000
 #SBATCH --account=3352759
 #SBATCH --partition=gpuh200
 #SBATCH --gpus=1
@@ -9,11 +9,10 @@
 #SBATCH --output=out/%x_%A.out
 #SBATCH --error=out/%x_%A.out
 #
-# Report X -- 2026-09-03, Edoardo: 5-seed batch for theta_20_20_20 (usual stitched theta,
-# routes 19/21/21, all connected). seed 1000's earlier attempt (job 645336) was CANCELLED
-# and never resubmitted -- so ALL 5 seeds are fresh here, unlike the other 4 families in
-# this batch which already have a completed seed 1000.
-#   sbatch scripts/r10_n60_theta202020_seed1000.sbatch
+# Report X -- 2026-09-03, Edoardo: 5-seed batch for theta_19_20_19 (routes 19/20/20 + 2
+# isolated nodes, all real). Seed 1000 already COMPLETED (job 645338) -- this is one of the
+# remaining 4 seeds.
+#   sbatch scripts/r10_n60_theta192019_seed3000.sbatch
 
 mkdir -p out
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
@@ -22,16 +21,16 @@ source ~/.bashrc
 conda activate graph_tf
 cd $SLURM_SUBMIT_DIR
 
-SEED=1000
+SEED=3000
 OUT_ROOT="runs/report10/n60_train"
 
 python experiments2/train_families_n20.py \
     --output_root "$OUT_ROOT" \
-    --families theta_20_20_20 --arch roberta --readout similarity --lambda_lap 0 \
+    --families theta_19_20_19 --arch roberta --readout similarity --lambda_lap 0 \
     --n_nodes 60 --p 0.05 \
     --train_steps 1000000 --batch_size 1000 --num_workers 16 --seed "$SEED"
 
-CKPT="$OUT_ROOT/n60_theta_20_20_20_roberta_similarity_lam0_seed${SEED}/last.pt"
+CKPT="$OUT_ROOT/n60_theta_19_20_19_roberta_similarity_lam0_seed${SEED}/last.pt"
 if [ ! -f "$CKPT" ]; then
   echo "training did not produce a checkpoint at $CKPT"
   exit 1
